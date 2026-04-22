@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  name      String
+  email     String
+  subject   String
+  phone     String?
+  ip        String?
+  ua        String?
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  movieId   Int
+  name      String   @default("Guest")
+  body      String
+  createdAt DateTime @default(now())
+  @@index([movieId])
+}
