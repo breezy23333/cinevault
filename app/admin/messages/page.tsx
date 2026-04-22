@@ -1,59 +1,81 @@
 // app/admin/messages/page.tsx
-import { prisma, } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 import Link from "next/link";
 
 const fmt = new Intl.DateTimeFormat("en-ZA", {
-  year: "numeric", month: "2-digit", day: "2-digit",
-  hour: "2-digit", minute: "2-digit", hour12: false,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
 });
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 20;
 
 type PageProps = {
-  searchParams: {
-    q?: string;
-    cursor?: string;        // last seen id (number as string)
-    dir?: "next" | "prev";  // which direction to page
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
   };
 };
 
 export default async function AdminMessages({ searchParams }: PageProps) {
-  const q = (searchParams.q || "").trim();
-  const dir: "next" | "prev" = (searchParams.dir as any) === "prev" ? "prev" : "next";
-  const cursorId = Number(searchParams.cursor || 0) || undefined;
+  const qValue = searchParams?.q;
+  const dirValue = searchParams?.dir;
+  const cursorValue = searchParams?.cursor;
 
-  // --- Typed search filter
-  const where: Prisma.ContactMessageWhereInput = q
-    ? {
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { email: { contains: q, mode: "insensitive" } },
-          { subject: { contains: q, mode: "insensitive" } },
-          { message: { contains: q, mode: "insensitive" } },
-          { phone: { contains: q, mode: "insensitive" } },
-        ],
-      }
-    : {};
+  const q =
+    typeof qValue === "string"
+      ? qValue.trim()
+      : Array.isArray(qValue)
+      ? (qValue[0] ?? "").trim()
+      : "";
 
-  // --- Cursor pagination without negative `take`
-  // newest first (id desc). For "next", fetch ids < cursor (older).
-  // For "prev", fetch ids > cursor (newer), then still order desc.
-  let extraIdFilter: Prisma.IntFilter | undefined = undefined;
-  if (cursorId) {
-    extraIdFilter = dir === "next" ? { lt: cursorId } : { gt: cursorId };
-  }
+  const dir: "next" | "prev" =
+    dirValue === "prev" || (Array.isArray(dirValue) && dirValue[0] === "prev")
+      ? "prev"
+      : "next";
+
+  const cursorString =
+    typeof cursorValue === "string"
+      ? cursorValue
+      : Array.isArray(cursorValue)
+      ? cursorValue[0]
+      : undefined;
+
+  const cursorId = cursorString || undefined; // use this if id is string
+
+  const searchWhere: Prisma.ContactMessageWhereInput = q
+  ? {
+      OR: [
+        { name: { contains: q } },
+        { email: { contains: q } },
+        { subject: { contains: q } },
+        { message: { contains: q } },
+        { phone: { contains: q } },
+      ],
+    }
+  : {};
+
+  const whereClause: Prisma.ContactMessageWhereInput = {
+    ...searchWhere,
+    ...(cursorId
+      ? {
+          id: dir === "next" ? { lt: cursorId } : { gt: cursorId },
+        }
+      : {}),
+  };
 
   const items = await prisma.contactMessage.findMany({
-    where: extraIdFilter ? { ...where, id: extraIdFilter } : where,
+    where: whereClause,
     orderBy: { id: "desc" },
     take: PAGE_SIZE,
   });
 
-  // Cursors for links (still newest→oldest view)
-  const prevCursor = items.length ? items[0].id : undefined;                    // first row id (newest in this page)
-  const nextCursor = items.length ? items[items.length - 1].id : undefined;     // last row id (oldest in this page)
+  const prevCursor = items.length ? items[0].id : undefined;
+  const nextCursor = items.length ? items[items.length - 1].id : undefined;
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -67,15 +89,22 @@ export default async function AdminMessages({ searchParams }: PageProps) {
               placeholder="Search name, email, subject…"
               className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 outline-none"
             />
-            <button className="rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-800">Search</button>
+            <button className="rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-800">
+              Search
+            </button>
           </form>
+
           <Link
             href={`/api/admin/messages/export${q ? `?q=${encodeURIComponent(q)}` : ""}`}
             className="rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-800"
           >
             Export CSV
           </Link>
-          <Link href="/" className="rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-800">
+
+          <Link
+            href="/"
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-800"
+          >
             Back to site
           </Link>
         </div>
@@ -98,12 +127,11 @@ export default async function AdminMessages({ searchParams }: PageProps) {
                   <th></th>
                 </tr>
               </thead>
+
               <tbody className="[&>tr:nth-child(even)]:bg-zinc-900/30">
                 {items.map((m) => (
                   <tr key={m.id} className="[&>td]:px-4 [&>td]:py-3 align-top">
-                    <td title={m.createdAt.toISOString()}>
-                      {format(m.createdAt, "yyyy-MM-dd HH:mm")}
-                    </td>
+                    <td title={m.createdAt.toISOString()}>{fmt.format(m.createdAt)}</td>
                     <td className="font-medium">{m.name}</td>
                     <td>
                       <div>{m.email}</div>
@@ -113,15 +141,7 @@ export default async function AdminMessages({ searchParams }: PageProps) {
                     <td className="max-w-[40ch] whitespace-pre-wrap text-zinc-200">{m.message}</td>
                     <td className="text-zinc-400">{m.ip || "—"}</td>
                     <td className="text-right">
-                      <form
-                        action={`/api/admin/messages/${m.id}`}
-                        method="post"
-                        onSubmit={(e) => {
-                          // runs in browser
-                          // eslint-disable-next-line no-alert
-                          if (!confirm("Delete this message?")) e.preventDefault();
-                        }}
-                      >
+                      <form action={`/api/admin/messages/${m.id}`} method="post">
                         <input type="hidden" name="_method" value="DELETE" />
                         <button className="rounded-lg border border-rose-500/40 px-3 py-1.5 text-rose-400 hover:bg-rose-500/10">
                           Delete
@@ -145,6 +165,7 @@ export default async function AdminMessages({ searchParams }: PageProps) {
               >
                 ◀ Prev
               </Link>
+
               <Link
                 className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-800"
                 href={`/admin/messages?dir=next${q ? `&q=${encodeURIComponent(q)}` : ""}${
