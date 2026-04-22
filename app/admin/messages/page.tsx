@@ -45,7 +45,7 @@ export default async function AdminMessages({ searchParams }: PageProps) {
       ? cursorValue[0]
       : undefined;
 
-  const cursorId = cursorString || undefined; // use this if id is string
+  const cursorId = cursorString || undefined;
 
   const searchWhere: Prisma.ContactMessageWhereInput = q
   ? {
