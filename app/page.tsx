@@ -46,8 +46,17 @@ const uniqueById = <T extends { id: number }>(arr: T[]) => {
 };
 
 // TMDB -> compact shelf card
-const toShelfMedia = (x: any) => ({
-  id: x.id,
+type ShelfItem = {
+  id: number;
+  media: "movie" | "tv";
+  title: string;
+  poster: string | null;
+  year: string;
+  rating?: number;
+};
+
+const toShelfMedia = (x: any): ShelfItem => ({
+  id: Number(x.id),
   media: x.media_type === "tv" ? "tv" : "movie",
   title: x.title || x.name || "Untitled",
   poster:
