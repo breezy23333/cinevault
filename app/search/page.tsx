@@ -64,13 +64,17 @@ function buildHref(nextPage: number, params: { q?: string; year?: number; genreI
 
 /* ---------------- page ---------------- */
 
-export default async function SearchPage(
-  { searchParams }: { searchParams?: SP } = {}
-) {
-  const qRaw = getParam(searchParams, "q");
-  const yearStr = getParam(searchParams, "year");
-  const genreStr = getParam(searchParams, "genre");
-  const pageStr = getParam(searchParams, "page");
+type PageProps = {
+  searchParams?: Promise<SP>;
+};
+
+export default async function SearchPage({ searchParams }: PageProps) {
+  const sp = (await searchParams) ?? {};
+
+  const qRaw = getParam(sp, "q");
+  const yearStr = getParam(sp, "year");
+  const genreStr = getParam(sp, "genre");
+  const pageStr = getParam(sp, "page");
 
   const q = qRaw.trim();
   const year = yearStr ? Number(yearStr) : undefined;
