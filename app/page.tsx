@@ -10,8 +10,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
 // runtime/perf
-export const runtime =
-  process.env.NODE_ENV === "development" ? "nodejs" : "edge";
+export const runtime = "nodejs";
 export const revalidate = 120;
 
 type Norm = {

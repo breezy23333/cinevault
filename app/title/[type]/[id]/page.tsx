@@ -2,7 +2,6 @@
 import {
   fetchTmdbTitle,
   fetchTmdbProviders,
-  searchWatchmodeByTmdb,
 } from "@/lib/fetchers";
 import TmdbProviders from "@/components/TmdbProviders";
 import YouTube from "@/components/YouTube"; // client component; safe to import here
@@ -34,9 +33,8 @@ export default async function TitlePage({ params, searchParams }: PageProps) {
   const region = (sp?.region ?? "ZA").toUpperCase();
 
   // Fetch data in parallel
-  const [t, w, providersByRegion] = await Promise.all([
+  const [t, providersByRegion] = await Promise.all([
     fetchTmdbTitle(tmdbId, type),
-    searchWatchmodeByTmdb(tmdbId),
     fetchTmdbProviders(tmdbId, type),
   ]);
 
@@ -57,9 +55,7 @@ export default async function TitlePage({ params, searchParams }: PageProps) {
 
   // Providers
   const tmdbPv = providersByRegion?.[region];
-  const wmSources = (w?.sources || []).filter(
-    (s: any) => !s.region || s.region.toUpperCase() === region
-  );
+  
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -93,24 +89,7 @@ export default async function TitlePage({ params, searchParams }: PageProps) {
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-2">Where to watch ({region})</h2>
 
-            {wmSources.length ? (
-              <ul className="space-y-2">
-                {wmSources.map((p: any, i: number) => (
-                  <li key={`${p.name}-${i}`}>
-                    <a
-                      className="underline hover:opacity-80"
-                      href={p.web_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {p.name} — {p.type} {p.price ? `• ${p.price}` : ""}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <TmdbProviders pv={tmdbPv} />
-            )}
+           <TmdbProviders pv={tmdbPv} />
 
             {/* Quick region switchers */}
             <div className="mt-4 text-sm opacity-80 flex gap-2">

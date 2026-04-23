@@ -11,8 +11,8 @@ import {
   getSimilarMovies,
 } from "@/lib/fetchers";
 
-export const runtime =
-  process.env.NODE_ENV === "development" ? "nodejs" : "edge";
+
+export const runtime = "nodejs";
 export const revalidate = 300;
 
 type TMDBVideo = { key?: string; site?: string; type?: string; official?: boolean };

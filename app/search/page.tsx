@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { discoverMovies, searchTitles } from "@/lib/fetchers";
 
-export const runtime = process.env.NODE_ENV === "development" ? "nodejs" : "edge";
+export const runtime = "nodejs";
 export const revalidate = 60;
 
 /* ---------------- helpers ---------------- */
