@@ -3,7 +3,18 @@ import Image from "next/image";
 import Link from "next/link";
 import HeroShowcase from "@/components/HeroShowcase";
 import { getPopularMovies, getTrendingAll } from "@/lib/fetchers";
-import type { Title } from "@/lib/fetchers";
+type Title = {
+  id: number;
+  media_type?: "movie" | "tv";
+  title?: string;
+  name?: string;
+  overview?: string;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+  release_date?: string;
+  first_air_date?: string;
+  vote_average?: number;
+};
 
 type Norm = {
   id: number;
