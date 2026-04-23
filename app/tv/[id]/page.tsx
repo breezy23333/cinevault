@@ -4,12 +4,17 @@ import { notFound } from "next/navigation";
 
 export const revalidate = 300;
 
-type PageProps = { params: { id: string } };
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
 function authHeaders() {
-  const bearer = process.env.TMDB_BEARER || process.env.TMDB_READ || process.env.TMDB_TOKEN;
+  const bearer =
+    process.env.TMDB_BEARER ||
+    process.env.TMDB_READ ||
+    process.env.TMDB_TOKEN;
   return bearer ? { Authorization: `Bearer ${bearer}` } : undefined;
 }
 
@@ -20,32 +25,47 @@ function withKey(url: string) {
 
 async function getTV(id: string) {
   const url = withKey(`${TMDB_BASE}/tv/${id}?language=en-US`);
-  const res = await fetch(url, { headers: authHeaders(), next: { revalidate: 300 } });
+  const res = await fetch(url, {
+    headers: authHeaders(),
+    next: { revalidate: 300 },
+  });
   if (!res.ok) return null;
   return res.json() as Promise<any>;
 }
 
 export default async function TvPage({ params }: PageProps) {
-  const data = await getTV(params.id);
+  const { id } = await params;
+  const data = await getTV(id);
+
   if (!data) notFound();
 
   const name = data.name || data.original_name || "Untitled";
   const year = (data.first_air_date || "").slice(0, 4);
   const overview = data.overview || "No overview yet.";
-  const poster = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : null;
-  const backdrop = data.backdrop_path ? `https://image.tmdb.org/t/p/w1280${data.backdrop_path}` : null;
+  const poster = data.poster_path
+    ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+    : null;
+  const backdrop = data.backdrop_path
+    ? `https://image.tmdb.org/t/p/w1280${data.backdrop_path}`
+    : null;
+
   const meta = [
     data.number_of_seasons ? `${data.number_of_seasons} season(s)` : "",
     data.number_of_episodes ? `${data.number_of_episodes} episodes` : "",
-  ].filter(Boolean).join(" • ");
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
   return (
     <main className="pb-16">
       <section className="relative">
         {backdrop && (
           <div className="absolute inset-0 -z-10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img alt="" src={backdrop} className="h-[46vh] w-full object-cover opacity-40" />
+            <img
+              alt=""
+              src={backdrop}
+              className="h-[46vh] w-full object-cover opacity-40"
+            />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/40 to-zinc-950" />
           </div>
         )}
@@ -66,7 +86,9 @@ export default async function TvPage({ params }: PageProps) {
               {name} {year && <span className="text-zinc-400">({year})</span>}
             </h1>
             <p className="mt-1 text-sm text-zinc-400">{meta}</p>
-            <p className="about-reveal mt-4 max-w-3xl leading-relaxed text-zinc-200">{overview}</p>
+            <p className="about-reveal mt-4 max-w-3xl leading-relaxed text-zinc-200">
+              {overview}
+            </p>
 
             <div className="mt-5 flex gap-2">
               <Link
