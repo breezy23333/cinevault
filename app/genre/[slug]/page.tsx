@@ -1,5 +1,12 @@
-// app/genre/[id]/page.tsx
-export default function GenrePage({ params }: { params: { id: string } }) {
-  return <div className="p-4">Genre #{params.id}</div>;
-}
+type PageProps = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
 
+export default async function GenrePage({ params }: PageProps) {
+  const { slug } = await params;
+
+  // use slug below
+  return <main>{slug}</main>;
+}
