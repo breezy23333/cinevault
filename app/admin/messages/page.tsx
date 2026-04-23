@@ -15,16 +15,19 @@ const fmt = new Intl.DateTimeFormat("en-ZA", {
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 20;
 
+type SearchParams = Promise<{
+  [key: string]: string | string[] | undefined;
+}>;
+
 type PageProps = {
-  searchParams?: {
-    [key: string]: string | string[] | undefined;
-  };
+  searchParams?: SearchParams;
 };
 
 export default async function AdminMessages({ searchParams }: PageProps) {
-  const qValue = searchParams?.q;
-  const dirValue = searchParams?.dir;
-  const cursorValue = searchParams?.cursor;
+  const sp = (await searchParams) ?? {};
+  const qValue = sp.q;
+  const dirValue = sp.dir;
+  const cursorValue = sp.cursor;
 
   const q =
     typeof qValue === "string"
