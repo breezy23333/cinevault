@@ -28,11 +28,17 @@ const withTimeout = <T,>(p: Promise<T>, ms = 8000, label = "fetch") =>
     new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`${label} timeout`)), ms)) as any,
   ]);
 
-export default async function MoviePage(
-  props: { params?: { id?: string } } = {}
-) {
-  const idStr = props?.params?.id;        // ✅ safe even if props is undefined
+type PageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export default async function MoviePage({ params }: PageProps) {
+  const { id: idStr } = await params;
+
   if (!idStr) return notFound();
+
   const id = Number(idStr);
   if (!Number.isFinite(id)) return notFound();
 
