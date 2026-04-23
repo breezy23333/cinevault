@@ -8,8 +8,7 @@ import YouTube from "@/components/YouTube"; // client component; safe to import 
 
 
 type PageProps = {
-  params: { type: "movie" | "tv"; id: string };
-  // In Next 15, searchParams is async in Server Components
+  params: Promise<{ type: "movie" | "tv"; id: string }>;
   searchParams: Promise<{ region?: string }>;
 };
 
@@ -25,16 +24,17 @@ function pickBestYoutube(videos: any[] = [], region: string) {
 }
 
 export default async function TitlePage({ params, searchParams }: PageProps) {
-  const type: "movie" | "tv" = params.type === "tv" ? "tv" : "movie";
-  const tmdbId = Number(params.id);
+  const { type, id } = await params;   // ✅ FIX
 
-  // ✅ await the dynamic API before using it (Next 15 rule)
+  const tmdbType: "movie" | "tv" = type === "tv" ? "tv" : "movie";
+  const tmdbId = Number(id);
+
   const sp = await searchParams;
   const region = (sp?.region ?? "ZA").toUpperCase();
 
   // Fetch data in parallel
   const [t, providersByRegion] = await Promise.all([
-    fetchTmdbTitle(tmdbId, type),
+    fetchTmdbTitle(tmdbId, tmdbType),
     fetchTmdbProviders(tmdbId, type),
   ]);
 
