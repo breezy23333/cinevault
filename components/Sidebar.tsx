@@ -3,8 +3,15 @@
 
 import { useEffect, useState } from 'react';
 
-export default function Sidebar() {
-  const [open, setOpen] = useState(false); // start closed
+export default function Sidebar({
+  children,
+}: {
+  open?: boolean;
+  onClose?: () => void;
+  children?: React.ReactNode;
+}) {
+
+const [open, setOpen] = useState(false);
 
   // ESC to close
   useEffect(() => {
@@ -53,6 +60,8 @@ export default function Sidebar() {
             className="w-full rounded-xl bg-white/10 px-3 py-2 placeholder-zinc-200 outline-none
                        ring-1 ring-white/10 focus:ring-white/30"
           />
+
+            {children}
 
           <Section
             title="System"

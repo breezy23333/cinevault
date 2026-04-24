@@ -52,46 +52,55 @@ async function tmdb(
     : { Accept: "application/json" };
 
   const url = toURL(path, params);
-
   let lastErr: any = null;
+
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const res = await fetchWithTimeout(url, { headers, next: { revalidate } }, timeoutMs);
+      const res = await fetchWithTimeout(
+        url,
+        {
+          headers: headers as HeadersInit,
+          next: { revalidate },
+        },
+        timeoutMs
+      );
+
       if (!res.ok) {
-        if ((res.status === 404 || res.status === 408) && isNonCritical(path)) return { results: [] };
+        if ((res.status === 404 || res.status === 408) && isNonCritical(path)) {
+          return { results: [] };
+        }
+
         let msg = `TMDB ${res.status} — ${path}`;
         try {
           const body = await res.json();
           if (body?.status_message) msg += `: ${body.status_message}`;
         } catch {}
+
         throw new Error(msg);
       }
+
       return await res.json();
-    // inside tmdb() catch
-} catch (err: any) {
-  lastErr = err;
+    } catch (err: any) {
+      lastErr = err;
 
-  // Treat timeouts, aborts, DNS/TLS and generic undici errors as network issues
-  const msg = String(err?.message || err);
-  const isNetwork =
-    err?.name === "AbortError" ||
-    /aborted|timeout|fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|UND_ERR/i.test(msg);
+      const msg = String(err?.message || err);
+      const isNetwork =
+        err?.name === "AbortError" ||
+        /aborted|timeout|fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|UND_ERR/i.test(msg);
 
-  if (isNetwork && attempt < MAX_RETRIES) {
-    await new Promise(r => setTimeout(r, 600 * (attempt + 1))); // tiny backoff
-    continue;
+      if (isNetwork && attempt < MAX_RETRIES) {
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+        continue;
+      }
+
+      if (isNetwork && isNonCritical(path)) return { results: [] };
+
+      if (isNetwork) throw new Error(`TMDB network error on ${path}`);
+
+      throw err;
+    }
   }
 
-  // For non-critical endpoints, keep the UI alive with empty data
-  if (isNetwork && isNonCritical(path)) return { results: [] };
-
-  // Bubble up a cleaner error for details endpoints
-  if (isNetwork) throw new Error(`TMDB network error on ${path}`);
-
-  throw err;
-}
-
-  }
   throw lastErr;
 }
 
