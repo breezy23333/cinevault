@@ -138,11 +138,13 @@ export default async function AdminMessages({ searchParams }: PageProps) {
                     <td className="font-medium">{m.name}</td>
                     <td>
                       <div>{m.email}</div>
-                      <div className="text-zinc-400">{m.phone || "—"}</div>
+                      <div className="text-zinc-400">{m.phone || "-"}</div>
                     </td>
                     <td className="font-medium">{m.subject}</td>
-                    <td className="max-w-[40ch] whitespace-pre-wrap text-zinc-200">{m.message}</td>
-                    <td className="text-zinc-400">{m.ip || "—"}</td>
+                    <td className="max-w-[40ch] whitespace-pre-wrap text-zinc-200">
+                      
+                    </td>
+                    <td className="text-zinc-400">{m.ip || "-"}</td>
                     <td className="text-right">
                       <form action={`/api/admin/messages/${m.id}`} method="post">
                         <input type="hidden" name="_method" value="DELETE" />
