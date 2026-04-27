@@ -174,3 +174,20 @@ export async function getMovieCredits(id: number) {
 export async function getSimilarMovies(id: number, page = 1) {
   return tmdb(`/movie/${id}/similar`, { page }, { revalidate: 300 });
 }
+
+// Detail (tv-specific)
+export async function getTVDetails(id: number) {
+  return tmdb(`/tv/${id}`, undefined, { revalidate: 300 });
+}
+
+export async function getTVVideos(id: number) {
+  return tmdb(`/tv/${id}/videos`, undefined, { revalidate: 300 });
+}
+
+export async function getTVCredits(id: number) {
+  return tmdb(`/tv/${id}/credits`, undefined, { revalidate: 300 });
+}
+
+export async function getSimilarTV(id: number, page = 1) {
+  return tmdb(`/tv/${id}/similar`, { page }, { revalidate: 300 });
+}
