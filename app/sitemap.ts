@@ -25,6 +25,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     37854, // One Piece
   ];
 
+  const movieIds = [
+  550, // Fight Club
+  155, // The Dark Knight
+  680, // Pulp Fiction
+  13, // Forrest Gump
+  238, // The Godfather
+  278, // The Shawshank Redemption
+  27205, // Inception
+  299536, // Avengers: Infinity War
+  157336, // Interstellar
+  603, // The Matrix
+  ];
+
   return [
     ...staticPages.map((page) => ({
       url: `${baseUrl}${page}`,
@@ -32,6 +45,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily" as const,
       priority: page === "" ? 1 : 0.8,
     })),
+
+    ...movieIds.map((id) => ({
+      url: `${baseUrl}/movie/${id}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    })),
+
 
     ...tvIds.map((id) => ({
       url: `${baseUrl}/tv/${id}`,
