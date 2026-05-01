@@ -228,19 +228,19 @@ export default async function MoviePage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   try {
     const { id } = await params;
     const movie = await getMovieDetails(Number(id));
 
     return {
-      title: `${movie.title || "Movie"} (${movie.release_date?.slice(0, 4) || ""}) | CineVault`,
-      description: movie.overview?.slice(0, 150) || "Watch movies on CineVault",
+      title: `${movie.title} (${movie.release_date?.slice(0, 4) || ""}) – Watch Online | CineVault`,
+      description: `Watch ${movie.title} online. Stream trailers, cast, and similar movies on CineVault.`,
     };
   } catch {
     return {
-      title: "Movie | CineVault",
-      description: "Watch movies on CineVault",
+      title: "Watch Movies Online | CineVault",
+      description: "Discover and watch movies on CineVault.",
     };
   }
 }
