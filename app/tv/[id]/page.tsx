@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -328,4 +329,20 @@ export default async function TvPage({ params }: PageProps) {
       </section>
     </main>
   );
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  try {
+    const tv = await getTVDetails(Number(params.id));
+
+    return {
+      title: `${tv.name || "TV Show"} (${tv.first_air_date?.slice(0, 4) || ""}) | CineVault`,
+      description: tv.overview?.slice(0, 150) || "Watch TV shows on CineVault",
+    };
+  } catch {
+    return {
+      title: "TV Show | CineVault",
+      description: "Watch TV shows on CineVault",
+    };
+  }
 }

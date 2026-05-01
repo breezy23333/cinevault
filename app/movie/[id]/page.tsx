@@ -1,4 +1,5 @@
 // app/movie/[id]/page.tsx
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -49,6 +50,7 @@ export default async function MoviePage({ params }: PageProps) {
     withTimeout(getMovieCredits(id), 8000, "credits"),
     withTimeout(getSimilarMovies(id), 8000, "similar"),
   ]);
+  
 
   const details: any =
     detailsRes.status === "fulfilled" ? detailsRes.value : null;
@@ -224,4 +226,20 @@ export default async function MoviePage({ params }: PageProps) {
       </section>
     </main>
   );
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  try {
+    const movie = await getMovieDetails(Number(params.id));
+
+    return {
+      title: `${movie.title || "Movie"} (${movie.release_date?.slice(0, 4) || ""}) | CineVault`,
+      description: movie.overview?.slice(0, 150) || "Watch movies on CineVault",
+    };
+  } catch {
+    return {
+      title: "Movie | CineVault",
+      description: "Watch movies on CineVault",
+    };
+  }
 }
