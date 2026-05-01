@@ -147,9 +147,20 @@ export default async function Home() {
     return { ...m, href: `/${m.media}/${m.id}` };
   });
 
-  const trendingShelf = trendingRaw.slice(0, MAX_SHELF).map((x: any) => {
+  const trendingMoviesShelf = trendingRaw
+  .filter((x: any) => x.media_type !== "tv")
+  .slice(0, MAX_SHELF)
+  .map((x: any) => {
     const m = toShelfMedia(x);
-    return { ...m, href: `/${m.media}/${m.id}` };
+    return { ...m, href: `/movie/${m.id}` };
+  });
+
+const trendingTvShelf = trendingRaw
+  .filter((x: any) => x.media_type === "tv")
+  .slice(0, MAX_SHELF)
+  .map((x: any) => {
+    const m = toShelfMedia(x);
+    return { ...m, href: `/tv/${m.id}` };
   });
 
   return (
@@ -170,8 +181,12 @@ export default async function Home() {
           </Panel>
 
           <Panel title="Trending movies">
-            <ShelfRow items={trendingShelf} />
-          </Panel>
+          <ShelfRow items={trendingMoviesShelf} />
+        </Panel>
+
+        <Panel title="Trending TV shows">
+          <ShelfRow items={trendingTvShelf} />
+        </Panel>
 
           <Panel title="Top news">
             <NewsStrip items={trendingRaw.slice(0, MAX_NEWS).map(toNews)} />
