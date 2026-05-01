@@ -228,9 +228,10 @@ export default async function MoviePage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const movie = await getMovieDetails(Number(params.id));
+    const { id } = await params;
+    const movie = await getMovieDetails(Number(id));
 
     return {
       title: `${movie.title || "Movie"} (${movie.release_date?.slice(0, 4) || ""}) | CineVault`,
