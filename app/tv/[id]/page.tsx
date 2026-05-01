@@ -331,25 +331,19 @@ export default async function TvPage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-
+export async function generateMetadata({ params }: PageProps) {
   try {
+    const { id } = await params;
     const tv = await getTVDetails(Number(id));
 
-    const title = tv.name || tv.original_name || "TV Show";
-    const year = tv.first_air_date ? tv.first_air_date.slice(0, 4) : "";
-
     return {
-      title: `${title}${year ? ` (${year})` : ""} | CineVault`,
-      description: tv.overview?.slice(0, 150) || `Watch ${title} on CineVault`,
+      title: `${tv.name} (${tv.first_air_date?.slice(0, 4) || ""}) – Watch TV Show Online | CineVault`,
+      description: `Watch ${tv.name} online. Stream episodes, cast, and similar shows on CineVault.`,
     };
-  } catch (error) {
-    console.error("TV metadata error:", error);
-
+  } catch {
     return {
-      title: "TV Show | CineVault",
-      description: "Watch TV shows on CineVault",
+      title: "Watch TV Shows Online | CineVault",
+      description: "Discover and watch TV shows on CineVault.",
     };
   }
 }
