@@ -331,15 +331,22 @@ export default async function TvPage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+
   try {
-    const tv = await getTVDetails(Number(params.id));
+    const tv = await getTVDetails(Number(id));
+
+    const title = tv.name || tv.original_name || "TV Show";
+    const year = tv.first_air_date ? tv.first_air_date.slice(0, 4) : "";
 
     return {
-      title: `${tv.name || "TV Show"} (${tv.first_air_date?.slice(0, 4) || ""}) | CineVault`,
-      description: tv.overview?.slice(0, 150) || "Watch TV shows on CineVault",
+      title: `${title}${year ? ` (${year})` : ""} | CineVault`,
+      description: tv.overview?.slice(0, 150) || `Watch ${title} on CineVault`,
     };
-  } catch {
+  } catch (error) {
+    console.error("TV metadata error:", error);
+
     return {
       title: "TV Show | CineVault",
       description: "Watch TV shows on CineVault",
