@@ -191,3 +191,17 @@ export async function getTVCredits(id: number) {
 export async function getSimilarTV(id: number, page = 1) {
   return tmdb(`/tv/${id}/similar`, { page }, { revalidate: 300 });
 }
+
+export async function getTvByGenre(genreId: number, page = 1) {
+  return tmdb(
+    "/discover/tv",
+    {
+      include_adult: false,
+      sort_by: "popularity.desc",
+      page,
+      with_genres: String(genreId),
+      language: "en-US",
+    },
+    { revalidate: 120 }
+  );
+}

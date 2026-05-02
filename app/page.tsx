@@ -3,6 +3,7 @@ import {
   getPopularMovies,
   getTrendingAll,
   getMovieGenres,
+  getTvByGenre,
 } from "@/lib/fetchers";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import type { NewsItem } from "@/components/NewsStrip";
@@ -136,6 +137,12 @@ export default async function Home() {
       ? (genreRes.value as any)
       : [];
 
+  // ✅ TV categories
+  const dramaTv = await getTvByGenre(18);
+  const fantasyTv = await getTvByGenre(10765);
+  const crimeTv = await getTvByGenre(80);
+
+
   // heroes (dedupe + ensure backdrop)
   const heroes = uniqueById([...norm(trendingRaw), ...norm(popularRaw)])
     .filter((x) => x.backdrop)
@@ -163,6 +170,23 @@ const trendingTvShelf = trendingRaw
     return { ...m, href: `/tv/${m.id}` };
   });
 
+ 
+const dramaShelf = dramaTv.results.slice(0, MAX_SHELF).map((x: any) => {
+  const m = toShelfMedia({ ...x, media_type: "tv" });
+  return { ...m, href: `/tv/${m.id}` };
+});
+
+const fantasyShelf = fantasyTv.results.slice(0, MAX_SHELF).map((x: any) => {
+  const m = toShelfMedia({ ...x, media_type: "tv" });
+  return { ...m, href: `/tv/${m.id}` };
+});
+
+const crimeShelf = crimeTv.results.slice(0, MAX_SHELF).map((x: any) => {
+  const m = toShelfMedia({ ...x, media_type: "tv" });
+  return { ...m, href: `/tv/${m.id}` };
+});  
+
+
   return (
     <main className="pb-10">
       {/* ❗ HeroCarousel doesn’t take `genres` now */}
@@ -184,9 +208,23 @@ const trendingTvShelf = trendingRaw
           <ShelfRow items={trendingMoviesShelf} />
         </Panel>
 
-        <Panel title="Trending TV shows">
-          <ShelfRow items={trendingTvShelf} />
-        </Panel>
+        <TvHero />
+
+            <Panel title="Trending TV shows">
+              <ShelfRow items={trendingTvShelf} />
+            </Panel>
+
+            <Panel title="Drama TV shows">
+            <ShelfRow items={dramaShelf} />
+          </Panel>
+
+          <Panel title="Fantasy TV shows">
+            <ShelfRow items={fantasyShelf} />
+          </Panel>
+
+          <Panel title="Crime TV shows">
+            <ShelfRow items={crimeShelf} />
+          </Panel>
 
           <Panel title="Top news">
             <NewsStrip items={trendingRaw.slice(0, MAX_NEWS).map(toNews)} />
@@ -198,6 +236,35 @@ const trendingTvShelf = trendingRaw
 }
 
 /* ---------- UI helpers ---------- */
+
+function TvHero() {
+  return (
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#111827] via-[#172033] to-[#0b0f19] ring-1 ring-white/10 p-6 md:p-10">
+      <div className="max-w-2xl">
+        <p className="text-sm font-semibold text-yellow-400 mb-2">
+          TV Shows
+        </p>
+
+        <h2 className="text-2xl md:text-4xl font-black tracking-tight">
+          Find your next binge-worthy series
+        </h2>
+
+        <p className="mt-3 text-sm md:text-base text-white/70">
+          Explore trending shows, drama series, fantasy worlds, crime stories,
+          anime, and more.
+        </p>
+
+        <a
+          href="/tv"
+          className="inline-flex mt-5 rounded-full bg-yellow-400 px-5 py-2 text-sm font-bold text-black hover:bg-yellow-300 transition"
+        >
+          Browse TV Shows
+        </a>
+      </div>
+    </section>
+  );
+}
+
 
 function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
