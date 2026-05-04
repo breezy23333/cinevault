@@ -141,6 +141,8 @@ export default async function Home() {
   const dramaTv = await getTvByGenre(18);
   const fantasyTv = await getTvByGenre(10765);
   const crimeTv = await getTvByGenre(80);
+  const animeRaw = await getAnime();
+  const cartoonsRaw = await getCartoons();
 
 
   // heroes (dedupe + ensure backdrop)
@@ -186,6 +188,16 @@ const crimeShelf = crimeTv.results.slice(0, MAX_SHELF).map((x: any) => {
   return { ...m, href: `/tv/${m.id}` };
 });  
 
+const animeShelf = animeRaw.slice(0, MAX_SHELF).map((x: any) => {
+  const m = toShelfMedia({ ...x, media_type: "tv" });
+  return { ...m, href: `/tv/${m.id}` };
+});
+
+const cartoonShelf = cartoonsRaw.slice(0, MAX_SHELF).map((x: any) => {
+  const m = toShelfMedia({ ...x, media_type: "tv" });
+  return { ...m, href: `/tv/${m.id}` };
+});
+
 
   return (
     <main className="pb-10">
@@ -225,6 +237,14 @@ const crimeShelf = crimeTv.results.slice(0, MAX_SHELF).map((x: any) => {
           <Panel title="Crime TV shows">
             <ShelfRow items={crimeShelf} />
           </Panel>
+
+         <Panel title="Anime">
+          <ShelfRow items={animeShelf} />
+        </Panel>
+
+        <Panel title="Cartoons">
+          <ShelfRow items={cartoonShelf} />
+        </Panel> 
 
           <Panel title="Top news">
             <NewsStrip items={trendingRaw.slice(0, MAX_NEWS).map(toNews)} />
@@ -298,4 +318,22 @@ function RowSkeleton() {
       ))}
     </div>
   );
+}
+
+async function getAnime() {
+  const res = await fetch(
+    "https://api.themoviedb.org/3/discover/tv?with_keywords=210024&language=en-US",
+    { next: { revalidate: 300 } }
+  );
+  const data = await res.json();
+  return data.results || [];
+}
+
+async function getCartoons() {
+  const res = await fetch(
+    "https://api.themoviedb.org/3/discover/tv?with_genres=16&language=en-US",
+    { next: { revalidate: 300 } }
+  );
+  const data = await res.json();
+  return data.results || [];
 }
