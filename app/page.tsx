@@ -142,9 +142,6 @@ export default async function Home() {
   const fantasyTv = await getTvByGenre(10765);
   const crimeTv = await getTvByGenre(80);
   const animationTv = await getTvByGenre(16);
-  const animeRaw = await getAnime();
-  const cartoonsRaw = await getCartoons();
-
 
   // heroes (dedupe + ensure backdrop)
   const heroes = uniqueById([...norm(trendingRaw), ...norm(popularRaw)])
@@ -311,22 +308,3 @@ function RowSkeleton() {
   );
 }
 
-async function getAnime() {
-  const res = await fetch(
-    "https://api.themoviedb.org/3/discover/tv?with_genres=16&with_origin_country=JP&language=en-US",
-    { next: { revalidate: 300 } }
-  );
-
-  const data = await res.json();
-  return data.results || [];
-}
-
-async function getCartoons() {
-  const res = await fetch(
-    "https://api.themoviedb.org/3/discover/tv?with_genres=16&without_origin_country=JP&language=en-US",
-    { next: { revalidate: 300 } }
-  );
-
-  const data = await res.json();
-  return data.results || [];
-}
