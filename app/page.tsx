@@ -141,6 +141,7 @@ export default async function Home() {
   const dramaTv = await getTvByGenre(18);
   const fantasyTv = await getTvByGenre(10765);
   const crimeTv = await getTvByGenre(80);
+  const animationTv = await getTvByGenre(16);
   const animeRaw = await getAnime();
   const cartoonsRaw = await getCartoons();
 
@@ -149,6 +150,16 @@ export default async function Home() {
   const heroes = uniqueById([...norm(trendingRaw), ...norm(popularRaw)])
     .filter((x) => x.backdrop)
     .slice(0, MAX_HEROES);
+  const seriesHeroes = uniqueById(norm(trendingRaw))
+  .filter((x) => x.media === "tv" && x.backdrop)
+  .slice(0, MAX_HEROES);
+
+  const animationHeroes = uniqueById(
+    norm(animationTv.results.map((x: any) => ({ ...x, media_type: "tv" })))
+  )
+    .filter((x) => x.backdrop)
+    .slice(0, MAX_HEROES);
+
 
   // shelves
   const popularShelf = popularRaw.slice(0, MAX_SHELF).map((x: any) => {
@@ -220,7 +231,7 @@ const cartoonShelf = cartoonsRaw.slice(0, MAX_SHELF).map((x: any) => {
           <ShelfRow items={trendingMoviesShelf} />
         </Panel>
 
-        <TvHero />
+        <HeroCarousel items={seriesHeroes} />
 
             <Panel title="Trending TV shows">
               <ShelfRow items={trendingTvShelf} />
@@ -237,6 +248,8 @@ const cartoonShelf = cartoonsRaw.slice(0, MAX_SHELF).map((x: any) => {
           <Panel title="Crime TV shows">
             <ShelfRow items={crimeShelf} />
           </Panel>
+
+          <HeroCarousel items={animationHeroes} />
 
          <Panel title="Anime">
           <ShelfRow items={animeShelf} />
@@ -256,35 +269,6 @@ const cartoonShelf = cartoonsRaw.slice(0, MAX_SHELF).map((x: any) => {
 }
 
 /* ---------- UI helpers ---------- */
-
-function TvHero() {
-  return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#111827] via-[#172033] to-[#0b0f19] ring-1 ring-white/10 p-6 md:p-10">
-      <div className="max-w-2xl">
-        <p className="text-sm font-semibold text-yellow-400 mb-2">
-          TV Shows
-        </p>
-
-        <h2 className="text-2xl md:text-4xl font-black tracking-tight">
-          Find your next binge-worthy series
-        </h2>
-
-        <p className="mt-3 text-sm md:text-base text-white/70">
-          Explore trending shows, drama series, fantasy worlds, crime stories,
-          anime, and more.
-        </p>
-
-        <a
-          href="/tv"
-          className="inline-flex mt-5 rounded-full bg-yellow-400 px-5 py-2 text-sm font-bold text-black hover:bg-yellow-300 transition"
-        >
-          Browse TV Shows
-        </a>
-      </div>
-    </section>
-  );
-}
-
 
 function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
