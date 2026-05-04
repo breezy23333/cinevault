@@ -255,13 +255,31 @@ const cartoonShelf = animationTv.results
 
           <HeroCarousel items={animationHeroes} />
 
-         <Panel title="Anime">
+        <Panel
+          title={
+            <div className="flex justify-between items-center">
+              <span>Anime</span>
+              <a href="/anime" className="text-sm text-yellow-400 hover:underline">
+                View all →
+              </a>
+            </div>
+          }
+        >
           <ShelfRow items={animeShelf} />
         </Panel>
 
-        <Panel title="Cartoons">
-          <ShelfRow items={cartoonShelf} />
-        </Panel> 
+        <Panel
+          title={
+            <div className="flex justify-between items-center">
+              <span>Anime</span>
+              <a href="/anime" className="text-sm text-yellow-400 hover:underline">
+                View all →
+              </a>
+            </div>
+          }
+        >
+          <ShelfRow items={animeShelf} />
+        </Panel>
 
           <Panel title="Top news">
             <NewsStrip items={trendingRaw.slice(0, MAX_NEWS).map(toNews)} />
@@ -274,7 +292,7 @@ const cartoonShelf = animationTv.results
 
 /* ---------- UI helpers ---------- */
 
-function Panel({ title, children }: { title: string; children: ReactNode }) {
+function Panel({ title, children }: { title: ReactNode; children: ReactNode }) {
   return (
     <section className="rounded-2xl bg-[#0c111b] ring-1 ring-white/10 overflow-hidden">
       <div className="px-4 md:px-6 py-3 md:py-4">
