@@ -150,6 +150,7 @@ export default async function Home() {
   const heroes = uniqueById([...norm(trendingRaw), ...norm(popularRaw)])
     .filter((x) => x.backdrop)
     .slice(0, MAX_HEROES);
+
   const seriesHeroes = uniqueById(norm(trendingRaw))
   .filter((x) => x.media === "tv" && x.backdrop)
   .slice(0, MAX_HEROES);
@@ -200,6 +201,7 @@ const crimeShelf = crimeTv.results.slice(0, MAX_SHELF).map((x: any) => {
 });  
 
 const animeShelf = animationTv.results
+  .filter((x: any) => x.original_language === "ja")
   .slice(0, MAX_SHELF)
   .map((x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
@@ -207,7 +209,8 @@ const animeShelf = animationTv.results
   });
 
 const cartoonShelf = animationTv.results
-  .slice(6, 6 + MAX_SHELF)
+  .filter((x: any) => x.original_language !== "ja")
+  .slice(0, MAX_SHELF)
   .map((x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
     return { ...m, href: `/tv/${m.id}` };
