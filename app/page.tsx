@@ -322,18 +322,20 @@ function RowSkeleton() {
 
 async function getAnime() {
   const res = await fetch(
-    "https://api.themoviedb.org/3/discover/tv?with_keywords=210024&language=en-US",
+    "https://api.themoviedb.org/3/discover/tv?with_genres=16&with_origin_country=JP&language=en-US",
     { next: { revalidate: 300 } }
   );
+
   const data = await res.json();
   return data.results || [];
 }
 
 async function getCartoons() {
   const res = await fetch(
-    "https://api.themoviedb.org/3/discover/tv?with_genres=16&language=en-US",
+    "https://api.themoviedb.org/3/discover/tv?with_genres=16&without_origin_country=JP&language=en-US",
     { next: { revalidate: 300 } }
   );
+
   const data = await res.json();
   return data.results || [];
 }
