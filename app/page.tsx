@@ -199,15 +199,19 @@ const crimeShelf = crimeTv.results.slice(0, MAX_SHELF).map((x: any) => {
   return { ...m, href: `/tv/${m.id}` };
 });  
 
-const animeShelf = animeRaw.slice(0, MAX_SHELF).map((x: any) => {
-  const m = toShelfMedia({ ...x, media_type: "tv" });
-  return { ...m, href: `/tv/${m.id}` };
-});
+const animeShelf = animationTv.results
+  .slice(0, MAX_SHELF)
+  .map((x: any) => {
+    const m = toShelfMedia({ ...x, media_type: "tv" });
+    return { ...m, href: `/tv/${m.id}` };
+  });
 
-const cartoonShelf = cartoonsRaw.slice(0, MAX_SHELF).map((x: any) => {
-  const m = toShelfMedia({ ...x, media_type: "tv" });
-  return { ...m, href: `/tv/${m.id}` };
-});
+const cartoonShelf = animationTv.results
+  .slice(6, 6 + MAX_SHELF)
+  .map((x: any) => {
+    const m = toShelfMedia({ ...x, media_type: "tv" });
+    return { ...m, href: `/tv/${m.id}` };
+  });
 
 
   return (
