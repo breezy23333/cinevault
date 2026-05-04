@@ -17,11 +17,25 @@ const toShelfMedia = (x: any) => ({
 });
 
 export default async function AnimePage() {
-  const animationTv = await getTvByGenre(16);
+  const [page1, page2, page3, page4] = await Promise.all([
+    getTvByGenre(16, 1),
+    getTvByGenre(16, 2),
+    getTvByGenre(16, 3),
+    getTvByGenre(16, 4),
+    ]);
+
+    const animationTv = {
+    results: [
+        ...(page1.results || []),
+        ...(page2.results || []),
+        ...(page3.results || []),
+        ...(page4.results || []),
+    ],
+    };
 
   const animeShelf = animationTv.results
     .filter((x: any) => x.original_language === "ja")
-    .slice(0, MAX_SHELF)
+    .slice(0, 60)
     .map((x: any) => {
       const m = toShelfMedia(x);
       return { ...m, href: `/tv/${m.id}` };

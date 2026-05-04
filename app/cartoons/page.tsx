@@ -17,7 +17,21 @@ const toShelfMedia = (x: any) => ({
 });
 
 export default async function CartoonsPage() {
-  const animationTv = await getTvByGenre(16);
+  const [page1, page2, page3, page4] = await Promise.all([
+    getTvByGenre(16, 1),
+    getTvByGenre(16, 2),
+    getTvByGenre(16, 3),
+    getTvByGenre(16, 4),
+    ]);
+
+    const animationTv = {
+    results: [
+        ...(page1.results || []),
+        ...(page2.results || []),
+        ...(page3.results || []),
+        ...(page4.results || []),
+    ],
+    };
 
   const cartoonShelf = animationTv.results
     .filter((x: any) => x.original_language !== "ja")
