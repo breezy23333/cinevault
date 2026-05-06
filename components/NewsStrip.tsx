@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+
 
 export type NewsItem = {
   title: string;
@@ -55,9 +55,17 @@ export default function NewsStrip({ items }: { items: NewsItem[] }) {
             className="group w-[320px] shrink-0 snap-start overflow-hidden rounded-xl ring-1 ring-white/10 bg-zinc-900/40 hover:bg-zinc-900/60 transition"
           >
             <div className="relative h-[180px] bg-zinc-800">
-              {n.image && (
-                <Image src={n.image} alt={n.title} fill sizes="320px" className="object-cover" />
-              )}
+             {n.image ? (
+                <img
+                  src={n.image}
+                  alt={n.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-sm text-white/40">
+                  No image
+                </div>
+              )} 
             </div>
             <div className="p-3">
               <p className="line-clamp-2 text-sm">{n.title}</p>
