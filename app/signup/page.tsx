@@ -37,12 +37,12 @@ export default function SignupPage() {
             />
           </div>
 
-          <button
-            type="button"
-            className="w-full rounded-xl bg-yellow-400 text-black font-black py-3 hover:bg-yellow-300 transition"
-          >
+          <Link
+            href="/login"
+            className="block text-center w-full rounded-xl bg-yellow-400 text-black font-black py-3 hover:bg-yellow-300 transition"
+            >
             Create account
-          </button>
+          </Link>
         </form>
 
         <p className="text-sm text-white/50 mt-6">
