@@ -104,7 +104,7 @@ export default function Navbar() {
             <Link href="/notifications" className="p-2 rounded-lg hover:bg-white/10" aria-label="Notifications">
               <Bell className="w-5 h-5" />
             </Link>
-            <Link href="/account" className="p-2 rounded-lg hover:bg-white/10" aria-label="Account">
+            <Link href="/login" className="p-2 rounded-lg hover:bg-white/10" aria-label="Login">
               <User2 className="w-5 h-5" />
             </Link>
             <Link href="/search" className="md:hidden p-2 rounded-lg hover:bg-white/10" aria-label="Search">
