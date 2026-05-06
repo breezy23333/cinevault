@@ -5,6 +5,7 @@ import {
   getMovieGenres,
   getTvByGenre,
 } from "@/lib/fetchers";
+import { getEntertainmentNews } from "@/lib/news";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
@@ -86,6 +87,7 @@ function norm(list: unknown[]): Norm[] {
         typeof x.vote_average === "number"
           ? Math.round(x.vote_average * 10) / 10
           : undefined,
+          
     }));
 }
 
@@ -116,10 +118,11 @@ const NewsStrip = dynamic(() => import("@/components/NewsStrip"), {
 });
 
 export default async function Home() {
-  const [popularRes, trendingRes, genreRes] = await Promise.allSettled([
+  const [popularRes, trendingRes, genreRes, newsRes] = await Promise.allSettled([
     withTimeout(getPopularMovies(1), 8000, "popular"),
     withTimeout(getTrendingAll(1), 8000, "trending"),
     withTimeout(getMovieGenres(), 8000, "genres"),
+    withTimeout(getEntertainmentNews(), 8000, "news"),
   ]);
 
   const popularRaw: any[] =
@@ -136,6 +139,11 @@ export default async function Home() {
     genreRes.status === "fulfilled" && Array.isArray(genreRes.value as any)
       ? (genreRes.value as any)
       : [];
+
+  const newsItems =
+  newsRes.status === "fulfilled" && Array.isArray(newsRes.value)
+    ? newsRes.value
+    : [];    
 
   // ✅ TV categories
   const dramaTv = await getTvByGenre(18);
@@ -282,7 +290,7 @@ const cartoonShelf = animationTv.results
         </Panel>
 
           <Panel title="Top news">
-            <NewsStrip items={trendingRaw.slice(0, MAX_NEWS).map(toNews)} />
+            <NewsStrip items={newsItems.slice(0, MAX_NEWS)} />
           </Panel>
         </div>
       </Surface>
