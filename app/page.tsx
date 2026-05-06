@@ -271,14 +271,14 @@ const cartoonShelf = animationTv.results
         <Panel
           title={
             <div className="flex justify-between items-center">
-              <span>Anime</span>
-              <a href="/anime" className="text-sm text-yellow-400 hover:underline">
+              <span>Cartoons</span>
+              <a href="/cartoons" className="text-sm text-yellow-400 hover:underline">
                 View all →
               </a>
             </div>
           }
         >
-          <ShelfRow items={animeShelf} />
+          <ShelfRow items={cartoonShelf} />
         </Panel>
 
           <Panel title="Top news">
