@@ -1,41 +1,36 @@
 import { getTvByGenre } from "@/lib/fetchers";
-import dynamic from "next/dynamic";
 
 export const revalidate = 120;
 
-const ShelfRow = dynamic(() => import("@/components/ShelfRow"), { ssr: true });
-
-const MAX_SHELF = 24;
+const MAX_SHELF = 60;
 
 const toShelfMedia = (x: any) => ({
   id: Number(x.id),
-  media: "tv" as const,
   title: x.title || x.name || "Untitled",
   poster: x.poster_path ? `https://image.tmdb.org/t/p/w342${x.poster_path}` : null,
   year: String(x.release_date || x.first_air_date || "").slice(0, 4),
-  rating: typeof x.vote_average === "number" ? Math.round(x.vote_average * 10) / 10 : undefined,
 });
 
-export default async function AnimePage() {
-  const [page1, page2, page3, page4] = await Promise.all([
-    getTvByGenre(16, 1),
-    getTvByGenre(16, 2),
-    getTvByGenre(16, 3),
-    getTvByGenre(16, 4),
-    ]);
+export default async function AnimePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = Number(params.page || 1);
 
-    const animationTv = {
-    results: [
-        ...(page1.results || []),
-        ...(page2.results || []),
-        ...(page3.results || []),
-        ...(page4.results || []),
-    ],
-    };
+  const data = await getTvByGenre(16, currentPage);
 
-  const animeShelf = animationTv.results
+  const seen = new Set<number>();
+
+  const animeShelf = (data.results || [])
     .filter((x: any) => x.original_language === "ja")
-    .slice(0, 60)
+    .filter((x: any) => {
+      if (seen.has(x.id)) return false;
+      seen.add(x.id);
+      return true;
+    })
+    .slice(0, MAX_SHELF)
     .map((x: any) => {
       const m = toShelfMedia(x);
       return { ...m, href: `/tv/${m.id}` };
@@ -63,32 +58,48 @@ export default async function AnimePage() {
         </div>
       </section>
 
-    <div className="px-4 md:px-8 mt-8">
-  <h2 className="text-2xl font-black mb-6">Trending Anime</h2>
+      <div className="px-4 md:px-8 mt-8">
+        <h2 className="text-2xl font-black mb-6">Trending Anime</h2>
 
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-    {animeShelf.map((item: any) => (
-      <a
-        key={item.id}
-        href={item.href}
-        className="rounded-2xl overflow-hidden bg-[#0c111b] ring-1 ring-white/15 hover:scale-105 transition"
-      >
-        {item.poster && (
-          <img
-            src={item.poster}
-            alt={item.title}
-            className="w-full aspect-[2/3] object-cover"
-          />
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {animeShelf.map((item: any) => (
+            <a
+              key={item.id}
+              href={item.href}
+              className="rounded-2xl overflow-hidden bg-[#0c111b] ring-1 ring-white/15 hover:scale-105 transition"
+            >
+              {item.poster && (
+                <img
+                  src={item.poster}
+                  alt={item.title}
+                  className="w-full aspect-[2/3] object-cover"
+                />
+              )}
 
-        <div className="p-3">
-          <h3 className="font-bold text-sm line-clamp-2">{item.title}</h3>
-          <p className="text-xs text-white/50 mt-1">{item.year} • TV</p>
+              <div className="p-3">
+                <h3 className="font-bold text-sm line-clamp-2">{item.title}</h3>
+                <p className="text-xs text-white/50 mt-1">{item.year} • TV</p>
+              </div>
+            </a>
+          ))}
         </div>
-      </a>
-    ))}
-  </div>
-</div>
+
+        <div className="flex justify-center gap-3 mt-10">
+          {Array.from({ length: 20 }, (_, i) => i + 1).map((page) => (
+            <a
+              key={page}
+              href={`/anime?page=${page}`}
+              className={`px-4 py-2 rounded-full font-bold ring-1 ring-white/15 ${
+                currentPage === page
+                  ? "bg-yellow-400 text-black"
+                  : "bg-[#0c111b] text-white hover:bg-white/10"
+              }`}
+            >
+              {page}
+            </a>
+          ))}
+        </div>
+      </div>
     </main>
   );
 }
