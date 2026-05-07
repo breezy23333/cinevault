@@ -21,6 +21,8 @@ export type ShelfMedia = {
 export default function ShelfCard({ item, href }: { item: ShelfMedia; href: string }) {
   const score = typeof item.rating === "number" ? item.rating.toFixed(1) : null;
 
+  const hasTrailer = Boolean(item.trailer);
+
   const [style, setStyle] = useState({
     rotateX: "0deg",
     rotateY: "0deg",
@@ -72,7 +74,9 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
         style={{
           transform: `perspective(900px) rotateX(${style.rotateX}) rotateY(${style.rotateY})`,
         }}
-        className="group relative w-[140px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-300 hover:-translate-y-2 hover:scale-[1.03] hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]"
+        className={`group relative w-[140px] ${
+            hasTrailer ? "hover:w-[360px]" : ""
+          } shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-500 hover:-translate-y-2 hover:scale-[1.03] hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]`}
       >
       {/* animated border glow */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition duration-300 group-hover:opacity-100">
@@ -88,7 +92,9 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
       />
 
       <div className="relative z-20 overflow-hidden rounded-2xl bg-[#0d1117]">
-        <div className="relative aspect-[2/3] overflow-hidden bg-zinc-800">
+        <div className={`relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500 ${
+          hasTrailer ? "group-hover:aspect-video" : ""
+        }`}>
           {hovered && item.trailer ? (
             <div className="absolute inset-0">
               <ReactPlayer

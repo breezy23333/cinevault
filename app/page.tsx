@@ -55,6 +55,7 @@ type ShelfItem = {
   poster: string | null;
   year: string;
   rating?: number;
+  trailer?: string | null;
 };
 
 const toShelfMedia = (x: any): ShelfItem => ({
@@ -66,9 +67,11 @@ const toShelfMedia = (x: any): ShelfItem => ({
     (x.poster_path ? `https://image.tmdb.org/t/p/w342${x.poster_path}` : null),
   year: String(x.release_date || x.first_air_date || "").slice(0, 4),
   rating:
-    typeof x.vote_average === "number"
-      ? Math.round(x.vote_average * 10) / 10
-      : undefined,
+  typeof x.vote_average === "number"
+    ? Math.round(x.vote_average * 10) / 10
+    : undefined,
+
+    
 });
 
 function norm(list: unknown[]): Norm[] {
@@ -106,6 +109,53 @@ const toNews = (x: any): NewsItem => ({
 const MAX_HEROES = 6;
 const MAX_SHELF = 18;
 const MAX_NEWS = 12;
+
+const TMDB_BASE = "https://api.themoviedb.org/3";
+
+function tmdbAuthHeaders() {
+  const bearer =
+    process.env.TMDB_BEARER ||
+    process.env.TMDB_READ ||
+    process.env.TMDB_TOKEN ||
+    process.env.NEXT_PUBLIC_TMDB_TOKEN;
+
+  return bearer ? { Authorization: `Bearer ${bearer}` } : undefined;
+}
+
+function withApiKey(url: string) {
+  const key = process.env.TMDB_API_KEY;
+  return key ? `${url}${url.includes("?") ? "&" : "?"}api_key=${key}` : url;
+}
+
+async function getTrailerUrl(media: "movie" | "tv", id: number) {
+  try {
+    const url = withApiKey(`${TMDB_BASE}/${media}/${id}/videos?language=en-US`);
+
+    const res = await fetch(url, {
+      headers: tmdbAuthHeaders(),
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const videos = Array.isArray(data.results) ? data.results : [];
+
+    const trailer =
+      videos.find(
+        (v: any) =>
+          v.site === "YouTube" &&
+          v.type === "Trailer" &&
+          v.official === true
+      ) ||
+      videos.find((v: any) => v.site === "YouTube" && v.type === "Trailer") ||
+      videos.find((v: any) => v.site === "YouTube");
+
+    return trailer?.key ? `https://www.youtube.com/embed/${trailer.key}` : null;
+  } catch {
+    return null;
+  }
+}
 
 // ✅ dynamic imports (no duplicate identifiers)
 const ShelfRow = dynamic(() => import("@/components/ShelfRow"), {
@@ -168,59 +218,121 @@ export default async function Home() {
 
 
   // shelves
-  const popularShelf = popularRaw.slice(0, MAX_SHELF).map((x: any) => {
+  const popularShelf = await Promise.all(
+  popularRaw.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia(x);
-    return { ...m, href: `/${m.media}/${m.id}` };
-  });
+    const trailer = await getTrailerUrl(m.media, m.id);
 
-  const trendingMoviesShelf = trendingRaw
-  .filter((x: any) => x.media_type !== "tv")
-  .slice(0, MAX_SHELF)
-  .map((x: any) => {
-    const m = toShelfMedia(x);
-    return { ...m, href: `/movie/${m.id}` };
-  });
+    return {
+      ...m,
+      trailer,
+      href: `/${m.media}/${m.id}`,
+    };
+  })
+);
 
-const trendingTvShelf = trendingRaw
-  .filter((x: any) => x.media_type === "tv")
-  .slice(0, MAX_SHELF)
-  .map((x: any) => {
-    const m = toShelfMedia(x);
-    return { ...m, href: `/tv/${m.id}` };
-  });
+  const trendingMoviesShelf = await Promise.all(
+  trendingRaw
+    .filter((x: any) => x.media_type !== "tv")
+    .slice(0, MAX_SHELF)
+    .map(async (x: any) => {
+      const m = toShelfMedia(x);
+      const trailer = await getTrailerUrl("movie", m.id);
 
- 
-const dramaShelf = dramaTv.results.slice(0, MAX_SHELF).map((x: any) => {
-  const m = toShelfMedia({ ...x, media_type: "tv" });
-  return { ...m, href: `/tv/${m.id}` };
-});
+      return {
+        ...m,
+        trailer,
+        href: `/movie/${m.id}`,
+      };
+    })
+);
 
-const fantasyShelf = fantasyTv.results.slice(0, MAX_SHELF).map((x: any) => {
-  const m = toShelfMedia({ ...x, media_type: "tv" });
-  return { ...m, href: `/tv/${m.id}` };
-});
+const trendingTvShelf = await Promise.all(
+  trendingRaw
+    .filter((x: any) => x.media_type === "tv")
+    .slice(0, MAX_SHELF)
+    .map(async (x: any) => {
+      const m = toShelfMedia(x);
+      const trailer = await getTrailerUrl("tv", m.id);
 
-const crimeShelf = crimeTv.results.slice(0, MAX_SHELF).map((x: any) => {
-  const m = toShelfMedia({ ...x, media_type: "tv" });
-  return { ...m, href: `/tv/${m.id}` };
-});  
+      return {
+        ...m,
+        trailer,
+        href: `/tv/${m.id}`,
+      };
+    })
+);
 
-const animeShelf = animationTv.results
-  .filter((x: any) => x.original_language === "ja")
-  .slice(0, MAX_SHELF)
-  .map((x: any) => {
+const dramaShelf = await Promise.all(
+  dramaTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
-    return { ...m, href: `/tv/${m.id}` };
-  });
+    const trailer = await getTrailerUrl("tv", m.id);
 
-const cartoonShelf = animationTv.results
-  .filter((x: any) => x.original_language !== "ja")
-  .slice(0, MAX_SHELF)
-  .map((x: any) => {
+    return {
+      ...m,
+      trailer,
+      href: `/tv/${m.id}`,
+    };
+  })
+);
+
+const fantasyShelf = await Promise.all(
+  fantasyTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
-    return { ...m, href: `/tv/${m.id}` };
-  });
+    const trailer = await getTrailerUrl("tv", m.id);
 
+    return {
+      ...m,
+      trailer,
+      href: `/tv/${m.id}`,
+    };
+  })
+);
+
+const crimeShelf = await Promise.all(
+  crimeTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
+    const m = toShelfMedia({ ...x, media_type: "tv" });
+    const trailer = await getTrailerUrl("tv", m.id);
+
+    return {
+      ...m,
+      trailer,
+      href: `/tv/${m.id}`,
+    };
+  })
+);
+
+const animeShelf = await Promise.all(
+  animationTv.results
+    .filter((x: any) => x.original_language === "ja")
+    .slice(0, MAX_SHELF)
+    .map(async (x: any) => {
+      const m = toShelfMedia({ ...x, media_type: "tv" });
+      const trailer = await getTrailerUrl("tv", m.id);
+
+      return {
+        ...m,
+        trailer,
+        href: `/tv/${m.id}`,
+      };
+    })
+);
+
+const cartoonShelf = await Promise.all(
+  animationTv.results
+    .filter((x: any) => x.original_language !== "ja")
+    .slice(0, MAX_SHELF)
+    .map(async (x: any) => {
+      const m = toShelfMedia({ ...x, media_type: "tv" });
+      const trailer = await getTrailerUrl("tv", m.id);
+
+      return {
+        ...m,
+        trailer,
+        href: `/tv/${m.id}`,
+      };
+    })
+);
 
   return (
   <main className="relative min-h-screen overflow-x-hidden bg-[#05070d] pb-16 text-white">
