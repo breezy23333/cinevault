@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import UserRating from "@/components/UserRating";
 import Comments from "@/components/Comments";
+import TrailerModal from "@/components/TrailerModal";
 import {
   getMovieDetails,
   getMovieVideos,
@@ -133,16 +134,8 @@ export default async function MoviePage({ params }: PageProps) {
 
               {/* Actions (one clear block) */}
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                {ytKey && (
-                  <a
-                    href={`https://www.youtube.com/watch?v=${ytKey}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-black font-semibold px-5 py-2.5 shadow hover:brightness-105"
-                  >
-                    ▶ Trailer
-                  </a>
-                )}
+                {ytKey && <TrailerModal videoKey={ytKey} />}
+               
                 <Link
                   href={`/movie/${id}/watch`}
                   className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/20 px-5 py-2.5 hover:bg-white/15"
