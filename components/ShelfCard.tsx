@@ -92,7 +92,7 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
           {hovered && item.trailer ? (
             <div className="absolute inset-0">
               <ReactPlayer
-                url={item.trailer}
+                src={item.trailer}
                 playing
                 muted
                 width="100%"
