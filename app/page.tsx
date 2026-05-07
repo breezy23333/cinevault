@@ -223,7 +223,7 @@ const cartoonShelf = animationTv.results
 
 
   return (
-  <main className="relative min-h-screen overflow-hidden bg-[#05070d] pb-16 text-white">
+  <main className="relative min-h-screen overflow-x-hidden bg-[#05070d] pb-16 text-white">
     {/* cosmic background */}
     <div className="pointer-events-none fixed inset-0 z-0">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,184,0,0.18),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(80,120,255,0.18),transparent_32%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_35%)]" />
