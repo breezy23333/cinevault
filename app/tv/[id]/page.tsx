@@ -110,7 +110,7 @@ export default async function TvPage({ params }: PageProps) {
   const ytKey =
     videos.find(
       (v) =>
-        (v.type === "Trailer" || v.type === "Teaser") &&
+        v.type === "Trailer" &&
         v.site === "YouTube" &&
         v.official
     )?.key ?? videos.find((v) => v.site === "YouTube")?.key;

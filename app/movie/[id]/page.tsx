@@ -80,7 +80,7 @@ export default async function MoviePage({ params }: PageProps) {
 
   // prefer Official YouTube Trailer/Teaser
   const ytKey =
-    videos.find(v => (v.type === "Trailer" || v.type === "Teaser") && v.site === "YouTube" && v.official)?.key
+    videos.find(v => v.type === "Trailer" && v.site === "YouTube" && v.official)?.key
     ?? videos.find(v => v.site === "YouTube")?.key;
 
   // ---------- UI ----------

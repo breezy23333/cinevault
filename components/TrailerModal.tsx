@@ -31,15 +31,22 @@ export default function TrailerModal({ videoKey }: { videoKey: string }) {
           </button>
 
           <div className="w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_0_100px_rgba(255,184,0,0.2)]">
-            <div className="aspect-video w-full">
-              <ReactPlayer
-                src={`https://www.youtube.com/watch?v=${videoKey}`}
-                playing
-                muted={false}
-                controls
-                width="100%"
-                height="100%"
-              />
+            <div className="relative w-full overflow-hidden bg-black aspect-video">
+               <div className="relative aspect-video w-full overflow-hidden bg-black">
+                <ReactPlayer
+                    src={`https://www.youtube.com/watch?v=${videoKey}`}
+                    playing
+                    muted={false}
+                    controls
+                    width="100%"
+                    height="100%"
+                    style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    }}
+                />
+                </div> 
             </div>
           </div>
         </div>
