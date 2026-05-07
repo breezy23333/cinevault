@@ -1,4 +1,4 @@
-// DEPLOY FIX TEST
+//page.tsx
 import {
   getPopularMovies,
   getTrendingAll,
@@ -223,99 +223,151 @@ const cartoonShelf = animationTv.results
 
 
   return (
-    <main className="pb-10">
-      {/* ❗ HeroCarousel doesn’t take `genres` now */}
+  <main className="relative min-h-screen overflow-hidden bg-[#05070d] pb-16 text-white">
+    {/* cosmic background */}
+    <div className="pointer-events-none fixed inset-0 z-0">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,184,0,0.18),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(80,120,255,0.18),transparent_32%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_35%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,7,13,0.25),#05070d_85%)]" />
+      <div className="absolute inset-0 opacity-[0.08] bg-[repeating-linear-gradient(90deg,white_0px,white_1px,transparent_1px,transparent_90px)]" />
+    </div>
+
+    <div className="relative z-10">
       <HeroCarousel items={heroes} />
 
       <Surface>
-        <div className="space-y-6">
-          {Array.isArray(genres) && genres.length > 0 && (
-            <div className="pt-1">
-              <CategoriesTray genres={genres} />
+        <div className="space-y-8">
+          <section className="rounded-[28px] border border-yellow-400/20 bg-white/[0.035] p-4 shadow-[0_0_80px_rgba(255,184,0,0.08)] backdrop-blur-xl">
+            <div className="mb-4 flex items-center justify-between px-2">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-yellow-400">
+                  CineVault System
+                </p>
+                <h1 className="mt-2 text-2xl font-black md:text-4xl">
+                  Explore worlds beyond cinema
+                </h1>
+              </div>
+              <div className="hidden rounded-full border border-white/10 bg-black/30 px-4 py-2 text-xs text-white/60 md:block">
+                Live TMDB universe
+              </div>
             </div>
-          )}
 
-          <Panel title="More movies">
+            {Array.isArray(genres) && genres.length > 0 && (
+              <CategoriesTray genres={genres} />
+            )}
+          </section>
+
+          <Panel eyebrow="Popular galaxy" title="More movies">
             <ShelfRow items={popularShelf} />
           </Panel>
 
-          <Panel title="Trending movies">
-          <ShelfRow items={trendingMoviesShelf} />
-        </Panel>
+          <Panel eyebrow="Heat signal" title="Trending movies">
+            <ShelfRow items={trendingMoviesShelf} />
+          </Panel>
 
-        <HeroCarousel items={seriesHeroes} />
+          <FeatureBreak
+            title="Series Dimension"
+            text="A second cinematic layer for TV worlds, drama, fantasy, and crime stories."
+          />
 
-            <Panel title="Trending TV shows">
-              <ShelfRow items={trendingTvShelf} />
-            </Panel>
+          <HeroCarousel items={seriesHeroes} />
 
-            <Panel title="Drama TV shows">
+          <Panel eyebrow="Broadcast pulse" title="Trending TV shows">
+            <ShelfRow items={trendingTvShelf} />
+          </Panel>
+
+          <Panel eyebrow="Emotional worlds" title="Drama TV shows">
             <ShelfRow items={dramaShelf} />
           </Panel>
 
-          <Panel title="Fantasy TV shows">
+          <Panel eyebrow="Magic zone" title="Fantasy TV shows">
             <ShelfRow items={fantasyShelf} />
           </Panel>
 
-          <Panel title="Crime TV shows">
+          <Panel eyebrow="Dark files" title="Crime TV shows">
             <ShelfRow items={crimeShelf} />
           </Panel>
 
+          <FeatureBreak
+            title="Animation Universe"
+            text="Anime and cartoons separated into their own cinematic stream."
+          />
+
           <HeroCarousel items={animationHeroes} />
 
-        <Panel
-          title={
-            <div className="flex justify-between items-center">
-              <span>Anime</span>
-              <a href="/anime" className="text-sm text-yellow-400 hover:underline">
-                View all →
-              </a>
-            </div>
-          }
-        >
-          <ShelfRow items={animeShelf} />
-        </Panel>
+          <Panel
+            eyebrow="Japan signal"
+            title={
+              <div className="flex items-center justify-between">
+                <span>Anime</span>
+                <a href="/anime" className="text-sm text-yellow-400 hover:underline">
+                  View all →
+                </a>
+              </div>
+            }
+          >
+            <ShelfRow items={animeShelf} />
+          </Panel>
 
-        <Panel
-          title={
-            <div className="flex justify-between items-center">
-              <span>Cartoons</span>
-              <a href="/cartoons" className="text-sm text-yellow-400 hover:underline">
-                View all →
-              </a>
-            </div>
-          }
-        >
-          <ShelfRow items={cartoonShelf} />
-        </Panel>
+          <Panel
+            eyebrow="Animated worlds"
+            title={
+              <div className="flex items-center justify-between">
+                <span>Cartoons</span>
+                <a href="/cartoons" className="text-sm text-yellow-400 hover:underline">
+                  View all →
+                </a>
+              </div>
+            }
+          >
+            <ShelfRow items={cartoonShelf} />
+          </Panel>
 
-          <Panel title="Top news">
+          <Panel eyebrow="Industry radar" title="Top news">
             <NewsStrip items={newsItems.slice(0, MAX_NEWS)} />
           </Panel>
         </div>
       </Surface>
-    </main>
-  );
+    </div>
+  </main>
+);
 }
 
 /* ---------- UI helpers ---------- */
 
-function Panel({ title, children }: { title: ReactNode; children: ReactNode }) {
+function Panel({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  children: ReactNode;
+}) {
   return (
-    <section className="rounded-2xl bg-[#0c111b] ring-1 ring-white/10 overflow-hidden">
-      <div className="px-4 md:px-6 py-3 md:py-4">
-        <h2 className="text-lg md:text-xl font-bold">{title}</h2>
+    <section className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.045] shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl transition duration-300 hover:border-yellow-400/30 hover:bg-white/[0.06]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,184,0,0.13),transparent_35%)] opacity-0 transition duration-500 group-hover:opacity-100" />
+
+      <div className="relative px-4 py-4 md:px-6">
+        {eyebrow && (
+          <p className="mb-1 text-[10px] font-black uppercase tracking-[0.32em] text-yellow-400/80">
+            {eyebrow}
+          </p>
+        )}
+        <h2 className="text-xl font-black md:text-2xl">{title}</h2>
       </div>
-      <div className="px-2 md:px-4 pb-4">{children}</div>
+
+      <div className="relative px-2 pb-5 md:px-4">{children}</div>
     </section>
   );
 }
 
 function Surface({ children }: { children: ReactNode }) {
   return (
-    <section className="relative z-10 w-[100svw] left-1/2 -translate-x-1/2 -mt-8 md:-mt-10">
-      <div className="relative bg-[#0e131f] rounded-t-[28px] ring-1 ring-white/10 before:absolute before:inset-x-0 before:-top-px before:h-px before:bg-white/10">
-        <div className="mx-auto w-full max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] px-4 md:px-8 pt-6 pb-8 space-y-6">
+    <section className="relative z-10 w-[100svw] left-1/2 -translate-x-1/2 -mt-10 md:-mt-14">
+      <div className="relative rounded-t-[36px] border-t border-white/10 bg-[#070a12]/90 backdrop-blur-2xl">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-400/70 to-transparent" />
+
+        <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-6 md:px-8 md:pt-8">
           {children}
         </div>
       </div>
@@ -323,12 +375,27 @@ function Surface({ children }: { children: ReactNode }) {
   );
 }
 
-// simple skeleton
+function FeatureBreak({ title, text }: { title: string; text: string }) {
+  return (
+    <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-r from-yellow-400/10 via-white/[0.04] to-blue-500/10 p-6 backdrop-blur-xl md:p-8">
+      <div className="absolute right-8 top-1/2 hidden h-28 w-28 -translate-y-1/2 rounded-full border border-yellow-400/20 shadow-[0_0_60px_rgba(255,184,0,0.25)] md:block" />
+      <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+        CineVault Layer
+      </p>
+      <h2 className="mt-2 text-2xl font-black md:text-4xl">{title}</h2>
+      <p className="mt-2 max-w-2xl text-sm text-white/60 md:text-base">{text}</p>
+    </section>
+  );
+}
+
 function RowSkeleton() {
   return (
     <div className="flex gap-4 overflow-hidden">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-[270px] w-[180px] rounded-xl bg-white/5 animate-pulse" />
+        <div
+          key={i}
+          className="h-[270px] w-[180px] rounded-2xl bg-white/5 animate-pulse"
+        />
       ))}
     </div>
   );
