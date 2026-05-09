@@ -62,20 +62,21 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
     });
   }
 
-  return (
+return (
+  <>
     <Link
-        href={href}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => {
-          setHovered(false);
-          handleMouseLeave();
-        }}
-        style={{
-          transform: `perspective(900px) rotateX(${style.rotateX}) rotateY(${style.rotateY})`,
-        }}
-        className="group relative w-[140px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]"
-      >
+      href={href}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => {
+        setHovered(false);
+        handleMouseLeave();
+      }}
+      style={{
+        transform: `perspective(900px) rotateX(${style.rotateX}) rotateY(${style.rotateY})`,
+      }}
+      className="group relative w-[140px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]"
+    >
       {/* animated border glow */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition duration-300 group-hover:opacity-100">
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-400/40 via-blue-500/30 to-purple-500/40 blur-sm" />
@@ -90,19 +91,16 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
       />
 
       <div className="relative z-20 overflow-hidden rounded-2xl bg-[#0d1117]">
-        <div className={`relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500 ${
-          ""
-        }`}>
-
-            {item.poster && (
-              <Image
-                src={item.poster}
-                alt={item.title}
-                fill
-                sizes="140px"
-                className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
-              />
-            )}
+        <div className="relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500">
+          {item.poster && (
+            <Image
+              src={item.poster}
+              alt={item.title}
+              fill
+              sizes="140px"
+              className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
+            />
+          )}
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 
@@ -132,5 +130,21 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
         </div>
       </div>
     </Link>
-  );
+
+    {hovered && item.trailer && (
+      <div className="fixed z-[9999] left-1/2 top-28 w-[520px] -translate-x-1/2 overflow-hidden rounded-2xl border border-yellow-400/30 bg-black shadow-2xl">
+        <div className="relative aspect-video">
+          <ReactPlayer
+            src={item.trailer}
+            playing
+            muted
+            width="100%"
+            height="100%"
+            controls={false}
+          />
+        </div>
+      </div>
+     )}
+   </>
+);
 }
