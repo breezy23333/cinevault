@@ -93,24 +93,8 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
         <div className={`relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500 ${
           ""
         }`}>
-          {false && hovered && item.trailer ? (
-            <div className="absolute inset-0">
-              <ReactPlayer
-                src={item.trailer}
-                playing
-                muted
-                width="100%"
-                height="100%"
-                controls={false}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                }}
-              />
-            </div>
-          ) : (
-            item.poster && (
+
+            {item.poster && (
               <Image
                 src={item.poster}
                 alt={item.title}
@@ -118,8 +102,7 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
                 sizes="140px"
                 className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
               />
-            )
-          )}
+            )}
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 
