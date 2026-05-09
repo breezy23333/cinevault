@@ -131,20 +131,6 @@ return (
       </div>
     </Link>
 
-    {hovered && item.trailer && (
-      <div className="fixed z-[9999] left-1/2 top-28 w-[520px] -translate-x-1/2 overflow-hidden rounded-2xl border border-yellow-400/30 bg-black shadow-2xl">
-        <div className="relative aspect-video">
-          <ReactPlayer
-            src={item.trailer}
-            playing
-            muted
-            width="100%"
-            height="100%"
-            controls={false}
-          />
-        </div>
-      </div>
-     )}
    </>
 );
 }
