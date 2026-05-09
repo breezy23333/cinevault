@@ -142,6 +142,7 @@ export default function Navbar() {
             </button>
           </div>
           <nav className="px-3 py-2 space-y-2">
+            
             {LINKS.map(({ href, label }) => (
               <Link
                 key={href}
@@ -152,6 +153,33 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+
+            <div className="mt-6 rounded-xl border border-yellow-400/20 bg-white/[0.04] p-3">
+              <p className="mb-3 text-[11px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                Where to watch
+              </p>
+
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ["N", "Netflix"],
+                  ["D+", "Disney+"],
+                  ["P", "Prime"],
+                  ["TV", "Apple TV"],
+                  ["YT", "YouTube"],
+                ].map(([short, name]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/70 text-[10px] font-black text-white">
+                      {short}
+                    </span>
+                    <span className="text-xs font-semibold">{name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </nav>
         </aside>
       </div>
