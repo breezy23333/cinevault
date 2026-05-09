@@ -62,6 +62,7 @@ const [open, setOpen] = useState(false);
           />
 
             {children}
+            <WatchPlatforms />
 
           <Section
             title="System"
@@ -73,7 +74,7 @@ const [open, setOpen] = useState(false);
               { label: 'Language', hint: 'EN / FR / ES' },
             ]}
           />
-
+          
           <Section
             title="Favourites"
             items={[{ label: 'Sci-Fi' }, { label: 'Drama' }, { label: 'Comedy' }]}
@@ -111,6 +112,39 @@ function Section({
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function WatchPlatforms() {
+  const platforms = [
+    { label: "Netflix", short: "N" },
+    { label: "Disney+", short: "D+" },
+    { label: "Prime Video", short: "P" },
+    { label: "Apple TV", short: "TV" },
+    { label: "YouTube", short: "YT" },
+  ];
+
+  return (
+    <div className="rounded-xl border border-yellow-400/20 bg-black/30">
+      <div className="px-3 py-2 text-[11px] uppercase tracking-[0.2em] text-yellow-400">
+        Where to watch
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 px-2 pb-3">
+        {platforms.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/60 text-[10px] font-black text-white">
+              {p.short}
+            </span>
+            <span className="text-xs font-semibold">{p.label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

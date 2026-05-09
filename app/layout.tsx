@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WatchSidebar from "@/components/WatchSidebar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-[#0b0f1a] text-white antialiased overflow-x-hidden">
         <Navbar />
-
+        
       <main className="pt-24">
         {children}
       </main>
