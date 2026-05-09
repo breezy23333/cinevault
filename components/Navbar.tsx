@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { Menu, X, Search, Bell, User2 } from "lucide-react";
+import {
+  Menu,
+  X,
+  Search,
+  Bell,
+  User2,
+  PlaySquare,
+} from "lucide-react";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -142,7 +149,7 @@ export default function Navbar() {
             </button>
           </div>
           <nav className="px-3 py-2 space-y-2">
-            
+
             {LINKS.map(({ href, label }) => (
               <Link
                 key={href}
@@ -159,26 +166,44 @@ export default function Navbar() {
                 Where to watch
               </p>
 
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  ["N", "Netflix"],
-                  ["D+", "Disney+"],
-                  ["P", "Prime"],
-                  ["TV", "Apple TV"],
-                  ["YT", "YouTube"],
-                ].map(([short, name]) => (
-                  <button
-                    key={name}
-                    type="button"
-                    className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
-                  >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/70 text-[10px] font-black text-white">
-                      {short}
-                    </span>
-                    <span className="text-xs font-semibold">{name}</span>
-                  </button>
-                ))}
-              </div>
+              {[
+            {
+              name: "Netflix",
+              color: "bg-red-600",
+            },
+            {
+              name: "Disney+",
+              color: "bg-blue-600",
+            },
+            {
+              name: "Prime",
+              color: "bg-cyan-600",
+            },
+            {
+              name: "Apple TV",
+              color: "bg-zinc-700",
+            },
+            {
+              name: "YouTube",
+              color: "bg-red-500",
+            },
+          ].map((p) => (
+            <button
+              key={p.name}
+              type="button"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
+            >
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-lg text-white ${p.color}`}
+              >
+                <PlaySquare className="h-4 w-4" />
+              </span>
+
+              <span className="text-xs font-semibold">
+                {p.name}
+              </span>
+            </button>
+          ))}
             </div>
           </nav>
         </aside>
