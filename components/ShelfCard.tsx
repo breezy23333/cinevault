@@ -93,7 +93,7 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
         <div className={`relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500 ${
           ""
         }`}>
-          {hovered && item.trailer ? (
+          {false && hovered && item.trailer ? (
             <div className="absolute inset-0">
               <ReactPlayer
                 src={item.trailer}
