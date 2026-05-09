@@ -335,7 +335,7 @@ const cartoonShelf = await Promise.all(
 );
 
   return (
-  <main className="relative min-h-screen overflow-x-hidden bg-[#05070d] pb-16 text-white">
+  <div className="relative overflow-x-hidden bg-[#05070d] text-white">
     {/* cosmic background */}
     <div className="pointer-events-none fixed inset-0 z-0">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,184,0,0.18),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(80,120,255,0.18),transparent_32%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_35%)]" />
@@ -440,7 +440,7 @@ const cartoonShelf = await Promise.all(
         </div>
       </Surface>
     </div>
-  </main>
+  </div>
 );
 }
 
@@ -475,11 +475,11 @@ function Panel({
 
 function Surface({ children }: { children: ReactNode }) {
   return (
-    <section className="relative z-10 w-[100svw] left-1/2 -translate-x-1/2 -mt-10 md:-mt-14">
+    <section className="relative z-10 w-full -mt-10 md:-mt-14">
       <div className="relative rounded-t-[36px] border-t border-white/10 bg-[#070a12]/90 backdrop-blur-2xl">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-400/70 to-transparent" />
 
-        <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-6 md:px-8 md:pt-8">
+        <div className="mx-auto w-full max-w-[1500px] px-4 pb-0 pt-6 md:px-8 md:pt-8">
           {children}
         </div>
       </div>

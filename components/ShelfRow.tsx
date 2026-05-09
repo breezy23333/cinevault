@@ -40,8 +40,11 @@ export default function ShelfRow({ items }: { items: Item[] }) {
   };
 
   return (
-    <div className="relative">
-      <div ref={ref} className="-mx-1 flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory hide-scrollbar">
+    <div className="relative w-full max-w-full min-w-0 overflow-hidden">
+      <div
+        ref={ref}
+        className="w-full max-w-full min-w-0 flex gap-3 overflow-x-auto overflow-y-hidden pb-2 snap-x snap-mandatory hide-scrollbar"
+      >
         {items.map((m) => (
           <ShelfCard key={`${m.media}-${m.id}`} item={m} href={m.href} />
         ))}
