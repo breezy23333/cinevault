@@ -62,13 +62,29 @@ export default function Navbar() {
     recognition.start();
 
     recognition.onresult = (event: any) => {
-      const spokenText = event.results[0][0].transcript;
+      let spokenText = event.results[0][0].transcript.toLowerCase();
 
-      setQ(spokenText);
+        if (spokenText.includes("superheroes are evil")) {
+          spokenText = "The Boys";
+        }
 
-      router.push(
-        `/search?q=${encodeURIComponent(spokenText)}`
-      );
+        if (spokenText.includes("astronauts in space")) {
+          spokenText = "Interstellar";
+        }
+
+        if (spokenText.includes("blue aliens")) {
+          spokenText = "Avatar";
+        }
+
+        if (spokenText.includes("wizard school")) {
+          spokenText = "Harry Potter";
+        }
+
+        setQ(spokenText);
+
+        router.push(
+          `/search?q=${encodeURIComponent(spokenText)}`
+        );
     };
 
     recognition.onerror = () => {
