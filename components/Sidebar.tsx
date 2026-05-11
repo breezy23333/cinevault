@@ -118,11 +118,11 @@ function Section({
 
 function WatchPlatforms() {
   const platforms = [
-    { label: "Netflix", short: "N" },
-    { label: "Disney+", short: "D+" },
-    { label: "Prime Video", short: "P" },
-    { label: "Apple TV", short: "TV" },
-    { label: "YouTube", short: "YT" },
+    { label: "Netflix", short: "N", url: "https://www.netflix.com" },
+    { label: "Disney+", short: "D+", url: "https://www.disneyplus.com" },
+    { label: "Prime Video", short: "P", url: "https://www.primevideo.com" },
+    { label: "Apple TV", short: "TV", url: "https://tv.apple.com" },
+    { label: "YouTube", short: "YT", url: "https://www.youtube.com" },
   ];
 
   return (
@@ -133,16 +133,21 @@ function WatchPlatforms() {
 
       <div className="grid grid-cols-2 gap-2 px-2 pb-3">
         {platforms.map((p) => (
-          <button
+          <a
             key={p.label}
-            type="button"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative z-50 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/60 text-[10px] font-black text-white">
               {p.short}
             </span>
-            <span className="text-xs font-semibold">{p.label}</span>
-          </button>
+
+            <span className="text-xs font-semibold">
+              {p.label}
+            </span>
+          </a>
         ))}
       </div>
     </div>
