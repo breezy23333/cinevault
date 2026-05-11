@@ -297,23 +297,73 @@ export default async function TvPage({ params }: PageProps) {
           </div>
         )}
 
-          <section id="watch-section" className="mt-12">
+         <section id="watch-section" className="mt-12">
             <h2 className="mb-3 text-xl font-bold">Where to Watch</h2>
 
-            <p className="text-white/70 mb-4">
-              Streaming providers will appear here.
+            <p className="mb-4 text-white/70">
+              Best match is highlighted based on this show.
             </p>
 
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-              <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                Netflix
-              </div>
-              <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                Amazon Prime
-              </div>
-              <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                Disney+
-              </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {[
+                {
+                  name: "Netflix",
+                  url: `https://www.netflix.com/search?q=${encodeURIComponent(title)}`,
+                  color: "bg-red-600",
+                  active: false,
+                },
+                {
+                  name: "Disney+",
+                  url: `https://www.disneyplus.com/search?q=${encodeURIComponent(title)}`,
+                  color: "bg-blue-600",
+                  active: false,
+                },
+                {
+                  name: "Prime",
+                  url: `https://www.primevideo.com/search/ref=atv_nb_sr?phrase=${encodeURIComponent(title)}`,
+                  color: "bg-cyan-600",
+                  active: title.toLowerCase().includes("boys"),
+                },
+                {
+                  name: "Apple TV",
+                  url: `https://tv.apple.com/search?term=${encodeURIComponent(title)}`,
+                  color: "bg-zinc-700",
+                  active: false,
+                },
+                {
+                  name: "YouTube",
+                  url: `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " trailer")}`,
+                  color: "bg-red-500",
+                  active: false,
+                },
+              ].map((p) => (
+                <button
+                  key={p.name}
+                  type="button"
+                  onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
+                  className={`group rounded-2xl border p-4 text-left transition hover:-translate-y-1 ${
+                    p.active
+                      ? "border-yellow-400 bg-yellow-400 text-black shadow-[0_0_35px_rgba(250,204,21,0.35)]"
+                      : "border-white/10 bg-white/5 text-white hover:border-yellow-400/50 hover:bg-white/10"
+                  }`}
+                >
+                  <span
+                    className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-white ${p.color}`}
+                  >
+                    ▶
+                  </span>
+
+                  <span className="block text-sm font-bold">{p.name}</span>
+
+                  <span
+                    className={`mt-1 block text-xs ${
+                      p.active ? "text-black/70" : "text-white/45"
+                    }`}
+                  >
+                    {p.active ? "Best match" : "Search provider"}
+                  </span>
+                </button>
+              ))}
             </div>
           </section>
 
