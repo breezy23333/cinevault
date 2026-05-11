@@ -337,10 +337,11 @@ export default async function TvPage({ params }: PageProps) {
                   active: false,
                 },
               ].map((p) => (
-                <button
+                <a
                   key={p.name}
-                  type="button"
-                  onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`group rounded-2xl border p-4 text-left transition hover:-translate-y-1 ${
                     p.active
                       ? "border-yellow-400 bg-yellow-400 text-black shadow-[0_0_35px_rgba(250,204,21,0.35)]"
@@ -362,7 +363,7 @@ export default async function TvPage({ params }: PageProps) {
                   >
                     {p.active ? "Best match" : "Search provider"}
                   </span>
-                </button>
+                </a>
               ))}
             </div>
           </section>
