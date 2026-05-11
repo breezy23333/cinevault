@@ -64,7 +64,11 @@ function getIcon(type: Notification["type"]) {
   return Star;
 }
 
-export default function NotificationsClient() {
+export default function NotificationsClient({
+    tmdbNotifications = [],
+    }: {
+    tmdbNotifications?: Notification[];
+    }) {
   const [readIds, setReadIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -79,12 +83,14 @@ export default function NotificationsClient() {
   }
 
   function markAllAsRead() {
-    const allIds = notifications.map((n) => n.id);
+    const allIds = allNotifications.map((n) => n.id);
     setReadIds(allIds);
     localStorage.setItem("cinevault-read-notifications", JSON.stringify(allIds));
   }
 
-  const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
+  const allNotifications = [...tmdbNotifications, ...notifications];
+
+  const unreadCount = allNotifications.filter((n) => !readIds.includes(n.id)).length;
 
   return (
     <section className="mx-auto max-w-5xl">
