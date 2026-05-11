@@ -131,14 +131,12 @@ function WatchPlatforms() {
         Where to watch
       </div>
 
-      <div className="grid grid-cols-2 gap-2 px-2 pb-3">
-        {platforms.map((p) => (
-          <a
+      {platforms.map((p) => (
+          <button
             key={p.label}
-            href={p.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative z-50 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
+            type="button"
+            onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
+            className="relative z-[99999] flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/60 text-[10px] font-black text-white">
               {p.short}
@@ -147,9 +145,8 @@ function WatchPlatforms() {
             <span className="text-xs font-semibold">
               {p.label}
             </span>
-          </a>
+          </button>
         ))}
-      </div>
     </div>
   );
 }
