@@ -11,6 +11,7 @@ import {
   User2,
   PlaySquare,
   Sparkles,
+  Mic,
 } from "lucide-react";
 
 const LINKS = [
@@ -27,6 +28,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+ 
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -39,6 +41,39 @@ export default function Navbar() {
     e.preventDefault();
     const query = q.trim();
     if (query) router.push(`/search?q=${encodeURIComponent(query)}`);
+  }
+
+  function startVoiceSearch() {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.onresult = (event: any) => {
+      const spokenText = event.results[0][0].transcript;
+
+      setQ(spokenText);
+
+      router.push(
+        `/search?q=${encodeURIComponent(spokenText)}`
+      );
+    };
+
+    recognition.onerror = () => {
+      alert("Voice search failed.");
+    };
   }
 
   const isActive = (href: string) =>
@@ -111,6 +146,15 @@ export default function Navbar() {
           <div className="flex items-center gap-1">
             <Link href="/notifications" className="p-2 rounded-lg hover:bg-white/10" aria-label="Notifications">
               <Bell className="w-5 h-5" />
+            <button
+              type="button"
+              onClick={startVoiceSearch}
+              className="p-2 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+              aria-label="Voice search"
+              title="Describe a movie or show"
+            >
+              <Mic className="w-5 h-5" />
+            </button>  
             </Link>
             <Link href="/login" className="p-2 rounded-lg hover:bg-white/10" aria-label="Login">
               <User2 className="w-5 h-5" />
