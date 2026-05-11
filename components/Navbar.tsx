@@ -167,43 +167,49 @@ export default function Navbar() {
               </p>
 
               {[
-            {
-              name: "Netflix",
-              color: "bg-red-600",
-            },
-            {
-              name: "Disney+",
-              color: "bg-blue-600",
-            },
-            {
-              name: "Prime",
-              color: "bg-cyan-600",
-            },
-            {
-              name: "Apple TV",
-              color: "bg-zinc-700",
-            },
-            {
-              name: "YouTube",
-              color: "bg-red-500",
-            },
-          ].map((p) => (
-            <button
-              key={p.name}
-              type="button"
-              className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-lg text-white ${p.color}`}
-              >
-                <PlaySquare className="h-4 w-4" />
-              </span>
+                {
+                  name: "Netflix",
+                  color: "bg-red-600",
+                  url: "https://www.netflix.com",
+                },
+                {
+                  name: "Disney+",
+                  color: "bg-blue-600",
+                  url: "https://www.disneyplus.com",
+                },
+                {
+                  name: "Prime",
+                  color: "bg-cyan-600",
+                  url: "https://www.primevideo.com",
+                },
+                {
+                  name: "Apple TV",
+                  color: "bg-zinc-700",
+                  url: "https://tv.apple.com",
+                },
+                {
+                  name: "YouTube",
+                  color: "bg-red-500",
+                  url: "https://www.youtube.com",
+                },
+              ].map((p) => (
+                <button
+                  key={p.name}
+                  type="button"
+                  onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
+                  className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
+                >
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg text-white ${p.color}`}
+                  >
+                    <PlaySquare className="h-4 w-4" />
+                  </span>
 
-              <span className="text-xs font-semibold">
-                {p.name}
-              </span>
-            </button>
-          ))}
+                  <span className="text-xs font-semibold">
+                    {p.name}
+                  </span>
+                </button>
+              ))}
             </div>
           </nav>
         </aside>
