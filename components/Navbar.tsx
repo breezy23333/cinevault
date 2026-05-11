@@ -160,15 +160,15 @@ export default function Navbar() {
 
           {/* Right actions */}
         <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
+            <Link
+              href="/notifications"
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
               aria-label="Notifications"
-              title="Notifications coming soon"
             >
               <Bell className="h-5 w-5" />
-            </button>
 
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.8)]" />
+            </Link>
             <button
               type="button"
               onClick={startVoiceSearch}
