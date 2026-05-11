@@ -10,6 +10,7 @@ import {
   Bell,
   User2,
   PlaySquare,
+  Sparkles,
 } from "lucide-react";
 
 const LINKS = [
@@ -161,55 +162,71 @@ export default function Navbar() {
               </Link>
             ))}
 
-            <div className="mt-6 rounded-xl border border-yellow-400/20 bg-white/[0.04] p-3">
-              <p className="mb-3 text-[11px] font-black uppercase tracking-[0.2em] text-yellow-400">
-                Where to watch
-              </p>
+            <div className="mt-6 rounded-2xl border border-yellow-400/25 bg-gradient-to-br from-white/[0.08] to-white/[0.03] p-3 shadow-[0_0_30px_rgba(250,204,21,0.08)]">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-yellow-400">
+                  Where to watch
+                </p>
 
-              {[
-                {
-                  name: "Netflix",
-                  color: "bg-red-600",
-                  url: "https://www.netflix.com",
-                },
-                {
-                  name: "Disney+",
-                  color: "bg-blue-600",
-                  url: "https://www.disneyplus.com",
-                },
-                {
-                  name: "Prime",
-                  color: "bg-cyan-600",
-                  url: "https://www.primevideo.com",
-                },
-                {
-                  name: "Apple TV",
-                  color: "bg-zinc-700",
-                  url: "https://tv.apple.com",
-                },
-                {
-                  name: "YouTube",
-                  color: "bg-red-500",
-                  url: "https://www.youtube.com",
-                },
-              ].map((p) => (
-                <button
-                  key={p.name}
-                  type="button"
-                  onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
-                  className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-left transition hover:border-yellow-400/40 hover:bg-yellow-400 hover:text-black"
-                >
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg text-white ${p.color}`}
+                <Sparkles className="h-4 w-4 text-yellow-400" />
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  {
+                    name: "Netflix",
+                    color: "bg-red-600",
+                    url: "https://www.netflix.com",
+                    tag: "Movies & series",
+                  },
+                  {
+                    name: "Disney+",
+                    color: "bg-blue-600",
+                    url: "https://www.disneyplus.com",
+                    tag: "Marvel • Pixar",
+                  },
+                  {
+                    name: "Prime",
+                    color: "bg-cyan-600",
+                    url: "https://www.primevideo.com",
+                    tag: "Action picks",
+                  },
+                  {
+                    name: "Apple TV",
+                    color: "bg-zinc-700",
+                    url: "https://tv.apple.com",
+                    tag: "Premium originals",
+                  },
+                  {
+                    name: "YouTube",
+                    color: "bg-red-500",
+                    url: "https://www.youtube.com",
+                    tag: "Trailers & clips",
+                  },
+                ].map((p) => (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:border-yellow-400/50 hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_22px_rgba(250,204,21,0.25)]"
                   >
-                    <PlaySquare className="h-4 w-4" />
-                  </span>
+                    <span
+                      className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-lg ${p.color}`}
+                    >
+                      <PlaySquare className="h-4 w-4" />
+                    </span>
 
-                  <span className="text-xs font-semibold">
-                    {p.name}
-                  </span>
-                </button>
-              ))}
+                    <span className="min-w-0">
+                      <span className="block text-sm font-bold leading-tight">
+                        {p.name}
+                      </span>
+                      <span className="block truncate text-[10px] text-white/45 group-hover:text-black/60">
+                        {p.tag}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </nav>
         </aside>
