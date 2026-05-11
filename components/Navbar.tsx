@@ -143,26 +143,42 @@ export default function Navbar() {
           </form>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1">
-            <Link href="/notifications" className="p-2 rounded-lg hover:bg-white/10" aria-label="Notifications">
-              <Bell className="w-5 h-5" />
+        <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
+              aria-label="Notifications"
+              title="Notifications coming soon"
+            >
+              <Bell className="h-5 w-5" />
+            </button>
+
             <button
               type="button"
               onClick={startVoiceSearch}
-              className="p-2 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-[0_0_18px_rgba(250,204,21,0.35)] transition hover:scale-105 hover:bg-yellow-300"
               aria-label="Voice search"
               title="Describe a movie or show"
             >
-              <Mic className="w-5 h-5" />
-            </button>  
+              <Mic className="h-5 w-5" />
+            </button>
+
+            <Link
+              href="/login"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
+              aria-label="Login"
+            >
+              <User2 className="h-5 w-5" />
             </Link>
-            <Link href="/login" className="p-2 rounded-lg hover:bg-white/10" aria-label="Login">
-              <User2 className="w-5 h-5" />
+
+            <Link
+              href="/search"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white md:hidden"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
             </Link>
-            <Link href="/search" className="md:hidden p-2 rounded-lg hover:bg-white/10" aria-label="Search">
-              <Search className="w-5 h-5" />
-            </Link>
-          </div>
+          </div>  
         </nav>
       </header>
 
