@@ -1,8 +1,15 @@
 "use client";
+import { Bookmark } from "lucide-react";
+import {
+  isInWatchlist,
+  toggleWatchlist,
+} from "@/lib/watchlist";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
+
 import { MouseEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+
 
 const ReactPlayer = dynamic(() => import("react-player"), {
   ssr: false,
@@ -23,6 +30,8 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
 
   const hasTrailer = Boolean(item.trailer);
 
+  const router = useRouter();
+
   const [style, setStyle] = useState({
     rotateX: "0deg",
     rotateY: "0deg",
@@ -32,7 +41,11 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
 
   const [hovered, setHovered] = useState(false);
 
-  function handleMouseMove(e: MouseEvent<HTMLAnchorElement>) {
+  const [saved, setSaved] = useState(
+  isInWatchlist(item.id, item.media)
+  );
+
+  function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
 
@@ -62,27 +75,70 @@ export default function ShelfCard({ item, href }: { item: ShelfMedia; href: stri
     });
   }
 
+ function handleSave(e: React.MouseEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  toggleWatchlist({
+    id: item.id,
+    media_type: item.media,
+    title: item.title,
+    poster_path: item.poster || null,
+    release_date: item.year || null,
+    vote_average: item.rating,
+  });
+
+  setSaved(!saved);
+}
+
 return (
-  <>
-    <Link
-      href={href}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        handleMouseLeave();
-      }}
-      style={{
-        transform: `perspective(900px) rotateX(${style.rotateX}) rotateY(${style.rotateY})`,
-      }}
-      className="group relative w-[140px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]"
+  <div
+    onMouseMove={handleMouseMove}
+    onMouseEnter={() => setHovered(true)}
+    onMouseLeave={() => {
+      setHovered(false);
+      handleMouseLeave();
+    }}
+    style={{
+      transform: `perspective(900px) rotateX(${style.rotateX}) rotateY(${style.rotateY})`,
+    }}
+    className="group relative w-[140px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]"
+  >
+    <button
+      type="button"
+      onMouseDown={handleSave}
+      onClick={handleSave}
+      className={`absolute right-1.5 top-2 z-[9999] flex h-8 w-8 items-center justify-center rounded-md border ${
+        saved
+          ? "border-yellow-400 bg-yellow-400 text-black"
+          : "border-white/20 bg-black/80 text-white hover:border-yellow-400"
+      }`}
     >
-      {/* animated border glow */}
+      <Bookmark
+        size={15}
+        onMouseDown={handleSave}
+        onClick={handleSave}
+        fill={saved ? "currentColor" : "none"}
+      />
+    </button>
+
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("button")) return;
+        router.push(href);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") router.push(href);
+      }}
+      className="relative cursor-pointer"
+    >
       <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition duration-300 group-hover:opacity-100">
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-400/40 via-blue-500/30 to-purple-500/40 blur-sm" />
       </div>
 
-      {/* tracking cursor glow */}
       <div
         className="pointer-events-none absolute inset-0 z-10 opacity-0 transition duration-300 group-hover:opacity-100"
         style={{
@@ -105,7 +161,7 @@ return (
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 
           {score && (
-            <span className="absolute left-2 top-2 rounded-lg border border-yellow-400/30 bg-black/75 px-2 py-1 text-[11px] font-bold text-yellow-300 shadow-[0_0_18px_rgba(255,184,0,0.25)]">
+            <span className="absolute left-2 top-2 z-30 rounded-lg border border-yellow-400/30 bg-black/75 px-2 py-1 text-[11px] font-bold text-yellow-300">
               ⭐ {score}
             </span>
           )}
@@ -129,8 +185,7 @@ return (
           )}
         </div>
       </div>
-    </Link>
-
-   </>
+    </div>
+  </div>
 );
 }
