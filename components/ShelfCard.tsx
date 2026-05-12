@@ -1,5 +1,4 @@
 "use client";
-import { Bookmark } from "lucide-react";
 import {
   isInWatchlist,
   toggleWatchlist,
@@ -104,24 +103,6 @@ return (
     }}
     className="group relative w-[140px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/40 hover:shadow-[0_20px_60px_rgba(255,184,0,0.18)]"
   >
-    <button
-      type="button"
-      onMouseDown={handleSave}
-      onClick={handleSave}
-      className={`absolute right-1.5 top-2 z-[9999] flex h-8 w-8 items-center justify-center rounded-md border ${
-        saved
-          ? "border-yellow-400 bg-yellow-400 text-black"
-          : "border-white/20 bg-black/80 text-white hover:border-yellow-400"
-      }`}
-    >
-      <Bookmark
-        size={15}
-        onMouseDown={handleSave}
-        onClick={handleSave}
-        fill={saved ? "currentColor" : "none"}
-      />
-    </button>
-
     <div
       role="link"
       tabIndex={0}
