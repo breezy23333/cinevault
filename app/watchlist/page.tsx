@@ -49,9 +49,35 @@ export default function WatchlistPage() {
 
               <div className="p-3">
                 <p className="line-clamp-1 font-bold">{item.title}</p>
+
                 <p className="text-sm text-white/50">
                   {item.media_type.toUpperCase()} · {item.release_date || "—"}
                 </p>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    const next = items.filter(
+                      (x) =>
+                        !(
+                          x.id === item.id &&
+                          x.media_type === item.media_type
+                        )
+                    );
+
+                    localStorage.setItem(
+                      "cinevault_watchlist",
+                      JSON.stringify(next)
+                    );
+
+                    setItems(next);
+                  }}
+                  className="mt-3 w-full rounded-xl bg-red-500/10 px-3 py-2 text-sm font-bold text-red-300 hover:bg-red-500/20"
+                >
+                  Remove
+                </button>
               </div>
             </Link>
           ))}
