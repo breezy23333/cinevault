@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import UserRating from "@/components/UserRating";
 import Comments from "@/components/Comments";
 import TrailerModal from "@/components/TrailerModal";
+import WatchlistButton from "@/components/WatchlistButton";
 import {
   getTVDetails,
   getTVVideos,
@@ -196,7 +197,16 @@ export default async function TvPage({ params }: PageProps) {
                 >
                   Watch options
                 </a>
-                </div>
+
+                <WatchlistButton
+                  id={details.id}
+                  media_type="tv"
+                  title={title}
+                  poster_path={details.poster_path}
+                  release_date={details.first_air_date}
+                  vote_average={details.vote_average}
+                />
+              </div>
 
               <div className="mt-4">
                 <UserRating movieId={id} tmdb={rating} />

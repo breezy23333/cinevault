@@ -1,58 +1,62 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Bookmark, Bell, Film, Sparkles } from "lucide-react";
+import { getWatchlist, WatchlistItem } from "@/lib/watchlist";
 
 export default function WatchlistPage() {
+  const [items, setItems] = useState<WatchlistItem[]>([]);
+
+  useEffect(() => {
+    setItems(getWatchlist());
+  }, []);
+
   return (
-    <main className="min-h-screen bg-[#080d16] px-4 pb-20 pt-28 text-white">
-      <section className="mx-auto max-w-5xl">
-        <div className="mb-8 rounded-3xl border border-yellow-400/25 bg-gradient-to-br from-yellow-400/15 via-white/[0.04] to-transparent p-8">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400 text-black">
-            <Bookmark className="h-7 w-7" />
-          </div>
+    <main className="mx-auto min-h-screen max-w-6xl px-6 py-28">
+      <h1 className="text-4xl font-black">Watchlist</h1>
+      <p className="mt-3 text-white/60">
+        Your saved movies and shows appear here.
+      </p>
 
-          <h1 className="text-4xl font-black">Watchlist</h1>
-
-          <p className="mt-3 max-w-2xl text-white/65">
-            Save movies and shows you want to watch later. Soon, CineVault will
-            use this list for alerts, recommendations, and new episode updates.
-          </p>
+      {items.length === 0 ? (
+        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
+          <p className="text-white/70">No saved titles yet.</p>
         </div>
+      ) : (
+        <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
+          {items.map((item) => (
+            <Link
+              key={`${item.media_type}-${item.id}`}
+              href={`/${item.media_type}/${item.id}`}
+              className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:border-yellow-400/50"
+            >
+              <div className="relative aspect-[2/3] bg-zinc-800">
+                {item.poster_path && (
+                  <Image
+                    src={
+                      item.poster_path?.startsWith("http")
+                        ? item.poster_path
+                        : `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                    }
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="200px"
+                  />
+                )}
+              </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Link
-            href="/search"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-yellow-400/40 hover:bg-white/[0.07]"
-          >
-            <Film className="mb-4 h-8 w-8 text-yellow-400" />
-            <h2 className="font-bold">Find titles</h2>
-            <p className="mt-2 text-sm text-white/60">
-              Search movies and shows to start building your watchlist.
-            </p>
-          </Link>
-
-          <Link
-            href="/notifications"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-yellow-400/40 hover:bg-white/[0.07]"
-          >
-            <Bell className="mb-4 h-8 w-8 text-yellow-400" />
-            <h2 className="font-bold">Watchlist alerts</h2>
-            <p className="mt-2 text-sm text-white/60">
-              Saved titles will power future notifications and release alerts.
-            </p>
-          </Link>
-
-          <Link
-            href="/trending"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-yellow-400/40 hover:bg-white/[0.07]"
-          >
-            <Sparkles className="mb-4 h-8 w-8 text-yellow-400" />
-            <h2 className="font-bold">Trending picks</h2>
-            <p className="mt-2 text-sm text-white/60">
-              Discover popular titles and add them to your list next.
-            </p>
-          </Link>
+              <div className="p-3">
+                <p className="line-clamp-1 font-bold">{item.title}</p>
+                <p className="text-sm text-white/50">
+                  {item.media_type.toUpperCase()} · {item.release_date || "—"}
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
-      </section>
+      )}
     </main>
   );
 }

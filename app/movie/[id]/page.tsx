@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import UserRating from "@/components/UserRating";
 import Comments from "@/components/Comments";
 import TrailerModal from "@/components/TrailerModal";
+import WatchlistButton from "@/components/WatchlistButton";
 import {
   getMovieDetails,
   getMovieVideos,
@@ -134,15 +135,24 @@ export default async function MoviePage({ params }: PageProps) {
 
               {/* Actions (one clear block) */}
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                {ytKey && <TrailerModal videoKey={ytKey} />}
-               
-                <Link
-                  href={`/movie/${id}/watch`}
-                  className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/20 px-5 py-2.5 hover:bg-white/15"
-                >
-                  Watch options
-                </Link>
-              </div>
+                  {ytKey && <TrailerModal videoKey={ytKey} />}
+
+                  <Link
+                    href={`/movie/${id}/watch`}
+                    className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/20 px-5 py-2.5 hover:bg-white/15"
+                  >
+                    Watch options
+                  </Link>
+
+                  <WatchlistButton
+                    id={details.id}
+                    media_type="movie"
+                    title={details.title}
+                    poster_path={details.poster_path}
+                    release_date={details.release_date}
+                    vote_average={details.vote_average}
+                    />
+                </div>
 
               {/* User rating (TMDB + your stars) */}
               <div className="mt-4">
