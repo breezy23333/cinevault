@@ -44,12 +44,12 @@ export async function POST(req: Request) {
         name: user.name,
       },
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+  console.error("SIGNUP ERROR:", error);
 
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: error?.message || String(error) },
+    { status: 500 }
+  );
+}
 }
