@@ -13,18 +13,29 @@ async function getUserId() {
 }
 
 export async function GET() {
-  const userId = await getUserId();
+  try {
+    const userId = await getUserId();
 
-  if (!userId) {
-    return NextResponse.json({ items: [] });
+    if (!userId) {
+      return NextResponse.json({ items: [] });
+    }
+
+    const items = await prisma.watchlistItem.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ items });
+  } catch (error: any) {
+    console.error("WATCHLIST GET ERROR:", error);
+
+    return NextResponse.json(
+      {
+        error: error.message || "Watchlist failed",
+      },
+      { status: 500 }
+    );
   }
-
-  const items = await prisma.watchlistItem.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json({ items });
 }
 
 export async function POST(req: Request) {

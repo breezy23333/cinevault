@@ -22,6 +22,12 @@ export default function WatchlistPage() {
       credentials: "include",
     });
 
+    if (!res.ok) {
+      console.error("Watchlist API failed:", res.status);
+      setItems([]);
+      return;
+    }
+
     const data = await res.json();
     setItems(data.items || []);
   }
@@ -81,7 +87,6 @@ export default function WatchlistPage() {
 
               <div className="p-3">
                 <p className="line-clamp-1 font-bold">{item.title}</p>
-
                 <p className="text-sm text-white/50">
                   {item.mediaType.toUpperCase()} · {item.releaseDate || "—"}
                 </p>
