@@ -3,14 +3,46 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getWatchlist, WatchlistItem } from "@/lib/watchlist";
+
+type WatchlistItem = {
+  id: string;
+  tmdbId: number;
+  mediaType: "movie" | "tv";
+  title: string;
+  posterPath?: string | null;
+  releaseDate?: string | null;
+  voteAverage?: number | null;
+};
 
 export default function WatchlistPage() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
 
+  async function loadWatchlist() {
+    const res = await fetch("/api/watchlist", {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    setItems(data.items || []);
+  }
+
   useEffect(() => {
-    setItems(getWatchlist());
+    loadWatchlist();
   }, []);
+
+  async function removeItem(item: WatchlistItem) {
+    await fetch("/api/watchlist", {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tmdbId: item.tmdbId,
+        mediaType: item.mediaType,
+      }),
+    });
+
+    setItems((prev) => prev.filter((x) => x.id !== item.id));
+  }
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-28">
@@ -27,17 +59,17 @@ export default function WatchlistPage() {
         <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
           {items.map((item) => (
             <Link
-              key={`${item.media_type}-${item.id}`}
-              href={`/${item.media_type}/${item.id}`}
+              key={item.id}
+              href={`/${item.mediaType}/${item.tmdbId}`}
               className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:border-yellow-400/50"
             >
               <div className="relative aspect-[2/3] bg-zinc-800">
-                {item.poster_path && (
+                {item.posterPath && (
                   <Image
                     src={
-                      item.poster_path?.startsWith("http")
-                        ? item.poster_path
-                        : `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                      item.posterPath.startsWith("http")
+                        ? item.posterPath
+                        : `https://image.tmdb.org/t/p/w500${item.posterPath}`
                     }
                     alt={item.title}
                     fill
@@ -51,28 +83,14 @@ export default function WatchlistPage() {
                 <p className="line-clamp-1 font-bold">{item.title}</p>
 
                 <p className="text-sm text-white/50">
-                  {item.media_type.toUpperCase()} · {item.release_date || "—"}
+                  {item.mediaType.toUpperCase()} · {item.releaseDate || "—"}
                 </p>
 
                 <button
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-
-                    const next = items.filter(
-                      (x) =>
-                        !(
-                          x.id === item.id &&
-                          x.media_type === item.media_type
-                        )
-                    );
-
-                    localStorage.setItem(
-                      "cinevault_watchlist",
-                      JSON.stringify(next)
-                    );
-
-                    setItems(next);
+                    removeItem(item);
                   }}
                   className="mt-3 w-full rounded-xl bg-red-500/10 px-3 py-2 text-sm font-bold text-red-300 hover:bg-red-500/20"
                 >
