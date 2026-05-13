@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const { email, password } = body;
 
     if (!email || !password) {
@@ -19,24 +18,17 @@ export async function POST(req: Request) {
       where: { email },
     });
 
-    if (!user) {
+    if (!user || !user.password) {
       return NextResponse.json(
         { error: "Invalid login credentials" },
         { status: 401 }
       );
     }
 
-    if (!user.password) {
-        return NextResponse.json(
-            { error: "Invalid login credentials" },
-            { status: 401 }
-        );
-        }
-
-        const validPassword = await bcrypt.compare(
-        password,
-        user.password
-        );
+    const validPassword = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!validPassword) {
       return NextResponse.json(
@@ -45,7 +37,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -53,6 +45,24 @@ export async function POST(req: Request) {
         email: user.email,
       },
     });
+
+    res.cookies.set("cinevault_user", user.id, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    res.cookies.set("cinevault_user_id", user.id, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return res;
 
   } catch (error: any) {
     console.error("LOGIN ERROR:", error);
