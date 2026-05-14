@@ -1,4 +1,7 @@
+"use client";
+
 import { Bookmark, Bell, Clock, User2 } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   return (
@@ -24,9 +27,9 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <ProfileCard icon={<Bookmark />} title="Watchlist" text="Saved movies and shows." />
-          <ProfileCard icon={<Clock />} title="Continue Watching" text="Resume titles later." />
-          <ProfileCard icon={<Bell />} title="Notifications" text="New releases and alerts." />
+          <ProfileCard href="/watchlist" icon={<Bookmark />} title="Watchlist" text="Saved movies and shows." />
+            <ProfileCard href="/profile" icon={<Clock />} title="Continue Watching" text="Resume titles later." />
+            <ProfileCard href="/notifications" icon={<Bell />} title="Notifications" text="New releases and alerts." />
         </div>
       </section>
     </main>
@@ -34,21 +37,43 @@ export default function ProfilePage() {
 }
 
 function ProfileCard({
+  href,
   icon,
   title,
   text,
 }: {
+  href: string;
   icon: React.ReactNode;
   title: string;
   text: string;
-}) {
+}) 
+
+{
+
+function logout() {
+  localStorage.removeItem("cinevault_user");
+  document.cookie = "cinevault_user=; Max-Age=0; path=/";
+  document.cookie = "cinevault_user_id=; Max-Age=0; path=/";
+  window.location.href = "/login";
+}
+
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+    <Link
+      href={href}
+      className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-yellow-400/40 hover:bg-white/[0.07]"
+    >
       <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-300">
         {icon}
       </div>
       <h2 className="text-xl font-black">{title}</h2>
       <p className="mt-2 text-sm text-white/60">{text}</p>
-    </div>
+        <button
+            onClick={logout}
+            className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-5 py-3 font-bold text-red-300 transition hover:bg-red-500 hover:text-white"
+            >
+            Logout
+        </button>
+
+    </Link>
   );
 }
