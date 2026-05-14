@@ -106,13 +106,13 @@ export default function Navbar() {
     <>
       {/* Fixed, compact navbar that changes bg once scrolled */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 transition-colors ${
-          scrolled
-            ? "bg-[#0b0f1a]/70 backdrop-blur border-b border-white/10"
-            : "bg-transparent"
-        }`}
-      >
-        <nav className="mx-auto w-full max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] h-12 md:h-14 px-4 md:px-8 flex items-center gap-3">
+          className={`fixed top-0 inset-x-0 z-50 border-b border-white/10 transition-all duration-300 ${
+            scrolled
+              ? "bg-[#05070d]/95 backdrop-blur-xl"
+              : "bg-[#05070d]/80 backdrop-blur-md"
+          }`}
+        >
+       <nav className="mx-auto w-full max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] h-12 md:h-14 px-4 md:px-8 flex items-center gap-3">
           {/* Burger */}
           <button
             aria-label="Open menu"

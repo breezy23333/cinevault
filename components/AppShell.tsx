@@ -2,15 +2,27 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
-  const isAuthPage = pathname === "/login" || pathname === "/signup";
+
+  const isAuthPage =
+    pathname === "/login" || pathname === "/signup";
 
   return (
     <>
       {!isAuthPage && <Navbar />}
-      {children}
+
+      <main className={!isAuthPage ? "min-h-screen bg-[#05070d] pt-20 text-white" : ""}>
+        {children}
+        </main>
+
+      {!isAuthPage && <Footer />}
     </>
   );
 }

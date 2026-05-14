@@ -334,11 +334,11 @@ const cartoonShelf = await Promise.all(
     })
 );
 
-  return (
+ return (
   <div className="relative overflow-x-hidden bg-[#05070d] text-white">
     {/* cosmic background */}
     <div className="pointer-events-none fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,184,0,0.18),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(80,120,255,0.18),transparent_32%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_35%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,190,0,0.16),transparent_35%),radial-gradient(circle_at_75%_30%,rgba(100,80,255,0.2),transparent_35%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,7,13,0.25),#05070d_85%)]" />
       <div className="absolute inset-0 opacity-[0.08] bg-[repeating-linear-gradient(90deg,white_0px,white_1px,transparent_1px,transparent_90px)]" />
     </div>
