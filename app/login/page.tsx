@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -32,8 +33,12 @@ export default function LoginPage() {
       return;
     }
 
+    setSuccess(true);
     localStorage.setItem("cinevault_user", JSON.stringify(data.user));
-    router.push("/watchlist");
+
+    setTimeout(() => {
+      router.push("/");
+    }, 1200);
   }
 
   return (
@@ -85,8 +90,12 @@ export default function LoginPage() {
             <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email" className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-4 outline-none focus:border-yellow-400" />
             <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-4 outline-none focus:border-yellow-400" />
 
-            <button type="submit" disabled={loading} className="w-full rounded-2xl bg-yellow-400 px-4 py-4 font-black text-black shadow-[0_0_35px_rgba(250,204,21,0.25)] hover:bg-yellow-300 disabled:opacity-60">
-              {loading ? "Logging in..." : "Enter Watchlist"}
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="w-full rounded-2xl bg-yellow-400 px-4 py-4 font-black text-black shadow-[0_0_35px_rgba(250,204,21,0.25)] hover:bg-yellow-300 disabled:opacity-60"
+            >
+              {success ? "Opening CineVault..." : loading ? "Logging in..." : "Enter CineVault"}
             </button>
           </div>
 
