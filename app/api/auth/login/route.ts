@@ -25,10 +25,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const validPassword = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
       return NextResponse.json(
@@ -46,24 +43,18 @@ export async function POST(req: Request) {
       },
     });
 
-    res.cookies.set("cinevault_user", user.id, {
+    const cookieOptions = {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false,
+      sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
-    });
+    };
 
-    res.cookies.set("cinevault_user_id", user.id, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+    res.cookies.set("cinevault_user", user.id, cookieOptions);
+    res.cookies.set("cinevault_user_id", user.id, cookieOptions);
 
     return res;
-
   } catch (error: any) {
     console.error("LOGIN ERROR:", error);
 

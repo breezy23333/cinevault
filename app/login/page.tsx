@@ -13,11 +13,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  async function handleLogin(e: React.FormEvent | React.MouseEvent) {
+  e.preventDefault();
 
+  console.log("LOGIN BUTTON CLICKED");
+
+  setError("");
+  setLoading(true);
+
+  try {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       credentials: "include",
@@ -26,10 +30,12 @@ export default function LoginPage() {
     });
 
     const data = await res.json();
-    setLoading(false);
+
+    console.log("LOGIN RESPONSE:", res.status, data);
 
     if (!res.ok) {
       setError(data.error || "Invalid login credentials");
+      setLoading(false);
       return;
     }
 
@@ -37,16 +43,21 @@ export default function LoginPage() {
     localStorage.setItem("cinevault_user", JSON.stringify(data.user));
 
     setTimeout(() => {
-      router.push("/");
+      window.location.assign("/");
     }, 1200);
+  } catch (err) {
+    console.error("LOGIN FAILED:", err);
+    setError("Login failed. Check console.");
+    setLoading(false);
   }
+}
+
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#05070d] px-4 py-28 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,190,0,0.16),transparent_35%),radial-gradient(circle_at_75%_30%,rgba(100,80,255,0.2),transparent_35%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:70px_70px] opacity-20" />
-
-      <section className="relative mx-auto grid min-h-[calc(100vh-7rem)] max-w-6xl items-center gap-10 lg:grid-cols-2">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,190,0,0.16),transparent_35%),radial-gradient(circle_at_75%_30%,rgba(100,80,255,0.2),transparent_35%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:70px_70px] opacity-20" />
+      <section className="relative z-10 mx-auto grid min-h-[calc(100vh-7rem)] max-w-6xl items-center gap-10 lg:grid-cols-2">
         <div className="hidden lg:block">
           <p className="mb-4 text-xs font-black uppercase tracking-[0.45em] text-yellow-300">
             Welcome Back
@@ -91,7 +102,8 @@ export default function LoginPage() {
             <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-4 outline-none focus:border-yellow-400" />
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleLogin}
               disabled={loading || success}
               className="w-full rounded-2xl bg-yellow-400 px-4 py-4 font-black text-black shadow-[0_0_35px_rgba(250,204,21,0.25)] hover:bg-yellow-300 disabled:opacity-60"
             >
