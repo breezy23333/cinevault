@@ -197,7 +197,7 @@ export default function Navbar() {
               <Mic className="h-5 w-5" />
             </button>
 
-            {!isLoggedIn && (
+            {!isLoggedIn ? (
               <div className="hidden md:flex items-center gap-2">
                 <Link
                   href="/login"
@@ -213,6 +213,15 @@ export default function Navbar() {
                   Sign Up
                 </Link>
               </div>
+            ) : (
+              <Link
+                href="/profile"
+                className="hidden md:flex h-10 w-10 items-center justify-center rounded-xl border border-yellow-400/40 bg-yellow-400/10 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.18)] transition hover:bg-yellow-400 hover:text-black"
+                aria-label="Profile"
+                title="Logged in"
+              >
+                <User2 className="h-5 w-5" />
+              </Link>
             )}
 
             <Link
