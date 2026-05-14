@@ -29,6 +29,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
  
 
   useEffect(() => {
@@ -36,6 +37,11 @@ export default function Navbar() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+  const user = localStorage.getItem("cinevault_user");
+  setIsLoggedIn(!!user);
   }, []);
 
   function submit(e: FormEvent) {
@@ -191,22 +197,23 @@ export default function Navbar() {
               <Mic className="h-5 w-5" />
             </button>
 
-            {/* Login + Signup */}
-            <div className="hidden md:flex items-center gap-2">
-              <Link
-                href="/login"
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
-              >
-                Login
-              </Link>
+            {!isLoggedIn && (
+              <div className="hidden md:flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
+                >
+                  Login
+                </Link>
 
-              <Link
-                href="/signup"
-                className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black transition hover:bg-yellow-300"
-              >
-                Sign Up
-              </Link>
-            </div>
+                <Link
+                  href="/signup"
+                  className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black transition hover:bg-yellow-300"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
             <Link
               href="/search"
