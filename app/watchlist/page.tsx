@@ -75,7 +75,7 @@ function WatchRow({
 
       <div
         ref={rowRef}
-        className="hide-scrollbar flex gap-5 overflow-x-auto scroll-smooth pb-3"
+        className="hide-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-[35vw] pb-8 pt-4"
       >
         {items.map((item) => {
           const img = posterUrl(item.posterPath);
@@ -84,7 +84,7 @@ function WatchRow({
             <Link
               key={item.id}
               href={`/${item.mediaType}/${item.tmdbId}`}
-              className="group w-[190px] shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl transition hover:-translate-y-1 hover:border-yellow-400/50 hover:bg-white/[0.07]"
+              className="group w-[230px] shrink-0 snap-center overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl transition duration-300 hover:z-10 hover:-translate-y-4 hover:scale-110 hover:border-yellow-400/60 hover:bg-white/[0.08]"
             >
               <div className="relative aspect-[2/3] bg-zinc-900">
                 {img ? (
@@ -174,26 +174,38 @@ export default function WatchlistPage() {
     [items]
   );
 
-  const tvShows = useMemo(
-    () => items.filter((item) => item.mediaType === "tv"),
-    [items]
-  );
 
-  const animation = useMemo(
-    () =>
-      items.filter((item) => {
-        const title = item.title.toLowerCase();
-        return (
-          title.includes("anime") ||
-          title.includes("animation") ||
-          title.includes("cartoon") ||
-          title.includes("dragon ball") ||
-          title.includes("naruto") ||
-          title.includes("one piece")
-        );
-      }),
-    [items]
+  function isAnimation(item: WatchlistItem) {
+  const title = item.title.toLowerCase();
+
+  return (
+    title.includes("anime") ||
+    title.includes("animation") ||
+    title.includes("cartoon") ||
+    title.includes("dragon ball") ||
+    title.includes("naruto") ||
+    title.includes("one piece") ||
+    title.includes("shin chan") ||
+    title.includes("invincible") ||
+    title.includes("solo leveling") ||
+    title.includes("demon slayer") ||
+    title.includes("jujutsu kaisen") ||
+    title.includes("attack on titan")
   );
+}
+
+const animation = useMemo(
+  () => items.filter((item) => isAnimation(item)),
+  [items]
+);
+
+const tvShows = useMemo(
+  () =>
+    items.filter(
+      (item) => item.mediaType === "tv" && !isAnimation(item)
+    ),
+  [items]
+);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] px-6 py-28 text-white">
