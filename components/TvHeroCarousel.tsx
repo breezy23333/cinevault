@@ -44,19 +44,19 @@ export default function TvHeroCarousel({ items }: { items: Item[] }) {
 
   return (
     <section className="relative overflow-hidden rounded-[36px] border border-white/10 bg-black/30 px-6 py-12 shadow-2xl">
-      <div className="absolute inset-0 opacity-50">
-        {current.backdrop && (
-          <Image
-            src={current.backdrop}
-            alt={current.title}
-            fill
-            className="object-cover blur-md scale-110 opacity-40"
-            sizes="100vw"
-          />
-        )}
-      </div>
+      <div className="absolute inset-0">
+            <Image
+                key={current.id}
+                src={current.backdrop || current.poster!}
+                alt={current.title}
+                fill
+                className="object-cover opacity-45 blur-sm scale-110 transition-all duration-700"
+                sizes="100vw"
+            />
+            </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-[#05070d]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-[#05070d]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
 
       <div className="relative z-10 text-center">
         <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">

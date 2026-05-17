@@ -8,6 +8,7 @@ import {
 import { getEntertainmentNews } from "@/lib/news";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import ShowcaseCarousel from "@/components/ShowcaseCarousel";
+import ExpandableHeroCarousel from "@/components/ExpandableHeroCarousel";
 import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
@@ -210,7 +211,7 @@ export default async function Home() {
 
   const seriesHeroes = uniqueById(norm(trendingRaw))
   .filter((x) => x.media === "tv" && x.backdrop)
-  .slice(0, MAX_HEROES);
+  .slice(0, 10);
 
   const animationHeroes = uniqueById(
     norm(animationTv.results.map((x: any) => ({ ...x, media_type: "tv" })))
@@ -406,7 +407,11 @@ const cartoonShelf = await Promise.all(
             text="Anime and cartoons separated into their own cinematic stream."
           />
 
-          <HeroCarousel items={animationHeroes} />
+          <ExpandableHeroCarousel
+              eyebrow="Animation Universe"
+              title="Animated Worlds"
+              items={animationHeroes}
+            />
 
           <Panel
             eyebrow="Japan signal"
