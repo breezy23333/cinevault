@@ -8,6 +8,7 @@ import {
 import { getEntertainmentNews } from "@/lib/news";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import ShowcaseCarousel from "@/components/ShowcaseCarousel";
+import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
 import dynamic from "next/dynamic";
@@ -382,7 +383,7 @@ const cartoonShelf = await Promise.all(
             text="A second cinematic layer for TV worlds, drama, fantasy, and crime stories."
           />
 
-          <ShowcaseCarousel items={trendingTvShelf} />
+          <TvHeroCarousel items={seriesHeroes} />
 
           <Panel eyebrow="Broadcast pulse" title="Trending TV shows">
             <ShelfRow items={trendingTvShelf} />
