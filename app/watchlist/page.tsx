@@ -75,16 +75,32 @@ function WatchRow({
 
       <div
         ref={rowRef}
-        className="hide-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-[35vw] pb-8 pt-4"
+        className="hide-scrollbar flex gap-6 overflow-x-auto scroll-smooth pb-8 pt-4"
       >
-        {items.map((item) => {
+        {[...items, ...Array(Math.max(0, 5 - items.length)).fill(null)].map((item, index) => {
+          if (!item) {
+            return (
+              <div
+                key={`empty-${index}`}
+                className="w-[230px] shrink-0 rounded-[2rem] border border-white/10 bg-black/40 shadow-2xl"
+              >
+                <div className="aspect-[2/3] rounded-t-[2rem] bg-white/[0.03]" />
+                <div className="p-3">
+                  <div className="h-5 rounded bg-white/[0.05]" />
+                  <div className="mt-3 h-4 w-2/3 rounded bg-white/[0.04]" />
+                  <div className="mt-4 h-10 rounded-xl bg-white/[0.04]" />
+                </div>
+              </div>
+            );
+          }
+
           const img = posterUrl(item.posterPath);
 
           return (
             <Link
               key={item.id}
               href={`/${item.mediaType}/${item.tmdbId}`}
-              className="group w-[230px] shrink-0 snap-center overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl transition duration-300 hover:z-10 hover:-translate-y-4 hover:scale-110 hover:border-yellow-400/60 hover:bg-white/[0.08]"
+              className="group w-[230px] shrink-0 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl transition duration-300 hover:z-10 hover:-translate-y-3 hover:border-yellow-400/60 hover:bg-white/[0.08]"
             >
               <div className="relative aspect-[2/3] bg-zinc-900">
                 {img ? (
