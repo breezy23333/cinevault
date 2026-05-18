@@ -27,7 +27,7 @@ export default async function NewsPage() {
           </div>
 
           <div className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-sm font-bold text-yellow-300">
-            Live Updates
+            {newsItems.length} Live Stories
           </div>
         </div>
 
@@ -37,19 +37,17 @@ export default async function NewsPage() {
             target="_blank"
             className="group mt-10 grid overflow-hidden rounded-[36px] border border-yellow-400/20 bg-white/[0.04] shadow-[0_0_80px_rgba(255,184,0,0.08)] md:grid-cols-[1.4fr_1fr]"
           >
-            <div className="relative h-[360px] bg-white/5 md:h-[460px]">
-              {hero.image ? (
-                <img
-                  src={hero.image}
-                  alt={hero.title}
-                  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-white/40">
-                  No image
+            <div className="relative hidden h-[360px] bg-gradient-to-br from-yellow-400/20 via-white/[0.05] to-blue-500/10 md:block md:h-[460px]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,184,0,0.25),transparent_35%),radial-gradient(circle_at_70%_70%,rgba(90,120,255,0.18),transparent_40%)]" />
+                <div className="absolute bottom-8 left-8">
+                    <p className="text-xs font-black uppercase tracking-[0.4em] text-yellow-400">
+                    CineVault Signal
+                    </p>
+                    <h3 className="mt-3 max-w-xl text-4xl font-black">
+                    Breaking entertainment feed
+                    </h3>
                 </div>
-              )}
-            </div>
+                </div>
 
             <div className="flex flex-col justify-center p-8 md:p-10">
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
