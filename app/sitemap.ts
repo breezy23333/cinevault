@@ -32,21 +32,27 @@ async function fetchIds(path: string): Promise<number[]> {
     return (data.results || [])
       .map((item: { id?: number }) => item.id)
       .filter(Boolean)
-      .slice(0, 20);
+      .slice(0, 40);
   } catch {
     return [];
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPages = [
+    const staticPages = [
     "/",
     "/top",
     "/trending",
     "/search",
     "/store",
+    "/about",
     "/support",
-    "/watchlist",
+    "/news",
+    "/anime",
+    "/cartoons",
+    "/notifications",
+    "/privacy",
+    "/terms",
   ];
 
   const movieIds = [
@@ -61,8 +67,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(await fetchIds("/tv/top_rated?language=en-US")),
   ];
 
-  const uniqueMovieIds = [...new Set(movieIds)].slice(0, 60);
-  const uniqueTvIds = [...new Set(tvIds)].slice(0, 60);
+  const uniqueMovieIds = [...new Set(movieIds)].slice(0, 120);
+  const uniqueTvIds = [...new Set(tvIds)].slice(0, 120);
 
   return [
     ...staticPages.map((page) => ({
