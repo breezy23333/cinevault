@@ -294,9 +294,34 @@ export async function generateMetadata({ params }: PageProps) {
     const { id } = await params;
     const movie = await getMovieDetails(Number(id));
 
+    const year = movie.release_date?.slice(0, 4) || "";
+    const poster = movie.poster_path
+      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+      : null;
+
     return {
-      title: `${movie.title} (${movie.release_date?.slice(0, 4) || ""}) – Watch Online | CineVault`,
-      description: `Watch ${movie.title} online. Stream trailers, cast, and similar movies on CineVault.`,
+      title: `${movie.title} (${year}) – CineVault`,
+      description:
+        movie.overview ||
+        `Watch ${movie.title} online on CineVault.`,
+
+      openGraph: {
+        title: `${movie.title} (${year}) – CineVault`,
+        description:
+          movie.overview ||
+          `Watch ${movie.title} online on CineVault.`,
+        images: poster ? [poster] : [],
+        type: "website",
+      },
+
+      twitter: {
+        card: "summary_large_image",
+        title: `${movie.title} (${year}) – CineVault`,
+        description:
+          movie.overview ||
+          `Watch ${movie.title} online on CineVault.`,
+        images: poster ? [poster] : [],
+      },
     };
   } catch {
     return {
