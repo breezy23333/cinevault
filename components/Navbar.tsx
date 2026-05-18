@@ -21,6 +21,7 @@ const LINKS = [
   { href: "/store", label: "Store" },
   { href: "/about", label: "About" },
   { href: "/support", label: "Support" },
+  { href: "/news", label: "News" },
 ];
 
 export default function Navbar() {
