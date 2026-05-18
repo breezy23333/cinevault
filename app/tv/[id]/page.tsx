@@ -384,14 +384,40 @@ export default async function TvPage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { id } = await params;
     const tv = await getTVDetails(Number(id));
 
+    const title = tv.name || tv.original_name || "TV Show";
+    const year = tv.first_air_date?.slice(0, 4) || "";
+    const poster = tv.poster_path
+      ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
+      : null;
+
     return {
-      title: `${tv.name} (${tv.first_air_date?.slice(0, 4) || ""}) – Watch TV Show Online | CineVault`,
-      description: `Watch ${tv.name} online. Stream episodes, cast, and similar shows on CineVault.`,
+      title: `${title} (${year}) – CineVault`,
+      description:
+        tv.overview ||
+        `Watch ${title} online on CineVault.`,
+
+      openGraph: {
+        title: `${title} (${year}) – CineVault`,
+        description:
+          tv.overview ||
+          `Watch ${title} online on CineVault.`,
+        images: poster ? [poster] : [],
+        type: "website",
+      },
+
+      twitter: {
+        card: "summary_large_image",
+        title: `${title} (${year}) – CineVault`,
+        description:
+          tv.overview ||
+          `Watch ${title} online on CineVault.`,
+        images: poster ? [poster] : [],
+      },
     };
   } catch {
     return {
