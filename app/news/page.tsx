@@ -1,7 +1,28 @@
+import type { Metadata } from "next";
 import { getEntertainmentNews } from "@/lib/news";
 import type { NewsItem } from "@/components/NewsStrip";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Entertainment News Room – CineVault",
+  description:
+    "Read live entertainment headlines, celebrity updates, streaming stories, movie news, TV updates, and industry signals on CineVault.",
+
+  openGraph: {
+    title: "Entertainment News Room – CineVault",
+    description:
+      "Live entertainment headlines, celebrity updates, streaming stories, movie news, TV updates, and industry signals.",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Entertainment News Room – CineVault",
+    description:
+      "Live entertainment headlines, celebrity updates, streaming stories, movie news, TV updates, and industry signals.",
+  },
+};
 
 export default async function NewsPage() {
   const newsItems: NewsItem[] = await getEntertainmentNews();
