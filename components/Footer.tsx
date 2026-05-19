@@ -41,6 +41,11 @@ export default function Footer() {
             <li><Link href="/categories" className="transition hover:text-amber-300">Categories</Link></li>
             <li><Link href="/trending" className="transition hover:text-amber-300">Trending</Link></li>
             <li><Link href="/top" className="transition hover:text-amber-300">Top rated</Link></li>
+            <li><Link href="/tv" className="transition hover:text-amber-300">TV Shows</Link></li>
+            <li><Link href="/anime" className="transition hover:text-amber-300">Anime</Link></li>
+            <li><Link href="/cartoons" className="transition hover:text-amber-300">Cartoons</Link></li>
+            <li><Link href="/news" className="transition hover:text-amber-300">News</Link></li>
+            <li><Link href="/watchlist" className="transition hover:text-amber-300">Watchlist</Link></li>
           </ul>
         </div>
 
