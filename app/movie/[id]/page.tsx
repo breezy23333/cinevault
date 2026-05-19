@@ -84,6 +84,24 @@ export default async function MoviePage({ params }: PageProps) {
     videos.find(v => v.type === "Trailer" && v.site === "YouTube" && v.official)?.key
     ?? videos.find(v => v.site === "YouTube")?.key;
 
+  const movieJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Movie",
+  name: details.title,
+  description: details.overview,
+  image: poster,
+  datePublished: details.release_date,
+  aggregateRating: rating
+    ? {
+        "@type": "AggregateRating",
+        ratingValue: rating,
+        bestRating: 10,
+        worstRating: 0,
+      }
+    : undefined,
+};
+
+
   // ---------- UI ----------
   return (
     <main className="pb-12">
@@ -162,6 +180,13 @@ export default async function MoviePage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(movieJsonLd),
+        }}
+      />
 
       {/* BODY */}
       <section className="mx-auto w-full max-w-[1200px] px-4 md:px-6 mt-8 space-y-10">

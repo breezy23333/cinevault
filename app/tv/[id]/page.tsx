@@ -116,6 +116,23 @@ export default async function TvPage({ params }: PageProps) {
         v.official
     )?.key ?? videos.find((v) => v.site === "YouTube")?.key;
 
+    const tvJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "TVSeries",
+  name: title,
+  description: details.overview,
+  image: poster,
+  datePublished: details.first_air_date,
+  aggregateRating: rating
+    ? {
+        "@type": "AggregateRating",
+        ratingValue: rating,
+        bestRating: 10,
+        worstRating: 0,
+      }
+    : undefined,
+};
+
   return (
     <main className="pb-12">
       <section className="relative left-1/2 w-[100svw] -translate-x-1/2 overflow-hidden">
@@ -215,6 +232,13 @@ export default async function TvPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(tvJsonLd),
+        }}
+      />
 
       <section className="mx-auto mt-8 w-full max-w-[1200px] space-y-10 px-4 md:px-6">
         {cast.length > 0 && (
