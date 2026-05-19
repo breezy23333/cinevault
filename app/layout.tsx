@@ -9,9 +9,29 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "CineVault",
+    url: "https://cinevault-tau-drab.vercel.app",
+    potentialAction: {
+      "@type": "SearchAction",
+      target:
+        "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html lang="en">
       <body className="bg-[#05070d] text-white">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
+          }}
+        />
+
         <AppShell>{children}</AppShell>
       </body>
     </html>
