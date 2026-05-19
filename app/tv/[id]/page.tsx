@@ -137,6 +137,32 @@ export default async function TvPage({ params }: PageProps) {
     "@type": "WatchAction",
     target: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
   },
+  
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://cinevault-tau-drab.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Movies",
+      item: "https://cinevault-tau-drab.vercel.app/movies",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: details.title,
+      item: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+    },
+  ],
 };
 
   return (
@@ -243,6 +269,13 @@ export default async function TvPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(tvJsonLd),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
 

@@ -102,6 +102,31 @@ export default async function MoviePage({ params }: PageProps) {
 };
 
 
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://cinevault-tau-drab.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Movies",
+      item: "https://cinevault-tau-drab.vercel.app/movies",
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: details.title,
+      item: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+    },
+  ],
+};
+
   // ---------- UI ----------
   return (
     <main className="pb-12">
@@ -185,6 +210,13 @@ export default async function MoviePage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(movieJsonLd),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
 
