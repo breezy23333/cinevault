@@ -53,6 +53,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/notifications",
     "/privacy",
     "/terms",
+    "/login",
+    "/signup",
+    "/contact",
+    "/cookies",
+    "/dmca",
+    "/genre",
+    "/library",
+    "/rooms",
+    "/watchlist",
+    "/community",
   ];
 
   const movieIds = [
