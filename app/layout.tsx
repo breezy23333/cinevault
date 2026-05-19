@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
       images: [
     {
-      url: "/og-image.jpg",
+      url: "/og-image.png",
       width: 1200,
       height: 630,
       alt: "CineVault - Discover movies and shows",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    images: ["/og-image.jpg"],
+    images: "/og-image.png",
     card: "summary_large_image",
     title: "CineVault",
     description:
