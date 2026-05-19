@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   description:
     "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
   openGraph: {
+      images: [
+    {
+      url: "/og-image.jpg",
+      width: 1200,
+      height: 630,
+      alt: "CineVault - Discover movies and shows",
+    },
+  ],
     title: "CineVault",
     description:
       "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
@@ -20,6 +28,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: ["/og-image.jpg"],
     card: "summary_large_image",
     title: "CineVault",
     description:
