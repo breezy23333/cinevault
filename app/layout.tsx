@@ -6,11 +6,11 @@ import AppShell from "@/components/AppShell";
 export const metadata: Metadata = {
   metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
   title: {
-    default: "CineVault",
+    default: "CineVault – Movies, TV Shows, Anime & Cartoons",
     template: "%s | CineVault",
   },
   description:
-    "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
+  "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
   openGraph: {
       images: [
     {
