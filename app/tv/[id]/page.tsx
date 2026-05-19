@@ -125,13 +125,14 @@ export default async function TvPage({ params }: PageProps) {
   genre: details.genres?.map((g: any) => g.name),
   datePublished: details.first_air_date,
   aggregateRating: rating
-    ? {
-        "@type": "AggregateRating",
-        ratingValue: rating,
-        bestRating: 10,
-        worstRating: 0,
-      }
-    : undefined,
+  ? {
+      "@type": "AggregateRating",
+      ratingValue: rating,
+      bestRating: 10,
+      worstRating: 0,
+      ratingCount: details.vote_count || 1,
+    }
+  : undefined,
   potentialAction: {
     "@type": "WatchAction",
     target: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
