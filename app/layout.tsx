@@ -10,29 +10,29 @@ export const metadata: Metadata = {
     template: "%s | CineVault",
   },
   description:
-  "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
+    "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
   openGraph: {
-      images: [
-    {
-      url: "/og-image.png",
-      width: 1200,
-      height: 630,
-      alt: "CineVault - Discover movies and shows",
-    },
-  ],
-    title: "CineVault",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CineVault - Discover movies and shows",
+      },
+    ],
+    title: "CineVault – Movies, TV Shows, Anime & Cartoons",
     description:
-      "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
+      "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
     url: "https://cinevault-tau-drab.vercel.app",
     siteName: "CineVault",
     type: "website",
   },
   twitter: {
-    images: "/og-image.png",
+    images: ["/og-image.png"],
     card: "summary_large_image",
-    title: "CineVault",
+    title: "CineVault – Movies, TV Shows, Anime & Cartoons",
     description:
-      "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
+      "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
   },
 };
 
