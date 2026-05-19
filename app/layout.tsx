@@ -4,8 +4,27 @@ import "./globals.css";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "CineVault",
-  description: "Discover movies and shows on CineVault.",
+  metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
+  title: {
+    default: "CineVault",
+    template: "%s | CineVault",
+  },
+  description:
+    "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
+  openGraph: {
+    title: "CineVault",
+    description:
+      "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
+    url: "https://cinevault-tau-drab.vercel.app",
+    siteName: "CineVault",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CineVault",
+    description:
+      "Discover trending movies, TV shows, anime, cartoons, trailers, and watchlist picks on CineVault.",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
