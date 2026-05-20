@@ -8,6 +8,7 @@ import {
 import { getEntertainmentNews } from "@/lib/news";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import ExpandableHeroCarousel from "@/components/ExpandableHeroCarousel";
+import ContinueWatchingRow from "@/components/ContinueWatchingRow";
 import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
@@ -303,6 +304,7 @@ const cartoonShelf = await Promise.all(
 
       <Surface>
         <div className="space-y-8">
+          <ContinueWatchingRow />
           <section className="rounded-[28px] border border-yellow-400/20 bg-white/[0.035] p-4 shadow-[0_0_80px_rgba(255,184,0,0.08)] backdrop-blur-xl">
             <div className="mb-4 flex items-center justify-between px-2">
               <div>
