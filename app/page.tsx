@@ -111,8 +111,8 @@ const toNews = (x: any): NewsItem => ({
 });
 
 const MAX_HEROES = 6;
-const MAX_SHELF = 18;
-const MAX_NEWS = 12;
+const MAX_SHELF = 14;
+const MAX_NEWS = 8;
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
