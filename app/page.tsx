@@ -14,6 +14,7 @@ import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 // runtime/perf
 export const runtime = "nodejs";
@@ -444,6 +445,60 @@ const cartoonShelf = await Promise.all(
           <Panel eyebrow="Industry radar" title="Top news">
             <NewsStrip items={newsItems.slice(0, MAX_NEWS)} />
           </Panel>
+
+          <section className="rounded-[30px] border border-white/10 bg-white/[0.045] p-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+            <h2 className="text-3xl font-black text-white">
+              Explore the CineVault Universe
+            </h2>
+
+            <p className="mt-3 max-w-3xl text-white/70">
+              Discover trending movies, TV shows, anime, cartoons,
+              cinematic universes, trailers, and streaming discoveries.
+            </p>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Link
+                href="/trending"
+                className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-yellow-400/50 hover:bg-white/10"
+              >
+                <h3 className="text-lg font-bold">Trending</h3>
+                <p className="mt-2 text-sm text-white/60">
+                  Explore the hottest movies and shows right now.
+                </p>
+              </Link>
+
+              <Link
+                href="/top"
+                className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-yellow-400/50 hover:bg-white/10"
+              >
+                <h3 className="text-lg font-bold">Top Rated</h3>
+                <p className="mt-2 text-sm text-white/60">
+                  Discover the highest-rated cinematic experiences.
+                </p>
+              </Link>
+
+              <Link
+                href="/anime"
+                className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-pink-400/50 hover:bg-white/10"
+              >
+                <h3 className="text-lg font-bold">Anime</h3>
+                <p className="mt-2 text-sm text-white/60">
+                  Enter the world of anime adventures and stories.
+                </p>
+              </Link>
+
+              <Link
+                href="/cartoons"
+                className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-cyan-400/50 hover:bg-white/10"
+              >
+                <h3 className="text-lg font-bold">Cartoons</h3>
+                <p className="mt-2 text-sm text-white/60">
+                  Explore animated worlds for every generation.
+                </p>
+              </Link>
+            </div>
+          </section>
+
         </div>
       </Surface>
     </div>
