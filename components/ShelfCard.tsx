@@ -134,8 +134,9 @@ return (
               src={item.poster}
               alt={item.title}
               fill
-              sizes="140px"
+              sizes="(max-width: 768px) 50vw, 180px"
               className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
+              loading="lazy"
             />
           )}
 
