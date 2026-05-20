@@ -7,7 +7,6 @@ import {
 } from "@/lib/fetchers";
 import { getEntertainmentNews } from "@/lib/news";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
-import ShowcaseCarousel from "@/components/ShowcaseCarousel";
 import ExpandableHeroCarousel from "@/components/ExpandableHeroCarousel";
 import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
@@ -114,52 +113,6 @@ const MAX_HEROES = 6;
 const MAX_SHELF = 14;
 const MAX_NEWS = 8;
 
-const TMDB_BASE = "https://api.themoviedb.org/3";
-
-function tmdbAuthHeaders() {
-  const bearer =
-    process.env.TMDB_BEARER ||
-    process.env.TMDB_READ ||
-    process.env.TMDB_TOKEN ||
-    process.env.NEXT_PUBLIC_TMDB_TOKEN;
-
-  return bearer ? { Authorization: `Bearer ${bearer}` } : undefined;
-}
-
-function withApiKey(url: string) {
-  const key = process.env.TMDB_API_KEY;
-  return key ? `${url}${url.includes("?") ? "&" : "?"}api_key=${key}` : url;
-}
-
-async function getTrailerUrl(media: "movie" | "tv", id: number) {
-  try {
-    const url = withApiKey(`${TMDB_BASE}/${media}/${id}/videos?language=en-US`);
-
-    const res = await fetch(url, {
-      headers: tmdbAuthHeaders(),
-      next: { revalidate: 3600 },
-    });
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    const videos = Array.isArray(data.results) ? data.results : [];
-
-    const trailer =
-      videos.find(
-        (v: any) =>
-          v.site === "YouTube" &&
-          v.type === "Trailer" &&
-          v.official === true
-      ) ||
-      videos.find((v: any) => v.site === "YouTube" && v.type === "Trailer") ||
-      videos.find((v: any) => v.site === "YouTube");
-
-    return trailer?.key ? `https://www.youtube.com/embed/${trailer.key}` : null;
-  } catch {
-    return null;
-  }
-}
 
 // ✅ dynamic imports (no duplicate identifiers)
 const ShelfRow = dynamic(() => import("@/components/ShelfRow"), {
