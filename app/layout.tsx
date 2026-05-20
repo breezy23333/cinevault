@@ -50,18 +50,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     },
   };
 
-  return (
-    <html lang="en">
-      <body className="bg-[#05070d] text-white">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteJsonLd),
-          }}
-        />
+ return (
+  <html lang="en">
+    <body className="bg-[#05070d] text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteJsonLd),
+        }}
+      />
 
-        <AppShell>{children}</AppShell>
-      </body>
-    </html>
-  );
+      <AppShell>{children}</AppShell>
+    </body>
+  </html>
+);
 }

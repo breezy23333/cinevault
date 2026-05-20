@@ -362,6 +362,10 @@ export async function generateMetadata({ params }: PageProps) {
         movie.overview ||
         `Watch ${movie.title} online on CineVault.`,
 
+        alternates: {
+        canonical: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+      },
+
       openGraph: {
         title: `${movie.title} (${year}) – CineVault`,
         description:

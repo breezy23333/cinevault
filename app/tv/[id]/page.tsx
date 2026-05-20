@@ -153,14 +153,14 @@ const breadcrumbJsonLd = {
     {
       "@type": "ListItem",
       position: 2,
-      name: "Movies",
-      item: "https://cinevault-tau-drab.vercel.app/movies",
+      name: "TV Shows",
+      item: "https://cinevault-tau-drab.vercel.app/tv",
     },
     {
       "@type": "ListItem",
       position: 3,
-      name: details.title,
-      item: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+      name: title,
+      item: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
     },
   ],
 };
@@ -463,6 +463,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description:
         tv.overview ||
         `Watch ${title} online on CineVault.`,
+      alternates: {
+          canonical: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
+        },
+
 
       openGraph: {
         title: `${title} (${year}) – CineVault`,
