@@ -225,11 +225,10 @@ export default async function Home() {
   const popularShelf = await Promise.all(
   popularRaw.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia(x);
-    const trailer = await getTrailerUrl(m.media, m.id);
-
+    
     return {
       ...m,
-      trailer,
+      
       href: `/${m.media}/${m.id}`,
     };
   })
@@ -241,11 +240,10 @@ export default async function Home() {
     .slice(0, MAX_SHELF)
     .map(async (x: any) => {
       const m = toShelfMedia(x);
-      const trailer = await getTrailerUrl("movie", m.id);
-
+      
       return {
         ...m,
-        trailer,
+        
         href: `/movie/${m.id}`,
       };
     })
@@ -257,11 +255,11 @@ const trendingTvShelf = await Promise.all(
     .slice(0, MAX_SHELF)
     .map(async (x: any) => {
       const m = toShelfMedia(x);
-      const trailer = await getTrailerUrl("tv", m.id);
+      
 
       return {
         ...m,
-        trailer,
+        
         href: `/tv/${m.id}`,
       };
     })
@@ -270,11 +268,11 @@ const trendingTvShelf = await Promise.all(
 const dramaShelf = await Promise.all(
   dramaTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
-    const trailer = await getTrailerUrl("tv", m.id);
+    
 
     return {
       ...m,
-      trailer,
+      
       href: `/tv/${m.id}`,
     };
   })
@@ -283,11 +281,11 @@ const dramaShelf = await Promise.all(
 const fantasyShelf = await Promise.all(
   fantasyTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
-    const trailer = await getTrailerUrl("tv", m.id);
+    
 
     return {
       ...m,
-      trailer,
+      
       href: `/tv/${m.id}`,
     };
   })
@@ -296,11 +294,11 @@ const fantasyShelf = await Promise.all(
 const crimeShelf = await Promise.all(
   crimeTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
-    const trailer = await getTrailerUrl("tv", m.id);
+    
 
     return {
       ...m,
-      trailer,
+      
       href: `/tv/${m.id}`,
     };
   })
@@ -312,11 +310,11 @@ const animeShelf = await Promise.all(
     .slice(0, MAX_SHELF)
     .map(async (x: any) => {
       const m = toShelfMedia({ ...x, media_type: "tv" });
-      const trailer = await getTrailerUrl("tv", m.id);
+      
 
       return {
         ...m,
-        trailer,
+        
         href: `/tv/${m.id}`,
       };
     })
@@ -328,11 +326,11 @@ const cartoonShelf = await Promise.all(
     .slice(0, MAX_SHELF)
     .map(async (x: any) => {
       const m = toShelfMedia({ ...x, media_type: "tv" });
-      const trailer = await getTrailerUrl("tv", m.id);
+      
 
       return {
         ...m,
-        trailer,
+        
         href: `/tv/${m.id}`,
       };
     })
