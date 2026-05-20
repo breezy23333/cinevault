@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import UserRating from "@/components/UserRating";
 import Comments from "@/components/Comments";
 import TrailerModal from "@/components/TrailerModal";
+import ContinueWatchingTracker from "@/components/ContinueWatchingTracker";
 import WatchlistButton from "@/components/WatchlistButton";
 import {
   getTVDetails,
@@ -167,6 +168,14 @@ const breadcrumbJsonLd = {
 
   return (
     <main className="pb-12">
+      <ContinueWatchingTracker
+        id={details.id}
+        media_type="movie"
+        title={details.title}
+        poster_path={details.poster_path}
+        release_date={details.release_date}
+        vote_average={details.vote_average}
+      />
       <section className="relative left-1/2 w-[100svw] -translate-x-1/2 overflow-hidden">
         <div className="relative h-[54vh] md:h-[64vh]">
           {backdrop ? (
