@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       />
 
       <AppShell>{children}</AppShell>
+      <GoogleAnalytics />
     </body>
   </html>
 );
