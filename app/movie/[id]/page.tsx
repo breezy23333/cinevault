@@ -9,6 +9,8 @@ import TrailerModal from "@/components/TrailerModal";
 import ContinueWatchingTracker from "@/components/ContinueWatchingTracker";
 import WatchlistButton from "@/components/WatchlistButton";
 import WatchOptions from "@/components/WatchOptions";
+import MovieTickets from "@/components/MovieTickets";
+import CinemaLocation from "@/components/CinemaLocation";
 import {
   getMovieDetails,
   getMovieVideos,
@@ -292,6 +294,10 @@ const breadcrumbJsonLd = {
         )}
 
         <WatchOptions title={details.title} />
+
+        <MovieTickets title={details.title} />
+
+        <CinemaLocation title={details.title} />
         
         {/* Comments */}
         <Comments movieId={id} title={details.title} />
