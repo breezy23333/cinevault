@@ -5,6 +5,7 @@ import {
   getGamingNews,
 } from "@/lib/news";
 import type { NewsItem } from "@/components/NewsStrip";
+import NewsCategoryGrid from "@/components/NewsCategoryGrid";
 
 export const revalidate = 300;
 
@@ -170,105 +171,19 @@ export default async function NewsPage() {
           </aside>
         </div>
 
-         {/* Sports News */}
-          <section className="mt-20">
-            <div className="mb-8 flex items-end justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-green-400">
-                  Live Sports
-                </p>
+         <NewsCategoryGrid
+            eyebrow="Live Sports"
+            title="Sports Headlines"
+            items={sportsMain}
+            color="green"
+          />
 
-                <h2 className="mt-3 text-4xl font-black">
-                  Sports Headlines
-                </h2>
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              {sportsMain.map((item, i) => (
-                <a
-                  key={item.url + i}
-                  href={item.url}
-                  target="_blank"
-                  className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] transition hover:border-green-400/40 hover:bg-white/[0.06]"
-                >
-                  <div className="relative h-56 bg-white/5">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-white/40">
-                        No image
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-5">
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-green-400">
-                      Sports
-                    </p>
-
-                    <h3 className="mt-3 line-clamp-2 text-xl font-black group-hover:text-green-300">
-                      {item.title}
-                    </h3>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
-
-          {/* Gaming News */}
-          <section className="mt-20">
-            <div className="mb-8 flex items-end justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-cyan-400">
-                  Gaming Signal
-                </p>
-
-                <h2 className="mt-3 text-4xl font-black">
-                  Gaming Headlines
-                </h2>
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              {gamingMain.map((item, i) => (
-                <a
-                  key={item.url + i}
-                  href={item.url}
-                  target="_blank"
-                  className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] transition hover:border-cyan-400/40 hover:bg-white/[0.06]"
-                >
-                  <div className="relative h-56 bg-white/5">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-white/40">
-                        No image
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-5">
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-400">
-                      Gaming
-                    </p>
-
-                    <h3 className="mt-3 line-clamp-2 text-xl font-black group-hover:text-cyan-300">
-                      {item.title}
-                    </h3>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>     
+          <NewsCategoryGrid
+            eyebrow="Gaming Signal"
+            title="Gaming Headlines"
+            items={gamingMain}
+            color="cyan"
+          />
 
       </section>
     </main>
