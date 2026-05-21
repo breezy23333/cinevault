@@ -8,6 +8,7 @@ import Comments from "@/components/Comments";
 import TrailerModal from "@/components/TrailerModal";
 import ContinueWatchingTracker from "@/components/ContinueWatchingTracker";
 import WatchlistButton from "@/components/WatchlistButton";
+import WatchOptions from "@/components/WatchOptions";
 import {
   getMovieDetails,
   getMovieVideos,
@@ -290,64 +291,8 @@ const breadcrumbJsonLd = {
           </div>
         )}
 
-        <section id="watch-section" className="mt-12">
-          <h2 className="mb-3 text-xl font-bold">Where to Watch</h2>
-
-          <p className="mb-4 text-white/70">
-            Search this movie on popular streaming platforms.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-            {[
-              {
-                name: "Netflix",
-                url: `https://www.netflix.com/search?q=${encodeURIComponent(details.title)}`,
-                color: "bg-red-600",
-              },
-              {
-                name: "Disney+",
-                url: `https://www.disneyplus.com/search?q=${encodeURIComponent(details.title)}`,
-                color: "bg-blue-600",
-              },
-              {
-                name: "Prime",
-                url: `https://www.primevideo.com/search/ref=atv_nb_sr?phrase=${encodeURIComponent(details.title)}`,
-                color: "bg-cyan-600",
-              },
-              {
-                name: "Apple TV",
-                url: `https://tv.apple.com/search?term=${encodeURIComponent(details.title)}`,
-                color: "bg-zinc-700",
-              },
-              {
-                name: "YouTube",
-                url: `https://www.youtube.com/results?search_query=${encodeURIComponent(details.title + " movie")}`,
-                color: "bg-red-500",
-              },
-            ].map((p) => (
-              <a
-                key={p.name}
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:-translate-y-1 hover:border-yellow-400/50 hover:bg-yellow-400 hover:text-black"
-              >
-                <span
-                  className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-white ${p.color}`}
-                >
-                  ▶
-                </span>
-
-                <span className="block text-sm font-bold">{p.name}</span>
-
-                <span className="mt-1 block text-xs text-white/45 group-hover:text-black/60">
-                  Search movie
-                </span>
-              </a>
-            ))}
-          </div>
-        </section>
-
+        <WatchOptions title={details.title} />
+        
         {/* Comments */}
         <Comments movieId={id} title={details.title} />
       </section>
