@@ -1,4 +1,4 @@
-// app/page.tsx
+
 import Image from "next/image";
 import Link from "next/link";
 import { discoverMovies, getMovieGenres } from "@/lib/fetchers";
@@ -33,17 +33,31 @@ const hrefFor = (it: TMDBItem) => `/title/movie/${it.id}`;
 
 export default async function HomePage() {
   // 1) parallel where independent
-  const [genres, popular, year2024] = await Promise.all([
-    getMovieGenres(),
-    discoverMovies({ page: 1 }),            // Popular (popularity.desc)
-    discoverMovies({ year: 2024, page: 1 }),// New in 2024
+  const [genresRes, popularRes, year2024Res] = await Promise.allSettled([
+  getMovieGenres(),
+  discoverMovies({ page: 1 }),
+  discoverMovies({ year: 2024, page: 1 }),
   ]);
 
-  // 2) need genres to compute Horror id
-  const horror = await discoverMovies({
-    genreId: genresId(genres, "Horror"),
-    page: 1,
-  });
+  const genres =
+    genresRes.status === "fulfilled" ? genresRes.value : [];
+
+  const popular =
+    popularRes.status === "fulfilled" ? popularRes.value : { results: [] };
+
+  const year2024 =
+    year2024Res.status === "fulfilled" ? year2024Res.value : { results: [] };
+
+  let horror = { results: [] };
+
+  try {
+    horror = await discoverMovies({
+      genreId: genresId(genres, "Horror"),
+      page: 1,
+    });
+  } catch {
+    horror = { results: [] };
+  }
 
   const popularItems: TMDBItem[] = popular?.results ?? [];
   const yearItems: TMDBItem[] = year2024?.results ?? [];
