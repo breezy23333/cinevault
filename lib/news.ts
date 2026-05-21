@@ -46,7 +46,7 @@ export async function getGamingNews(): Promise<RealNewsItem[]> {
 
   if (!key) return [];
 
-  const url = `https://newsapi.org/v2/everything?q=gaming OR video games OR PlayStation OR Xbox OR Nintendo&language=en&sortBy=publishedAt&pageSize=12&apiKey=${key}`;
+  const url = `https://newsapi.org/v2/everything?q=("video games" OR gaming OR PlayStation OR Xbox OR Nintendo OR Steam OR esports) NOT sports&language=en&sortBy=publishedAt&pageSize=12&apiKey=${key}`;
 
   const res = await fetch(url, {
     next: { revalidate: 600 },

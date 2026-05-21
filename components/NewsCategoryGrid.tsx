@@ -35,9 +35,9 @@ export default function NewsCategoryGrid({
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] transition hover:bg-white/[0.06] ${colorClass}`}
+            className={`group relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] shadow-2xl transition duration-300 hover:-translate-y-2 hover:bg-white/[0.08] ${colorClass}`}
           >
-            <div className="relative h-56 bg-white/5">
+            <div className="relative h-64 overflow-hidden bg-white/5">
               {item.image ? (
                 <img
                   src={item.image}
@@ -56,7 +56,7 @@ export default function NewsCategoryGrid({
                 {eyebrow}
               </p>
 
-              <h3 className="mt-3 line-clamp-2 text-xl font-black text-white">
+              <h3 className="mt-3 line-clamp-2 text-2xl font-black leading-tight text-white group-hover:text-inherit">
                 {item.title}
               </h3>
 
@@ -67,6 +67,18 @@ export default function NewsCategoryGrid({
           </a>
         ))}
       </div>
+
+        <div className="mt-8">
+            <a
+                href={`https://www.google.com/search?q=${encodeURIComponent(title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-black text-white transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+            >
+                View more {title} →
+            </a>
+            </div>
+
     </section>
   );
 }
