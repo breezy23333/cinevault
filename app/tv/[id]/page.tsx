@@ -8,6 +8,7 @@ import TrailerModal from "@/components/TrailerModal";
 import ContinueWatchingTracker from "@/components/ContinueWatchingTracker";
 import WatchlistButton from "@/components/WatchlistButton";
 import WatchOptions from "@/components/WatchOptions";
+import TVSeasons from "@/components/TVSeasons";
 import {
   getTVDetails,
   getTVVideos,
@@ -335,6 +336,8 @@ const breadcrumbJsonLd = {
           </div>
         )}
 
+        <TVSeasons seasons={details.seasons || []} title={title} />
+
         {similar.length > 0 && (
           <div>
             <h2 className="mb-3 text-xl font-bold">More like this</h2>
@@ -381,7 +384,7 @@ const breadcrumbJsonLd = {
         )}
 
          <WatchOptions title={title} />
-         
+
         <Comments movieId={id} title={title} />
       </section>
     </main>
