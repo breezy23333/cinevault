@@ -72,7 +72,7 @@ export default function CineVaultIntro() {
         </div>
 
         <div
-          className="absolute inset-y-0 right-0 z-10 bg-[#05070d] transition-all duration-75"
+          className="absolute inset-y-0 left-0 z-10 bg-[#05070d] transition-all duration-75"
           style={{
             width: `${100 - progress}%`,
           }}
@@ -80,9 +80,9 @@ export default function CineVaultIntro() {
 
         <div
           onMouseDown={() => setDragging(true)}
-          className="absolute top-1/2 z-20 flex h-20 w-20 -translate-y-1/2 cursor-grab items-center justify-center rounded-full bg-yellow-400 text-4xl font-black text-black shadow-[0_0_60px_rgba(250,204,21,0.8)] active:cursor-grabbing"
+          className="absolute left-0 top-1/2 z-20 flex h-20 w-20 -translate-y-1/2 cursor-grab items-center justify-center rounded-full bg-yellow-400 text-4xl font-black text-black shadow-[0_0_60px_rgba(250,204,21,0.8)] active:cursor-grabbing"
           style={{
-            right: `calc(${100 - progress}% - 40px)`,
+            left: `calc(${progress}% - 40px)`
           }}
         >
           ⛓

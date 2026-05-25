@@ -226,3 +226,13 @@ html {
     opacity: 0.7;
   }
 }
+
+/* remove ugly blue highlight/select */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(250, 204, 21, 0.25);
+  color: white;
+}
