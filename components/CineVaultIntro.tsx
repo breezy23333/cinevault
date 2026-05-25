@@ -1,23 +1,32 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
+const posters = [
+  "/og-image.png",
+  "https://image.tmdb.org/t/p/w342/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+  "https://image.tmdb.org/t/p/w342/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg",
+  "https://image.tmdb.org/t/p/w342/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg",
+  "https://image.tmdb.org/t/p/w342/rktDFPbfHfUbArZ6OOOKsXcv0Bm.jpg",
+  "https://image.tmdb.org/t/p/w342/9Gtg2DzBhmYamXBS1hKAhiwbBKS.jpg",
+  "https://image.tmdb.org/t/p/w342/pIkRyD18kl4FhoCNQuWxWu5cBLM.jpg",
+  "https://image.tmdb.org/t/p/w342/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg",
+  "https://image.tmdb.org/t/p/w342/5ik4ATKmNtmJU6AYD0bLm56BCVM.jpg",
+  "https://image.tmdb.org/t/p/w342/A3ZbZsmsvNGdprRi2lKgGEeVLEH.jpg",
+  "https://image.tmdb.org/t/p/w342/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+  "https://image.tmdb.org/t/p/w342/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
+];
+
 export default function CineVaultIntro() {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
-    const played = sessionStorage.getItem("cinevault_intro_played");
+    const timer = setTimeout(() => {
+      setShow(false);
+    }, 3600);
 
-    if (!played) {
-      setShow(true);
-      sessionStorage.setItem("cinevault_intro_played", "true");
-
-      const timer = setTimeout(() => {
-        setShow(false);
-      }, 3600);
-
-      return () => clearTimeout(timer);
-    }
+    return () => clearTimeout(timer);
   }, []);
 
   if (!show) return null;
@@ -29,12 +38,21 @@ export default function CineVaultIntro() {
       <div className="absolute inset-0 flex items-center justify-center px-6">
         <div className="relative h-[430px] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-yellow-400/20 bg-black/50 shadow-[0_0_100px_rgba(250,204,21,0.15)]">
           <div className="absolute inset-0 grid grid-cols-4 gap-4 p-8 md:grid-cols-6">
-            {Array.from({ length: 18 }).map((_, i) => (
+            {posters.map((poster, i) => (
               <div
-                key={i}
-                className="animate-[cardShake_0.22s_ease-in-out_infinite] rounded-2xl border border-yellow-400/20 bg-gradient-to-br from-yellow-400/25 via-white/10 to-black shadow-[0_0_30px_rgba(250,204,21,0.12)]"
+                key={poster + i}
+                className="relative animate-[cardShake_0.22s_ease-in-out_infinite] overflow-hidden rounded-2xl border border-yellow-400/20 bg-white/5 shadow-[0_0_30px_rgba(250,204,21,0.12)]"
                 style={{ animationDelay: `${i * 0.04}s` }}
-              />
+              >
+                <Image
+                  src={poster}
+                  alt="CineVault movie poster"
+                  fill
+                  sizes="180px"
+                  className="object-cover"
+                  priority={i < 4}
+                />
+              </div>
             ))}
           </div>
 
