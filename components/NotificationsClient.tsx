@@ -119,7 +119,7 @@ export default function NotificationsClient({
       </div>
 
       <div className="space-y-4">
-        {notifications.map((item) => {
+      {allNotifications.map((item) => {
           const Icon = getIcon(item.type);
           const isRead = readIds.includes(item.id);
 

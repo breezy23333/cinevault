@@ -38,9 +38,11 @@ async function getTrendingNotifications() {
 
       return {
         id: `tmdb-${item.media_type}-${item.id}`,
-        title: `${title} is trending`,
-        message: `${isTv ? "TV show" : "Movie"} trending today on TMDB.`,
-        time: "Live TMDB",
+        title: isTv ? `New trending show: ${title}` : `New trending movie: ${title}`,
+        message: isTv
+          ? `${title} is trending now. Open it to view episodes, trailers, and details.`
+          : `${title} is trending now. Open it to view trailers, watch options, and movie details.`,
+        time: "New today",
         href: isTv ? `/tv/${item.id}` : `/movie/${item.id}`,
         type: isTv ? "episode" : "trending",
       };
