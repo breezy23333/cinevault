@@ -192,8 +192,8 @@ const breadcrumbJsonLd = {
               <div className="mt-4 flex flex-wrap items-center gap-3">
                   {ytKey && <TrailerModal videoKey={ytKey} />}
 
-                  <Link
-                    href={`/movie/${id}/watch`}
+                 <Link
+                    href="#where-to-watch"
                     className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/20 px-5 py-2.5 hover:bg-white/15"
                   >
                     Watch options
@@ -293,7 +293,9 @@ const breadcrumbJsonLd = {
           </div>
         )}
 
-        <WatchOptions title={details.title} />
+        <div id="where-to-watch">
+          <WatchOptions title={details.title} />
+        </div>
 
         <MovieTickets title={details.title} />
 
