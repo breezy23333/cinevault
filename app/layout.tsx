@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
+import CineVaultIntro from "@/components/CineVaultIntro";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
@@ -61,7 +62,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         }}
       />
 
-      <AppShell>{children}</AppShell>
+      <>
+        <CineVaultIntro />
+        <AppShell>{children}</AppShell>
+      </>
       <GoogleAnalytics />
     </body>
   </html>
