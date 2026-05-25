@@ -290,6 +290,32 @@ const breadcrumbJsonLd = {
         }}
       />
 
+      <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+          Story Overview
+        </p>
+
+        <h2 className="mt-2 text-3xl font-black">
+          About {details.title || details.name}
+        </h2>
+
+        <p className="mt-4 leading-8 text-white/70">
+          {details.title || details.name}
+          {year ? ` (${year})` : ""} is a cinematic experience featured on
+          CineVault. With immersive storytelling, emotional moments,
+          unforgettable characters, and visually stunning scenes, this{" "}
+          {details.first_air_date ? "series" : "movie"} continues to attract
+          audiences around the world.
+        </p>
+
+        <p className="mt-4 leading-8 text-white/60">
+          Explore trailers, cast members, ratings, streaming availability,
+          recommendations, and more entertainment discoveries directly on
+          CineVault.
+        </p>
+      </section>  
+
+
       <section className="mx-auto mt-8 w-full max-w-[1200px] space-y-10 px-4 md:px-6">
         {cast.length > 0 && (
           <div>
@@ -429,7 +455,6 @@ const breadcrumbJsonLd = {
               </Link>
             </div>
           </section>
-
         <Comments movieId={id} title={title} />
       </section>
     </main>
