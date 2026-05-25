@@ -4,6 +4,12 @@ import { Bookmark, Bell, Clock, User2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage() {
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    localStorage.removeItem("cinevault_user");
+    window.location.href = "/login";
+  }
+
   return (
     <main className="min-h-screen bg-[#05070d] px-6 py-16 text-white">
       <section className="mx-auto max-w-6xl">
@@ -27,10 +33,34 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <ProfileCard href="/watchlist" icon={<Bookmark />} title="Watchlist" text="Saved movies and shows." />
-            <ProfileCard href="/profile" icon={<Clock />} title="Continue Watching" text="Resume titles later." />
-            <ProfileCard href="/notifications" icon={<Bell />} title="Notifications" text="New releases and alerts." />
+          <ProfileCard
+            href="/watchlist"
+            icon={<Bookmark />}
+            title="Watchlist"
+            text="Saved movies and shows."
+          />
+
+          <ProfileCard
+            href="/profile"
+            icon={<Clock />}
+            title="Continue Watching"
+            text="Resume titles later."
+          />
+
+          <ProfileCard
+            href="/notifications"
+            icon={<Bell />}
+            title="Notifications"
+            text="New releases and alerts."
+          />
         </div>
+
+        <button
+          onClick={logout}
+          className="mt-8 rounded-xl border border-red-400/30 bg-red-500/10 px-6 py-3 font-bold text-red-300 transition hover:bg-red-500 hover:text-white"
+        >
+          Logout
+        </button>
       </section>
     </main>
   );
@@ -46,17 +76,7 @@ function ProfileCard({
   icon: React.ReactNode;
   title: string;
   text: string;
-}) 
-
-{
-
-function logout() {
-  localStorage.removeItem("cinevault_user");
-  document.cookie = "cinevault_user=; Max-Age=0; path=/";
-  document.cookie = "cinevault_user_id=; Max-Age=0; path=/";
-  window.location.href = "/login";
-}
-
+}) {
   return (
     <Link
       href={href}
@@ -65,15 +85,9 @@ function logout() {
       <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-300">
         {icon}
       </div>
+
       <h2 className="text-xl font-black">{title}</h2>
       <p className="mt-2 text-sm text-white/60">{text}</p>
-        <button
-            onClick={logout}
-            className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-5 py-3 font-bold text-red-300 transition hover:bg-red-500 hover:text-white"
-            >
-            Logout
-        </button>
-
     </Link>
   );
 }
