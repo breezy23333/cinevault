@@ -24,21 +24,33 @@ export default function CineVaultIntro() {
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShow(false);
-    }, 3600);
+  const timer = setTimeout(() => {
+    setShow(false);
+  }, 3600);
 
     return () => clearTimeout(timer);
-  }, []);
+    }, []);
+
+    useEffect(() => {
+    const stopDragging = () => setDragging(false);
+
+    window.addEventListener("mouseup", stopDragging);
+
+    return () => {
+        window.removeEventListener("mouseup", stopDragging);
+    };
+    }, []);
 
   if (!show) return null;
+
+
 
   return (
     <div className="fixed inset-0 z-[9999] overflow-hidden bg-[#05070d] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.16),transparent_45%)]" />
 
       <div className="absolute inset-0 flex items-center justify-center px-6">
-        <div className="relative h-[430px] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-yellow-400/20 bg-black/50 shadow-[0_0_100px_rgba(250,204,21,0.15)]">
+        <div className="relative h-[560px] w-full max-w-7xl overflow-hidden rounded-[2rem] border border-yellow-400/20 bg-black/50 shadow-[0_0_100px_rgba(250,204,21,0.15)]">
           <div className="absolute inset-0 grid grid-cols-4 gap-4 p-8 md:grid-cols-6">
             {posters.map((poster, i) => (
               <div
@@ -62,10 +74,7 @@ export default function CineVaultIntro() {
             className="absolute inset-y-0 right-0 z-10 bg-[#05070d] transition-all duration-75"
             style={{
                 width: `${100 - progress}%`,
-                animation:
-                !dragging && progress === 0
-                    ? "zipOpen 3.2s ease-in-out forwards"
-                    : undefined,
+                
             }}
             />
 
@@ -90,10 +99,7 @@ export default function CineVaultIntro() {
                 className="absolute top-1/2 z-20 flex h-20 w-20 -translate-y-1/2 cursor-grab items-center justify-center rounded-full bg-yellow-400 text-4xl font-black text-black shadow-[0_0_60px_rgba(250,204,21,0.8)] active:cursor-grabbing"
                 style={{
                     right: `${100 - progress}%`,
-                    animation:
-                    !dragging && progress === 0
-                        ? "zipMove 3.2s ease-in-out forwards"
-                        : undefined,
+                    
                 }}
                 >
                 ⛓
