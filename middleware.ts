@@ -63,9 +63,16 @@ export const config = {
     "/",
     "/admin/:path*",
     "/api/admin/:path*",
+
+    "/watchlist",
     "/watchlist/:path*",
+
+    "/notifications",
     "/notifications/:path*",
+
+    "/rooms",
     "/rooms/:path*",
+
     "/login",
     "/signup",
   ],
