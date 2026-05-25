@@ -385,6 +385,51 @@ const breadcrumbJsonLd = {
 
          <WatchOptions title={title} />
 
+         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+              Explore More
+            </p>
+
+            <h2 className="mt-2 text-3xl font-black">
+              Continue Exploring CineVault
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-white/60">
+              Discover more trending movies, top-rated worlds, anime adventures,
+              cartoons, and cinematic universes.
+            </p>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Link
+                href="/trending"
+                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/50 hover:bg-white/10"
+              >
+                Trending
+              </Link>
+
+              <Link
+                href="/top"
+                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/50 hover:bg-white/10"
+              >
+                Top Rated
+              </Link>
+
+              <Link
+                href="/anime"
+                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-pink-400/50 hover:bg-white/10"
+              >
+                Anime
+              </Link>
+
+              <Link
+                href="/cartoons"
+                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-cyan-400/50 hover:bg-white/10"
+              >
+                Cartoons
+              </Link>
+            </div>
+          </section>
+
         <Comments movieId={id} title={title} />
       </section>
     </main>
