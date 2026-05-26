@@ -172,10 +172,10 @@ const breadcrumbJsonLd = {
     <main className="pb-12">
       <ContinueWatchingTracker
         id={details.id}
-        media_type="movie"
-        title={details.title}
+        media_type="tv"
+        title={details.name}
         poster_path={details.poster_path}
-        release_date={details.release_date}
+        release_date={details.first_air_date}
         vote_average={details.vote_average}
       />
       <section className="relative left-1/2 w-[100svw] -translate-x-1/2 overflow-hidden">
