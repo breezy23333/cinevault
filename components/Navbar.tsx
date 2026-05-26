@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import StreamingGlobe from "@/components/StreamingGlobe";
 import { FormEvent, useEffect, useState } from "react";
 import {
   Menu,
@@ -9,7 +10,6 @@ import {
   Search,
   Bell,
   User2,
-  PlaySquare,
   Sparkles,
   Mic,
   Bookmark
@@ -286,62 +286,10 @@ export default function Navbar() {
                 <Sparkles className="h-4 w-4 text-yellow-400" />
               </div>
 
-              <div className="space-y-2">
-                {[
-                  {
-                    name: "Netflix",
-                    color: "bg-red-600",
-                    url: "https://www.netflix.com",
-                    tag: "Movies & series",
-                  },
-                  {
-                    name: "Disney+",
-                    color: "bg-blue-600",
-                    url: "https://www.disneyplus.com",
-                    tag: "Marvel • Pixar",
-                  },
-                  {
-                    name: "Prime",
-                    color: "bg-cyan-600",
-                    url: "https://www.primevideo.com",
-                    tag: "Action picks",
-                  },
-                  {
-                    name: "Apple TV",
-                    color: "bg-zinc-700",
-                    url: "https://tv.apple.com",
-                    tag: "Premium originals",
-                  },
-                  {
-                    name: "YouTube",
-                    color: "bg-red-500",
-                    url: "https://www.youtube.com",
-                    tag: "Trailers & clips",
-                  },
-                ].map((p) => (
-                  <button
-                    key={p.name}
-                    type="button"
-                    onClick={() => window.open(p.url, "_blank", "noopener,noreferrer")}
-                    className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:border-yellow-400/50 hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_22px_rgba(250,204,21,0.25)]"
-                  >
-                    <span
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-lg ${p.color}`}
-                    >
-                      <PlaySquare className="h-4 w-4" />
-                    </span>
+            <div className="mt-6">
+              <StreamingGlobe />
+            </div>
 
-                    <span className="min-w-0">
-                      <span className="block text-sm font-bold leading-tight">
-                        {p.name}
-                      </span>
-                      <span className="block truncate text-[10px] text-white/45 group-hover:text-black/60">
-                        {p.tag}
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
             </div>
           </nav>
         </aside>
