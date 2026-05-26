@@ -376,3 +376,83 @@ html {
       rotate(calc((var(--angle) + 360deg) * -1));
   }
 }
+
+.stream-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  border: 1px solid rgba(0,174,255,0.22);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stream-ring-outer {
+  width: 190px;
+  height: 190px;
+  box-shadow: 0 0 25px rgba(0,174,255,0.12);
+}
+
+.stream-ring-inner {
+  width: 116px;
+  height: 116px;
+  border-color: rgba(250,204,21,0.18);
+}
+
+.stream-logo-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(5, 7, 13, 0.82);
+  border: 1px solid rgba(255,255,255,0.16);
+
+  transform:
+    rotate(var(--angle))
+    translateY(calc(var(--radius) * -1))
+    rotate(calc(var(--angle) * -1));
+
+  box-shadow:
+    0 0 14px rgba(0,0,0,0.7),
+    0 0 18px rgba(0,174,255,0.22);
+
+  animation: logoOrbit 38s linear infinite;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.stream-logo-node-small {
+  width: 30px;
+  height: 30px;
+}
+
+.stream-logo-node:hover {
+  z-index: 20;
+  background: rgba(250,204,21,0.15);
+  box-shadow:
+    0 0 25px rgba(250,204,21,0.6),
+    0 0 35px rgba(0,174,255,0.4);
+}
+
+@keyframes logoOrbit {
+  from {
+    transform:
+      rotate(var(--angle))
+      translateY(calc(var(--radius) * -1))
+      rotate(calc(var(--angle) * -1));
+  }
+
+  to {
+    transform:
+      rotate(calc(var(--angle) + 360deg))
+      translateY(calc(var(--radius) * -1))
+      rotate(calc((var(--angle) + 360deg) * -1));
+  }
+}
