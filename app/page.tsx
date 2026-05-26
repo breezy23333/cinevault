@@ -14,6 +14,7 @@ import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
 
 // runtime/perf
@@ -324,6 +325,8 @@ const cartoonShelf = await Promise.all(
               <CategoriesTray genres={genres} />
             )}
           </section>
+
+          <FranchiseUniverse />
 
           <Panel eyebrow="Popular galaxy" title="More movies">
             <ShelfRow items={popularShelf} />
