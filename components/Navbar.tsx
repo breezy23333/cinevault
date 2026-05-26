@@ -264,7 +264,7 @@ export default function Navbar() {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <nav className="px-3 py-2 space-y-2">
+          <nav className="h-[calc(100vh-56px)] overflow-y-auto px-3 py-2 space-y-2 hide-scrollbar">
 
             {LINKS.map(({ href, label }) => (
               <Link
