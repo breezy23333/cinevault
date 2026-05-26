@@ -25,7 +25,7 @@ export default function StreamingGlobe() {
         </p>
       </div>
 
-      <div className="relative mx-auto h-[320px] w-[320px]">
+      <div className="relative mx-auto h-[230px] w-[230px] overflow-hidden rounded-full">
 
         {/* globe */}
         <div className="stream-globe absolute inset-0 rounded-full" />
