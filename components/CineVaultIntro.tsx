@@ -19,9 +19,19 @@ const posters = [
 ];
 
 export default function CineVaultIntro() {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
+    const alreadyPlayed = sessionStorage.getItem("cinevault_intro_played");
+
+    if (alreadyPlayed) {
+      setShow(false);
+      return;
+    }
+
+    setShow(true);
+    sessionStorage.setItem("cinevault_intro_played", "true");
+
     const timer = setTimeout(() => {
       setShow(false);
     }, 3600);
