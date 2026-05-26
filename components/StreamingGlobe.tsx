@@ -3,12 +3,22 @@
 const platforms = [
   { name: "Netflix", short: "N", color: "bg-red-600", url: "https://netflix.com" },
   { name: "Disney+", short: "D+", color: "bg-blue-600", url: "https://disneyplus.com" },
-  { name: "Prime", short: "P", color: "bg-cyan-600", url: "https://primevideo.com" },
+  { name: "Prime Video", short: "PV", color: "bg-cyan-600", url: "https://primevideo.com" },
   { name: "Apple TV", short: "TV", color: "bg-zinc-700", url: "https://tv.apple.com" },
   { name: "YouTube", short: "YT", color: "bg-red-500", url: "https://youtube.com" },
-  { name: "HBO", short: "HBO", color: "bg-purple-700", url: "https://max.com" },
-  { name: "Hulu", short: "H", color: "bg-green-600", url: "https://hulu.com" },
-  { name: "Crunchyroll", short: "C", color: "bg-orange-500", url: "https://crunchyroll.com" },
+  { name: "Max", short: "MAX", color: "bg-purple-700", url: "https://max.com" },
+  { name: "Hulu", short: "HU", color: "bg-green-600", url: "https://hulu.com" },
+  { name: "Crunchyroll", short: "CR", color: "bg-orange-500", url: "https://crunchyroll.com" },
+  { name: "Paramount+", short: "P+", color: "bg-blue-700", url: "https://paramountplus.com" },
+  { name: "Peacock", short: "PC", color: "bg-yellow-500", url: "https://peacocktv.com" },
+  { name: "Tubi", short: "TB", color: "bg-violet-700", url: "https://tubitv.com" },
+  { name: "Starz", short: "SZ", color: "bg-yellow-600", url: "https://starz.com" },
+  { name: "Showmax", short: "SM", color: "bg-pink-600", url: "https://showmax.com" },
+  { name: "MUBI", short: "MB", color: "bg-zinc-800", url: "https://mubi.com" },
+  { name: "Plex", short: "PX", color: "bg-yellow-400", url: "https://plex.tv" },
+  { name: "Rakuten TV", short: "RT", color: "bg-indigo-600", url: "https://rakuten.tv" },
+  { name: "BritBox", short: "BB", color: "bg-sky-700", url: "https://britbox.com" },
+  { name: "AMC+", short: "AMC", color: "bg-emerald-700", url: "https://amcplus.com" },
 ];
 
 export default function StreamingGlobe() {
