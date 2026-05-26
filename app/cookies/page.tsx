@@ -1,34 +1,93 @@
 export default function CookiesPage() {
   return (
-    <main className="min-h-screen bg-[#0b0f1a] px-6 py-28 text-white">
-      <section className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-          CineVault
-        </p>
+    <main className="min-h-screen bg-[#050816] text-white px-6 py-20">
+      <div className="mx-auto max-w-5xl">
 
-        <h1 className="mt-3 text-4xl font-black">Cookie Policy</h1>
-
-        <div className="mt-8 space-y-5 text-white/70">
-          <p>
-            CineVault may use cookies or local browser storage to improve the user experience,
-            remember preferences, and support basic site functionality.
+        {/* Header */}
+        <div className="mb-14">
+          <p className="text-yellow-400 uppercase tracking-[0.35em] text-sm font-bold">
+            CineVault
           </p>
 
-          <p>
-            We may also use third-party services for movie data, images, trailers, analytics,
-            or embedded content. These services may use their own cookies.
-          </p>
+          <h1 className="mt-4 text-5xl font-black tracking-tight bg-gradient-to-r from-yellow-400 to-yellow-100 bg-clip-text text-transparent">
+            Cookie Policy
+          </h1>
 
-          <p>
-            You can disable cookies in your browser settings, but some features may not work
-            correctly.
-          </p>
-
-          <p>
-            This policy may be updated as CineVault grows.
+          <p className="mt-6 max-w-3xl text-lg text-white/70 leading-relaxed">
+            This Cookie Policy explains how CineVault uses cookies,
+            browser storage, and related technologies to improve
+            platform functionality, personalization, analytics,
+            and entertainment discovery experiences.
           </p>
         </div>
-      </section>
+
+        {/* Sections */}
+        <div className="space-y-10">
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              What Are Cookies?
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              Cookies are small data files stored on your device that help
+              websites remember preferences, maintain sessions, and improve
+              overall user experiences.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              How CineVault Uses Cookies
+            </h2>
+
+            <ul className="mt-4 space-y-3 text-white/70 leading-7 list-disc pl-6">
+              <li>Remember login sessions and preferences</li>
+              <li>Store watchlist and personalization settings</li>
+              <li>Improve search and recommendation systems</li>
+              <li>Analyze traffic and platform engagement</li>
+              <li>Enhance performance and stability</li>
+            </ul>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Third-Party Services
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              CineVault may use trusted third-party services such as TMDB,
+              YouTube, analytics providers, or embedded content platforms.
+              These services may use their own cookies or tracking
+              technologies subject to their individual policies.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Managing Cookies
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              You can manage or disable cookies through your browser
+              settings. Some CineVault features may not function correctly
+              if cookies or local storage are disabled.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.05] p-8">
+            <h2 className="text-2xl font-bold text-yellow-300">
+              Policy Updates
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              This Cookie Policy may be updated periodically as CineVault
+              evolves and introduces new features or technologies.
+            </p>
+          </section>
+
+        </div>
+      </div>
     </main>
   );
 }

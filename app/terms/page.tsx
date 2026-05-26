@@ -1,34 +1,109 @@
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#0b0f1a] px-6 py-28 text-white">
-      <section className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-          CineVault
-        </p>
+    <main className="min-h-screen bg-[#050816] text-white px-6 py-20">
+      <div className="mx-auto max-w-5xl">
 
-        <h1 className="mt-3 text-4xl font-black">Terms of Use</h1>
-
-        <div className="mt-8 space-y-5 text-white/70">
-          <p>
-            CineVault is an entertainment discovery platform that helps users explore movies,
-            TV shows, trailers, and related entertainment information.
+        {/* Header */}
+        <div className="mb-14">
+          <p className="text-yellow-400 uppercase tracking-[0.35em] text-sm font-bold">
+            CineVault
           </p>
 
-          <p>
-            CineVault does not host or stream copyrighted movies or TV shows directly. Any
-            trailers, images, ratings, or metadata belong to their respective owners.
-          </p>
+          <h1 className="mt-4 text-5xl font-black tracking-tight bg-gradient-to-r from-yellow-400 to-yellow-100 bg-clip-text text-transparent">
+            Terms of Use
+          </h1>
 
-          <p>
-            By using CineVault, you agree to use the platform for personal, lawful, and
-            informational purposes only.
-          </p>
-
-          <p>
-            We may update these terms as the platform grows.
+          <p className="mt-6 max-w-3xl text-lg text-white/70 leading-relaxed">
+            These Terms of Use govern your access to and use of CineVault,
+            including movies, TV show discovery features, watchlists,
+            trailers, recommendations, and related entertainment services.
           </p>
         </div>
-      </section>
+
+        {/* Sections */}
+        <div className="space-y-10">
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Platform Usage
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              By using CineVault, you agree to use the platform only for
+              lawful, personal, and informational purposes. Users may not
+              misuse, disrupt, reverse engineer, or attempt unauthorized
+              access to platform systems.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Content & Copyright
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              CineVault does not host or distribute copyrighted movies,
+              episodes, or premium streaming content directly. Posters,
+              trailers, ratings, and metadata belong to their respective
+              owners and providers.
+            </p>
+
+            <p className="mt-4 text-white/70 leading-8">
+              Third-party media content may be provided through services such
+              as TMDB and YouTube.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Accounts & Watchlists
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              Users are responsible for maintaining the security of their
+              accounts and personal watchlists. CineVault reserves the right
+              to suspend accounts involved in abuse, spam, or malicious
+              activity.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Service Availability
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              CineVault may update, modify, or temporarily suspend features
+              as the platform evolves. We do not guarantee uninterrupted
+              availability of all services or third-party integrations.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-yellow-400">
+              Limitation of Liability
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              CineVault is provided “as is” without warranties of any kind.
+              We are not responsible for external websites, third-party
+              services, or content linked through the platform.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.05] p-8">
+            <h2 className="text-2xl font-bold text-yellow-300">
+              Updates to Terms
+            </h2>
+
+            <p className="mt-4 text-white/70 leading-8">
+              These terms may evolve as CineVault expands. Continued use of
+              the platform after updates means you accept the revised terms.
+            </p>
+          </section>
+
+        </div>
+      </div>
     </main>
   );
 }
