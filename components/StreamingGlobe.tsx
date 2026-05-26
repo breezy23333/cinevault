@@ -48,7 +48,7 @@ export default function StreamingGlobe() {
         </p>
       </div>
 
-      <div className="relative mx-auto h-[230px] w-[230px] overflow-hidden rounded-full">
+      <div className="relative mx-auto h-[230px] w-[230px] overflow-visible">
         <div className="stream-globe absolute inset-0 rounded-full" />
         <div className="stream-ring stream-ring-outer" />
         <div className="stream-ring stream-ring-inner" />
@@ -58,7 +58,7 @@ export default function StreamingGlobe() {
             key={p.name}
             platform={p}
             angle={(360 / outer.length) * i}
-            radius={88}
+            radius={76}
           />
         ))}
 
@@ -67,7 +67,7 @@ export default function StreamingGlobe() {
             key={p.name}
             platform={p}
             angle={(360 / inner.length) * i + 18}
-            radius={52}
+            radius={38}
             small
           />
         ))}
