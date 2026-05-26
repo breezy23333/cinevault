@@ -359,11 +359,11 @@ html {
 
 @keyframes globeSpin {
   from {
-    transform: rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
 
   to {
-    transform: rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
@@ -422,6 +422,7 @@ html {
   border: 1px solid rgba(255,255,255,0.16);
 
   transform:
+    translate(-50%, -50%)
     rotate(var(--angle))
     translateY(calc(var(--radius) * -1))
     rotate(calc(var(--angle) * -1));
@@ -450,15 +451,55 @@ html {
 @keyframes logoOrbit {
   from {
     transform:
+      translate(-50%, -50%)
       rotate(var(--angle))
       translateY(calc(var(--radius) * -1))
       rotate(calc(var(--angle) * -1));
-  }
+      }
 
   to {
     transform:
+      translate(-50%, -50%)
       rotate(calc(var(--angle) + 360deg))
       translateY(calc(var(--radius) * -1))
       rotate(calc((var(--angle) + 360deg) * -1));
   }
+}
+
+.stream-globe {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.stream-ring-outer {
+  width: 172px;
+  height: 172px;
+}
+
+.stream-ring-inner {
+  width: 104px;
+  height: 104px;
+}
+
+.stream-logo-node {
+  width: 34px;
+  height: 34px;
+}
+
+.stream-logo-node-small {
+  width: 26px;
+  height: 26px;
+}
+
+.stream-globe,
+.stream-ring,
+.stream-logo-node,
+.stream-logo-node-small {
+  left: 50%;
+  top: 50%;
+  transform-origin: center;
 }
