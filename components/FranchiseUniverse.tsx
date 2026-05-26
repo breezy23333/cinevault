@@ -1,106 +1,136 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const franchises = [
-  { name: "Marvel", icon: "/franchises/marvel.png" },
-  { name: "DC", icon: "/franchises/dc.png" },
-  { name: "Star Wars", icon: "/franchises/star-wars.png" },
-  { name: "Fast and Furious", icon: "/franchises/fast-and-furious.png" },
-  { name: "Harry Potter", icon: "/franchises/harry-potter.png" },
-  { name: "Lord of the Rings", icon: "/franchises/lord-of-the-rings.png" },
-  { name: "The Hobbit", icon: "/franchises/the-hobbit.png" },
-  { name: "Jurassic Park", icon: "/franchises/jurassic-park.png" },
-  { name: "Jurassic World", icon: "/franchises/jurassic-world.png" },
-  { name: "Transformers", icon: "/franchises/transformers.png" },
-  { name: "Mission Impossible", icon: "/franchises/mission-impossible.png" },
-  { name: "Pirates of the Caribbean", icon: "/franchises/pirates-of-the-caribbean.png" },
-  { name: "James Bond", icon: "/franchises/james-bond.png" },
-  { name: "John Wick", icon: "/franchises/john-wick.png" },
-  { name: "The Matrix", icon: "/franchises/the-matrix.png" },
-  { name: "Avatar", icon: "/franchises/avatar.png" },
-  { name: "Alien", icon: "/franchises/alien.png" },
-  { name: "Predator", icon: "/franchises/predator.png" },
-  { name: "Terminator", icon: "/franchises/terminator.png" },
-  { name: "Indiana Jones", icon: "/franchises/indiana-jones.png" },
-  { name: "Rocky", icon: "/franchises/rocky.png" },
-  { name: "Creed", icon: "/franchises/creed.png" },
-  { name: "Godzilla", icon: "/franchises/godzilla.png" },
-  { name: "King Kong", icon: "/franchises/king-kong.png" },
-  { name: "MonsterVerse", icon: "/franchises/monsterverse.png" },
-  { name: "Planet of the Apes", icon: "/franchises/planet-of-the-apes.png" },
-  { name: "Hunger Games", icon: "/franchises/hunger-games.png" },
-  { name: "Twilight", icon: "/franchises/twilight.png" },
-  { name: "Divergent", icon: "/franchises/divergent.png" },
-  { name: "Maze Runner", icon: "/franchises/maze-runner.png" },
-  { name: "Narnia", icon: "/franchises/narnia.png" },
-  { name: "Shrek", icon: "/franchises/shrek.png" },
-  { name: "Toy Story", icon: "/franchises/toy-story.png" },
-  { name: "Frozen", icon: "/franchises/frozen.png" },
-  { name: "Cars", icon: "/franchises/cars.png" },
-  { name: "Despicable Me", icon: "/franchises/despicable-me.png" },
-  { name: "Minions", icon: "/franchises/minions.png" },
-  { name: "Kung Fu Panda", icon: "/franchises/kung-fu-panda.png" },
-  { name: "How to Train Your Dragon", icon: "/franchises/how-to-train-your-dragon.png" },
-  { name: "Spider-Man", icon: "/franchises/spider-man.png" },
-  { name: "Batman", icon: "/franchises/batman.png" },
-  { name: "Superman", icon: "/franchises/superman.png" },
-  { name: "X-Men", icon: "/franchises/x-men.png" },
-  { name: "Avengers", icon: "/franchises/avengers.png" },
-  { name: "Justice League", icon: "/franchises/justice-league.png" },
-  { name: "The Conjuring", icon: "/franchises/the-conjuring.png" },
-  { name: "Saw", icon: "/franchises/saw.png" },
-  { name: "Scream", icon: "/franchises/scream.png" },
-  { name: "Halloween", icon: "/franchises/halloween.png" },
-  { name: "Friday the 13th", icon: "/franchises/friday-the-13th.png" },
-  { name: "A Nightmare on Elm Street", icon: "/franchises/a-nightmare-on-elm-street.png" },
-  { name: "The Purge", icon: "/franchises/the-purge.png" },
-  { name: "Insidious", icon: "/franchises/insidious.png" },
-  { name: "Final Destination", icon: "/franchises/final-destination.png" },
-  { name: "Paranormal Activity", icon: "/franchises/paranormal-activity.png" },
-  { name: "Annabelle", icon: "/franchises/annabelle.png" },
-  { name: "The Nun", icon: "/franchises/the-nun.png" },
-  { name: "It", icon: "/franchises/it.png" },
-  { name: "Ghostbusters", icon: "/franchises/ghostbusters.png" },
-  { name: "Men in Black", icon: "/franchises/men-in-black.png" },
-  { name: "Rambo", icon: "/franchises/rambo.png" },
-  { name: "Die Hard", icon: "/franchises/die-hard.png" },
-  { name: "Bourne", icon: "/franchises/bourne.png" },
-  { name: "The Mummy", icon: "/franchises/the-mummy.png" },
-  { name: "Resident Evil", icon: "/franchises/resident-evil.png" },
-  { name: "Mortal Kombat", icon: "/franchises/mortal-kombat.png" },
-  { name: "Sonic the Hedgehog", icon: "/franchises/sonic-the-hedgehog.png" },
-  { name: "The Super Mario Bros", icon: "/franchises/the-super-mario-bros.png" },
-  { name: "Pokemon", icon: "/franchises/pokemon.png" },
-  { name: "Mad Max", icon: "/franchises/mad-max.png" },
-  { name: "Dune", icon: "/franchises/dune.png" },
-  { name: "Bad Boys", icon: "/franchises/bad-boys.png" },
-  { name: "Deadpool", icon: "/franchises/deadpool.png" },
-  { name: "Iron Man", icon: "/franchises/iron-man.png" },
-  { name: "Black Panther", icon: "/franchises/black-panther.png" },
-  { name: "Doctor Strange", icon: "/franchises/doctor-strange.png" },
-  { name: "Guardians of the Galaxy", icon: "/franchises/guardians-of-the-galaxy.png" },
+  {
+    name: "Marvel",
+    image: "https://image.tmdb.org/t/p/w780/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg",
+  },
+  {
+    name: "DC",
+    image: "https://image.tmdb.org/t/p/w780/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg",
+  },
+  {
+    name: "Star Wars",
+    image: "https://image.tmdb.org/t/p/w780/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg",
+  },
+  {
+    name: "Fast and Furious",
+    image: "https://image.tmdb.org/t/p/w780/pjUH57qjV9jM5dW7jz2VbhM0A.jpg",
+  },
+  {
+    name: "Harry Potter",
+    image: "https://image.tmdb.org/t/p/w780/hziiv14OpD73u9gAak4XDDfBKa2.jpg",
+  },
+  {
+    name: "Lord of the Rings",
+    image: "https://image.tmdb.org/t/p/w780/56zTpe2xvaA4alU51sRWPoKPYZy.jpg",
+  },
+  {
+    name: "The Hobbit",
+    image: "https://image.tmdb.org/t/p/w780/xrPBV0otKf1L2xXWY4Q9h0R6m.jpg",
+  },
+  {
+    name: "Jurassic Park",
+    image: "https://image.tmdb.org/t/p/w780/qqHQsStV6exghCM7zbObuYBiYxw.jpg",
+  },
+  {
+    name: "Jurassic World",
+    image: "https://image.tmdb.org/t/p/w780/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
+  },
+  {
+    name: "Transformers",
+    image: "https://image.tmdb.org/t/p/w780/cSKa3Zg1kTDTfD2aXWzH7C9q4.jpg",
+  },
+  {
+    name: "Mission Impossible",
+    image: "https://image.tmdb.org/t/p/w780/ih4lZkUpmSE7AP3maymiO72xJ1z.jpg",
+  },
+  {
+    name: "Pirates of the Caribbean",
+    image: "https://image.tmdb.org/t/p/w780/8AUQ7Yl2z5t6eE4Q5R8B7b4X.jpg",
+  },
+  {
+    name: "John Wick",
+    image: "https://image.tmdb.org/t/p/w780/umC04Cozevu8nn3JTDJ1pc7PVTn.jpg",
+  },
+  {
+    name: "The Matrix",
+    image: "https://image.tmdb.org/t/p/w780/fNG7i7RqMErkcqhohV2a6cV1Ehy.jpg",
+  },
+  {
+    name: "Avatar",
+    image: "https://image.tmdb.org/t/p/w780/vL5LR6WdxWPjLPFRLe133jXWsh5.jpg",
+  },
+  {
+    name: "Batman",
+    image: "https://image.tmdb.org/t/p/w780/hZkgoQYus5vegHoetLkCJzb17zJ.jpg",
+  },
+  {
+    name: "Spider-Man",
+    image: "https://image.tmdb.org/t/p/w780/iQFcwSGbZXMkeyKrxbPnwnRo5fl.jpg",
+  },
+  {
+    name: "Avengers",
+    image: "https://image.tmdb.org/t/p/w780/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg",
+  },
+  {
+    name: "Deadpool",
+    image: "https://image.tmdb.org/t/p/w780/en971MEXui9diirXlogOrPKmsEn.jpg",
+  },
+  {
+    name: "Pokemon",
+    image: "https://image.tmdb.org/t/p/w780/l2jVyjM0CgP4x7Wy0NX7SQoGFmF.jpg",
+  },
+  {
+    name: "Dune",
+    image: "https://image.tmdb.org/t/p/w780/iqyPvdsOWM0QwEJ0r6qXxK6X.jpg",
+  },
 ];
 
 export default function FranchiseUniverse() {
+
+    const rowRef = useRef<HTMLDivElement>(null);
+
+    function scroll(dir: "left" | "right") {
+    rowRef.current?.scrollBy({
+        left: dir === "left" ? -500 : 500,
+        behavior: "smooth",
+    });
+    }
+
   return (
     <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl md:p-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.15),transparent_35%)]" />
 
-      <div className="relative mb-6">
-        <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-          Cinematic Universes
-        </p>
+      <div className="relative mb-6 flex items-end justify-between gap-4">
+        <div>
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+            Cinematic Universes
+            </p>
 
-        <h2 className="mt-2 text-3xl font-black md:text-5xl">
-          Legendary Franchises
-        </h2>
+            <h2 className="mt-2 text-3xl font-black md:text-5xl">
+            Legendary Franchises
+            </h2>
 
-        <p className="mt-3 max-w-3xl text-white/60">
-          Explore the biggest movie worlds, sagas, superheroes, fantasy realms,
-          animation universes, and horror collections.
-        </p>
-      </div>
+            <p className="mt-3 max-w-3xl text-white/60">
+            Explore the biggest movie worlds, sagas, superheroes, fantasy realms,
+            animation universes, and horror collections.
+            </p>
+        </div>
+
+        <div className="hidden gap-2 md:flex">
+            <button onClick={() => scroll("left")} className="rounded-full border border-white/10 bg-black/40 p-3 hover:bg-yellow-400 hover:text-black">
+            <ChevronLeft />
+            </button>
+            <button onClick={() => scroll("right")} className="rounded-full border border-white/10 bg-black/40 p-3 hover:bg-yellow-400 hover:text-black">
+            <ChevronRight />
+            </button>
+        </div>
+        </div>
 
       <div className="relative flex gap-4 overflow-x-auto pb-3 hide-scrollbar">
         {franchises.map((f) => (
@@ -109,16 +139,19 @@ export default function FranchiseUniverse() {
             href={`/search?q=${encodeURIComponent(f.name)}`}
             className="group min-w-[190px] rounded-3xl border border-white/10 bg-black/30 p-5 transition hover:-translate-y-1 hover:border-yellow-400/60 hover:bg-white/10"
           >
-            <div className="mb-4 flex h-20 items-center justify-center rounded-2xl bg-black/50 p-3 ring-1 ring-white/10">
-              <img
-                src={f.icon}
-                alt={f.name}
-                className="max-h-12 max-w-full object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            </div>
+            <div className="relative mb-4 h-24 overflow-hidden rounded-2xl">
+                <img
+                    src={f.image}
+                    alt={f.name}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                    e.currentTarget.src =
+                        "https://image.tmdb.org/t/p/w780/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg";
+                    }}
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                </div>
 
             <h3 className="line-clamp-2 min-h-[44px] text-lg font-black leading-tight">
               {f.name}
