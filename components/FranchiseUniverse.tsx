@@ -132,7 +132,10 @@ export default function FranchiseUniverse() {
         </div>
         </div>
 
-      <div className="relative flex gap-4 overflow-x-auto pb-3 hide-scrollbar">
+      <div
+        ref={rowRef}
+        className="relative flex gap-4 overflow-x-auto pb-3 hide-scrollbar"
+        >
         {franchises.map((f) => (
           <Link
             key={f.name}
