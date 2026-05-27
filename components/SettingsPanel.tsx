@@ -1,10 +1,51 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bell, Globe2, Moon, User2, X } from "lucide-react";
 
+const languages = [
+  "English",
+  "Spanish",
+  "French",
+  "Portuguese",
+  "German",
+  "Hindi",
+  "Arabic",
+  "Chinese",
+  "Japanese",
+  "Korean",
+];
+
+const themes = ["Midnight", "Cinematic Gold", "Neon Blue"];
+
 export default function SettingsPanel({ onClose }: { onClose: () => void }) {
+  const [language, setLanguage] = useState("English");
+  const [theme, setTheme] = useState("Midnight");
+  const [notifications, setNotifications] = useState(true);
+
+  useEffect(() => {
+    setLanguage(localStorage.getItem("cinevault_language") || "English");
+    setTheme(localStorage.getItem("cinevault_theme") || "Midnight");
+    setNotifications(localStorage.getItem("cinevault_notifications") !== "false");
+  }, []);
+
+  function updateLanguage(value: string) {
+    setLanguage(value);
+    localStorage.setItem("cinevault_language", value);
+  }
+
+  function updateTheme(value: string) {
+    setTheme(value);
+    localStorage.setItem("cinevault_theme", value);
+  }
+
+  function updateNotifications(value: boolean) {
+    setNotifications(value);
+    localStorage.setItem("cinevault_notifications", String(value));
+  }
+
   return (
-    <div className="fixed right-4 top-20 z-[9999] w-[92vw] max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#07111f]/95 shadow-2xl backdrop-blur-xl">
+    <div className="fixed right-4 top-20 z-[9999] w-[92vw] max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-[#07111f]/95 shadow-2xl backdrop-blur-xl">
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <div>
           <h2 className="text-lg font-black text-white">Settings</h2>
@@ -25,11 +66,14 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
           title="Language"
           text="Choose your display language"
         >
-          <select className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none">
-            <option>English</option>
-            <option>Xhosa</option>
-            <option>Zulu</option>
-            <option>French</option>
+          <select
+            value={language}
+            onChange={(e) => updateLanguage(e.target.value)}
+            className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none"
+          >
+            {languages.map((lang) => (
+              <option key={lang}>{lang}</option>
+            ))}
           </select>
         </SettingItem>
 
@@ -38,10 +82,14 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
           title="Theme"
           text="Change CineVault appearance"
         >
-          <select className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none">
-            <option>Midnight</option>
-            <option>Cinematic Gold</option>
-            <option>Neon Blue</option>
+          <select
+            value={theme}
+            onChange={(e) => updateTheme(e.target.value)}
+            className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none"
+          >
+            {themes.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
           </select>
         </SettingItem>
 
@@ -50,7 +98,12 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
           title="Notifications"
           text="Trending and watchlist alerts"
         >
-          <input type="checkbox" defaultChecked className="h-5 w-5 accent-yellow-400" />
+          <input
+            type="checkbox"
+            checked={notifications}
+            onChange={(e) => updateNotifications(e.target.checked)}
+            className="h-5 w-5 accent-yellow-400"
+          />
         </SettingItem>
 
         <SettingItem
