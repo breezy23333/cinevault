@@ -2,39 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { Bell, Globe2, Moon, User2, X } from "lucide-react";
+import { useLanguage, languageOptions } from "@/context/LanguageContext";
 
-const languages = [
-  "English",
-  "Spanish",
-  "French",
-  "Portuguese",
-  "German",
-  "Hindi",
-  "Arabic",
-  "Chinese",
-  "Japanese",
-  "Korean",
-];
 
 const themes = ["Midnight", "Cinematic Gold", "Neon Blue"];
 
 export default function SettingsPanel({ onClose }: { onClose: () => void }) {
-  const [language, setLanguage] = useState("English");
+  
   const [theme, setTheme] = useState("Midnight");
   const [notifications, setNotifications] = useState(true);
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
-    setLanguage(localStorage.getItem("cinevault_language") || "English");
     const savedTheme = localStorage.getItem("cinevault_theme") || "Midnight";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
     setNotifications(localStorage.getItem("cinevault_notifications") !== "false");
   }, []);
-
-  function updateLanguage(value: string) {
-    setLanguage(value);
-    localStorage.setItem("cinevault_language", value);
-  }
 
   function updateTheme(value: string) {
     setTheme(value);
@@ -71,13 +55,13 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
         >
           <select
             value={language}
-            onChange={(e) => updateLanguage(e.target.value)}
+            onChange={(e) => setLanguage(e.target.value as any)}
             className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none"
-          >
-            {languages.map((lang) => (
-              <option key={lang}>{lang}</option>
+            >
+            {languageOptions.map((lang) => (
+                <option key={lang}>{lang}</option>
             ))}
-          </select>
+            </select>
         </SettingItem>
 
         <SettingItem

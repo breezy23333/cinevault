@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import StreamingGlobe from "@/components/StreamingGlobe";
 import SettingsPanel from "@/components/SettingsPanel";
 import { FormEvent, useEffect, useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Menu,
   X,
@@ -17,17 +18,18 @@ import {
 } from "lucide-react";
 
 const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/search", label: "Browse" },
-  { href: "/store", label: "Store" },
-  { href: "/about", label: "About" },
-  { href: "/support", label: "Support" },
-  { href: "/news", label: "News" },
-];
+  { href: "/", key: "home" },
+  { href: "/search", key: "browse" },
+  { href: "/store", key: "store" },
+  { href: "/about", key: "about" },
+  { href: "/support", key: "support" },
+  { href: "/news", key: "news" },
+] as const;
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -138,7 +140,7 @@ export default function Navbar() {
 
           {/* Links with category-like animation */}
           <ul className="hidden md:flex items-center gap-2 ml-2">
-            {LINKS.map(({ href, label }) => {
+            {LINKS.map(({ href, key }) => {
               const active = isActive(href);
               return (
                 <li key={href}>
@@ -146,7 +148,7 @@ export default function Navbar() {
                     href={href}
                     className={`${pillBase} ${active ? "bg-amber-400 text-black" : ""}`}
                   >
-                    {label}
+                    {t[key]}
                   </Link>
                 </li>
               );
@@ -162,7 +164,7 @@ export default function Navbar() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search movies, shows..."
+                placeholder={t.search}
                 className="pl-8 pr-3 py-2 text-sm rounded-lg bg-zinc-900 ring-1 ring-white/10 outline-none focus:ring-white/20 w-72"
               />
             </div>
@@ -277,14 +279,14 @@ export default function Navbar() {
           </div>
           <nav className="h-[calc(100vh-56px)] overflow-y-auto px-3 py-2 space-y-2 hide-scrollbar">
 
-            {LINKS.map(({ href, label }) => (
+            {LINKS.map(({ href, key }) => (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setOpen(false)}
                 className="block rounded-lg px-3 py-2 hover:bg-white/10"
               >
-                {label}
+                {t[key]}
               </Link>
             ))}
 
