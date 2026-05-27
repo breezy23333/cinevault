@@ -519,3 +519,33 @@ html[data-theme="Neon Blue"] body {
     radial-gradient(circle at top, rgba(59,130,246,0.22), transparent 35%),
     #05070d;
 }
+
+html[data-theme="Cinematic Gold"] {
+  --theme-glow: rgba(250, 204, 21, 0.22);
+  --theme-border: rgba(250, 204, 21, 0.55);
+}
+
+html[data-theme="Neon Blue"] {
+  --theme-glow: rgba(59, 130, 246, 0.28);
+  --theme-border: rgba(59, 130, 246, 0.55);
+}
+
+html[data-theme="Cinematic Gold"] body::before,
+html[data-theme="Neon Blue"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 20% 10%, var(--theme-glow), transparent 32%),
+    radial-gradient(circle at 80% 20%, var(--theme-glow), transparent 30%);
+}
+
+html[data-theme="Cinematic Gold"] header {
+  box-shadow: 0 0 35px rgba(250, 204, 21, 0.18);
+}
+
+html[data-theme="Neon Blue"] header {
+  box-shadow: 0 0 35px rgba(59, 130, 246, 0.22);
+}
