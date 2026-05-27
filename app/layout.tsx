@@ -4,6 +4,7 @@ import "./globals.css";
 import AppShell from "@/components/AppShell";
 import CineVaultIntro from "@/components/CineVaultIntro";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
@@ -52,21 +53,24 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     },
   };
 
- return (
+return (
   <html lang="en">
     <body className="bg-[#05070d] text-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(websiteJsonLd),
-        }}
-      />
+      <LanguageProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
+          }}
+        />
 
-      <>
-        <CineVaultIntro />
-        <AppShell>{children}</AppShell>
-      </>
-      <GoogleAnalytics />
+        <>
+          <CineVaultIntro />
+          <AppShell>{children}</AppShell>
+        </>
+
+        <GoogleAnalytics />
+      </LanguageProvider>
     </body>
   </html>
 );
