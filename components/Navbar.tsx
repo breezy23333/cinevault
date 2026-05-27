@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import StreamingGlobe from "@/components/StreamingGlobe";
+import SettingsPanel from "@/components/SettingsPanel";
 import { FormEvent, useEffect, useState } from "react";
 import {
   Menu,
@@ -31,6 +32,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
  
 
   useEffect(() => {
@@ -190,6 +192,15 @@ export default function Navbar() {
 
             <button
               type="button"
+              onClick={() => setShowSettings(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
+              aria-label="Settings"
+            >
+              <Sparkles className="h-5 w-5" />
+            </button>
+
+            <button
+              type="button"
               onClick={startVoiceSearch}
               className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-[0_0_18px_rgba(250,204,21,0.35)] transition hover:scale-105 hover:bg-yellow-300"
               aria-label="Voice search"
@@ -294,6 +305,11 @@ export default function Navbar() {
           </nav>
         </aside>
       </div>
+
+       {showSettings && (
+          <SettingsPanel onClose={() => setShowSettings(false)} />
+        )}     
+              
     </>
   );
 }
