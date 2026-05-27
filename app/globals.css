@@ -503,3 +503,19 @@ html {
   top: 50%;
   transform-origin: center;
 }
+
+html[data-theme="Midnight"] body {
+  background: #05070d;
+}
+
+html[data-theme="Cinematic Gold"] body {
+  background:
+    radial-gradient(circle at top, rgba(250,204,21,0.16), transparent 35%),
+    #05070d;
+}
+
+html[data-theme="Neon Blue"] body {
+  background:
+    radial-gradient(circle at top, rgba(59,130,246,0.22), transparent 35%),
+    #05070d;
+}

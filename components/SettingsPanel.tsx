@@ -25,7 +25,9 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     setLanguage(localStorage.getItem("cinevault_language") || "English");
-    setTheme(localStorage.getItem("cinevault_theme") || "Midnight");
+    const savedTheme = localStorage.getItem("cinevault_theme") || "Midnight";
+    setTheme(savedTheme);
+    document.documentElement.setAttribute("data-theme", savedTheme);
     setNotifications(localStorage.getItem("cinevault_notifications") !== "false");
   }, []);
 
@@ -37,7 +39,8 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   function updateTheme(value: string) {
     setTheme(value);
     localStorage.setItem("cinevault_theme", value);
-  }
+    document.documentElement.setAttribute("data-theme", value);
+    }
 
   function updateNotifications(value: boolean) {
     setNotifications(value);
