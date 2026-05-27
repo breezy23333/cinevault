@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, Globe2, Moon, User2, X } from "lucide-react";
-import { useLanguage, languageOptions } from "@/context/LanguageContext";
+import { languages, changeWebsiteLanguage } from "@/context/LanguageContext";
 
 
 const themes = ["Midnight", "Cinematic Gold", "Neon Blue"];
@@ -11,7 +11,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   
   const [theme, setTheme] = useState("Midnight");
   const [notifications, setNotifications] = useState(true);
-  const { language, setLanguage } = useLanguage();
+  
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("cinevault_theme") || "Midnight";
@@ -54,12 +54,14 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
           text="Choose your display language"
         >
           <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as any)}
+            defaultValue="en"
+            onChange={(e) => changeWebsiteLanguage(e.target.value)}
             className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none"
             >
-            {languageOptions.map((lang) => (
-                <option key={lang}>{lang}</option>
+            {languages.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                {lang.name}
+                </option>
             ))}
             </select>
         </SettingItem>
