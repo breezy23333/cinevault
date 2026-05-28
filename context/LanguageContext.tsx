@@ -17,7 +17,7 @@ export function changeWebsiteLanguage(code: string) {
   if (typeof window === "undefined") return;
 
   if (code === "en") {
-    window.location.href = window.location.origin;
+    window.location.href = window.location.origin + window.location.pathname;
     return;
   }
 
