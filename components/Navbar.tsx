@@ -222,14 +222,14 @@ export default function Navbar() {
             {!isLoggedIn ? (
               <div className="hidden md:flex items-center gap-2">
                 <Link
-                  href="/login"
+                  href="https://cinevault-tau-drab.vercel.app/login"
                   className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
                 >
                   Login
                 </Link>
 
                 <Link
-                  href="/signup"
+                  href="https://cinevault-tau-drab.vercel.app/signup"
                   className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-black text-black transition hover:bg-yellow-300"
                 >
                   Sign Up
