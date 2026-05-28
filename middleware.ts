@@ -4,7 +4,6 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // Auth protection
   const userId =
     req.cookies.get("cinevault_user")?.value ||
     req.cookies.get("cinevault_user_id")?.value;
@@ -12,10 +11,9 @@ export function middleware(req: NextRequest) {
   const protectedRoutes = ["/watchlist", "/notifications", "/rooms"];
   const authRoutes = ["/login", "/signup"];
 
-  const isHome = path === "/";
-
-  const isProtected =
-    isHome || protectedRoutes.some((route) => path.startsWith(route));
+  const isProtected = protectedRoutes.some((route) =>
+    path.startsWith(route)
+  );
 
   const isAuthRoute = authRoutes.some((route) => path.startsWith(route));
 
@@ -27,7 +25,6 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/watchlist", req.url));
   }
 
-  // Admin protection
   const isAdminPath =
     path.startsWith("/admin") || path.startsWith("/api/admin");
 
@@ -60,7 +57,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/admin/:path*",
     "/api/admin/:path*",
 
