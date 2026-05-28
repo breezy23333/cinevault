@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import StreamingGlobe from "@/components/StreamingGlobe";
 import SettingsPanel from "@/components/SettingsPanel";
 import { FormEvent, useEffect, useState } from "react";
-import { useLanguage } from "@/context/LanguageContext";
+
 import {
   Menu,
   X,
@@ -29,7 +29,15 @@ const LINKS = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useLanguage();
+  const labels: Record<string, string> = {
+  home: "Home",
+  browse: "Browse",
+  store: "Store",
+  about: "About",
+  support: "Support",
+  news: "News",
+  search: "Search movies, shows...",
+};
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -148,7 +156,7 @@ export default function Navbar() {
                     href={href}
                     className={`${pillBase} ${active ? "bg-amber-400 text-black" : ""}`}
                   >
-                    {t[key]}
+                    {labels[key]}
                   </Link>
                 </li>
               );
@@ -164,7 +172,7 @@ export default function Navbar() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={t.search}
+                placeholder={labels.search}
                 className="pl-8 pr-3 py-2 text-sm rounded-lg bg-zinc-900 ring-1 ring-white/10 outline-none focus:ring-white/20 w-72"
               />
             </div>
@@ -286,7 +294,7 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="block rounded-lg px-3 py-2 hover:bg-white/10"
               >
-                {t[key]}
+                {labels[key]}
               </Link>
             ))}
 
