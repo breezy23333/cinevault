@@ -40,30 +40,31 @@ async function fetchIds(path: string): Promise<number[]> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const staticPages = [
-    "/",
-    "/top",
-    "/trending",
-    "/search",
-    "/store",
-    "/about",
-    "/support",
-    "/news",
-    "/anime",
-    "/cartoons",
-    "/notifications",
-    "/privacy",
-    "/terms",
-    "/login",
-    "/signup",
-    "/contact",
-    "/cookies",
-    "/dmca",
-    "/genre",
-    "/library",
-    "/rooms",
-    "/watchlist",
-    "/community",
-  ];
+  "/",
+  "/top",
+  "/trending",
+  "/search",
+  "/upcoming",
+  "/store",
+  "/about",
+  "/support",
+  "/news",
+  "/anime",
+  "/cartoons",
+  "/notifications",
+  "/privacy",
+  "/terms",
+  "/login",
+  "/signup",
+  "/contact",
+  "/cookies",
+  "/dmca",
+  "/genre",
+  "/library",
+  "/rooms",
+  "/watchlist",
+  "/community",
+];
 
   const movieIds = [
     ...(await fetchIds("/trending/movie/week?language=en-US")),
@@ -80,13 +81,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const uniqueMovieIds = [...new Set(movieIds)].slice(0, 120);
   const uniqueTvIds = [...new Set(tvIds)].slice(0, 120);
 
+  const upcomingPages = Array.from({ length: 5 }).map((_, i) => ({
+    url: `${baseUrl}/upcoming?page=${i + 1}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
+    priority: 0.8,
+    }));
+
   return [
-    ...staticPages.map((page) => ({
-      url: `${baseUrl}${page === "/" ? "" : page}`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: page === "/" ? 1 : 0.8,
-    })),
+  ...staticPages.map((page) => ({
+    url: `${baseUrl}${page === "/" ? "" : page}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
+    priority: page === "/" ? 1 : 0.8,
+  })),
+
+  ...upcomingPages,
 
     ...uniqueMovieIds.map((id) => ({
       url: `${baseUrl}/movie/${id}`,
