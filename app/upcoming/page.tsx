@@ -63,12 +63,18 @@ function Section({
   );
 }
 
-export default async function UpcomingPage() {
-  const [movies, tv, animation] = await Promise.all([
-    getUpcomingMovies(),
-    getUpcomingTvSeries(),
-    getUpcomingAnimation(),
-  ]);
+export default async function UpcomingPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Number(searchParams.page || 1);
+
+    const [movies, tv, animation] = await Promise.all([
+    getUpcomingMovies(page),
+    getUpcomingTvSeries(page),
+    getUpcomingAnimation(page),
+    ]);
 
   return (
     <main className="min-h-screen bg-[#05070d] px-4 py-24 text-white md:px-8">
@@ -105,6 +111,29 @@ export default async function UpcomingPage() {
           items={animation.slice(0, 20)}
           type="movie"
         />
+
+        <div className="flex items-center justify-center gap-4 pt-4">
+        {page > 1 && (
+            <Link
+            href={`/upcoming?page=${page - 1}`}
+            className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
+            >
+            ← Previous
+            </Link>
+        )}
+
+        <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-sm font-black text-yellow-300">
+            Page {page}
+        </span>
+
+        <Link
+            href={`/upcoming?page=${page + 1}`}
+            className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
+        >
+            Next →
+        </Link>
+        </div>
+
       </div>
     </main>
   );
