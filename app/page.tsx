@@ -2,6 +2,9 @@
 import {
   getPopularMovies,
   getTrendingAll,
+  getUpcomingMovies,
+  getUpcomingTvSeries,
+  getUpcomingAnimation,
   getMovieGenres,
   getTvByGenre,
 } from "@/lib/fetchers";
@@ -152,7 +155,11 @@ export default async function Home() {
   const newsItems =
   newsRes.status === "fulfilled" && Array.isArray(newsRes.value)
     ? newsRes.value
-    : [];    
+    : [];  
+    
+    const upcomingMovies = await getUpcomingMovies();
+    const upcomingTv = await getUpcomingTvSeries();
+    const upcomingAnimation = await getUpcomingAnimation();
 
   // ✅ TV categories
   const dramaTv = await getTvByGenre(18);
@@ -336,6 +343,18 @@ const cartoonShelf = await Promise.all(
             <ShelfRow items={trendingMoviesShelf} />
           </Panel>
 
+
+          <Panel eyebrow="Coming Soon" title="Upcoming Movies">
+            <ShelfRow
+              items={upcomingMovies
+                .slice(0, MAX_SHELF)
+                .map((movie: any) => ({
+                  ...toShelfMedia(movie),
+                  href: `/movie/${movie.id}`,
+                }))}
+            />
+          </Panel>
+
           <FeatureBreak
             title="Series Dimension"
             text="A second cinematic layer for TV worlds, drama, fantasy, and crime stories."
@@ -357,6 +376,17 @@ const cartoonShelf = await Promise.all(
 
           <Panel eyebrow="Dark files" title="Crime TV shows">
             <ShelfRow items={crimeShelf} />
+          </Panel>
+
+          <Panel eyebrow="Coming Soon" title="Upcoming TV Series">
+            <ShelfRow
+              items={upcomingTv
+                .slice(0, MAX_SHELF)
+                .map((show: any) => ({
+                  ...toShelfMedia({ ...show, media_type: "tv" }),
+                  href: `/tv/${show.id}`,
+                }))}
+            />
           </Panel>
 
           <FeatureBreak
@@ -396,6 +426,17 @@ const cartoonShelf = await Promise.all(
             }
           >
             <ShelfRow items={cartoonShelf} />
+          </Panel>
+
+          <Panel eyebrow="Coming Soon" title="Upcoming Animation">
+            <ShelfRow
+              items={upcomingAnimation
+                .slice(0, MAX_SHELF)
+                .map((movie: any) => ({
+                  ...toShelfMedia(movie),
+                  href: `/movie/${movie.id}`,
+                }))}
+            />
           </Panel>
 
           <Panel eyebrow="Industry radar" title="Top news">

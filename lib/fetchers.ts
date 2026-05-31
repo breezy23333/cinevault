@@ -205,3 +205,59 @@ export async function getTvByGenre(genreId: number, page = 1) {
     { revalidate: 120 }
   );
 }
+
+export async function getUpcomingMovies(page = 1) {
+  const today = new Date().toISOString().split("T")[0];
+
+  const data = await tmdb(
+    "/discover/movie",
+    {
+      language: "en-US",
+      sort_by: "popularity.desc",
+      page,
+      include_adult: false,
+      include_video: false,
+      "primary_release_date.gte": today,
+    },
+    { revalidate: 300 }
+  );
+
+  return data?.results || [];
+}
+
+export async function getUpcomingTvSeries(page = 1) {
+  const today = new Date().toISOString().split("T")[0];
+
+  const data = await tmdb(
+    "/discover/tv",
+    {
+      language: "en-US",
+      sort_by: "popularity.desc",
+      page,
+      "first_air_date.gte": today,
+    },
+    { revalidate: 300 }
+  );
+
+  return data?.results || [];
+}
+
+export async function getUpcomingAnimation(page = 1) {
+  const today = new Date().toISOString().split("T")[0];
+
+  const data = await tmdb(
+    "/discover/movie",
+    {
+      language: "en-US",
+      sort_by: "popularity.desc",
+      page,
+      include_adult: false,
+      include_video: false,
+      with_genres: "16",
+      "primary_release_date.gte": today,
+    },
+    { revalidate: 300 }
+  );
+
+  return data?.results || [];
+}
