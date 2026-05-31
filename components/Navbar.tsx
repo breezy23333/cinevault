@@ -20,6 +20,7 @@ import {
 const LINKS = [
   { href: "/", key: "home" },
   { href: "/search", key: "browse" },
+  { href: "/upcoming", key: "upcoming" },
   { href: "/store", key: "store" },
   { href: "/about", key: "about" },
   { href: "/support", key: "support" },
