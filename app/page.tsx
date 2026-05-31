@@ -344,7 +344,17 @@ const cartoonShelf = await Promise.all(
           </Panel>
 
 
-          <Panel eyebrow="Coming Soon" title="Upcoming Movies">
+          <Panel
+              eyebrow="Coming Soon"
+              title={
+                <div className="flex items-center justify-between">
+                  <span>Upcoming Movies</span>
+                  <a href="/upcoming" className="text-sm text-yellow-400 hover:underline">
+                    View all →
+                  </a>
+                </div>
+              }
+            >
             <ShelfRow
               items={upcomingMovies
                 .slice(0, MAX_SHELF)
@@ -378,7 +388,17 @@ const cartoonShelf = await Promise.all(
             <ShelfRow items={crimeShelf} />
           </Panel>
 
-          <Panel eyebrow="Coming Soon" title="Upcoming TV Series">
+          <Panel
+              eyebrow="Coming Soon"
+              title={
+                <div className="flex items-center justify-between">
+                  <span>Upcoming Movies</span>
+                  <a href="/upcoming" className="text-sm text-yellow-400 hover:underline">
+                    View all →
+                  </a>
+                </div>
+              }
+            >
             <ShelfRow
               items={upcomingTv
                 .slice(0, MAX_SHELF)
@@ -428,7 +448,17 @@ const cartoonShelf = await Promise.all(
             <ShelfRow items={cartoonShelf} />
           </Panel>
 
-          <Panel eyebrow="Coming Soon" title="Upcoming Animation">
+          <Panel
+            eyebrow="Coming Soon"
+            title={
+              <div className="flex items-center justify-between">
+                <span>Upcoming Movies</span>
+                <a href="/upcoming" className="text-sm text-yellow-400 hover:underline">
+                  View all →
+                </a>
+              </div>
+            }
+          >
             <ShelfRow
               items={upcomingAnimation
                 .slice(0, MAX_SHELF)
