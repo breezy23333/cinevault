@@ -33,6 +33,7 @@ export default function Navbar() {
   const labels: Record<string, string> = {
   home: "Home",
   browse: "Browse",
+  upcoming: "Upcoming",
   store: "Store",
   about: "About",
   support: "Support",
