@@ -469,6 +469,48 @@ const cartoonShelf = await Promise.all(
             />
           </Panel>
 
+          <section className="rounded-[30px] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+              News Channels
+            </p>
+
+            <h2 className="mt-2 text-2xl font-black md:text-3xl">
+              Explore News Categories
+            </h2>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <Link
+                href="/news/entertainment"
+                className="rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
+              >
+                <h3 className="text-xl font-black">Entertainment</h3>
+                <p className="mt-2 text-sm opacity-70">
+                  Movies, celebrities, streaming and culture.
+                </p>
+              </Link>
+
+              <Link
+                href="/news/gaming"
+                className="rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:border-cyan-400/60 hover:bg-cyan-400 hover:text-black"
+              >
+                <h3 className="text-xl font-black">Gaming</h3>
+                <p className="mt-2 text-sm opacity-70">
+                  Games, consoles, esports and industry updates.
+                </p>
+              </Link>
+
+              <Link
+                href="/news/sports"
+                className="rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:border-green-400/60 hover:bg-green-400 hover:text-black"
+              >
+                <h3 className="text-xl font-black">Sports</h3>
+                <p className="mt-2 text-sm opacity-70">
+                  Live headlines, major games and sports stories.
+                </p>
+              </Link>
+            </div>
+          </section>
+
           <Panel eyebrow="Industry radar" title="Top news">
             <NewsStrip items={newsItems.slice(0, MAX_NEWS)} />
           </Panel>
