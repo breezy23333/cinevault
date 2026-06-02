@@ -19,6 +19,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
+import MovieEras from "@/components/MovieEras";
 
 // runtime/perf
 export const runtime = "nodejs";
@@ -332,6 +333,8 @@ const cartoonShelf = await Promise.all(
               <CategoriesTray genres={genres} />
             )}
           </section>
+
+          <MovieEras />
 
           <FranchiseUniverse />
 
