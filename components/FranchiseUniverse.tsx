@@ -89,6 +89,31 @@ const franchises = [
     name: "Dune",
     image: "https://image.tmdb.org/t/p/w780/iqyPvdsOWM0QwEJ0r6qXxK6X.jpg",
   },
+  {
+  name: "X-Men",
+  image: "https://image.tmdb.org/t/p/w780/2k9tBql5GYH328Krj66tDT9LtFZ.jpg",
+  },
+  {
+    name: "Black Panther",
+    image: "https://image.tmdb.org/t/p/w780/b6ZJZHUdMEFECvGiDpJjlfUWela.jpg",
+  },
+  {
+    name: "Godzilla",
+    image: "https://image.tmdb.org/t/p/w780/inJjDhCjfhh3RtrJWBmmDqeuSYC.jpg",
+  },
+  {
+    name: "King Kong",
+    image: "https://image.tmdb.org/t/p/w780/8YFL5QQVPy3AgrEQxNYVSgiPEbe.jpg",
+  },
+  {
+    name: "Sonic",
+    image: "https://image.tmdb.org/t/p/w780/8wwXPG22aNMpPGuXnfm3galoxbI.jpg",
+  },
+  {
+    name: "Super Mario Bros",
+    image: "https://image.tmdb.org/t/p/w780/9n2tJBplPbgR2ca05hS5CKXwP2c.jpg",
+  },
+
 ];
 
 export default function FranchiseUniverse() {
@@ -148,8 +173,7 @@ export default function FranchiseUniverse() {
                     alt={f.name}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     onError={(e) => {
-                    e.currentTarget.src =
-                        "https://image.tmdb.org/t/p/w780/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg";
+                      e.currentTarget.src = "/og-image.png";
                     }}
                 />
 
