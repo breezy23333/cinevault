@@ -43,12 +43,42 @@ function authHeaders() {
   return bearer ? { Authorization: `Bearer ${bearer}` } : undefined;
 }
 
+const franchiseQueries: Record<string, string> = {
+  Marvel: "Avengers Endgame",
+  DC: "Justice League",
+  "Star Wars": "Star Wars",
+  "Fast and Furious": "Fast X",
+  "Harry Potter": "Harry Potter",
+  "Lord of the Rings": "The Lord of the Rings",
+  "The Hobbit": "The Hobbit",
+  "Jurassic Park": "Jurassic Park",
+  "Jurassic World": "Jurassic World",
+  Transformers: "Transformers Rise of the Beasts",
+  "Mission Impossible": "Mission Impossible Dead Reckoning",
+  "Pirates of the Caribbean": "Pirates of the Caribbean",
+  "John Wick": "John Wick",
+  "The Matrix": "The Matrix",
+  Avatar: "Avatar The Way of Water",
+  Batman: "The Batman",
+  "Spider-Man": "Spider-Man No Way Home",
+  Avengers: "Avengers Endgame",
+  Deadpool: "Deadpool & Wolverine",
+  Pokemon: "Detective Pikachu",
+  Dune: "Dune Part Two",
+  "X-Men": "X-Men Days of Future Past",
+  "Black Panther": "Black Panther Wakanda Forever",
+  Godzilla: "Godzilla x Kong",
+  "King Kong": "Godzilla x Kong",
+  Sonic: "Sonic the Hedgehog 3",
+  "Super Mario Bros": "The Super Mario Bros Movie",
+};
+
 export async function GET() {
   const results = await Promise.all(
     franchises.map(async (name) => {
-      const url = `${TMDB_BASE}/search/movie?query=${encodeURIComponent(
-        name
-      )}&include_adult=false&language=en-US&page=1`;
+      const query = franchiseQueries[name] || name;
+
+      const url = `${TMDB_BASE}/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`;           
 
       const res = await fetch(url, {
         headers: authHeaders(),
