@@ -6,6 +6,7 @@ import {
 } from "@/lib/news";
 import type { NewsItem } from "@/components/NewsStrip";
 import NewsCategoryGrid from "@/components/NewsCategoryGrid";
+import Link from "next/link";
 
 export const revalidate = 300;
 
@@ -41,6 +42,35 @@ export default async function NewsPage() {
 
   const sportsMain = sports.slice(0, 4);
   const gamingMain = gaming.slice(0, 4);
+
+  const newsSubcategories = {
+  Entertainment: [
+    "Movies",
+    "TV Shows",
+    "Streaming",
+    "Celebrities",
+    "Awards",
+    "Box Office",
+  ],
+  Gaming: [
+    "Console",
+    "PC",
+    "Mobile",
+    "Esports",
+    "PlayStation",
+    "Xbox",
+    "Nintendo",
+  ],
+  Sports: [
+    "Soccer",
+    "Football",
+    "Racing",
+    "Cricket",
+    "Rugby",
+    "Tennis",
+    "Basketball",
+  ],
+};
 
   return (
     <main className="min-h-screen bg-[#05070d] px-6 py-28 text-white">
@@ -184,6 +214,41 @@ export default async function NewsPage() {
             items={gamingMain}
             color="cyan"
           />
+
+          <section className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.45em] text-yellow-400">
+              News Subcategories
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black text-white">
+              Explore by topic
+            </h2>
+
+            <div className="mt-6 grid gap-6 md:grid-cols-3">
+              {Object.entries(newsSubcategories).map(([category, items]) => (
+                <div
+                  key={category}
+                  className="rounded-2xl border border-white/10 bg-black/30 p-5"
+                >
+                  <h3 className="text-xl font-black text-white">{category}</h3>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {items.map((item) => (
+                      <Link
+                        key={item}
+                        href={`/news/${category.toLowerCase()}/${item
+                          .toLowerCase()
+                          .replaceAll(" ", "-")}`}
+                        className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-bold text-white/80 hover:border-yellow-400 hover:text-yellow-300"
+                      >
+                        {item}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
       </section>
     </main>
