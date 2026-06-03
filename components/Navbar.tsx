@@ -300,6 +300,78 @@ export default function Navbar() {
               </Link>
             ))}
 
+            <div className="mt-4 border-t border-white/10 pt-4">
+
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg bg-white/10 px-3 py-2 text-center"
+              >
+                Login
+              </Link>
+
+             <Link
+                href="/signup"
+                onClick={() => setOpen(false)}
+                className="mt-2 block rounded-lg bg-yellow-400 px-3 py-2 text-center font-bold text-black"
+              > 
+                Sign Up
+              </Link>
+
+            </div>
+
+            <div className="mt-4 border-t border-white/10 pt-4 space-y-2">
+
+              <Link
+                href="/watchlist"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 hover:bg-white/10"
+              >
+                Watchlist
+              </Link>
+
+              <Link
+                href="/notifications"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 hover:bg-white/10"
+              >
+                Notifications
+              </Link>
+
+              <Link
+                href="/anime"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 hover:bg-white/10"
+              >
+                Anime
+              </Link>
+
+              <Link
+                href="/cartoons"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 hover:bg-white/10"
+              >
+                Cartoons
+              </Link>
+
+              <Link
+                href="/trending"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 hover:bg-white/10"
+              >
+                Trending
+              </Link>
+
+              <Link
+                href="/top"
+                onClick={() => setOpen(false)}
+                className="block rounded-lg px-3 py-2 hover:bg-white/10"
+              >
+                Top Rated
+              </Link>
+
+            </div>
+
             <div className="mt-6 rounded-2xl border border-yellow-400/25 bg-gradient-to-br from-white/[0.08] to-white/[0.03] p-3 shadow-[0_0_30px_rgba(250,204,21,0.08)]">
               <div className="mb-3 flex items-center justify-between">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-yellow-400">
