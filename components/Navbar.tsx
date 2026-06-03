@@ -45,6 +45,7 @@ export default function Navbar() {
   const [q, setQ] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
  
 
   useEffect(() => {
@@ -248,17 +249,40 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link
-              href="/search"
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen((v) => !v)}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white md:hidden"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
-            </Link>
+            </button>
 
           </div>
         </nav>
       </header>
+
+      {mobileSearchOpen && (
+        <form
+          onSubmit={(e) => {
+            submit(e);
+            setMobileSearchOpen(false);
+          }}
+          className="fixed left-3 right-3 top-16 z-[55] md:hidden"
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
+
+            <input
+              autoFocus
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search movies, shows..."
+              className="w-full rounded-2xl border border-yellow-400/30 bg-[#070a12] py-3 pl-10 pr-4 text-sm text-white outline-none shadow-2xl"
+            />
+          </div>
+        </form>
+      )}     
 
       {/* Drawer */}
       <div
@@ -278,7 +302,7 @@ export default function Navbar() {
                       transition-transform ${open ? "translate-x-0" : "-translate-x-full"}`}
         >
           <div className="flex items-center justify-between px-4 h-14">
-            <span className="font-semibold text-red-500">MENU</span>
+            <span className="font-semibold">Menu</span>
             <button
               onClick={() => setOpen(false)}
               aria-label="Close menu"
