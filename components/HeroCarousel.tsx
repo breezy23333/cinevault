@@ -30,6 +30,8 @@ export default function HeroCarousel({
 
   // index state
   const [i, setI] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   // if heroes list changes (navigation), keep index valid
   useEffect(() => {
@@ -44,7 +46,15 @@ export default function HeroCarousel({
 
   return (
     <section className="relative z-0 w-[100svw] md:w-[100vw] left-1/2 -translate-x-1/2 overflow-hidden">
-      <div className="relative h-[68vh] md:h-[78vh] max-w-[100vw]">
+      <div
+        className="relative h-[68vh] md:h-[78vh] max-w-[100vw]"
+        onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
+        onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
+        onTouchEnd={() => {
+          if (touchStart - touchEnd > 50) next();
+          if (touchEnd - touchStart > 50) prev();
+        }}
+      >
         {/* Backdrop */}
         {cur.backdrop ? (
           <Image
@@ -117,7 +127,7 @@ export default function HeroCarousel({
                 type="button"
                 aria-label="Previous"
                 onClick={prev}
-                className="pointer-events-auto hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/20 hover:bg-black/70 transition"
+                className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/20 hover:bg-black/70 transition"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>

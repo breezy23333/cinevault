@@ -14,9 +14,9 @@ export default function CategoriesTray({ genres }: { genres: Genre[] }) {
   const all = useMemo(() => (Array.isArray(genres) ? genres : []), [genres]);
 
   const chip =
-    "rounded-full px-4 py-1.5 text-sm ring-1 ring-amber-400/70 text-amber-200 " +
-    "hover:bg-amber-400 hover:text-black transition-colors duration-150 " +
-    "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300";
+  "rounded-full px-3 py-1 text-xs md:px-4 md:py-1.5 md:text-sm ring-1 ring-amber-400/70 text-amber-200 " +
+  "hover:bg-amber-400 hover:text-black transition-colors duration-150 " +
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300";
 
   const go = (g: Genre) => router.push(`/search?genre=${g.id}`);
 
@@ -47,7 +47,8 @@ export default function CategoriesTray({ genres }: { genres: Genre[] }) {
       <div
         data-open={open ? "true" : undefined}
         className="overflow-hidden transition-[max-height,opacity,margin-top] duration-300 ease-out
-                   max-h-0 opacity-0 data-[open=true]:max-h-64 data-[open=true]:opacity-100 data-[open=true]:mt-1"
+           max-h-0 opacity-0 data-[open=true]:max-h-[520px] data-[open=true]:opacity-100 data-[open=true]:mt-1
+           md:data-[open=true]:max-h-64"
       >
         <div className="mt-2 flex flex-wrap justify-center gap-2">
           {all.map((g) => (

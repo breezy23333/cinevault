@@ -28,7 +28,7 @@ export default function ExpandableHeroCarousel({
   if (!cards.length) return null;
 
   return (
-    <section className="relative overflow-hidden rounded-[36px] border border-white/10 bg-black/40 p-6 shadow-2xl">
+    <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-black/40 p-4 shadow-2xl md:rounded-[36px] md:p-6">
       <div className="mb-8 text-center">
         <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
           {eyebrow}
@@ -36,7 +36,7 @@ export default function ExpandableHeroCarousel({
         <h2 className="mt-2 text-3xl font-black md:text-5xl">{title}</h2>
       </div>
 
-      <div className="mx-auto flex h-[430px] max-w-7xl items-center justify-center gap-3 overflow-hidden">
+      <div className="mx-auto flex h-[360px] max-w-7xl snap-x snap-mandatory items-center justify-start gap-3 overflow-x-auto overflow-y-hidden px-1 pb-4 md:h-[430px] md:justify-center md:overflow-hidden">
         {cards.map((item, index) => {
           const isLeft = index < Math.floor(cards.length / 2);
           const origin = isLeft
@@ -49,7 +49,7 @@ export default function ExpandableHeroCarousel({
             <Link
               key={item.id}
               href={`/${item.media}/${item.id}`}
-              className={`group relative h-[380px] w-[120px] shrink-0 overflow-hidden rounded-[30px] border border-white/15 bg-white/10 shadow-2xl transition-all duration-500 hover:w-[420px] hover:border-yellow-400/60 ${origin}`}
+             className={`group relative h-[310px] w-[230px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-white/15 bg-white/10 shadow-2xl transition-all duration-500 md:h-[380px] md:w-[120px] md:hover:w-[420px] hover:border-yellow-400/60 ${origin}`}
             >
               <Image
                 src={item.backdrop || item.poster!}
