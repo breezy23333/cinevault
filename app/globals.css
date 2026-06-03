@@ -576,9 +576,22 @@ html[data-theme="Neon Blue"] header {
   }
 
   section,
-  main {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    main {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+    .max-w-\[1500px\],
+    .max-w-\[1400px\],
+    .max-w-7xl {
+      max-width: 100% !important;
+    }
+
+    [class*="rounded-[30px]"],
+    [class*="rounded-[36px]"] {
+      border-radius: 1.25rem !important;
+    }
   }
 
   button,
