@@ -549,3 +549,58 @@ html[data-theme="Cinematic Gold"] header {
 html[data-theme="Neon Blue"] header {
   box-shadow: 0 0 35px rgba(59, 130, 246, 0.22);
 }
+
+/* GLOBAL MOBILE OPTIMIZER */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 8vw, 2.6rem) !important;
+    line-height: 1.05 !important;
+  }
+
+  h2 {
+    font-size: clamp(1.4rem, 6vw, 2rem) !important;
+    line-height: 1.1 !important;
+  }
+
+  p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  section,
+  main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  button,
+  a {
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  .hero,
+  [class*="hero"],
+  [class*="Hero"] {
+    min-height: 430px !important;
+    height: 430px !important;
+  }
+
+  [class*="Hero"] > div,
+  [class*="hero"] > div {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
