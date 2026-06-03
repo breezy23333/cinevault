@@ -278,7 +278,7 @@ export default function Navbar() {
                       transition-transform ${open ? "translate-x-0" : "-translate-x-full"}`}
         >
           <div className="flex items-center justify-between px-4 h-14">
-            <span className="font-semibold">Menu</span>
+            <span className="font-semibold text-red-500">MENU TEST</span>
             <button
               onClick={() => setOpen(false)}
               aria-label="Close menu"
