@@ -1,8 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import { discoverMovies } from "@/lib/fetchers";
+import type { Metadata } from "next";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Trending Movies & TV Shows | CineVault",
+  description:
+    "See what the world is watching right now. Discover trending movies, TV series, anime, and animated content on CineVault.",
+  keywords: [
+    "trending movies",
+    "trending tv shows",
+    "popular movies",
+    "popular series",
+    "trending anime",
+    "what to watch",
+    "cinevault trending",
+  ],
+  openGraph: {
+    title: "Trending Movies & TV Shows | CineVault",
+    description:
+      "Explore the hottest entertainment trending worldwide.",
+    type: "website",
+  },
+};
 
 const img = (p?: string | null) =>
   p ? `https://image.tmdb.org/t/p/w342${p}` : null;
