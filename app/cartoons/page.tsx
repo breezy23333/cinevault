@@ -1,8 +1,30 @@
 import { getTvByGenre } from "@/lib/fetchers";
+import type { Metadata } from "next";
 
 export const revalidate = 120;
 
 const MAX_SHELF = 60;
+
+export const metadata: Metadata = {
+  title: "Best Cartoons & Animated Shows | CineVault",
+  description:
+    "Discover classic cartoons, animated adventures, family favorites, and trending animated series on CineVault.",
+  keywords: [
+    "cartoons",
+    "animated shows",
+    "animation",
+    "cartoon movies",
+    "family animation",
+    "trending cartoons",
+    "CineVault cartoons",
+  ],
+  openGraph: {
+    title: "Best Cartoons & Animated Shows | CineVault",
+    description:
+      "Explore the world's best cartoons and animated entertainment.",
+    type: "website",
+  },
+};
 
 const toShelfMedia = (x: any) => ({
   id: Number(x.id),
