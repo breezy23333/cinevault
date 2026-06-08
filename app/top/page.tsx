@@ -2,8 +2,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import { discoverMovies, getMovieGenres } from "@/lib/fetchers";
+import type { Metadata } from "next";
 
 export const revalidate = 300; // cache homepage for 5 minutes
+
+export const metadata: Metadata = {
+  title: "Top Rated Movies & TV Shows | CineVault",
+  description:
+    "Explore the highest rated movies, TV series, anime, and animated classics on CineVault.",
+  keywords: [
+    "top movies",
+    "best movies",
+    "top tv shows",
+    "highest rated movies",
+    "best anime",
+    "top entertainment",
+    "cinevault top",
+  ],
+  openGraph: {
+    title: "Top Rated Movies & TV Shows | CineVault",
+    description:
+      "Discover the highest rated entertainment from around the world.",
+    type: "website",
+  },
+};
 
 // ---- types (minimal, to keep TS happy) ----
 type TMDBItem = {
