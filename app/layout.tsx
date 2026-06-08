@@ -51,6 +51,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
+    
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "CineVault",
+    url: "https://cinevault-tau-drab.vercel.app",
+    logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
+    sameAs: [],
   };
 
 return (
@@ -60,6 +70,13 @@ return (
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(websiteJsonLd),
+          }}
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
           }}
         />
 
