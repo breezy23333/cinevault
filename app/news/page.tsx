@@ -8,25 +8,26 @@ import type { NewsItem } from "@/components/NewsStrip";
 import NewsCategoryGrid from "@/components/NewsCategoryGrid";
 import Link from "next/link";
 
+
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Entertainment News Room – CineVault",
+  title: "Entertainment, Gaming & Sports News | CineVault",
   description:
-    "Read live entertainment headlines, celebrity updates, streaming stories, movie news, TV updates, and industry signals on CineVault.",
+    "Read live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news on CineVault.",
 
   openGraph: {
-    title: "Entertainment News Room – CineVault",
+    title: "Entertainment, Gaming & Sports News | CineVault",
     description:
-      "Live entertainment headlines, celebrity updates, streaming stories, movie news, TV updates, and industry signals.",
+      "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
     type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Entertainment News Room – CineVault",
+    title: "Entertainment, Gaming & Sports News | CineVault",
     description:
-      "Live entertainment headlines, celebrity updates, streaming stories, movie news, TV updates, and industry signals.",
+      "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
   },
 };
 
