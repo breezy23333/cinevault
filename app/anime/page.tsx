@@ -1,8 +1,30 @@
 import { getTvByGenre } from "@/lib/fetchers";
+import type { Metadata } from "next";
 
 export const revalidate = 120;
 
 const MAX_SHELF = 60;
+
+export const metadata: Metadata = {
+  title: "Best Anime Series & Movies | CineVault",
+  description:
+    "Discover trending anime series, classic anime films, top-rated adventures, fantasy worlds, action anime, and more on CineVault.",
+  keywords: [
+    "anime",
+    "best anime",
+    "anime movies",
+    "anime series",
+    "trending anime",
+    "anime streaming",
+    "CineVault anime",
+  ],
+  openGraph: {
+    title: "Best Anime Series & Movies | CineVault",
+    description:
+      "Explore trending and top-rated anime from around the world.",
+    type: "website",
+  },
+};
 
 const toShelfMedia = (x: any) => ({
   id: Number(x.id),
