@@ -4,6 +4,7 @@ import "./globals.css";
 import AppShell from "@/components/AppShell";
 import CineVaultIntro from "@/components/CineVaultIntro";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import JsonLd from "@/components/JsonLd";
 
 
 export const metadata: Metadata = {
@@ -84,6 +85,33 @@ return (
           <CineVaultIntro />
           <AppShell>{children}</AppShell>
         </>
+
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "CineVault",
+            url: "https://cinevault-tau-drab.vercel.app",
+            description:
+              "CineVault helps you discover movies, TV shows, anime, cartoons, trending titles, top-rated content, and entertainment news.",
+            potentialAction: {
+              "@type": "SearchAction",
+              target:
+                "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          }}
+        />
+
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "CineVault",
+            url: "https://cinevault-tau-drab.vercel.app",
+            logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
+          }}
+        />
 
         <GoogleAnalytics />
     </body>
