@@ -103,6 +103,50 @@ export default async function TrendingPage() {
           );
         })}
       </div>
+
+        <section className="mt-12 px-4 md:px-8">
+          <h2 className="text-2xl font-black mb-4">
+            Continue Exploring
+          </h2>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <Link
+              href="/top"
+              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
+            >
+              Top Rated →
+            </Link>
+
+            <Link
+              href="/anime"
+              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
+            >
+              Anime →
+            </Link>
+
+            <Link
+              href="/cartoons"
+              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
+            >
+              Cartoons →
+            </Link>
+
+            <Link
+              href="/news"
+              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
+            >
+              Entertainment News →
+            </Link>
+
+            <Link
+              href="/upcoming"
+              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
+            >
+              Upcoming Releases →
+            </Link>
+          </div>
+        </section>
+
     </main>
   );
 }

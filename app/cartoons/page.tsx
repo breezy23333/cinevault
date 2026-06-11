@@ -149,6 +149,43 @@ export default async function CartoonsPage({
           ))}
         </div>
       </div>
+
+        <section className="mt-12 px-4 md:px-8">
+          <h2 className="text-2xl font-black mb-4">
+            Continue Exploring
+          </h2>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <a
+              href="/anime"
+              className="rounded-2xl border border-white/10 bg-[#0c111b] p-4 hover:bg-white/10"
+            >
+              Anime →
+            </a>
+
+            <a
+              href="/trending"
+              className="rounded-2xl border border-white/10 bg-[#0c111b] p-4 hover:bg-white/10"
+            >
+              Trending →
+            </a>
+
+            <a
+              href="/top"
+              className="rounded-2xl border border-white/10 bg-[#0c111b] p-4 hover:bg-white/10"
+            >
+              Top Rated →
+            </a>
+
+            <a
+              href="/news"
+              className="rounded-2xl border border-white/10 bg-[#0c111b] p-4 hover:bg-white/10"
+            >
+              Animation News →
+            </a>
+          </div>
+        </section>
+
     </main>
   );
 }
