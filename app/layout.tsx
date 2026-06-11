@@ -67,48 +67,38 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 return (
   <html lang="en">
     <body className="bg-[#05070d] text-white">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteJsonLd),
-          }}
-        />
-        <>
-          <CineVaultIntro />
-          <AppShell>{children}</AppShell>
-        </>
+      <CineVaultIntro />
+      <AppShell>{children}</AppShell>
 
-        <JsonLd
-          data={{
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: "CineVault",
-            url: "https://cinevault-tau-drab.vercel.app",
-            description:
-              "CineVault helps you discover movies, TV shows, anime, cartoons, trending titles, top-rated content, and entertainment news.",
-            potentialAction: {
-              "@type": "SearchAction",
-              target:
-                "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
-              "query-input": "required name=search_term_string",
-            },
-          }}
-        />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "CineVault",
+          url: "https://cinevault-tau-drab.vercel.app",
+          description:
+            "CineVault helps you discover movies, TV shows, anime, cartoons, trending titles, top-rated content, and entertainment news.",
+          potentialAction: {
+            "@type": "SearchAction",
+            target:
+              "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }}
+      />
 
-        <JsonLd
-          data={{
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "CineVault",
-            url: "https://cinevault-tau-drab.vercel.app",
-            logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
-            sameAs: [
-              "https://x.com/your-account"
-            ]
-          }}
-        />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "CineVault",
+          url: "https://cinevault-tau-drab.vercel.app",
+          logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
+          sameAs: [],
+        }}
+      />
 
-        <GoogleAnalytics />
+      <GoogleAnalytics />
     </body>
   </html>
 );
