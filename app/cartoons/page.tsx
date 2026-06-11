@@ -60,8 +60,35 @@ export default async function CartoonsPage({
 
   const hero = cartoonShelf[0];
 
+  const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://cinevault-tau-drab.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Cartoons",
+      item: "https://cinevault-tau-drab.vercel.app/cartoons",
+    },
+  ],
+};
+
   return (
     <main className="min-h-screen bg-[#0e131f] pb-12">
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
       <section
         className="relative h-[62vh] flex items-end px-6 md:px-12 bg-cover bg-center"
         style={{

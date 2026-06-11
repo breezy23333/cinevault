@@ -95,6 +95,19 @@ return (
           }}
         />
 
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "CineVault",
+            url: "https://cinevault-tau-drab.vercel.app",
+            logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
+            sameAs: [
+              "https://x.com/your-account"
+            ]
+          }}
+        />
+
         <GoogleAnalytics />
     </body>
   </html>

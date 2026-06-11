@@ -85,8 +85,35 @@ export default async function HomePage() {
   const yearItems: TMDBItem[] = year2024?.results ?? [];
   const horrorItems: TMDBItem[] = horror?.results ?? [];
 
+  const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://cinevault-tau-drab.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Top",
+      item: "https://cinevault-tau-drab.vercel.app/top",
+    },
+  ],
+};
+
   return (
     <main className="mx-auto max-w-6xl p-6 space-y-10">
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
       <Hero item={popularItems[0]} />
 
       <Row title="Popular now" items={popularItems} />

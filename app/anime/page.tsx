@@ -60,9 +60,34 @@ export default async function AnimePage({
 
   const hero = animeShelf[0];
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://cinevault-tau-drab.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Anime",
+        item: "https://cinevault-tau-drab.vercel.app/anime",
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[#0e131f] pb-12">
-      <section
+      <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbJsonLd),
+          }}
+        />
+        <section
         className="relative h-[62vh] flex items-end px-6 md:px-12 bg-cover bg-center"
         style={{
           backgroundImage: hero?.poster

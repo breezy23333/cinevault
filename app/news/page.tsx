@@ -73,8 +73,35 @@ export default async function NewsPage() {
   ],
 };
 
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://cinevault-tau-drab.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "News",
+      item: "https://cinevault-tau-drab.vercel.app/news",
+    },
+  ],
+};
+
   return (
     <main className="min-h-screen bg-[#05070d] px-6 py-28 text-white">
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
       <section className="mx-auto max-w-7xl">
         <p className="mb-3 text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
           Industry Radar

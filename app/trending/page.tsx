@@ -33,8 +33,35 @@ export default async function TrendingPage() {
   const data = await discoverMovies({ page: 1 }); // you can improve later
   const items = data?.results ?? [];
 
+  const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://cinevault-tau-drab.vercel.app",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Trending",
+      item: "https://cinevault-tau-drab.vercel.app/trending",
+    },
+  ],
+};
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
       <h1 className="mb-6 text-3xl font-bold">Trending</h1>
 
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
