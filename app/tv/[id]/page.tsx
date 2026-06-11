@@ -420,35 +420,50 @@ const breadcrumbJsonLd = {
               cartoons, and cinematic universes.
             </p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Link
                 href="/trending"
                 className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/50 hover:bg-white/10"
               >
-                Trending
+                Trending TV Shows
               </Link>
 
               <Link
                 href="/top"
                 className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/50 hover:bg-white/10"
               >
-                Top Rated
+                Top Rated Shows
               </Link>
 
               <Link
                 href="/anime"
                 className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-pink-400/50 hover:bg-white/10"
               >
-                Anime
+                Anime Series
               </Link>
 
               <Link
                 href="/cartoons"
                 className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-cyan-400/50 hover:bg-white/10"
               >
-                Cartoons
+                Animated Shows
+              </Link>
+
+              <Link
+                href="/news"
+                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-green-400/50 hover:bg-white/10"
+              >
+                TV News
+              </Link>
+
+              <Link
+                href="/upcoming"
+                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-orange-400/50 hover:bg-white/10"
+              >
+                Upcoming Series
               </Link>
             </div>
+            
           </section>
         <Comments movieId={id} title={title} />
       </section>
