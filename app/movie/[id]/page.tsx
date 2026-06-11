@@ -232,9 +232,6 @@ const breadcrumbJsonLd = {
         }}
       />
 
-       
-
-
       {/* BODY */}
       <section className="mx-auto w-full max-w-[1200px] px-4 md:px-6 mt-8 space-y-10">
 
@@ -383,9 +380,12 @@ export async function generateMetadata({ params }: PageProps) {
     const movie = await getMovieDetails(Number(id));
 
     const year = movie.release_date?.slice(0, 4) || "";
-    const poster = movie.poster_path
-      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
-      : null;
+    const image =
+      movie.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+        : movie.poster_path
+        ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+        : null;
 
     return {
       title: `${movie.title} (${year}) – CineVault`,
@@ -402,18 +402,20 @@ export async function generateMetadata({ params }: PageProps) {
         description:
           movie.overview ||
           `Watch ${movie.title} online on CineVault.`,
-        images: poster ? [poster] : [],
-        type: "website",
+        url: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+        siteName: "CineVault",
+        images: image ? [image] : [],
+        locale: "en_US",
+        type: "video.movie",
       },
-
-      twitter: {
+       twitter: {
         card: "summary_large_image",
         title: `${movie.title} (${year}) – CineVault`,
         description:
           movie.overview ||
           `Watch ${movie.title} online on CineVault.`,
-        images: poster ? [poster] : [],
-      },
+        images: image ? [image] : [],
+      },     
     };
   } catch {
     return {

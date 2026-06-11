@@ -463,9 +463,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const title = tv.name || tv.original_name || "TV Show";
     const year = tv.first_air_date?.slice(0, 4) || "";
-    const poster = tv.poster_path
-      ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
-      : null;
+    const image =
+      tv.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}`
+        : tv.poster_path
+        ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
+        : null;
 
     return {
       title: `${title} (${year}) – CineVault`,
@@ -482,8 +485,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         description:
           tv.overview ||
           `Watch ${title} online on CineVault.`,
-        images: poster ? [poster] : [],
-        type: "website",
+        url: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
+        siteName: "CineVault",
+        images: image ? [image] : [],
+        locale: "en_US",
+        type: "video.tv_show",
       },
 
       twitter: {
@@ -492,7 +498,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         description:
           tv.overview ||
           `Watch ${title} online on CineVault.`,
-        images: poster ? [poster] : [],
+        images: image ? [image] : [],
       },
     };
   } catch {

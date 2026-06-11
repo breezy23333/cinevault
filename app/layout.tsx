@@ -73,14 +73,6 @@ return (
             __html: JSON.stringify(websiteJsonLd),
           }}
         />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
-          }}
-        />
-
         <>
           <CineVaultIntro />
           <AppShell>{children}</AppShell>
@@ -100,16 +92,6 @@ return (
                 "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
               "query-input": "required name=search_term_string",
             },
-          }}
-        />
-
-        <JsonLd
-          data={{
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "CineVault",
-            url: "https://cinevault-tau-drab.vercel.app",
-            logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
           }}
         />
 
