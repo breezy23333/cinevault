@@ -5,11 +5,47 @@ import Link from "next/link";
 export const metadata = {
   title: "About — CineVault",
   description: "Who we are and how we help you find where to watch.",
+  alternates: {
+  canonical: "/about",
+},
+
+openGraph: {
+  title: "About CineVault",
+  description:
+    "Learn about CineVault and our mission to help users discover movies, TV shows, anime, cartoons, and streaming platforms.",
+  url: "/about",
+  siteName: "CineVault",
+  images: ["/og-image.png"],
+  type: "website",
+},
+
+twitter: {
+  card: "summary_large_image",
+  title: "About CineVault",
+  description:
+    "Learn about CineVault and our mission to help users discover entertainment.",
+  images: ["/og-image.png"],
+},
+};
+
+const aboutJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "About CineVault",
+  description:
+    "Learn about CineVault and our mission to help users discover movies, TV shows, anime, cartoons, and entertainment.",
+  url: "https://cinevault-tau-drab.vercel.app/about",
 };
 
 export default function AboutPage() {
   return (
     <main className="bg-[#0b0f1a] pb-16 pt-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(aboutJsonLd),
+        }}
+      />
       <section className="mx-auto max-w-6xl px-4">
         <p className="text-xs uppercase tracking-[0.2em] text-yellow-400/90">
           Our Mission
