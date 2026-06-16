@@ -1,6 +1,56 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Use | CineVault",
+  description:
+    "Read the CineVault Terms of Use covering platform access, accounts, watchlists, copyright, service availability, and user responsibilities.",
+  keywords: [
+    "terms of use",
+    "terms and conditions",
+    "CineVault terms",
+    "user agreement",
+    "watchlist terms",
+    "copyright",
+  ],
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "Terms of Use | CineVault",
+    description:
+      "Read CineVault's terms covering accounts, watchlists, copyright, and platform usage.",
+    url: "/terms",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms of Use | CineVault",
+    description:
+      "Read CineVault's Terms of Use and platform policies.",
+    images: ["/og-image.png"],
+  },
+};
+
+const termsJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Terms of Use",
+  description:
+    "Terms of Use governing access to and use of CineVault services.",
+  url: "https://cinevault-tau-drab.vercel.app/terms",
+};
+
 export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#050816] text-white px-6 py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(termsJsonLd),
+        }}
+      />
       <div className="mx-auto max-w-5xl">
 
         {/* Header */}

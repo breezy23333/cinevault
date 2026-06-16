@@ -9,7 +9,7 @@ export const revalidate = 300; // cache homepage for 5 minutes
 export const metadata: Metadata = {
   title: "Top Rated Movies & TV Shows | CineVault",
   description:
-    "Explore the highest rated movies, TV series, anime, and animated classics on CineVault.",
+    "Explore top rated movies, popular TV shows, anime, animated classics, horror hits, and highly rated entertainment on CineVault.",
   keywords: [
     "top movies",
     "best movies",
@@ -17,13 +17,27 @@ export const metadata: Metadata = {
     "highest rated movies",
     "best anime",
     "top entertainment",
-    "cinevault top",
+    "popular movies",
+    "CineVault top",
   ],
+  alternates: {
+    canonical: "/top",
+  },
   openGraph: {
     title: "Top Rated Movies & TV Shows | CineVault",
     description:
-      "Discover the highest rated entertainment from around the world.",
+      "Discover top rated movies, popular shows, anime, cartoons, and highly rated entertainment.",
+    url: "/top",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Top Rated Movies & TV Shows | CineVault",
+    description:
+      "Explore top rated movies, popular shows, anime, and animated classics.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -104,6 +118,20 @@ export default async function HomePage() {
   ],
 };
 
+const topJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Top Rated Movies & TV Shows",
+  description:
+    "Explore top rated movies, popular TV shows, anime, animated classics, horror hits, and highly rated entertainment on CineVault.",
+  url: "https://cinevault-tau-drab.vercel.app/top",
+  isPartOf: {
+    "@type": "WebSite",
+    name: "CineVault",
+    url: "https://cinevault-tau-drab.vercel.app",
+  },
+};
+
   return (
     <main className="mx-auto max-w-6xl p-6 space-y-10">
 
@@ -111,6 +139,13 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(topJsonLd),
         }}
       />
 
@@ -124,7 +159,6 @@ export default async function HomePage() {
       <h2 className="text-2xl font-black mb-4">
         Continue Exploring
       </h2>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Link
           href="/trending"

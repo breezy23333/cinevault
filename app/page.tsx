@@ -395,7 +395,7 @@ const cartoonShelf = await Promise.all(
               eyebrow="Coming Soon"
               title={
                 <div className="flex items-center justify-between">
-                  <span>Upcoming Movies</span>
+                  <span>Upcoming TV Series</span>
                   <a href="/upcoming" className="text-sm text-yellow-400 hover:underline">
                     View all →
                   </a>
@@ -455,7 +455,7 @@ const cartoonShelf = await Promise.all(
             eyebrow="Coming Soon"
             title={
               <div className="flex items-center justify-between">
-                <span>Upcoming Movies</span>
+                <span>Upcoming Animation</span>
                 <a href="/upcoming" className="text-sm text-yellow-400 hover:underline">
                   View all →
                 </a>

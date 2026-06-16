@@ -2,9 +2,35 @@
 import Image from "next/image";
 import Link from "next/link";
 import { discoverMovies, searchTitles } from "@/lib/fetchers";
+import type { Metadata } from "next";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Search Movies & TV Shows | CineVault",
+  description:
+    "Search movies, TV shows, anime, cartoons, and entertainment titles on CineVault.",
+  alternates: {
+    canonical: "/search",
+  },
+  openGraph: {
+    title: "Search Movies & TV Shows | CineVault",
+    description:
+      "Find movies, TV shows, anime, cartoons, and entertainment titles.",
+    url: "/search",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Search Movies & TV Shows | CineVault",
+    description:
+      "Search movies, TV shows, anime, cartoons, and entertainment titles.",
+    images: ["/og-image.png"],
+  },
+};
 
 /* ---------------- helpers ---------------- */
 

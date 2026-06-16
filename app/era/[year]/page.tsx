@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w342";
@@ -11,6 +12,38 @@ function authHeaders() {
     process.env.NEXT_PUBLIC_TMDB_TOKEN;
 
   return bearer ? { Authorization: `Bearer ${bearer}` } : undefined;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ year: string }>;
+}): Promise<Metadata> {
+  const { year } = await params;
+  const startYear = Number(year);
+  const endYear = startYear + 9;
+
+  return {
+    title: `${startYear}s Movies | CineVault`,
+    description: `Explore popular movies released between ${startYear} and ${endYear} on CineVault.`,
+    alternates: {
+      canonical: `/era/${startYear}`,
+    },
+    openGraph: {
+      title: `${startYear}s Movies | CineVault`,
+      description: `Discover popular movies from the ${startYear}s era on CineVault.`,
+      url: `/era/${startYear}`,
+      siteName: "CineVault",
+      images: ["/og-image.png"],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${startYear}s Movies | CineVault`,
+      description: `Explore popular movies from ${startYear} to ${endYear}.`,
+      images: ["/og-image.png"],
+    },
+  };
 }
 
 export default async function EraPage({
@@ -38,8 +71,27 @@ export default async function EraPage({
   const data = await res.json();
   const movies = data.results || [];
 
+  const eraJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${startYear}s Movies`,
+    description: `Explore popular movies released between ${startYear} and ${endYear}.`,
+    url: `https://cinevault-tau-drab.vercel.app/era/${startYear}`,
+    isPartOf: {
+        "@type": "WebSite",
+        name: "CineVault",
+        url: "https://cinevault-tau-drab.vercel.app",
+    },
+    };
+
   return (
     <main className="min-h-screen bg-[#05070d] px-6 py-28 text-white">
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+                __html: JSON.stringify(eraJsonLd),
+            }}
+        />
         <section className="mx-auto max-w-7xl">
         <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
             Cinema Through Time

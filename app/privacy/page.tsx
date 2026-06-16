@@ -1,6 +1,56 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | CineVault",
+  description:
+    "Learn how CineVault collects, uses, protects, and manages personal information, cookies, analytics, and user data.",
+  keywords: [
+    "privacy policy",
+    "CineVault privacy",
+    "user data",
+    "data protection",
+    "cookies",
+    "analytics",
+  ],
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: "Privacy Policy | CineVault",
+    description:
+      "Learn how CineVault handles privacy, cookies, analytics, and user data.",
+    url: "/privacy",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy | CineVault",
+    description:
+      "Learn how CineVault collects, uses, and protects user information.",
+    images: ["/og-image.png"],
+  },
+};
+
+const privacyJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Privacy Policy",
+  description:
+    "Learn how CineVault collects, uses, protects, and manages personal information and user data.",
+  url: "https://cinevault-tau-drab.vercel.app/privacy",
+};
+
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-[#050816] text-white px-6 py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(privacyJsonLd),
+        }}
+      />
       <div className="mx-auto max-w-4xl">
 
         {/* Header */}

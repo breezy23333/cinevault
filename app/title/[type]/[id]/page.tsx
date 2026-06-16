@@ -5,7 +5,16 @@ import {
 } from "@/lib/fetchers";
 import TmdbProviders from "@/components/TmdbProviders";
 import YouTube from "@/components/YouTube"; // client component; safe to import here
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Title Details | CineVault",
+  description: "CineVault title details page.",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 type PageProps = {
   params: Promise<{ type: "movie" | "tv"; id: string }>;

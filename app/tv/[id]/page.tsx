@@ -125,6 +125,7 @@ export default async function TvPage({ params }: PageProps) {
   name: title,
   description: details.overview,
   image: poster,
+  url: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
   genre: details.genres?.map((g: any) => g.name),
   datePublished: details.first_air_date,
   aggregateRating: rating

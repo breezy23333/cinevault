@@ -1,5 +1,31 @@
 import { getTvByGenre, getTrendingAll } from "@/lib/fetchers";
 import dynamic from "next/dynamic";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Browse TV Shows | CineVault",
+  description:
+    "Discover trending TV shows, drama series, fantasy worlds, crime stories, anime, and popular series on CineVault.",
+  alternates: {
+    canonical: "/tv",
+  },
+  openGraph: {
+    title: "Browse TV Shows | CineVault",
+    description:
+      "Explore trending TV shows, drama series, fantasy worlds, crime stories, and popular series.",
+    url: "/tv",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Browse TV Shows | CineVault",
+    description:
+      "Discover trending TV shows, drama, fantasy, crime, anime, and popular series.",
+    images: ["/og-image.png"],
+  },
+};
 
 export const runtime = "nodejs";
 export const revalidate = 120;
@@ -40,8 +66,23 @@ export default async function TVPage() {
   const fantasyShelf = fantasy.results.slice(0, MAX_SHELF).map(toShelfMedia);
   const crimeShelf = crime.results.slice(0, MAX_SHELF).map(toShelfMedia);
 
+  const tvJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Browse TV Shows",
+  description:
+    "Discover trending TV shows, drama series, fantasy worlds, crime stories, anime, and popular series on CineVault.",
+  url: "https://cinevault-tau-drab.vercel.app/tv",
+};
+
   return (
     <main className="min-h-screen bg-[#080b12] text-white pt-28 pb-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(tvJsonLd),
+        }}
+      />
       <section className="mx-auto max-w-[1600px] px-4 md:px-8 space-y-8">
         <div className="rounded-3xl bg-gradient-to-r from-[#111827] via-[#172033] to-[#0b0f19] ring-1 ring-white/10 p-6 md:p-10">
           <p className="text-sm font-semibold text-yellow-400 mb-2">

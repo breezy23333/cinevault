@@ -8,7 +8,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Trending Movies & TV Shows | CineVault",
   description:
-    "See what the world is watching right now. Discover trending movies, TV series, anime, and animated content on CineVault.",
+    "See what the world is watching right now. Discover trending movies, popular TV series, anime, cartoons, and entertainment on CineVault.",
   keywords: [
     "trending movies",
     "trending tv shows",
@@ -16,13 +16,27 @@ export const metadata: Metadata = {
     "popular series",
     "trending anime",
     "what to watch",
-    "cinevault trending",
+    "popular entertainment",
+    "CineVault trending",
   ],
+  alternates: {
+    canonical: "/trending",
+  },
   openGraph: {
     title: "Trending Movies & TV Shows | CineVault",
     description:
-      "Explore the hottest entertainment trending worldwide.",
+      "Explore trending movies, TV shows, anime, cartoons, and popular entertainment worldwide.",
+    url: "/trending",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trending Movies & TV Shows | CineVault",
+    description:
+      "See trending movies, shows, anime, cartoons, and entertainment now.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -52,6 +66,20 @@ export default async function TrendingPage() {
   ],
 };
 
+const trendingJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Trending Movies & TV Shows",
+  description:
+    "Discover trending movies, popular TV series, anime, cartoons, and entertainment on CineVault.",
+  url: "https://cinevault-tau-drab.vercel.app/trending",
+  isPartOf: {
+    "@type": "WebSite",
+    name: "CineVault",
+    url: "https://cinevault-tau-drab.vercel.app",
+  },
+};
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
 
@@ -59,6 +87,13 @@ export default async function TrendingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(trendingJsonLd),
         }}
       />
 

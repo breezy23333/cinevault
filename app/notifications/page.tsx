@@ -1,8 +1,18 @@
 import NotificationsClient from "@/components/NotificationsClient";
+import type { Metadata } from "next";
 
 export const revalidate = 3600;
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
+
+export const metadata: Metadata = {
+  title: "Notifications | CineVault",
+  description: "View your CineVault notifications and trending alerts.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 function authHeaders() {
   const bearer =

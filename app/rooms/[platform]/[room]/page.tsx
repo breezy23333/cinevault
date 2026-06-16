@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Watch Party Room | CineVault",
+  description: "Private CineVault room.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 type PageProps = {
   params: Promise<{ platform: string; room: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;

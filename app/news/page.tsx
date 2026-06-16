@@ -15,19 +15,24 @@ export const metadata: Metadata = {
   title: "Entertainment, Gaming & Sports News | CineVault",
   description:
     "Read live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news on CineVault.",
-
+  alternates: {
+    canonical: "/news",
+  },
   openGraph: {
     title: "Entertainment, Gaming & Sports News | CineVault",
     description:
       "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
+    url: "/news",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
     type: "website",
   },
-
   twitter: {
     card: "summary_large_image",
     title: "Entertainment, Gaming & Sports News | CineVault",
     description:
       "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -92,6 +97,20 @@ const breadcrumbJsonLd = {
   ],
 };
 
+const newsJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Entertainment, Gaming & Sports News",
+  description:
+    "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
+  url: "https://cinevault-tau-drab.vercel.app/news",
+  isPartOf: {
+    "@type": "WebSite",
+    name: "CineVault",
+    url: "https://cinevault-tau-drab.vercel.app",
+  },
+};
+
   return (
     <main className="min-h-screen bg-[#05070d] px-6 py-28 text-white">
 
@@ -99,6 +118,13 @@ const breadcrumbJsonLd = {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(newsJsonLd),
         }}
       />
 

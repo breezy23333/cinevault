@@ -5,8 +5,28 @@ import ContactForm from "../../components/support/ContactForm";
 import FAQ from "../../components/support/FAQ";
 
 export const metadata: Metadata = {
-  title: "Support • CineVault",
-  description: "Get help, contact us, and browse FAQs.",
+  title: "Support | CineVault",
+  description:
+    "Get CineVault support for account issues, search problems, watch providers, technical bugs, FAQs, and platform help.",
+  alternates: {
+    canonical: "/support",
+  },
+  openGraph: {
+    title: "Support | CineVault",
+    description:
+      "Browse CineVault FAQs, support topics, account help, provider guidance, and technical troubleshooting.",
+    url: "/support",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Support | CineVault",
+    description:
+      "Get help with CineVault account, search, providers, and technical issues.",
+    images: ["/og-image.png"],
+  },
 };
 
 const CATEGORIES = [
@@ -16,9 +36,24 @@ const CATEGORIES = [
   { title: "Technical Issues", href: "/support/tech", desc: "Loading errors, layout glitches." },
 ];
 
+const supportJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Support",
+  description:
+    "Get CineVault support for account issues, search problems, watch providers, technical bugs, FAQs, and platform help.",
+  url: "https://cinevault-tau-drab.vercel.app/support",
+};
+
 export default function SupportPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(supportJsonLd),
+        }}
+      />
       {/* HERO — solid background */}
       <section className="relative h-[320px] sm:h-[420px] lg:h-[500px] overflow-hidden rounded-[28px] bg-[#0f1218] ring-1 ring-white/5">
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white px-4">

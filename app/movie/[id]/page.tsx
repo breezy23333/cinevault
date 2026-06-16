@@ -89,22 +89,23 @@ export default async function MoviePage({ params }: PageProps) {
     ?? videos.find(v => v.site === "YouTube")?.key;
 
   const movieJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Movie",
-  name: details.title,
-  description: details.overview,
-  image: poster,
-  datePublished: details.release_date,
-  aggregateRating: rating
-    ? {
-        "@type": "AggregateRating",
-        ratingValue: rating,
-        bestRating: 10,
-        worstRating: 0,
-      }
-    : undefined,
-};
-
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    name: details.title,
+    description: details.overview,
+    image: poster,
+    datePublished: details.release_date,
+    url: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+    genre: details.genres?.map((g: any) => g.name),
+    aggregateRating: rating
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: rating,
+          bestRating: 10,
+          worstRating: 0,
+        }
+      : undefined,
+  };
 
 const breadcrumbJsonLd = {
   "@context": "https://schema.org",
@@ -326,6 +327,10 @@ const breadcrumbJsonLd = {
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Explore More
           </p>
+
+          <Link href="/categories">
+            Categories
+          </Link>
 
           <h2 className="mt-2 text-3xl font-black">
             Continue Exploring CineVault

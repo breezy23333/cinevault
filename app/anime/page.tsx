@@ -8,21 +8,43 @@ const MAX_SHELF = 60;
 export const metadata: Metadata = {
   title: "Best Anime Series & Movies | CineVault",
   description:
-    "Discover trending anime series, classic anime films, top-rated adventures, fantasy worlds, action anime, and more on CineVault.",
+    "Discover trending anime series, classic anime films, top-rated adventures, fantasy worlds, action anime, and Japanese animation on CineVault.",
   keywords: [
     "anime",
     "best anime",
     "anime movies",
     "anime series",
     "trending anime",
-    "anime streaming",
+    "Japanese animation",
+    "action anime",
+    "fantasy anime",
     "CineVault anime",
   ],
+  alternates: {
+    canonical: "/anime",
+  },
   openGraph: {
     title: "Best Anime Series & Movies | CineVault",
     description:
-      "Explore trending and top-rated anime from around the world.",
+      "Explore trending anime series, top-rated anime movies, fantasy worlds, action anime, and Japanese animation on CineVault.",
+    url: "/anime",
+    siteName: "CineVault",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CineVault Anime",
+      },
+    ],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Best Anime Series & Movies | CineVault",
+    description:
+      "Discover trending anime series, anime movies, fantasy anime, and Japanese animation on CineVault.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -79,6 +101,20 @@ export default async function AnimePage({
     ],
   };
 
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Best Anime Series & Movies",
+    description:
+      "Discover trending anime series, classic anime films, fantasy worlds, action anime, and Japanese animation on CineVault.",
+    url: "https://cinevault-tau-drab.vercel.app/anime",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "CineVault",
+      url: "https://cinevault-tau-drab.vercel.app",
+    },
+  };
+
   return (
     <main className="min-h-screen bg-[#0e131f] pb-12">
       <script
@@ -87,6 +123,13 @@ export default async function AnimePage({
             __html: JSON.stringify(breadcrumbJsonLd),
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(collectionJsonLd),
+          }}
+        />
+
         <section
         className="relative h-[62vh] flex items-end px-6 md:px-12 bg-cover bg-center"
         style={{

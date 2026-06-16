@@ -1,6 +1,57 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy | CineVault",
+  description:
+    "Learn how CineVault uses cookies, browser storage, analytics, personalization, and related technologies.",
+  keywords: [
+    "cookie policy",
+    "CineVault cookies",
+    "website cookies",
+    "browser storage",
+    "privacy",
+    "analytics cookies",
+  ],
+  alternates: {
+    canonical: "/cookies",
+  },
+  openGraph: {
+    title: "Cookie Policy | CineVault",
+    description:
+      "Understand how CineVault uses cookies and browser storage technologies.",
+    url: "/cookies",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cookie Policy | CineVault",
+    description:
+      "Learn how CineVault uses cookies, analytics, and browser storage.",
+    images: ["/og-image.png"],
+  },
+};
+
+const policyJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Cookie Policy",
+  description:
+    "Learn how CineVault uses cookies, browser storage, analytics, and personalization technologies.",
+  url: "https://cinevault-tau-drab.vercel.app/cookies",
+};
+
 export default function CookiesPage() {
   return (
     <main className="min-h-screen bg-[#050816] text-white px-6 py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(policyJsonLd),
+        }}
+      />
+
       <div className="mx-auto max-w-5xl">
 
         {/* Header */}

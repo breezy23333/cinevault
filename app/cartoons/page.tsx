@@ -8,7 +8,7 @@ const MAX_SHELF = 60;
 export const metadata: Metadata = {
   title: "Best Cartoons & Animated Shows | CineVault",
   description:
-    "Discover classic cartoons, animated adventures, family favorites, and trending animated series on CineVault.",
+    "Discover classic cartoons, animated adventures, family favorites, trending animated series, and cartoon worlds on CineVault.",
   keywords: [
     "cartoons",
     "animated shows",
@@ -16,13 +16,35 @@ export const metadata: Metadata = {
     "cartoon movies",
     "family animation",
     "trending cartoons",
+    "classic cartoons",
+    "animated series",
     "CineVault cartoons",
   ],
+  alternates: {
+    canonical: "/cartoons",
+  },
   openGraph: {
     title: "Best Cartoons & Animated Shows | CineVault",
     description:
-      "Explore the world's best cartoons and animated entertainment.",
+      "Explore classic cartoons, animated shows, family favorites, and trending animated entertainment on CineVault.",
+    url: "/cartoons",
+    siteName: "CineVault",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CineVault Cartoons",
+      },
+    ],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Best Cartoons & Animated Shows | CineVault",
+    description:
+      "Discover classic cartoons, animated shows, family favorites, and trending animation on CineVault.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -79,6 +101,20 @@ export default async function CartoonsPage({
   ],
 };
 
+const collectionJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Best Cartoons & Animated Shows",
+  description:
+    "Discover classic cartoons, animated adventures, family favorites, trending animated series, and cartoon worlds on CineVault.",
+  url: "https://cinevault-tau-drab.vercel.app/cartoons",
+  isPartOf: {
+    "@type": "WebSite",
+    name: "CineVault",
+    url: "https://cinevault-tau-drab.vercel.app",
+  },
+};
+
   return (
     <main className="min-h-screen bg-[#0e131f] pb-12">
 
@@ -86,6 +122,13 @@ export default async function CartoonsPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionJsonLd),
         }}
       />
 

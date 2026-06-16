@@ -9,6 +9,9 @@ import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
+  alternates: {
+  canonical: "/",
+},
   title: {
     default: "CineVault – Movies, TV Shows, Anime & Cartoons",
     template: "%s | CineVault",

@@ -3,9 +3,38 @@ import FAQ from "../../components/FAQ";
 import ContactForm from "../../components/ContactForm";
 import ContactAside from "../../components/ContactAside";
 
-export const metadata = {
-  title: "Contact • CineVault",
-  description: "Get in touch with CineVault",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact CineVault",
+  description:
+    "Contact CineVault for support, bug reports, collaboration requests, feedback, and entertainment platform ideas.",
+  keywords: [
+    "contact CineVault",
+    "CineVault support",
+    "movie website contact",
+    "CineVault feedback",
+    "CineVault collaboration",
+  ],
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact CineVault",
+    description:
+      "Get in touch with CineVault for support, feedback, bug reports, and collaboration.",
+    url: "/contact",
+    siteName: "CineVault",
+    images: ["/og-image.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact CineVault",
+    description:
+      "Reach CineVault for support, feedback, bug reports, and collaboration.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function ContactPage() {

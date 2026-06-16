@@ -79,8 +79,23 @@ export default async function UpcomingPage({
     getUpcomingAnimation(page),
     ]);
 
+    const upcomingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Upcoming Movies, TV Series & Animation",
+    description:
+      "Discover upcoming movies, TV series, anime, cartoons, and animated releases before they arrive on CineVault.",
+    url: "https://cinevault-tau-drab.vercel.app/upcoming",
+  };
+
   return (
     <main className="min-h-screen bg-[#05070d] px-4 py-24 text-white md:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(upcomingJsonLd),
+        }}
+      />
       <div className="mx-auto max-w-[1500px] space-y-10">
         <section className="rounded-[34px] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/10 via-white/[0.04] to-blue-500/10 p-8">
           <p className="text-xs font-black uppercase tracking-[0.4em] text-yellow-400">

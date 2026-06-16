@@ -51,18 +51,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   "/news",
   "/anime",
   "/cartoons",
-  "/notifications",
   "/privacy",
   "/terms",
-  "/login",
-  "/signup",
   "/contact",
   "/cookies",
   "/dmca",
-  "/genre",
-  "/library",
-  "/rooms",
-  "/watchlist",
   "/community",
 ];
 

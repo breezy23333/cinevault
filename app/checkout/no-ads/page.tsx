@@ -1,4 +1,15 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "No Ads Plan Checkout | CineVault",
+  description:
+    "Checkout page for the CineVault No Ads plan.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function NoAdsCheckoutPage() {
   return (

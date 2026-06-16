@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 const CATS: { label: string; id: number; hue: string }[] = [
   { label: "Action", id: 28, hue: "from-red-300 to-orange-300" },
@@ -17,9 +18,76 @@ const CATS: { label: string; id: number; hue: string }[] = [
   { label: "Thriller", id: 53, hue: "from-orange-300 to-amber-300" },
 ];
 
+<div className="mt-10 grid gap-4 md:grid-cols-4">
+  <Link href="/trending">Trending Movies →</Link>
+  <Link href="/top">Top Rated →</Link>
+  <Link href="/anime">Anime →</Link>
+  <Link href="/cartoons">Cartoons →</Link>
+</div>
+
+export const metadata: Metadata = {
+  title: "Movie Categories & Genres | CineVault",
+  description:
+    "Browse movies and TV shows by genre including Action, Comedy, Drama, Horror, Sci-Fi, Romance, Fantasy, Thriller, and more.",
+  keywords: [
+    "movie genres",
+    "movie categories",
+    "action movies",
+    "comedy movies",
+    "drama movies",
+    "horror movies",
+    "science fiction movies",
+    "fantasy movies",
+    "thriller movies",
+    "CineVault genres",
+  ],
+  alternates: {
+    canonical: "/categories",
+  },
+  openGraph: {
+    title: "Movie Categories & Genres | CineVault",
+    description:
+      "Explore movies and TV shows by genre on CineVault.",
+    url: "/categories",
+    siteName: "CineVault",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CineVault Categories",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Movie Categories & Genres | CineVault",
+    description:
+      "Browse Action, Comedy, Drama, Horror, Sci-Fi, Fantasy and more.",
+    images: ["/og-image.png"],
+  },
+};
+
+const collectionJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Movie Categories & Genres",
+  description:
+    "Browse movies and TV shows by genre including Action, Comedy, Drama, Horror, Sci-Fi, Romance, Fantasy, and Thriller.",
+  url: "https://cinevault-tau-drab.vercel.app/categories",
+};
+
 export default function CategoriesPage() {
   return (
     <main className="mx-auto max-w-6xl p-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionJsonLd),
+        }}
+      />
+
       <h1 className="text-2xl font-bold mb-4">Browse by category</h1>
 
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
