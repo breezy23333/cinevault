@@ -20,13 +20,13 @@ export async function generateMetadata({
   const name = formatGenre(slug);
 
   return {
-    title: `${name} Movies & TV Shows | CineVault`,
-    description: `Browse ${name} movies, TV shows, anime, cartoons, trending titles, and entertainment content on CineVault.`,
+    title: `${name} Movies & Shows | CineVault`,
+    description: `Browse ${name} movies, TV shows, anime, cartoons, trending titles, and entertainment picks on CineVault.`,
     alternates: {
       canonical: `/genre/${slug}`,
     },
     openGraph: {
-      title: `${name} Movies & TV Shows | CineVault`,
+      title: `${name} Movies & Shows | CineVault`,
       description: `Discover ${name} movies, shows, anime, cartoons, and entertainment content.`,
       url: `/genre/${slug}`,
       siteName: "CineVault",
@@ -35,12 +35,23 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${name} Movies & TV Shows | CineVault`,
+      title: `${name} Movies & Shows | CineVault`,
       description: `Explore ${name} movies, TV shows, anime, cartoons, and entertainment.`,
       images: ["/og-image.png"],
     },
   };
 }
+
+const links = [
+  { label: "Search Titles", href: "/search" },
+  { label: "Trending", href: "/trending" },
+  { label: "Top Rated", href: "/top" },
+  { label: "Upcoming", href: "/upcoming" },
+  { label: "Anime", href: "/anime" },
+  { label: "Cartoons", href: "/cartoons" },
+  { label: "News", href: "/news" },
+  { label: "Community", href: "/community" },
+];
 
 export default async function GenrePage({ params }: PageProps) {
   const { slug } = await params;
@@ -49,7 +60,7 @@ export default async function GenrePage({ params }: PageProps) {
   const genreJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `${genreName} Movies & TV Shows`,
+    name: `${genreName} Movies & Shows`,
     description: `Browse ${genreName} movies, TV shows, anime, cartoons, trending titles, and entertainment content on CineVault.`,
     url: `https://cinevault-tau-drab.vercel.app/genre/${slug}`,
     isPartOf: {
@@ -69,47 +80,48 @@ export default async function GenrePage({ params }: PageProps) {
       />
 
       <section className="mx-auto max-w-6xl">
-        <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-          CineVault Genres
-        </p>
+        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-yellow-400/[0.08] p-8 md:p-12">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+            CineVault Genres
+          </p>
 
-        <h1 className="mt-4 text-5xl font-black md:text-7xl">
-          {genreName}
-        </h1>
+          <h1 className="mt-4 max-w-4xl text-5xl font-black md:text-7xl">
+            {genreName}
+          </h1>
 
-        <p className="mt-5 max-w-3xl text-lg text-white/65">
-          Explore {genreName} movies, TV shows, anime, cartoons, trending
-          titles, and entertainment recommendations on CineVault.
-        </p>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/65">
+            Explore {genreName} movies, TV shows, anime, cartoons, trending
+            titles, top rated picks, upcoming releases, and entertainment
+            recommendations on CineVault.
+          </p>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            href="/trending"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 font-bold hover:border-yellow-400/60"
-          >
-            Trending →
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href={`/search?genre=${slug}`}
+              className="rounded-full bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+            >
+              Browse {genreName}
+            </Link>
 
-          <Link
-            href="/top"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 font-bold hover:border-yellow-400/60"
-          >
-            Top Rated →
-          </Link>
+            <Link
+              href="/trending"
+              className="rounded-full border border-white/15 px-6 py-3 font-black text-white hover:border-yellow-400/70"
+            >
+              Trending Now
+            </Link>
+          </div>
+        </div>
 
-          <Link
-            href="/anime"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 font-bold hover:border-pink-400/60"
-          >
-            Anime →
-          </Link>
-
-          <Link
-            href="/cartoons"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 font-bold hover:border-cyan-400/60"
-          >
-            Cartoons →
-          </Link>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {links.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 font-black transition hover:-translate-y-1 hover:border-yellow-400/60 hover:bg-white/[0.07]"
+            >
+              {item.label} →
+            </Link>
+          ))}
         </div>
       </section>
     </main>
