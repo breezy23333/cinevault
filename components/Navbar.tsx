@@ -17,14 +17,59 @@ import {
   Bookmark
 } from "lucide-react";
 
-const LINKS = [
-  { href: "/", key: "home" },
-  { href: "/search", key: "browse" },
-  { href: "/upcoming", key: "upcoming" },
-  { href: "/store", key: "store" },
-  { href: "/about", key: "about" },
-  { href: "/support", key: "support" },
-  { href: "/news", key: "news" },
+const NAV_GROUPS = [
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Movies",
+    href: "/movie",
+    dropdown: [
+      { label: "Popular Movies", href: "/movie" },
+      { label: "Trending Movies", href: "/trending" },
+      { label: "Top Rated", href: "/top" },
+      { label: "Upcoming Movies", href: "/upcoming" },
+    ],
+  },
+  {
+    label: "TV Shows",
+    href: "/tv",
+    dropdown: [
+      { label: "Popular TV Shows", href: "/tv" },
+      { label: "Trending TV", href: "/search?type=tv" },
+      { label: "Top Rated TV", href: "/top" },
+    ],
+  },
+  {
+    label: "Animation",
+    href: "/animation",
+    dropdown: [
+      { label: "Anime", href: "/anime" },
+      { label: "Cartoons", href: "/cartoons" },
+    ],
+  },
+  {
+    label: "Browse",
+    href: "/search",
+  },
+  {
+    label: "News",
+    href: "/news",
+    dropdown: [
+      { label: "Entertainment", href: "/news/entertainment" },
+      { label: "Gaming", href: "/news/gaming" },
+      { label: "Sports", href: "/news/sports" },
+    ],
+  },
+  {
+    label: "Store",
+    href: "/store",
+  },
+  {
+    label: "Support",
+    href: "/support",
+  },
 ] as const;
 
 export default function Navbar() {
@@ -151,16 +196,31 @@ export default function Navbar() {
 
           {/* Links with category-like animation */}
           <ul className="hidden md:flex items-center gap-2 ml-2">
-            {LINKS.map(({ href, key }) => {
-              const active = isActive(href);
+            {NAV_GROUPS.map((item) => {
+              const active = isActive(item.href);
+
               return (
-                <li key={href}>
+                <li key={item.href} className="group relative">
                   <Link
-                    href={href}
+                    href={item.href}
                     className={`${pillBase} ${active ? "bg-amber-400 text-black" : ""}`}
                   >
-                    {labels[key]}
+                    {item.label}
                   </Link>
+
+                  {"dropdown" in item && item.dropdown && (
+                    <div className="invisible absolute left-0 top-full z-50 mt-3 w-56 rounded-2xl border border-white/10 bg-[#0b0f1a]/95 p-2 opacity-0 shadow-2xl backdrop-blur-xl transition group-hover:visible group-hover:opacity-100">
+                      {item.dropdown.map((drop) => (
+                        <Link
+                          key={drop.href}
+                          href={drop.href}
+                          className="block rounded-xl px-4 py-3 text-sm font-bold text-white/75 hover:bg-yellow-400 hover:text-black"
+                        >
+                          {drop.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -313,17 +373,32 @@ export default function Navbar() {
           </div>
           <nav className="h-[calc(100vh-56px)] overflow-y-auto px-3 py-2 space-y-2 hide-scrollbar">
 
-            {LINKS.map(({ href, key }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                {labels[key]}
-              </Link>
-            ))}
+            {NAV_GROUPS.map((item) => (
+              <div key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-lg px-3 py-2 font-bold hover:bg-white/10"
+                >
+                  {item.label}
+                </Link>
 
+                {"dropdown" in item && item.dropdown && (
+                  <div className="ml-3 space-y-1 border-l border-white/10 pl-3">
+                    {item.dropdown.map((drop) => (
+                      <Link
+                        key={drop.href}
+                        href={drop.href}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-lg px-3 py-2 text-sm text-white/65 hover:bg-white/10 hover:text-white"
+                      >
+                        {drop.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
             <div className="mt-4 border-t border-white/10 pt-4">
 
               <Link
