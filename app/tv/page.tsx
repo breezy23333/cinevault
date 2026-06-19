@@ -1,131 +1,137 @@
-import { getTvByGenre, getTrendingAll } from "@/lib/fetchers";
-import dynamic from "next/dynamic";
 import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Browse TV Shows | CineVault",
+  title: "TV Shows | CineVault",
   description:
-    "Discover trending TV shows, drama series, fantasy worlds, crime stories, anime, and popular series on CineVault.",
+    "Browse popular TV shows, trending series, top rated shows, drama, fantasy, crime, anime, and entertainment recommendations on CineVault.",
   alternates: {
     canonical: "/tv",
   },
-  openGraph: {
-    title: "Browse TV Shows | CineVault",
-    description:
-      "Explore trending TV shows, drama series, fantasy worlds, crime stories, and popular series.",
-    url: "/tv",
-    siteName: "CineVault",
-    images: ["/og-image.png"],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Browse TV Shows | CineVault",
-    description:
-      "Discover trending TV shows, drama, fantasy, crime, anime, and popular series.",
-    images: ["/og-image.png"],
-  },
 };
 
-export const runtime = "nodejs";
-export const revalidate = 120;
+const TMDB_BASE = "https://api.themoviedb.org/3";
 
-const ShelfRow = dynamic(() => import("@/components/ShelfRow"), {
-  ssr: true,
-});
-
-const MAX_SHELF = 18;
-
-const toShelfMedia = (x: any) => ({
-  id: Number(x.id),
-  media: "tv" as const,
-  title: x.name || x.title || "Untitled",
-  poster: x.poster_path
-    ? `https://image.tmdb.org/t/p/w342${x.poster_path}`
-    : null,
-  year: String(x.first_air_date || x.release_date || "").slice(0, 4),
-  rating:
-    typeof x.vote_average === "number"
-      ? Math.round(x.vote_average * 10) / 10
-      : undefined,
-  href: `/tv/${x.id}`,
-});
-
-export default async function TVPage() {
-  const trending = await getTrendingAll(1);
-  const drama = await getTvByGenre(18);
-  const fantasy = await getTvByGenre(10765);
-  const crime = await getTvByGenre(80);
-
-  const trendingTv = trending.results
-    .filter((x: any) => x.media_type === "tv")
-    .slice(0, MAX_SHELF)
-    .map(toShelfMedia);
-
-  const dramaShelf = drama.results.slice(0, MAX_SHELF).map(toShelfMedia);
-  const fantasyShelf = fantasy.results.slice(0, MAX_SHELF).map(toShelfMedia);
-  const crimeShelf = crime.results.slice(0, MAX_SHELF).map(toShelfMedia);
-
-  const tvJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  name: "Browse TV Shows",
-  description:
-    "Discover trending TV shows, drama series, fantasy worlds, crime stories, anime, and popular series on CineVault.",
-  url: "https://cinevault-tau-drab.vercel.app/tv",
+type Show = {
+  id: number;
+  name: string;
+  overview?: string;
+  poster_path?: string;
+  first_air_date?: string;
+  vote_average?: number;
 };
 
-  return (
-    <main className="min-h-screen bg-[#080b12] text-white pt-28 pb-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(tvJsonLd),
-        }}
-      />
-      <section className="mx-auto max-w-[1600px] px-4 md:px-8 space-y-8">
-        <div className="rounded-3xl bg-gradient-to-r from-[#111827] via-[#172033] to-[#0b0f19] ring-1 ring-white/10 p-6 md:p-10">
-          <p className="text-sm font-semibold text-yellow-400 mb-2">
-            CineVault TV
-          </p>
+async function getTvShows(page = 1) {
+  const token =
+    process.env.TMDB_BEARER ||
+    process.env.TMDB_READ ||
+    process.env.NEXT_PUBLIC_TMDB_TOKEN;
 
-          <h1 className="text-3xl md:text-5xl font-black">
-            Browse TV Shows
-          </h1>
+  let res: Response;
 
-          <p className="mt-3 max-w-2xl text-white/70">
-            Discover trending series, drama shows, fantasy worlds, crime stories,
-            anime, and more.
-          </p>
-        </div>
+  try {
+    res = await fetch(
+      `${TMDB_BASE}/tv/popular?language=en-US&page=${page}`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        next: { revalidate: 300 },
+      }
+    );
+  } catch {
+    return { results: [], page: 1, total_pages: 1 };
+  }
 
-        <Panel title="Trending TV Shows">
-          <ShelfRow items={trendingTv} />
-        </Panel>
+  if (!res.ok) return { results: [], page: 1, total_pages: 1 };
 
-        <Panel title="Drama TV Shows">
-          <ShelfRow items={dramaShelf} />
-        </Panel>
-
-        <Panel title="Fantasy TV Shows">
-          <ShelfRow items={fantasyShelf} />
-        </Panel>
-
-        <Panel title="Crime TV Shows">
-          <ShelfRow items={crimeShelf} />
-        </Panel>
-      </section>
-    </main>
-  );
+  return res.json();
 }
 
-function Panel({ title, children }: any) {
+export default async function TVPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params?.page || 1);
+  const data = await getTvShows(page);
+  const shows: Show[] = data.results || [];
+
   return (
-    <section className="rounded-2xl bg-[#0c111b] ring-1 ring-white/10 overflow-hidden">
-      <div className="px-4 md:px-6 py-4">
-        <h2 className="text-xl font-bold">{title}</h2>
-      </div>
-      <div className="px-2 md:px-4 pb-4">{children}</div>
-    </section>
+    <main className="min-h-screen bg-[#05070d] px-6 py-24 text-white">
+      <section className="mx-auto max-w-7xl">
+        <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+          CineVault TV
+        </p>
+
+        <h1 className="mt-4 text-5xl font-black md:text-7xl">
+          TV Shows
+        </h1>
+
+        <p className="mt-5 max-w-3xl text-lg text-white/65">
+          Browse popular TV shows, trending series, top rated shows, drama,
+          fantasy, crime stories, anime, and entertainment discoveries.
+        </p>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          {shows.map((show) => (
+            <Link
+              key={show.id}
+              href={`/tv/${show.id}`}
+              className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-yellow-400/60"
+            >
+              <div className="relative aspect-[2/3] bg-white/5">
+                {show.poster_path ? (
+                  <Image
+                    src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                    alt={show.name}
+                    fill
+                    className="object-cover transition group-hover:scale-105"
+                    sizes="(max-width: 768px) 50vw, 20vw"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-white/40">
+                    No Image
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4">
+                <h2 className="line-clamp-1 font-black">
+                  {show.name}
+                </h2>
+
+                <p className="mt-2 text-sm text-white/50">
+                  {show.first_air_date?.slice(0, 4) || "Unknown"} • ⭐{" "}
+                  {show.vote_average?.toFixed(1) || "N/A"}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-12 flex items-center justify-center gap-4">
+          {page > 1 && (
+            <Link
+              href={`/tv?page=${page - 1}`}
+              className="rounded-full border border-white/10 px-6 py-3 font-black hover:border-yellow-400/60"
+            >
+              ← Previous
+            </Link>
+          )}
+
+          <span className="rounded-full bg-white/[0.06] px-6 py-3 font-black">
+            Page {page}
+          </span>
+
+          <Link
+            href={`/tv?page=${page + 1}`}
+            className="rounded-full bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+          >
+            Next →
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }
