@@ -18,10 +18,8 @@ import {
 } from "lucide-react";
 
 const NAV_GROUPS = [
-  {
-    label: "Home",
-    href: "/",
-  },
+  { label: "Home", href: "/" },
+
   {
     label: "Movies",
     href: "/movie",
@@ -32,6 +30,7 @@ const NAV_GROUPS = [
       { label: "Upcoming Movies", href: "/upcoming" },
     ],
   },
+
   {
     label: "TV Shows",
     href: "/tv",
@@ -41,6 +40,7 @@ const NAV_GROUPS = [
       { label: "Top Rated TV", href: "/top" },
     ],
   },
+
   {
     label: "Animation",
     href: "/animation",
@@ -49,10 +49,19 @@ const NAV_GROUPS = [
       { label: "Cartoons", href: "/cartoons" },
     ],
   },
+
   {
     label: "Browse",
     href: "/search",
+    dropdown: [
+      { label: "Search", href: "/search" },
+      { label: "Library", href: "/library" },
+      { label: "Community", href: "/community" },
+      { label: "Store", href: "/store" },
+      { label: "Support", href: "/support" },
+    ],
   },
+
   {
     label: "News",
     href: "/news",
@@ -61,14 +70,6 @@ const NAV_GROUPS = [
       { label: "Gaming", href: "/news/gaming" },
       { label: "Sports", href: "/news/sports" },
     ],
-  },
-  {
-    label: "Store",
-    href: "/store",
-  },
-  {
-    label: "Support",
-    href: "/support",
   },
 ] as const;
 
@@ -209,7 +210,7 @@ export default function Navbar() {
                   </Link>
 
                   {"dropdown" in item && item.dropdown && (
-                    <div className="invisible absolute left-0 top-full z-50 mt-3 w-56 rounded-2xl border border-white/10 bg-[#0b0f1a]/95 p-2 opacity-0 shadow-2xl backdrop-blur-xl transition group-hover:visible group-hover:opacity-100">
+                    <div className="invisible absolute left-0 top-full z-50 mt-1 w-56 rounded-2xl border border-white/10 bg-[#0b0f1a]/95 p-2 opacity-0 shadow-2xl backdrop-blur-xl transition group-hover:visible group-hover:opacity-100">
                       {item.dropdown.map((drop) => (
                         <Link
                           key={drop.href}
