@@ -38,7 +38,7 @@ const NAV_GROUPS = [
       { label: "Popular TV Shows", href: "/tv/popular" },
       { label: "Trending TV Shows", href: "/tv/trending" },
       { label: "Top Rated TV Shows", href: "/tv/top" },
-      { label: "Upcoming TV Shows", href: "/upcoming/tv" },
+      { label: "Upcoming TV Shows", href: "/upcoming" },
     ],
   },
 

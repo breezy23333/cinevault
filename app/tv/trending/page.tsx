@@ -10,8 +10,15 @@ export const metadata: Metadata = {
   description: "Discover trending TV shows people are watching right now.",
 };
 
-export default async function TrendingTvPage() {
-  const data = await getTrendingTv();
+export default async function TrendingTvPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page || 1));
+
+  const data = await getTrendingTv(page);
   const shows = data?.results || [];
 
   return (
@@ -47,12 +54,35 @@ export default async function TrendingTvPage() {
               <h2 className="line-clamp-1 font-semibold text-white">
                 {show.name}
               </h2>
+
               <p className="text-sm text-zinc-400">
                 ⭐ {show.vote_average?.toFixed(1) || "N/A"}
               </p>
             </div>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-10 flex items-center justify-center gap-4">
+        {page > 1 && (
+          <Link
+            href={`/tv/trending?page=${page - 1}`}
+            className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold text-white hover:bg-yellow-400 hover:text-black"
+          >
+            ← Previous
+          </Link>
+        )}
+
+        <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-sm font-black text-yellow-300">
+          Page {page}
+        </span>
+
+        <Link
+          href={`/tv/trending?page=${page + 1}`}
+          className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold text-white hover:bg-yellow-400 hover:text-black"
+        >
+          Next →
+        </Link>
       </div>
     </main>
   );

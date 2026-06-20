@@ -11,15 +11,20 @@ export const metadata: Metadata = {
     "Discover the most popular TV shows streaming right now on CineVault.",
 };
 
-export default async function PopularTvPage() {
-  const data = await getPopularTv();
+export default async function PopularTvPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page || 1));
+
+  const data = await getPopularTv(page);
   const shows = data?.results || [];
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-28">
-      <h1 className="mb-2 text-4xl font-bold text-white">
-        Popular TV Shows
-      </h1>
+      <h1 className="mb-2 text-4xl font-bold text-white">Popular TV Shows</h1>
 
       <p className="mb-8 text-zinc-400">
         The most watched and talked-about TV series right now.
@@ -55,6 +60,28 @@ export default async function PopularTvPage() {
             </div>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-10 flex items-center justify-center gap-4">
+        {page > 1 && (
+          <Link
+            href={`/tv/popular?page=${page - 1}`}
+            className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold text-white hover:bg-yellow-400 hover:text-black"
+          >
+            ← Previous
+          </Link>
+        )}
+
+        <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-sm font-black text-yellow-300">
+          Page {page}
+        </span>
+
+        <Link
+          href={`/tv/popular?page=${page + 1}`}
+          className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold text-white hover:bg-yellow-400 hover:text-black"
+        >
+          Next →
+        </Link>
       </div>
     </main>
   );
