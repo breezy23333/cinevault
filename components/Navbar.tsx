@@ -35,9 +35,10 @@ const NAV_GROUPS = [
     label: "TV Shows",
     href: "/tv",
     dropdown: [
-      { label: "Popular TV Shows", href: "/tv" },
-      { label: "Trending TV Shows", href: "/tv?page=2" },
-      { label: "More TV Shows", href: "/tv?page=3" },
+      { label: "Popular TV Shows", href: "/tv/popular" },
+      { label: "Trending TV Shows", href: "/tv/trending" },
+      { label: "Top Rated TV Shows", href: "/tv/top" },
+      { label: "Upcoming TV Shows", href: "/upcoming/tv" },
     ],
   },
 

@@ -180,6 +180,32 @@ export async function getTVDetails(id: number) {
   return tmdb(`/tv/${id}`, undefined, { revalidate: 300 });
 }
 
+export async function getPopularTv(page = 1) {
+  return tmdb(
+    "/tv/popular",
+    {
+      language: "en-US",
+      page,
+    },
+    { revalidate: 120 }
+  );
+}
+
+export async function getTrendingTv(page = 1) {
+  return tmdb("/trending/tv/day", { page }, { revalidate: 120 });
+}
+
+export async function getTopRatedTv(page = 1) {
+  return tmdb(
+    "/tv/top_rated",
+    {
+      language: "en-US",
+      page,
+    },
+    { revalidate: 120 }
+  );
+}
+
 export async function getTVVideos(id: number) {
   return tmdb(`/tv/${id}/videos`, undefined, { revalidate: 300 });
 }
