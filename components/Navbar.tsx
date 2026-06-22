@@ -52,17 +52,17 @@ const NAV_GROUPS = [
   },
 
   {
-    label: "Browse",
-    href: "/search",
-    dropdown: [
-      { label: "Search", href: "/search" },
-      { label: "Rooms", href: "/rooms" },
-      { label: "Library", href: "/library" },
-      { label: "Community", href: "/community" },
-      { label: "Store", href: "/store" },
-      { label: "Support", href: "/support" },
-    ],
-  },
+  label: "Browse",
+  href: "/search",
+  dropdown: [
+    { label: "Search", href: "/search" },
+    { label: "Rooms", href: "/rooms" },
+    { label: "Library", href: "/library" },
+    { label: "Community", href: "/community" },
+    { label: "Store", href: "/store" },
+    { label: "Support", href: "/support" },
+  ],
+},
 
   {
     label: "News",
