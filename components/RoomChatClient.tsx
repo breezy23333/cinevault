@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Message = {
   name: string;
@@ -28,6 +28,20 @@ export default function RoomChatClient({ title }: { title: string }) {
     },
   ]);
 
+  const [username, setUsername] = useState("Guest");
+
+    useEffect(() => {
+    try {
+        const saved = localStorage.getItem("cinevault_user");
+        if (saved) {
+        const user = JSON.parse(saved);
+        setUsername(user?.name || user?.email || "Guest");
+        }
+    } catch {
+        setUsername("Guest");
+    }
+    }, []);
+
   function sendMessage(e: React.FormEvent) {
     e.preventDefault();
 
@@ -36,7 +50,7 @@ export default function RoomChatClient({ title }: { title: string }) {
     setMessages((prev) => [
       ...prev,
       {
-        name: "Guest",
+        name: username,
         text: text.trim(),
         time: "Now",
       },
