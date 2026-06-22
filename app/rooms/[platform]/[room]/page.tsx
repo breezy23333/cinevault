@@ -52,7 +52,7 @@ export default async function RoomPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-[#05070d] pt-20 text-white">
       <section className="mx-auto max-w-[1600px] px-3 py-4">
-        <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#10141f] shadow-[0_30px_120px_rgba(0,0,0,0.5)] h-[calc(100vh-7rem)]">
+       <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#10141f] shadow-[0_30px_120px_rgba(0,0,0,0.5)]">
           <div className="grid h-[calc(100vh-7rem)] min-h-[680px] grid-cols-1 lg:grid-cols-[72px_240px_1fr_260px]">
             
             {/* Server Icons */}
@@ -125,7 +125,7 @@ export default async function RoomPage({ params }: PageProps) {
             </aside>
 
             {/* Chat */}
-            <section className="flex min-w-0 flex-col bg-[#0d111b] lg:col-auto col-span-1">
+            <section className="flex min-w-0 flex-col bg-[#0d111b]">
               <header className="flex h-16 items-center justify-between border-b border-white/10 bg-[#111722] px-5">
                 <div>
                   <h2 className="font-black"># general</h2>
