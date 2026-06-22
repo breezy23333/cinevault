@@ -48,6 +48,7 @@ const members = [
 export default async function RoomPage({ params }: PageProps) {
   const { platform, room } = await params;
   const title = roomNames[room] || room;
+  const username = "luvo";
 
   return (
     <main className="min-h-screen bg-[#05070d] pt-20 text-white">
@@ -120,7 +121,9 @@ export default async function RoomPage({ params }: PageProps) {
 
               <div className="absolute bottom-4 ml-3 w-[216px] rounded-2xl border border-white/10 bg-black/25 p-3">
                 <p className="text-xs font-bold text-white/40">Signed in as</p>
-                <p className="mt-1 font-black text-yellow-300">Guest</p>
+                <p className="mt-1 font-black text-yellow-300">
+                  {username}
+                </p>
               </div>
             </aside>
 
@@ -142,7 +145,10 @@ export default async function RoomPage({ params }: PageProps) {
                 </Link>
               </header>
 
-              <RoomChatClient title={title} />
+              <RoomChatClient
+                title={title}
+                username={username}
+              />  
             </section>
 
             {/* Members */}
