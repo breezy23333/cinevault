@@ -56,6 +56,7 @@ const NAV_GROUPS = [
     href: "/search",
     dropdown: [
       { label: "Search", href: "/search" },
+      { label: "Rooms", href: "/rooms" },
       { label: "Library", href: "/library" },
       { label: "Community", href: "/community" },
       { label: "Store", href: "/store" },
