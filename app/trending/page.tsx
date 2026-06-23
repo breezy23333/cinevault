@@ -43,46 +43,53 @@ export const metadata: Metadata = {
 const img = (p?: string | null) =>
   p ? `https://image.tmdb.org/t/p/w342${p}` : null;
 
-export default async function TrendingPage() {
-  const data = await discoverMovies({ page: 1 }); // you can improve later
+export default async function TrendingPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page || 1));
+
+  const data = await discoverMovies({ page });
   const items = data?.results ?? [];
+  const totalPages = Math.min(data?.total_pages ?? 1, 500);
 
   const breadcrumbJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: "https://cinevault-tau-drab.vercel.app",
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: "Trending",
-      item: "https://cinevault-tau-drab.vercel.app/trending",
-    },
-  ],
-};
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://cinevault-tau-drab.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Trending",
+        item: "https://cinevault-tau-drab.vercel.app/trending",
+      },
+    ],
+  };
 
-const trendingJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  name: "Trending Movies & TV Shows",
-  description:
-    "Discover trending movies, popular TV series, anime, cartoons, and entertainment on CineVault.",
-  url: "https://cinevault-tau-drab.vercel.app/trending",
-  isPartOf: {
-    "@type": "WebSite",
-    name: "CineVault",
-    url: "https://cinevault-tau-drab.vercel.app",
-  },
-};
+  const trendingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Trending Movies & TV Shows",
+    description:
+      "Discover trending movies, popular TV series, anime, cartoons, and entertainment on CineVault.",
+    url: "https://cinevault-tau-drab.vercel.app/trending",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "CineVault",
+      url: "https://cinevault-tau-drab.vercel.app",
+    },
+  };
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
-
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -97,7 +104,19 @@ const trendingJsonLd = {
         }}
       />
 
-      <h1 className="mb-6 text-3xl font-bold">Trending</h1>
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-yellow-400">
+            CineVault Trending
+          </p>
+          <h1 className="mt-2 text-3xl font-black md:text-5xl">
+            Trending Movies
+          </h1>
+          <p className="mt-3 max-w-2xl text-white/60">
+            Page {page} of popular movie discoveries, updated regularly.
+          </p>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {items.map((item: any) => {
@@ -108,7 +127,7 @@ const trendingJsonLd = {
             <Link
               key={item.id}
               href={`/movie/${item.id}`}
-              className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 hover:ring-yellow-400/50"
+              className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:ring-yellow-400/50"
             >
               <div className="relative aspect-[2/3] bg-black/30">
                 {poster ? (
@@ -139,49 +158,55 @@ const trendingJsonLd = {
         })}
       </div>
 
-        <section className="mt-12 px-4 md:px-8">
-          <h2 className="text-2xl font-black mb-4">
-            Continue Exploring
-          </h2>
+      <div className="mt-10 flex items-center justify-center gap-3">
+        {page > 1 && (
+          <Link
+            href={`/trending?page=${page - 1}`}
+            className="rounded-full border border-white/10 bg-white/5 px-5 py-3 font-bold hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+          >
+            ← Previous
+          </Link>
+        )}
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <Link
-              href="/top"
-              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
-            >
-              Top Rated →
-            </Link>
+        <span className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm text-white/70">
+          Page {page}
+        </span>
 
-            <Link
-              href="/anime"
-              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
-            >
-              Anime →
-            </Link>
+        {page < totalPages && (
+          <Link
+            href={`/trending?page=${page + 1}`}
+            className="rounded-full border border-yellow-400 bg-yellow-400 px-5 py-3 font-bold text-black hover:bg-yellow-300"
+          >
+            Next →
+          </Link>
+        )}
+      </div>
 
-            <Link
-              href="/cartoons"
-              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
-            >
-              Cartoons →
-            </Link>
+      <section className="mt-12">
+        <h2 className="mb-4 text-2xl font-black">Continue Exploring</h2>
 
-            <Link
-              href="/news"
-              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
-            >
-              Entertainment News →
-            </Link>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Link href="/top" className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10">
+            Top Rated →
+          </Link>
 
-            <Link
-              href="/upcoming"
-              className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10"
-            >
-              Upcoming Releases →
-            </Link>
-          </div>
-        </section>
+          <Link href="/anime" className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10">
+            Anime →
+          </Link>
 
+          <Link href="/cartoons" className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10">
+            Cartoons →
+          </Link>
+
+          <Link href="/news" className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10">
+            Entertainment News →
+          </Link>
+
+          <Link href="/upcoming" className="rounded-2xl border border-white/10 bg-black/20 p-4 hover:bg-white/10">
+            Upcoming Releases →
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

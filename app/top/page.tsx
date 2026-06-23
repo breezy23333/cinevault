@@ -67,12 +67,19 @@ function genresId(
 // simple href — discover endpoints here are movies
 const hrefFor = (it: TMDBItem) => `/title/movie/${it.id}`;
 
-export default async function HomePage() {
+export default async function TopPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page || 1));
+
   // 1) parallel where independent
   const [genresRes, popularRes, year2024Res] = await Promise.allSettled([
   getMovieGenres(),
-  discoverMovies({ page: 1 }),
-  discoverMovies({ year: 2024, page: 1 }),
+  discoverMovies({ page }),
+  discoverMovies({ year: 2024, page }),
   ]);
 
   const genres =
@@ -89,7 +96,7 @@ export default async function HomePage() {
   try {
     horror = await discoverMovies({
       genreId: genresId(genres, "Horror"),
-      page: 1,
+      page,
     });
   } catch {
     horror = { results: [] };
@@ -154,6 +161,28 @@ const topJsonLd = {
       <Row title="Popular now" items={popularItems} />
       <Row title="New in 2024" items={yearItems} />
       <Row title="Horror hits" items={horrorItems} />
+
+      <div className="mt-10 flex items-center justify-center gap-3">
+        {page > 1 && (
+          <Link
+            href={`/top?page=${page - 1}`}
+            className="rounded-full border border-white/10 bg-white/5 px-5 py-3 font-bold hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+          >
+            ← Previous
+          </Link>
+        )}
+
+        <span className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm text-white/70">
+          Page {page}
+        </span>
+
+        <Link
+          href={`/top?page=${page + 1}`}
+          className="rounded-full border border-yellow-400 bg-yellow-400 px-5 py-3 font-bold text-black hover:bg-yellow-300"
+        >
+          Next →
+        </Link>
+      </div>
 
     <section className="mt-12 px-4 md:px-8">
       <h2 className="text-2xl font-black mb-4">
