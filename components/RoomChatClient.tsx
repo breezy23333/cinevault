@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Message = {
   name: string;
@@ -16,23 +16,49 @@ export default function RoomChatClient({
   username: string;
 }) {
   const [text, setText] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      name: "CineVault",
-      text: `Welcome to the ${title}. What are you watching today?`,
-      time: "Now",
-    },
-    {
-      name: "MovieFan",
-      text: "I need a strong recommendation for tonight.",
-      time: "2 min ago",
-    },
-    {
-      name: "TrailerHunter",
-      text: "Drop trailers and reactions in #trailers.",
-      time: "4 min ago",
-    },
-  ]);
+  const defaultMessages: Message[] = [
+  {
+    name: "CineVault",
+    text: `Welcome to the ${title}. What are you watching today?`,
+    time: "Now",
+  },
+  {
+    name: "MovieFan",
+    text: "I need a strong recommendation for tonight.",
+    time: "2 min ago",
+  },
+  {
+    name: "TrailerHunter",
+    text: "Drop trailers and reactions in #trailers.",
+    time: "4 min ago",
+  },
+];
+
+const [messages, setMessages] = useState<Message[]>(defaultMessages);
+
+  const storageKey = `cinevault-room-${title}`;
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+
+      if (saved) {
+          setMessages(JSON.parse(saved));
+        } else {
+          setMessages(defaultMessages);
+        }
+      } catch {
+      // ignore broken saved data
+    }
+  }, [storageKey]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    } catch {
+      // ignore storage errors
+    }
+  }, [messages, storageKey]);
 
   function sendMessage(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +76,8 @@ export default function RoomChatClient({
 
     setText("");
   }
+
+  
 
   return (
     <>
