@@ -94,6 +94,21 @@ type PageProps = {
   searchParams?: Promise<SP>;
 };
 
+const categories = [
+  { name: "Action", id: 28 },
+  { name: "Adventure", id: 12 },
+  { name: "Animation", id: 16 },
+  { name: "Comedy", id: 35 },
+  { name: "Crime", id: 80 },
+  { name: "Drama", id: 18 },
+  { name: "Fantasy", id: 14 },
+  { name: "Horror", id: 27 },
+  { name: "Mystery", id: 9648 },
+  { name: "Romance", id: 10749 },
+  { name: "Sci-Fi", id: 878 },
+  { name: "Thriller", id: 53 },
+];
+
 export default async function SearchPage({ searchParams }: PageProps) {
   const sp = (await searchParams) ?? {};
 
@@ -133,6 +148,24 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <h1 className="mb-6 text-2xl font-semibold">
         {q ? `Results for “${q}”` : "Discover Movies"}
       </h1>
+
+      {!q && (
+        <div className="mb-8 flex flex-wrap gap-3">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/search?genre=${cat.id}`}
+              className={`rounded-full border px-4 py-2 text-sm font-bold transition ${
+                genreId === cat.id
+                  ? "border-yellow-400 bg-yellow-400 text-black"
+                  : "border-yellow-400/60 text-yellow-300 hover:bg-yellow-400 hover:text-black"
+              }`}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-zinc-200 p-8 text-center">
