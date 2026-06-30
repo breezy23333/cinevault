@@ -1,14 +1,22 @@
 import Link from "next/link";
 
 const links = [
-  { title: "Anime", href: "/anime" },
-  { title: "Cartoons", href: "/cartoons" },
-  { title: "Categories", href: "/categories" },
-  { title: "Top Rated", href: "/top" },
-  { title: "Search", href: "/search" },
-  { title: "Trending", href: "/trending" },
-  { title: "News", href: "/news" },
-  { title: "Upcoming", href: "/upcoming" },
+  { title: "Movies", href: "/search", desc: "Discover popular and new movies." },
+  { title: "TV Shows", href: "/search?type=tv", desc: "Explore trending and top TV shows." },
+  { title: "Anime", href: "/anime", desc: "Browse anime worlds and series." },
+  { title: "Cartoons", href: "/cartoons", desc: "Find animated classics and cartoons." },
+  { title: "Animation", href: "/animation", desc: "Anime, cartoons, and animated movies." },
+  { title: "Categories", href: "/categories", desc: "Browse by genre and mood." },
+  { title: "Action", href: "/search?genre=28", desc: "Fast fights, heroes, and chaos." },
+  { title: "Horror", href: "/search?genre=27", desc: "Scary movies and dark stories." },
+  { title: "Comedy", href: "/search?genre=35", desc: "Funny films and comfort watches." },
+  { title: "Drama", href: "/search?genre=18", desc: "Emotional and powerful stories." },
+  { title: "Sci-Fi", href: "/search?genre=878", desc: "Future worlds and big ideas." },
+  { title: "Romance", href: "/search?genre=10749", desc: "Love stories and relationship drama." },
+  { title: "Top Rated", href: "/top", desc: "The best-rated titles on CineVault." },
+  { title: "Trending", href: "/trending", desc: "See what people are watching now." },
+  { title: "Upcoming", href: "/upcoming", desc: "Movies and shows coming soon." },
+  { title: "News", href: "/news", desc: "Entertainment, gaming, and sports news." },
 ];
 
 import type { Metadata } from "next";
@@ -86,7 +94,8 @@ export default function BrowsePage() {
             className="rounded-2xl bg-[#0c111b] ring-1 ring-white/10 p-6 hover:bg-white/10 transition"
           >
             <h2 className="text-2xl font-bold">{item.title}</h2>
-            <p className="text-yellow-400 mt-2">Open →</p>
+            <p className="mt-2 text-sm text-white/60">{item.desc}</p>
+            <p className="text-yellow-400 mt-4 font-bold">Open →</p>
           </Link>
         ))}
       </div>
