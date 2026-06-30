@@ -328,6 +328,69 @@ const breadcrumbJsonLd = {
           )}
         </section>
 
+        {/* CineVault Extras */}
+          {videos.length > 0 && (
+            <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+                CineVault Extras
+              </p>
+
+              <h2 className="mt-2 text-3xl font-black text-white">
+                Behind the Scenes & Interviews
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-white/60">
+                Explore official trailers, featurettes, behind-the-scenes footage, clips,
+                and interviews connected to this movie.
+              </p>
+
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {videos
+                  .filter((v) => v.site === "YouTube" && v.key)
+                  .filter((v) =>
+                    ["Trailer", "Teaser", "Featurette", "Behind the Scenes", "Clip"].includes(
+                      v.type || ""
+                    )
+                  )
+                  .slice(0, 6)
+                  .map((v, index) => (
+                    <a
+                      key={`${v.key}-${index}`}
+                      href={`https://www.youtube.com/watch?v=${v.key}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group overflow-hidden rounded-2xl border border-white/10 bg-black/30 transition hover:border-yellow-400/60 hover:bg-white/10"
+                    >
+                      <div className="relative aspect-video bg-black">
+                        <Image
+                          src={`https://img.youtube.com/vi/${v.key}/hqdefault.jpg`}
+                          alt={v.type || "Movie video"}
+                          fill
+                          className="object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100"
+                        />
+
+                        <div className="absolute inset-0 grid place-items-center bg-black/20">
+                          <div className="rounded-full bg-yellow-400 px-4 py-3 text-black font-black">
+                            ▶
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4">
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
+                          {v.type || "Video"}
+                        </p>
+
+                        <h3 className="mt-1 line-clamp-2 font-bold text-white">
+                          Official Movie Extra
+                        </h3>
+                      </div>
+                    </a>
+                  ))}
+              </div>
+            </section>
+          )}
+
         {/* Cast */}
         {cast.length > 0 && (
           <div>
