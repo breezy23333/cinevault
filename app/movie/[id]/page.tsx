@@ -256,6 +256,78 @@ const breadcrumbJsonLd = {
           </p>
       </section> 
 
+      {/* CineVault Database */}
+        <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+            CineVault Database
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black text-white">
+            Movie Details
+          </h2>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Collection</p>
+              <p className="mt-1 font-bold text-white">
+                {details.belongs_to_collection?.name || "Standalone Movie"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Runtime</p>
+              <p className="mt-1 font-bold text-white">
+                {details.runtime ? `${details.runtime} minutes` : "Unknown"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Status</p>
+              <p className="mt-1 font-bold text-white">
+                {details.status || "Unknown"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Budget</p>
+              <p className="mt-1 font-bold text-white">
+                {details.budget ? `$${details.budget.toLocaleString()}` : "Not available"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Revenue</p>
+              <p className="mt-1 font-bold text-white">
+                {details.revenue ? `$${details.revenue.toLocaleString()}` : "Not available"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Original Language</p>
+              <p className="mt-1 font-bold text-white">
+                {details.original_language?.toUpperCase() || "Unknown"}
+              </p>
+            </div>
+          </div>
+
+          {details.production_companies?.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-xl font-black text-white">Studios</h3>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                {details.production_companies.slice(0, 8).map((studio: any) => (
+                  <span
+                    key={studio.id}
+                    className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-bold text-white/80"
+                  >
+                    {studio.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
         {/* Cast */}
         {cast.length > 0 && (
           <div>
