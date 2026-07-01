@@ -14,8 +14,8 @@ type PageProps = {
 };
 
 async function tmdb(path: string) {
-  const token = process.env.TMDB_ACCESS_TOKEN;
   const apiKey = process.env.TMDB_API_KEY;
+  const token = process.env.TMDB_BEARER;
 
   const url = apiKey
     ? `https://api.themoviedb.org/3${path}?api_key=${apiKey}`
@@ -32,7 +32,7 @@ async function tmdb(path: string) {
   });
 
   if (!res.ok) {
-    console.log("TMDB person fetch failed", res.status, path);
+    console.log("TMDB PERSON ERROR:", res.status, path);
     return null;
   }
 
