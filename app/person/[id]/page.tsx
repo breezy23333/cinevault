@@ -14,12 +14,28 @@ type PageProps = {
 };
 
 async function tmdb(path: string) {
-  const res = await fetch(
-    `https://api.themoviedb.org/3${path}?api_key=${API_KEY}`,
-    { next: { revalidate: 300 } }
-  );
+  const token = process.env.TMDB_ACCESS_TOKEN;
+  const apiKey = process.env.TMDB_API_KEY;
 
-  if (!res.ok) return null;
+  const url = apiKey
+    ? `https://api.themoviedb.org/3${path}?api_key=${apiKey}`
+    : `https://api.themoviedb.org/3${path}`;
+
+  const res = await fetch(url, {
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+          accept: "application/json",
+        }
+      : {},
+    next: { revalidate: 300 },
+  });
+
+  if (!res.ok) {
+    console.log("TMDB person fetch failed", res.status, path);
+    return null;
+  }
+
   return res.json();
 }
 
