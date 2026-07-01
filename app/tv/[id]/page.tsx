@@ -322,9 +322,10 @@ const breadcrumbJsonLd = {
                 const profile = img(c.profile_path, "w185");
 
                 return (
-                  <div
+                  <Link
                     key={c.id}
-                    className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10"
+                    href={`/person/${c.id}`}
+                    className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
                   >
                     <div className="relative aspect-[2/3] bg-black/20">
                       {profile ? (
@@ -351,7 +352,7 @@ const breadcrumbJsonLd = {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

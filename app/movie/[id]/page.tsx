@@ -392,31 +392,35 @@ const breadcrumbJsonLd = {
           )}
 
         {/* Cast */}
-        {cast.length > 0 && (
-          <div>
-            <h2 className="mb-3 text-xl font-bold">Cast</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {cast.map((c) => {
-                const profile = img(c.profile_path, "w185");
-                return (
-                  <div key={c.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-                    <div className="relative aspect-[2/3] bg-black/20">
-                      {profile ? (
-                        <Image src={profile} alt={c.name} fill sizes="185px" loading="lazy" />
-                      ) : (
-                        <div className="absolute inset-0 grid place-items-center text-white/50 text-xs">No photo</div>
-                      )}
-                    </div>
-                    <div className="p-2">
-                      <div className="line-clamp-1 font-medium">{c.name}</div>
-                      {!!c.character && <div className="text-xs text-white/70">{c.character}</div>}
-                    </div>
-                  </div>
-                );
-              })}
+          {cast.length > 0 && (
+            <div>
+              <h2 className="mb-3 text-xl font-bold">Cast</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {cast.map((c) => {
+                  const profile = img(c.profile_path, "w185");
+                  return (
+                    <Link
+                      key={c.id}
+                      href={`/person/${c.id}`}
+                      className="rounded-xl bg-white/5 ring-1 ring-white/10 overflow-hidden transition hover:ring-yellow-400/60"
+                    >
+                      <div className="relative aspect-[2/3] bg-black/20">
+                        {profile ? (
+                          <Image src={profile} alt={c.name} fill sizes="185px" loading="lazy" />
+                        ) : (
+                          <div className="absolute inset-0 grid place-items-center text-white/50 text-xs">No photo</div>
+                        )}
+                      </div>
+                      <div className="p-2">
+                        <div className="line-clamp-1 font-medium">{c.name}</div>
+                        {!!c.character && <div className="text-xs text-white/70">{c.character}</div>}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* More like this */}
         {similar.length > 0 && (
