@@ -363,7 +363,7 @@ const breadcrumbJsonLd = {
                     >
                       <div className="relative aspect-video bg-black">
                         <Image
-                          src={`https://img.youtube.com/vi/${v.key}/hqdefault.jpg`}
+                          src={`https://i.ytimg.com/vi/${v.key}/hqdefault.jpg`}
                           alt={v.type || "Movie video"}
                           fill
                           className="object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100"
