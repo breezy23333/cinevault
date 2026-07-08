@@ -456,6 +456,24 @@ const oscarShelf = await Promise.all(
             />
           </Panel>
 
+          <Panel
+              eyebrow="Academy Awards"
+              title={
+                <div className="flex items-center justify-between">
+                  <span>Oscar Winners</span>
+
+                  <Link
+                    href="/collections/oscars"
+                    className="text-sm text-yellow-400 hover:underline"
+                  >
+                    View all →
+                  </Link>
+                </div>
+              }
+            >
+              <ShelfRow items={oscarShelf} />
+            </Panel>
+
           <FeatureBreak
             title="Series Dimension"
             text="A second cinematic layer for TV worlds, drama, fantasy, and crime stories."
@@ -617,23 +635,7 @@ const oscarShelf = await Promise.all(
               </p>
             </Link>
 
-            <Panel
-              eyebrow="Academy Awards"
-              title={
-                <div className="flex items-center justify-between">
-                  <span>Oscar Winners</span>
-
-                  <Link
-                    href="/collections/oscars"
-                    className="text-sm text-yellow-400 hover:underline"
-                  >
-                    View all →
-                  </Link>
-                </div>
-              }
-            >
-              <ShelfRow items={oscarShelf} />
-            </Panel>
+            
 
             <Link
               href="/top"

@@ -64,7 +64,7 @@ function toNorm(x: any): Norm | null {
   // prefer poster; fallback to smaller backdrop and crop via CSS object-cover
   const poster =
     tmdb(x.poster_path, "w342") ||
-    tmdb(x.backdrop_path, "w300"); // a bit wider, but we'll crop to 2:3
+    tmdb(x.backdrop_path, "w780") // a bit wider, but we'll crop to 2:3
 
   if (!poster) return null; // drop imageless items entirely
 
@@ -193,15 +193,12 @@ export default async function SearchPage({ searchParams }: PageProps) {
               >
                 <div className="relative aspect-[2/3] bg-white/5">
                   {it.poster ? (
-                     <Image
-                        src={it.poster}
-                        alt={it.title}
-                        fill
-                        sizes="180px"
-                        loading="lazy"
-                        placeholder="empty"
-                        className="object-cover"
-                      />
+                    <img
+                      src={it.poster}
+                      alt={it.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <div className="absolute inset-0 grid place-items-center text-xs text-white/60">
                       No poster
