@@ -326,6 +326,145 @@ const breadcrumbJsonLd = {
           </p>
       </section> 
 
+      {/* TV Database */}
+        <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+            CineVault Database
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black text-white">
+            Series Details
+          </h2>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Status</p>
+              <p className="mt-1 font-bold text-white">{details.status || "Unknown"}</p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">First Air Date</p>
+              <p className="mt-1 font-bold text-white">{details.first_air_date || "Unknown"}</p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Last Air Date</p>
+              <p className="mt-1 font-bold text-white">{details.last_air_date || "Unknown"}</p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Seasons</p>
+              <p className="mt-1 font-bold text-white">{details.number_of_seasons || "Unknown"}</p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Episodes</p>
+              <p className="mt-1 font-bold text-white">{details.number_of_episodes || "Unknown"}</p>
+            </div>
+
+            <div className="rounded-2xl bg-black/30 p-4">
+              <p className="text-xs uppercase text-white/40">Original Language</p>
+              <p className="mt-1 font-bold text-white">
+                {details.original_language?.toUpperCase() || "Unknown"}
+              </p>
+            </div>
+          </div>
+
+          {details.networks?.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-xl font-black text-white">Networks</h3>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                {details.networks.slice(0, 8).map((network: any) => (
+                  <span
+                    key={network.id}
+                    className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-bold text-white/80"
+                  >
+                    {network.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {details.production_companies?.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-xl font-black text-white">Studios</h3>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                {details.production_companies.slice(0, 8).map((studio: any) => (
+                  <span
+                    key={studio.id}
+                    className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-bold text-white/80"
+                  >
+                    {studio.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* CineVault Extras */}
+          {videos.length > 0 && (
+            <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+                CineVault Extras
+              </p>
+
+              <h2 className="mt-2 text-3xl font-black text-white">
+                Trailers, Clips & Featurettes
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-white/60">
+                Explore official trailers, teasers, clips, featurettes, and behind-the-scenes videos connected to this series.
+              </p>
+
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {videos
+                  .filter((v) => v.site === "YouTube" && v.key)
+                  .filter((v) =>
+                    ["Trailer", "Teaser", "Featurette", "Behind the Scenes", "Clip"].includes(v.type || "")
+                  )
+                  .slice(0, 6)
+                  .map((v, index) => (
+                    <a
+                      key={`${v.key}-${index}`}
+                      href={`https://www.youtube.com/watch?v=${v.key}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group overflow-hidden rounded-2xl border border-white/10 bg-black/30 transition hover:border-yellow-400/60 hover:bg-white/10"
+                    >
+                      <div className="relative aspect-video bg-black">
+                        <Image
+                          src={`https://i.ytimg.com/vi/${v.key}/hqdefault.jpg`}
+                          alt={v.type || "TV video"}
+                          fill
+                          className="object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100"
+                        />
+
+                        <div className="absolute inset-0 grid place-items-center bg-black/20">
+                          <div className="rounded-full bg-yellow-400 px-4 py-3 font-black text-black">
+                            ▶
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4">
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
+                          {v.type || "Video"}
+                        </p>
+
+                        <h3 className="mt-1 line-clamp-2 font-bold text-white">
+                          Official Series Extra
+                        </h3>
+                      </div>
+                    </a>
+                  ))}
+              </div>
+            </section>
+          )}
+
         {cast.length > 0 && (
           <div>
             <h2 className="mb-3 text-xl font-bold">Cast</h2>
