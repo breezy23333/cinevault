@@ -174,20 +174,39 @@ export default async function AnimePage({
           ))}
         </div>
 
-        <div className="flex justify-center gap-3 mt-10">
-          {Array.from({ length: 20 }, (_, i) => i + 1).map((page) => (
-            <a
-              key={page}
-              href={`/anime?page=${page}`}
-              className={`px-4 py-2 rounded-full font-bold ring-1 ring-white/15 ${
-                currentPage === page
-                  ? "bg-yellow-400 text-black"
-                  : "bg-[#0c111b] text-white hover:bg-white/10"
-              }`}
-            >
-              {page}
-            </a>
-          ))}
+        <div className="mt-10">
+          {/* Desktop / tablet pagination */}
+          <div className="hidden justify-center gap-3 md:flex">
+            {Array.from({ length: 20 }, (_, i) => i + 1).map((page) => (
+              <a
+                key={page}
+                href={`/anime?page=${page}`}
+                className={`px-4 py-2 rounded-full font-bold ring-1 ring-white/15 ${
+                  currentPage === page
+                    ? "bg-yellow-400 text-black"
+                    : "bg-[#0c111b] text-white hover:bg-white/10"
+                }`}
+              >
+                {page}
+              </a>
+            ))}
+          </div>
+
+          {/* Mobile pagination */}
+          <div className="flex items-center justify-center gap-4 md:hidden">
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-yellow-400 font-black text-black">
+              {currentPage}
+            </span>
+
+            {currentPage < 20 && (
+              <a
+                href={`/anime?page=${currentPage + 1}`}
+                className="flex-1 rounded-full border border-yellow-400 px-6 py-3 text-center font-black text-white"
+              >
+                Next →
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
