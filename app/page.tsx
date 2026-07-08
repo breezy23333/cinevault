@@ -164,20 +164,31 @@ export default async function Home() {
     ? newsRes.value
     : [];  
 
-    
-    
-    const upcomingMovies = await getUpcomingMovies();
-    const upcomingTv = await getUpcomingTvSeries();
-    const upcomingAnimation = await getUpcomingAnimation();
-    const topRatedMovies = await getTopRatedMovies();
-    const highestGrossingMovies = await getHighestGrossingMovies();
-
-    const dramaMovies = await getMoviesByGenre(18);
-    const comedyMovies = await getMoviesByGenre(35);
-    const horrorMovies = await getMoviesByGenre(27);
-    const sciFiMovies = await getMoviesByGenre(878);
-    const familyMovies = await getMoviesByGenre(10751);
-    const superheroMovies = await getMoviesByGenre(28);
+  const [
+  upcomingMovies,
+  upcomingTv,
+  upcomingAnimation,
+  topRatedMovies,
+  highestGrossingMovies,
+  dramaMovies,
+  comedyMovies,
+  horrorMovies,
+  sciFiMovies,
+  familyMovies,
+  superheroMovies,
+] = await Promise.all([
+  getUpcomingMovies(),
+  getUpcomingTvSeries(),
+  getUpcomingAnimation(),
+  getTopRatedMovies(),
+  getHighestGrossingMovies(),
+  getMoviesByGenre(18),
+  getMoviesByGenre(35),
+  getMoviesByGenre(27),
+  getMoviesByGenre(878),
+  getMoviesByGenre(10751),
+  getMoviesByGenre(28),
+]);  
 
   // ✅ TV categories
   const dramaTv = await getTvByGenre(18);
@@ -230,45 +241,23 @@ export default async function Home() {
     })
 );
 
-const topRatedMovieShelf = topRatedMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
+const cleanMovieShelf = (data: any) =>
+  (data?.results || [])
+    .filter((x: any) => x.poster_path)
+    .slice(0, MAX_SHELF)
+    .map((x: any) => ({
+      ...toShelfMedia(x),
+      href: `/movie/${x.id}`,
+    }));
 
-const highestGrossingShelf = highestGrossingMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
-
-const dramaMovieShelf = dramaMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
-
-const comedyMovieShelf = comedyMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
-
-const horrorMovieShelf = horrorMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
-
-const sciFiMovieShelf = sciFiMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
-
-const superheroShelf = superheroMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
-
-const familyMovieShelf = familyMovies.results.slice(0, MAX_SHELF).map((x: any) => ({
-  ...toShelfMedia(x),
-  href: `/movie/${x.id}`,
-}));
+const topRatedMovieShelf = cleanMovieShelf(topRatedMovies);
+const highestGrossingShelf = cleanMovieShelf(highestGrossingMovies);
+const dramaMovieShelf = cleanMovieShelf(dramaMovies);
+const comedyMovieShelf = cleanMovieShelf(comedyMovies);
+const horrorMovieShelf = cleanMovieShelf(horrorMovies);
+const sciFiMovieShelf = cleanMovieShelf(sciFiMovies);
+const superheroShelf = cleanMovieShelf(superheroMovies);
+const familyMovieShelf = cleanMovieShelf(familyMovies);
 
 const trendingTvShelf = await Promise.all(
   trendingRaw
