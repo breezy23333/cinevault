@@ -4,8 +4,6 @@ import {
   toggleWatchlist,
 } from "@/lib/watchlist";
 import dynamic from "next/dynamic";
-import Image from "next/image";
-
 import { MouseEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -130,13 +128,11 @@ return (
       <div className="relative z-20 overflow-hidden rounded-2xl bg-[#0d1117]">
         <div className="relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500">
           {item.poster ? (
-            <Image
+            <img
               src={item.poster}
               alt={item.title}
-              fill
-              sizes="(max-width: 768px) 50vw, 180px"
-              className="z-0 object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
               loading="lazy"
+              className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
             />
           ) : (
             <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-center text-xs text-white/40">
