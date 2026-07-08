@@ -78,8 +78,12 @@ const toShelfMedia = (x: any): ShelfItem => ({
   media: x.media_type === "tv" ? "tv" : "movie",
   title: x.title || x.name || "Untitled",
   poster:
-    x.poster ??
-    (x.poster_path ? `https://image.tmdb.org/t/p/w342${x.poster_path}` : null),
+  x.poster ??
+  (x.poster_path
+    ? `https://image.tmdb.org/t/p/w342${x.poster_path}`
+    : x.backdrop_path
+    ? `https://image.tmdb.org/t/p/w780${x.backdrop_path}`
+    : null),
   year: String(x.release_date || x.first_air_date || "").slice(0, 4),
   rating:
   typeof x.vote_average === "number"
