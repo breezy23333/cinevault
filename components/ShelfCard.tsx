@@ -129,18 +129,22 @@ return (
 
       <div className="relative z-20 overflow-hidden rounded-2xl bg-[#0d1117]">
         <div className="relative aspect-[2/3] overflow-hidden bg-zinc-800 transition-all duration-500">
-          {item.poster && (
+          {item.poster ? (
             <Image
               src={item.poster}
               alt={item.title}
               fill
               sizes="(max-width: 768px) 50vw, 180px"
-              className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
+              className="z-0 object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:saturate-150"
               loading="lazy"
             />
+          ) : (
+            <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-center text-xs text-white/40">
+              No poster
+            </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 
           {score && (
             <span className="absolute left-2 top-2 z-30 rounded-lg border border-yellow-400/30 bg-black/75 px-2 py-1 text-[11px] font-bold text-yellow-300">

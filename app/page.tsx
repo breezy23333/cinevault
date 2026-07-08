@@ -266,7 +266,6 @@ const trendingTvShelf = await Promise.all(
     .map(async (x: any) => {
       const m = toShelfMedia(x);
       
-
       return {
         ...m,
         
@@ -279,7 +278,6 @@ const dramaShelf = await Promise.all(
   dramaTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
     
-
     return {
       ...m,
       
@@ -292,7 +290,6 @@ const fantasyShelf = await Promise.all(
   fantasyTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
     
-
     return {
       ...m,
       
@@ -305,7 +302,6 @@ const crimeShelf = await Promise.all(
   crimeTv.results.slice(0, MAX_SHELF).map(async (x: any) => {
     const m = toShelfMedia({ ...x, media_type: "tv" });
     
-
     return {
       ...m,
       
@@ -321,7 +317,6 @@ const animeShelf = await Promise.all(
     .map(async (x: any) => {
       const m = toShelfMedia({ ...x, media_type: "tv" });
       
-
       return {
         ...m,
         
@@ -337,7 +332,6 @@ const cartoonShelf = await Promise.all(
     .map(async (x: any) => {
       const m = toShelfMedia({ ...x, media_type: "tv" });
       
-
       return {
         ...m,
         
@@ -349,7 +343,6 @@ const cartoonShelf = await Promise.all(
 const oscarShelf = await Promise.all(
   OSCAR_BEST_PICTURE.map(async (id) => {
     const movie = await getMovie(id);
-
     const m = toShelfMedia(movie);
 
     return {
