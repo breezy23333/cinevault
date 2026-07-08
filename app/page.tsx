@@ -7,8 +7,13 @@ import {
   getUpcomingAnimation,
   getMovieGenres,
   getTvByGenre,
+  getTopRatedMovies,
+  getHighestGrossingMovies,
+  getMoviesByGenre,
+  getMovie,
 } from "@/lib/fetchers";
 import { getEntertainmentNews } from "@/lib/news";
+import { OSCAR_BEST_PICTURE } from "@/lib/oscars";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import ExpandableHeroCarousel from "@/components/ExpandableHeroCarousel";
 import ContinueWatchingRow from "@/components/ContinueWatchingRow";
@@ -19,6 +24,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
+
 import MovieEras from "@/components/MovieEras";
 
 // runtime/perf
@@ -161,12 +167,22 @@ export default async function Home() {
     const upcomingMovies = await getUpcomingMovies();
     const upcomingTv = await getUpcomingTvSeries();
     const upcomingAnimation = await getUpcomingAnimation();
+    const topRatedMovies = await getTopRatedMovies();
+const highestGrossingMovies = await getHighestGrossingMovies();
+
+const dramaMovies = await getMoviesByGenre(18);
+const comedyMovies = await getMoviesByGenre(35);
+const horrorMovies = await getMoviesByGenre(27);
+const sciFiMovies = await getMoviesByGenre(878);
+const familyMovies = await getMoviesByGenre(10751);
+const superheroMovies = await getMoviesByGenre(28);
 
   // ✅ TV categories
   const dramaTv = await getTvByGenre(18);
   const fantasyTv = await getTvByGenre(10765);
   const crimeTv = await getTvByGenre(80);
   const animationTv = await getTvByGenre(16);
+  
 
   // heroes (dedupe + ensure backdrop)
   const heroes = uniqueById([...norm(trendingRaw), ...norm(popularRaw)])
@@ -297,6 +313,19 @@ const cartoonShelf = await Promise.all(
         href: `/tv/${m.id}`,
       };
     })
+);
+
+const oscarShelf = await Promise.all(
+  OSCAR_BEST_PICTURE.map(async (id) => {
+    const movie = await getMovie(id);
+
+    const m = toShelfMedia(movie);
+
+    return {
+      ...m,
+      href: `/movie/${m.id}`,
+    };
+  })
 );
 
  return (
@@ -528,6 +557,24 @@ const cartoonShelf = await Promise.all(
                 Explore what is hot across movies and shows.
               </p>
             </Link>
+
+            <Panel
+              eyebrow="Academy Awards"
+              title={
+                <div className="flex items-center justify-between">
+                  <span>Oscar Winners</span>
+
+                  <Link
+                    href="/collections/oscars"
+                    className="text-sm text-yellow-400 hover:underline"
+                  >
+                    View all →
+                  </Link>
+                </div>
+              }
+            >
+              <ShelfRow items={oscarShelf} />
+            </Panel>
 
             <Link
               href="/top"

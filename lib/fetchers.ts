@@ -175,6 +175,39 @@ export async function getSimilarMovies(id: number, page = 1) {
   return tmdb(`/movie/${id}/similar`, { page }, { revalidate: 300 });
 }
 
+export async function getTopRatedMovies(page = 1) {
+  return tmdb("/movie/top_rated", { page, language: "en-US" }, { revalidate: 300 });
+}
+
+export async function getMoviesByGenre(genreId: number, page = 1) {
+  return tmdb(
+    "/discover/movie",
+    {
+      include_adult: false,
+      include_video: false,
+      sort_by: "popularity.desc",
+      page,
+      with_genres: String(genreId),
+      language: "en-US",
+    },
+    { revalidate: 300 }
+  );
+}
+
+export async function getHighestGrossingMovies(page = 1) {
+  return tmdb(
+    "/discover/movie",
+    {
+      include_adult: false,
+      include_video: false,
+      sort_by: "revenue.desc",
+      page,
+      language: "en-US",
+    },
+    { revalidate: 300 }
+  );
+}
+
 // Detail (tv-specific)
 export async function getTVDetails(id: number) {
   return tmdb(`/tv/${id}`, undefined, { revalidate: 300 });
@@ -216,6 +249,12 @@ export async function getTVCredits(id: number) {
 
 export async function getSimilarTV(id: number, page = 1) {
   return tmdb(`/tv/${id}/similar`, { page }, { revalidate: 300 });
+}
+
+export async function getMovie(id: number) {
+  return tmdb(`/movie/${id}`, undefined, {
+    revalidate: 86400,
+  });
 }
 
 export async function getTvByGenre(genreId: number, page = 1) {
