@@ -14,6 +14,7 @@ import {
   getTVVideos,
   getTVCredits,
   getSimilarTV,
+  fetchTmdbProviders,
 } from "@/lib/fetchers";
 
 export const runtime = "nodejs";
@@ -63,13 +64,14 @@ export default async function TvPage({ params }: PageProps) {
   const id = Number(idStr);
   if (!Number.isFinite(id)) return notFound();
 
-  const [detailsRes, videosRes, creditsRes, similarRes] =
-    await Promise.allSettled([
-      withTimeout(getTVDetails(id), 8000, "details"),
-      withTimeout(getTVVideos(id), 8000, "videos"),
-      withTimeout(getTVCredits(id), 8000, "credits"),
-      withTimeout(getSimilarTV(id), 8000, "similar"),
-    ]);
+  const [detailsRes, videosRes, creditsRes, similarRes, providersRes] =
+  await Promise.allSettled([
+    withTimeout(getTVDetails(id), 8000, "details"),
+    withTimeout(getTVVideos(id), 8000, "videos"),
+    withTimeout(getTVCredits(id), 8000, "credits"),
+    withTimeout(getSimilarTV(id), 8000, "similar"),
+    withTimeout(fetchTmdbProviders(id, "tv"), 8000, "providers"),
+  ]);
 
   const details: any =
     detailsRes.status === "fulfilled" ? detailsRes.value : null;
@@ -93,6 +95,17 @@ export default async function TvPage({ params }: PageProps) {
     Array.isArray((similarRes.value as any)?.results)
       ? (similarRes.value as any).results.slice(0, 12)
       : [];
+
+  const providersData: any =
+  providersRes.status === "fulfilled" ? providersRes.value : null;
+
+  const country = "ZA";
+
+  const watchData =
+    providersData?.results?.[country] ||
+    providersData?.results?.US ||
+    providersData?.results?.GB ||
+    null;    
 
   const title = details.name || details.original_name || "Untitled";
   const backdrop = img(details.backdrop_path, "w1280") || img(details.poster_path, "w780");
@@ -406,7 +419,7 @@ const breadcrumbJsonLd = {
           </div>
         )}
 
-         <WatchOptions title={title} />
+        <WatchOptions title={title} watchData={watchData} country={country} /> 
 
          <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
             <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">

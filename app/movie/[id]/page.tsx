@@ -16,6 +16,7 @@ import {
   getMovieVideos,
   getMovieCredits,
   getSimilarMovies,
+  fetchTmdbProviders,
 } from "@/lib/fetchers";
 
 
@@ -50,14 +51,15 @@ export default async function MoviePage({ params }: PageProps) {
   if (!Number.isFinite(id)) return notFound();
 
   // ---------- data ----------
-  const [detailsRes, videosRes, creditsRes, similarRes] = await Promise.allSettled([
+  const [detailsRes, videosRes, creditsRes, similarRes, providersRes] =
+  await Promise.allSettled([
     withTimeout(getMovieDetails(id), 8000, "details"),
     withTimeout(getMovieVideos(id), 8000, "videos"),
     withTimeout(getMovieCredits(id), 8000, "credits"),
     withTimeout(getSimilarMovies(id), 8000, "similar"),
+    withTimeout(fetchTmdbProviders(id, "movie"), 8000, "providers"),
   ]);
   
-
   const details: any =
     detailsRes.status === "fulfilled" ? detailsRes.value : null;
   if (!details) return notFound();
@@ -76,6 +78,17 @@ export default async function MoviePage({ params }: PageProps) {
     similarRes.status === "fulfilled" && Array.isArray((similarRes.value as any)?.results)
       ? (similarRes.value as any).results.slice(0, 12)
       : [];
+
+  const providersData: any =
+  providersRes.status === "fulfilled" ? providersRes.value : null;
+
+  const country = "ZA";
+
+  const watchData =
+    providersData?.results?.[country] ||
+    providersData?.results?.US ||
+    providersData?.results?.GB ||
+    null;    
 
   // ---------- derived ----------
   const backdrop = img(details.backdrop_path, "w1280") || img(details.poster_path, "w780");
@@ -455,7 +468,7 @@ const breadcrumbJsonLd = {
         )}
 
         <div id="where-to-watch">
-          <WatchOptions title={details.title} />
+          <WatchOptions title={details.title} watchData={watchData} country={country} />
         </div>
 
         <MovieTickets title={details.title} />
