@@ -5,6 +5,12 @@ export type RealNewsItem = {
   url: string;
   source?: string;
   image?: string | null;
+  publishedAt?: string;
+};
+
+type FeedConfig = {
+  name: string;
+  url: string;
 };
 
 const parser = new Parser({
@@ -17,71 +23,74 @@ const parser = new Parser({
   },
 });
 
-const BLOCKED_HEADLINE_WORDS = [
+const ENTERTAINMENT_FEEDS: FeedConfig[] = [
+  {
+    name: "Variety",
+    url: "https://variety.com/feed/",
+  },
+  {
+    name: "Deadline",
+    url: "https://deadline.com/feed/",
+  },
+];
+
+const GAMING_FEEDS: FeedConfig[] = [
+  {
+    name: "Polygon",
+    url: "https://www.polygon.com/rss/index.xml",
+  },
+  {
+    name: "Eurogamer",
+    url: "https://www.eurogamer.net/feed",
+  },
+];
+
+const SPORTS_FEEDS: FeedConfig[] = [
+  {
+    name: "BBC Sport",
+    url: "https://feeds.bbci.co.uk/sport/rss.xml?edition=uk",
+  },
+  {
+    name: "ESPN",
+    url: "https://www.espn.com/espn/rss/news",
+  },
+];
+
+const BLOCKED_TERMS = [
   "livestream",
   "live stream",
   "watch free",
   "free stream",
-  "streaming free",
-  "reddit streams",
-  "how to watch free",
-  "live online free",
-  "tv channel free",
-  "official stream",
+  "stream online free",
+  "reddit stream",
+  "betting odds",
+  "casino",
 ];
 
-const BLOCKED_SOURCES = [
-  "facebook",
-  "instagram",
-  "pinterest",
-];
-
-function cleanHeadline(title: string) {
+function cleanTitle(title: string) {
   return title
-    // Remove strange symbols at the beginning
-    .replace(/^[^a-zA-Z0-9"'([{]+/, "")
-    // Remove spam-style prefixes
-    .replace(
-      /^\s*[\[(]?(livestreams?|live streams?|watch live|streaming)[\])!:\-\s]*/i,
-      ""
-    )
-    // Remove repeated spaces
+    .replace(/<!\[CDATA\[|\]\]>/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function isGoodHeadline(title: string, source?: string) {
-  const text = `${title} ${source || ""}`.toLowerCase();
+function isAllowedTitle(title: string) {
+  const normalized = title.toLowerCase();
 
-  if (title.length < 25) return false;
-
-  if (BLOCKED_HEADLINE_WORDS.some((word) => text.includes(word))) {
-    return false;
-  }
-
-  if (
-    source &&
-    BLOCKED_SOURCES.some((blocked) =>
-      source.toLowerCase().includes(blocked)
-    )
-  ) {
-    return false;
-  }
-
-  return true;
+  return !BLOCKED_TERMS.some((term) => normalized.includes(term));
 }
 
 function imageFromHtml(html?: string | null) {
   if (!html) return null;
 
-  const match =
-    html.match(/<img[^>]+src=["']([^"']+)["']/i) ||
-    html.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)/i);
+  const match = html.match(
+    /<img[^>]+src=["']([^"']+)["']/i
+  );
 
-  return match?.[1] || match?.[0] || null;
+  return match?.[1] || null;
 }
 
-function imageFromRssItem(item: any) {
+function getItemImage(item: any): string | null {
   return (
     item.enclosure?.url ||
     item.mediaContent?.$?.url ||
@@ -90,210 +99,185 @@ function imageFromRssItem(item: any) {
     item.mediaThumbnail?.url ||
     imageFromHtml(item.contentEncoded) ||
     imageFromHtml(item.content) ||
+    imageFromHtml(item.summary) ||
     null
   );
 }
 
-async function getArticleImage(url: string): Promise<string | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 4500);
+function removeDuplicates(items: RealNewsItem[]) {
+  const seen = new Set<string>();
 
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; CineVaultNewsBot/1.0)",
-      },
-      redirect: "follow",
-      next: { revalidate: 3600 },
-    });
+  return items.filter((item) => {
+    const key = item.title.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-    if (!res.ok) return null;
+    if (!key || seen.has(key)) return false;
 
-    const html = await res.text();
-
-    const ogImage =
-      html.match(
-        /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
-      ) ||
-      html.match(
-        /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i
-      ) ||
-      html.match(
-        /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i
-      ) ||
-      html.match(
-        /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i
-      );
-
-    return ogImage?.[1] || null;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
+    seen.add(key);
+    return true;
+  });
 }
 
-async function getGoogleNews(
-  query: string,
-  pageSize = 12
+async function loadFeed(
+  feed: FeedConfig
 ): Promise<RealNewsItem[]> {
   try {
-    const rssUrl =
-      `https://news.google.com/rss/search?q=${encodeURIComponent(query)}` +
-      `&hl=en-ZA&gl=ZA&ceid=ZA:en`;
+    const result = await parser.parseURL(feed.url);
 
-    const feed = await parser.parseURL(rssUrl);
-
-    const cleaned = (feed.items || [])
-      .map((item: any) => {
-        const title = cleanHeadline(item.title || "");
-        const source =
-          item.creator ||
-          item.source ||
-          item["dc:creator"] ||
-          "Google News";
-
-        return {
-          title,
-          url: item.link || "",
-          source,
-          image: imageFromRssItem(item),
-        };
-      })
+    return (result.items || [])
+      .map((item: any) => ({
+        title: cleanTitle(item.title || ""),
+        url: item.link || item.guid || "",
+        source: feed.name,
+        image: getItemImage(item),
+        publishedAt:
+          item.isoDate ||
+          item.pubDate ||
+          new Date().toISOString(),
+      }))
       .filter(
         (item) =>
-          item.title &&
-          item.url &&
-          isGoodHeadline(item.title, item.source)
-      )
-      .slice(0, pageSize);
-
-    // Try to find images only for stories that do not already have one.
-    const withImages = await Promise.all(
-      cleaned.map(async (item, index) => {
-        // Limit extra requests to the first eight stories.
-        if (item.image || index >= 8) return item;
-
-        const image = await getArticleImage(item.url);
-
-        return {
-          ...item,
-          image,
-        };
-      })
-    );
-
-    return withImages;
+          Boolean(item.title) &&
+          Boolean(item.url) &&
+          isAllowedTitle(item.title)
+      );
   } catch (error) {
-    console.error("Google News RSS error:", error);
+    console.error(`RSS feed failed: ${feed.name}`, error);
     return [];
   }
 }
 
-async function getNewsByCategory(
-  category: "entertainment" | "sports" | "technology",
+async function loadFeeds(
+  feeds: FeedConfig[],
   pageSize = 12
 ): Promise<RealNewsItem[]> {
-  const key = process.env.NEWS_API_KEY;
+  const results = await Promise.allSettled(
+    feeds.map((feed) => loadFeed(feed))
+  );
 
-  if (key) {
-    try {
-      const url =
-        `https://newsapi.org/v2/top-headlines?category=${category}` +
-        `&language=en&pageSize=${pageSize}&apiKey=${key}`;
+  const articles = results.flatMap((result) =>
+    result.status === "fulfilled" ? result.value : []
+  );
 
-      const res = await fetch(url, {
-        next: { revalidate: 600 },
-      });
+  return removeDuplicates(articles)
+    .sort((a, b) => {
+      const dateA = new Date(a.publishedAt || 0).getTime();
+      const dateB = new Date(b.publishedAt || 0).getTime();
 
-      if (res.ok) {
-        const data = await res.json();
-
-        const articles = (data.articles || [])
-          .filter((a: any) => a.title && a.url)
-          .map((a: any) => ({
-            title: a.title,
-            url: a.url,
-            source: a.source?.name || "News",
-            image: a.urlToImage || null,
-          }));
-
-        if (articles.length > 0) {
-          return articles;
-        }
-      } else {
-        const body = await res.text();
-        console.error("NewsAPI error:", res.status, body);
-      }
-    } catch (error) {
-      console.error("NewsAPI request failed:", error);
-    }
-  }
-
-  const fallbackQueries = {
-  entertainment:
-    '(movies OR cinema OR television OR streaming OR Hollywood) -livestream -"live stream" -"watch free"',
-  sports:
-    '(sports OR soccer OR rugby OR Formula 1 OR cricket) -livestream -"live stream" -"watch free"',
-  technology:
-    '(gaming OR PlayStation OR Xbox OR Nintendo OR Steam) -livestream -"live stream" -"watch free"',
-};
-
-  return getGoogleNews(fallbackQueries[category], pageSize);
+      return dateB - dateA;
+    })
+    .slice(0, pageSize);
 }
 
-export async function getEntertainmentNews() {
-  return getNewsByCategory("entertainment", 12);
+export async function getEntertainmentNews(): Promise<RealNewsItem[]> {
+  return loadFeeds(ENTERTAINMENT_FEEDS, 12);
 }
 
-export async function getSportsNews() {
-  return getNewsByCategory("sports", 12);
+export async function getSportsNews(): Promise<RealNewsItem[]> {
+  return loadFeeds(SPORTS_FEEDS, 12);
 }
 
-export async function getGamingNews() {
-  return getNewsByCategory("technology", 12);
+export async function getGamingNews(): Promise<RealNewsItem[]> {
+  return loadFeeds(GAMING_FEEDS, 12);
 }
 
-export async function getSportsTopicNews(topic: string) {
-  const queryMap: Record<string, string> = {
-    soccer: "soccer OR Premier League OR Champions League",
-    football: "NFL OR American football",
-    racing: "Formula 1 OR motorsport OR racing",
-    cricket: "cricket",
-    rugby: "rugby",
-    basketball: "NBA OR basketball",
-    tennis: "tennis OR ATP OR WTA",
+export async function getSportsTopicNews(
+  topic: string
+): Promise<RealNewsItem[]> {
+  const items = await loadFeeds(SPORTS_FEEDS, 40);
+  const term = topic.toLowerCase();
+
+  const aliases: Record<string, string[]> = {
+    soccer: ["soccer", "football", "premier league", "champions league"],
+    football: ["nfl", "american football"],
+    racing: ["formula 1", "f1", "motorsport", "racing"],
+    cricket: ["cricket"],
+    rugby: ["rugby"],
+    tennis: ["tennis", "atp", "wta"],
+    basketball: ["basketball", "nba"],
   };
 
-  return getGoogleNews(queryMap[topic] || topic, 12);
+  const terms = aliases[term] || [term];
+
+  return items
+    .filter((item) =>
+      terms.some((word) =>
+        item.title.toLowerCase().includes(word)
+      )
+    )
+    .slice(0, 12);
 }
 
-export async function getGamingTopicNews(topic: string) {
-  const queryMap: Record<string, string> = {
-    console: "PlayStation OR Xbox OR Nintendo",
-    pc: "PC gaming OR Steam OR Epic Games",
-    mobile: "mobile gaming OR Android games OR iOS games",
-    esports: "esports",
-    playstation: "PlayStation",
-    xbox: "Xbox",
-    nintendo: "Nintendo",
+export async function getGamingTopicNews(
+  topic: string
+): Promise<RealNewsItem[]> {
+  const items = await loadFeeds(GAMING_FEEDS, 40);
+  const term = topic.toLowerCase();
+
+  const aliases: Record<string, string[]> = {
+    console: ["console", "playstation", "xbox", "nintendo"],
+    pc: ["pc", "steam", "epic games"],
+    mobile: ["mobile", "android", "ios"],
+    esports: ["esports", "tournament", "competitive"],
+    playstation: ["playstation", "ps5"],
+    xbox: ["xbox", "game pass"],
+    nintendo: ["nintendo", "switch"],
   };
 
-  return getGoogleNews(queryMap[topic] || topic, 12);
+  const terms = aliases[term] || [term];
+
+  return items
+    .filter((item) =>
+      terms.some((word) =>
+        item.title.toLowerCase().includes(word)
+      )
+    )
+    .slice(0, 12);
 }
 
-export async function getEntertainmentTopicNews(topic: string) {
-  const queryMap: Record<string, string> = {
-    movies: "movies OR cinema OR film",
-    tv: "TV shows OR television series",
-    streaming: "Netflix OR Disney Plus OR Prime Video OR Max",
-    celebrities: "Hollywood celebrities",
-    awards: "Oscars OR Emmy Awards OR Golden Globes",
-    "box-office": "movie box office",
-    anime: "anime OR manga OR Crunchyroll",
+export async function getEntertainmentTopicNews(
+  topic: string
+): Promise<RealNewsItem[]> {
+  const items = await loadFeeds(ENTERTAINMENT_FEEDS, 50);
+  const term = topic.toLowerCase();
+
+  const aliases: Record<string, string[]> = {
+    movies: ["movie", "film", "cinema", "box office"],
+    tv: ["tv", "television", "series", "show"],
+    streaming: [
+      "netflix",
+      "disney+",
+      "prime video",
+      "hbo",
+      "max",
+      "streaming",
+    ],
+    celebrities: [
+      "actor",
+      "actress",
+      "celebrity",
+      "hollywood",
+    ],
+    awards: [
+      "oscar",
+      "emmy",
+      "golden globe",
+      "award",
+    ],
+    "box-office": [
+      "box office",
+      "opening weekend",
+      "grossed",
+    ],
+    anime: ["anime", "manga", "crunchyroll"],
   };
 
-  return getGoogleNews(queryMap[topic] || topic, 12);
+  const terms = aliases[term] || [term];
+
+  return items
+    .filter((item) =>
+      terms.some((word) =>
+        item.title.toLowerCase().includes(word)
+      )
+    )
+    .slice(0, 12);
 }
