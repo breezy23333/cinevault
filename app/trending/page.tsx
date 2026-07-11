@@ -1,4 +1,4 @@
-import Image from "next/image";
+import CineImage from "@/components/CineImage";
 import Link from "next/link";
 import { discoverMovies } from "@/lib/fetchers";
 import type { Metadata } from "next";
@@ -127,22 +127,15 @@ export default async function TrendingPage({
             <Link
               key={item.id}
               href={`/movie/${item.id}`}
-              className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:ring-yellow-400/50"
+              className="group overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:ring-yellow-400/50"
             >
               <div className="relative aspect-[2/3] bg-black/30">
-                {poster ? (
-                  <Image
-                    src={poster}
-                    alt={item.title || "Movie"}
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="grid h-full place-items-center text-sm text-white/50">
-                    No poster
-                  </div>
-                )}
+                <CineImage
+                  src={poster}
+                  alt={item.title || "Movie"}
+                  fallback="No poster"
+                  className="object-cover transition duration-300 group-hover:scale-105"
+                />
               </div>
 
               <div className="p-3">

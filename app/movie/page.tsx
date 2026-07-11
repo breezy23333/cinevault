@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import CineImage from "@/components/CineImage";
 
 export const metadata: Metadata = {
   title: "Movies | CineVault",
@@ -81,19 +81,16 @@ export default async function MoviesPage({
               className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-yellow-400/60"
             >
               <div className="relative aspect-[2/3] bg-white/5">
-                {movie.poster_path ? (
-                  <Image
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                <CineImage
+                    src={
+                      movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : null
+                    }
                     alt={movie.title}
-                    fill
-                    className="object-cover transition group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, 20vw"
+                    fallback="No image"
+                    className="object-cover transition duration-300 group-hover:scale-105"
                   />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-white/40">
-                    No Image
-                  </div>
-                )}
               </div>
 
               <div className="p-4">

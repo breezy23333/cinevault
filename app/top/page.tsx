@@ -1,5 +1,5 @@
 
-import Image from "next/image";
+import CineImage from "@/components/CineImage";
 import Link from "next/link";
 import { discoverMovies, getMovieGenres } from "@/lib/fetchers";
 import type { Metadata } from "next";
@@ -65,7 +65,7 @@ function genresId(
 }
 
 // simple href — discover endpoints here are movies
-const hrefFor = (it: TMDBItem) => `/title/movie/${it.id}`;
+const hrefFor = (it: TMDBItem) => `/movie/${it.id}`;
 
 export default async function TopPage({
   searchParams,
@@ -244,18 +244,12 @@ function Hero({ item }: { item?: TMDBItem }) {
       className="block rounded-2xl overflow-hidden border border-zinc-800"
     >
       <div className="relative aspect-[16/7]">
-        {bg ? (
-          <Image
-            src={bg}
+        <CineImage
+            src={bg || null}
             alt={title}
-            fill
+            fallback="No backdrop"
             className="object-cover"
-            priority
-            sizes="100vw"
           />
-        ) : (
-          <div className="w-full h-full bg-zinc-900" />
-        )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
         <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8">
@@ -278,7 +272,7 @@ function Row({ title, items }: { title: string; items: TMDBItem[] }) {
     <section>
       <h2 className="text-xl font-semibold mb-3">{title}</h2>
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
-        {items.slice(0, 12).map((it, i) => {
+        {items.slice(0, 12).map((it) => {
           const name = it.title || it.name || "Untitled";
           const poster =
             it.poster_path &&
@@ -291,18 +285,12 @@ function Row({ title, items }: { title: string; items: TMDBItem[] }) {
             >
               <Link href={hrefFor(it)} prefetch={false} className="block">
                 <div className="relative aspect-[2/3]">
-                  {poster ? (
-                    <Image
-                      src={poster}
+                  <CineImage
+                      src={poster || null}
                       alt={name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width:640px) 45vw, (max-width:1024px) 20vw, 16vw"
-                      priority={i < 4}
+                      fallback="No poster"
+                      className="object-cover transition duration-300 group-hover:scale-105"
                     />
-                  ) : (
-                    <div className="w-full h-full bg-zinc-800" />
-                  )}
                 </div>
                 <div className="p-2 text-sm truncate">{name}</div>
               </Link>
