@@ -1,3 +1,5 @@
+import Parser from "rss-parser";
+
 export type RealNewsItem = {
   title: string;
   url: string;
@@ -5,174 +7,133 @@ export type RealNewsItem = {
   image?: string | null;
 };
 
+const parser = new Parser();
+
+async function getGoogleNews(
+  query: string,
+  pageSize = 12
+): Promise<RealNewsItem[]> {
+  try {
+    const rssUrl =
+      `https://news.google.com/rss/search?q=${encodeURIComponent(query)}` +
+      `&hl=en-ZA&gl=ZA&ceid=ZA:en`;
+
+    const feed = await parser.parseURL(rssUrl);
+
+    return (feed.items || [])
+      .filter((item) => item.title && item.link)
+      .slice(0, pageSize)
+      .map((item) => ({
+        title: item.title || "Untitled",
+        url: item.link || "#",
+        source: item.creator || "Google News",
+        image: null,
+      }));
+  } catch (error) {
+    console.error("Google News RSS error:", error);
+    return [];
+  }
+}
+
 async function getNewsByCategory(
   category: "entertainment" | "sports" | "technology",
   pageSize = 12
 ): Promise<RealNewsItem[]> {
   const key = process.env.NEWS_API_KEY;
 
-  if (!key) return [];
+  if (key) {
+    try {
+      const url =
+        `https://newsapi.org/v2/top-headlines?category=${category}` +
+        `&language=en&pageSize=${pageSize}&apiKey=${key}`;
 
-  const url = `https://newsapi.org/v2/top-headlines?category=${category}&language=en&pageSize=${pageSize}&apiKey=${key}`;
+      const res = await fetch(url, {
+        next: { revalidate: 600 },
+      });
 
-  const res = await fetch(url, {
-    next: { revalidate: 600 },
-  });
+      if (res.ok) {
+        const data = await res.json();
 
-  if (!res.ok) return [];
+        const articles = (data.articles || [])
+          .filter((a: any) => a.title && a.url)
+          .map((a: any) => ({
+            title: a.title,
+            url: a.url,
+            source: a.source?.name || "News",
+            image: a.urlToImage || null,
+          }));
 
-  const data = await res.json();
+        if (articles.length > 0) {
+          return articles;
+        }
+      } else {
+        const body = await res.text();
+        console.error("NewsAPI error:", res.status, body);
+      }
+    } catch (error) {
+      console.error("NewsAPI request failed:", error);
+    }
+  }
 
-  return (data.articles || [])
-    .filter((a: any) => a.title && a.url)
-    .map((a: any) => ({
-      title: a.title,
-      url: a.url,
-      source: a.source?.name || "News",
-      image: a.urlToImage || null,
-    }));
+  const fallbackQueries = {
+    entertainment: "movies OR television OR streaming OR celebrities",
+    sports: "sports OR soccer OR football OR Formula 1",
+    technology: "gaming OR PlayStation OR Xbox OR Nintendo OR PC gaming",
+  };
+
+  return getGoogleNews(fallbackQueries[category], pageSize);
 }
 
-export async function getEntertainmentNews(): Promise<RealNewsItem[]> {
+export async function getEntertainmentNews() {
   return getNewsByCategory("entertainment", 12);
 }
 
-export async function getSportsNews(): Promise<RealNewsItem[]> {
+export async function getSportsNews() {
   return getNewsByCategory("sports", 12);
 }
 
-export async function getGamingNews(): Promise<RealNewsItem[]> {
-  const key = process.env.NEWS_API_KEY;
-
-  if (!key) return [];
-
-  const url = `https://newsapi.org/v2/everything?q=("video games" OR gaming OR PlayStation OR Xbox OR Nintendo OR Steam OR esports) NOT sports&language=en&sortBy=publishedAt&pageSize=12&apiKey=${key}`;
-
-  const res = await fetch(url, {
-    next: { revalidate: 600 },
-  });
-
-  if (!res.ok) return [];
-
-  const data = await res.json();
-
-  return (data.articles || [])
-    .filter((a: any) => a.title && a.url)
-    .map((a: any) => ({
-      title: a.title,
-      url: a.url,
-      source: a.source?.name || "Gaming News",
-      image: a.urlToImage || null,
-    }));
+export async function getGamingNews() {
+  return getNewsByCategory("technology", 12);
 }
 
-export async function getSportsTopicNews(topic: string): Promise<RealNewsItem[]> {
-  const key = process.env.NEWS_API_KEY;
-
-  if (!key) return [];
-
+export async function getSportsTopicNews(topic: string) {
   const queryMap: Record<string, string> = {
-    soccer: "soccer OR football OR premier league OR champions league",
+    soccer: "soccer OR Premier League OR Champions League",
     football: "NFL OR American football",
-    racing: "Formula 1 OR F1 OR racing OR motorsport",
+    racing: "Formula 1 OR motorsport OR racing",
+    cricket: "cricket",
+    rugby: "rugby",
     basketball: "NBA OR basketball",
     tennis: "tennis OR ATP OR WTA",
   };
 
-  const q = queryMap[topic] || topic;
-
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
-    q
-  )}&language=en&sortBy=publishedAt&pageSize=12&apiKey=${key}`;
-
-  const res = await fetch(url, {
-    next: { revalidate: 600 },
-  });
-
-  if (!res.ok) return [];
-
-  const data = await res.json();
-
-  return (data.articles || [])
-    .filter((a: any) => a.title && a.url)
-    .map((a: any) => ({
-      title: a.title,
-      url: a.url,
-      source: a.source?.name || "Sports News",
-      image: a.urlToImage || null,
-    }));
+  return getGoogleNews(queryMap[topic] || topic, 12);
 }
 
-export async function getGamingTopicNews(topic: string): Promise<RealNewsItem[]> {
-  const key = process.env.NEWS_API_KEY;
-
-  if (!key) return [];
-
+export async function getGamingTopicNews(topic: string) {
   const queryMap: Record<string, string> = {
     console: "PlayStation OR Xbox OR Nintendo",
-    pc: "PC Gaming OR Steam OR Epic Games",
-    mobile: "Mobile Gaming OR Android Games OR iOS Games",
+    pc: "PC gaming OR Steam OR Epic Games",
+    mobile: "mobile gaming OR Android games OR iOS games",
+    esports: "esports",
+    playstation: "PlayStation",
+    xbox: "Xbox",
+    nintendo: "Nintendo",
   };
 
-  const q = queryMap[topic] || topic;
-
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
-    q
-  )}&language=en&sortBy=publishedAt&pageSize=12&apiKey=${key}`;
-
-  const res = await fetch(url, {
-    next: { revalidate: 600 },
-  });
-
-  if (!res.ok) return [];
-
-  const data = await res.json();
-
-  return (data.articles || [])
-    .filter((a: any) => a.title && a.url)
-    .map((a: any) => ({
-      title: a.title,
-      url: a.url,
-      source: a.source?.name || "Gaming News",
-      image: a.urlToImage || null,
-    }));
+  return getGoogleNews(queryMap[topic] || topic, 12);
 }
 
-export async function getEntertainmentTopicNews(
-  topic: string
-): Promise<RealNewsItem[]> {
-  const key = process.env.NEWS_API_KEY;
-
-  if (!key) return [];
-
+export async function getEntertainmentTopicNews(topic: string) {
   const queryMap: Record<string, string> = {
     movies: "movies OR cinema OR film",
-    tv: "TV shows OR television series OR streaming series",
-    streaming: "Netflix OR Disney Plus OR Prime Video OR Max OR Hulu",
-    celebrities: "celebrities OR celebrity OR Hollywood",
+    tv: "TV shows OR television series",
+    streaming: "Netflix OR Disney Plus OR Prime Video OR Max",
+    celebrities: "Hollywood celebrities",
+    awards: "Oscars OR Emmy Awards OR Golden Globes",
+    "box-office": "movie box office",
     anime: "anime OR manga OR Crunchyroll",
   };
 
-  const q = queryMap[topic] || topic;
-
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
-    q
-  )}&language=en&sortBy=publishedAt&pageSize=12&apiKey=${key}`;
-
-  const res = await fetch(url, {
-    next: { revalidate: 600 },
-  });
-
-  if (!res.ok) return [];
-
-  const data = await res.json();
-
-  return (data.articles || [])
-    .filter((a: any) => a.title && a.url)
-    .map((a: any) => ({
-      title: a.title,
-      url: a.url,
-      source: a.source?.name || "Entertainment News",
-      image: a.urlToImage || null,
-    }));
+  return getGoogleNews(queryMap[topic] || topic, 12);
 }

@@ -24,7 +24,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
-
+import CineImage from "@/components/CineImage";
 import MovieEras from "@/components/MovieEras";
 
 // runtime/perf

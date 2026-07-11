@@ -1,7 +1,7 @@
 // components/HeroCarousel.tsx
 "use client";
 
-import Image from "next/image";
+import CineImage from "@/components/CineImage";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
@@ -56,21 +56,16 @@ export default function HeroCarousel({
         }}
       >
         {/* Backdrop */}
-        {cur.backdrop ? (
-          <Image
-            src={cur.backdrop}
-            alt={cur.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 80vw"
-            priority={i === 0}                 // ✅ first hero only
-            loading={i === 0 ? "eager" : "lazy"}
-            placeholder="empty"                 // cheaper than blurDataURL
-          />
-        ) : (
-          <div className="h-full w-full bg-black/40" />
-        )}
+        <CineImage
+          src={cur.backdrop}
+          alt={cur.title}
+          fallback="No backdrop"
+          priority={i === 0}
+          className="object-cover object-center"
+        />
 
         {/* Left-to-right darkening (click-through) */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10" />
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/80 via-black/55 to-black/25" />
 
         {/* Content */}
