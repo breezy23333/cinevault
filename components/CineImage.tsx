@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type CineImageProps = {
   src?: string | null;
@@ -19,9 +19,13 @@ export default function CineImage({
 }: CineImageProps) {
   const [error, setError] = useState(false);
 
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
   if (!src || error) {
     return (
-      <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-center text-xs text-white/45">
+      <div className="absolute inset-0 grid place-items-center bg-zinc-900 px-3 text-center text-xs text-white/45">
         {fallback}
       </div>
     );
@@ -29,9 +33,11 @@ export default function CineImage({
 
   return (
     <img
+      key={src}
       src={src}
       alt={alt}
       loading={priority ? "eager" : "lazy"}
+      decoding="async"
       onError={() => setError(true)}
       className={`absolute inset-0 h-full w-full ${className}`}
     />

@@ -399,31 +399,40 @@ const breadcrumbJsonLd = {
             </section>
           )}
 
-        {/* Cast */}
+       {/* Cast */}
           {cast.length > 0 && (
             <div>
               <h2 className="mb-3 text-xl font-bold">Cast</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {cast.map((c) => {
-                  const profile = img(c.profile_path, "w185");
+                  const profile = c.profile_path
+                    ? `https://image.tmdb.org/t/p/w185${c.profile_path}`
+                    : null;
+
                   return (
                     <Link
-                      key={c.id}
+                      key={`${c.id}-${c.profile_path || "no-photo"}`}
                       href={`/person/${c.id}`}
-                      className="rounded-xl bg-white/5 ring-1 ring-white/10 overflow-hidden transition hover:ring-yellow-400/60"
+                      className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
                     >
                       <div className="relative aspect-[2/3] bg-black/20">
                         <CineImage
-                          src={backdrop}
-                          alt={details.title}
-                          fallback="No backdrop"
-                          priority
-                          className="object-cover"
+                          src={profile}
+                          alt={c.name}
+                          fallback="No actor photo"
+                          className="object-cover object-top"
                         />
                       </div>
+
                       <div className="p-2">
                         <div className="line-clamp-1 font-medium">{c.name}</div>
-                        {!!c.character && <div className="text-xs text-white/70">{c.character}</div>}
+
+                        {!!c.character && (
+                          <div className="text-xs text-white/70">
+                            {c.character}
+                          </div>
+                        )}
                       </div>
                     </Link>
                   );
