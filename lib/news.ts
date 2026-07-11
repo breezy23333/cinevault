@@ -7,7 +7,133 @@ export type RealNewsItem = {
   image?: string | null;
 };
 
-const parser = new Parser();
+const parser = new Parser({
+  customFields: {
+    item: [
+      ["media:content", "mediaContent"],
+      ["media:thumbnail", "mediaThumbnail"],
+      ["content:encoded", "contentEncoded"],
+    ],
+  },
+});
+
+const BLOCKED_HEADLINE_WORDS = [
+  "livestream",
+  "live stream",
+  "watch free",
+  "free stream",
+  "streaming free",
+  "reddit streams",
+  "how to watch free",
+  "live online free",
+  "tv channel free",
+  "official stream",
+];
+
+const BLOCKED_SOURCES = [
+  "facebook",
+  "instagram",
+  "pinterest",
+];
+
+function cleanHeadline(title: string) {
+  return title
+    // Remove strange symbols at the beginning
+    .replace(/^[^a-zA-Z0-9"'([{]+/, "")
+    // Remove spam-style prefixes
+    .replace(
+      /^\s*[\[(]?(livestreams?|live streams?|watch live|streaming)[\])!:\-\s]*/i,
+      ""
+    )
+    // Remove repeated spaces
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isGoodHeadline(title: string, source?: string) {
+  const text = `${title} ${source || ""}`.toLowerCase();
+
+  if (title.length < 25) return false;
+
+  if (BLOCKED_HEADLINE_WORDS.some((word) => text.includes(word))) {
+    return false;
+  }
+
+  if (
+    source &&
+    BLOCKED_SOURCES.some((blocked) =>
+      source.toLowerCase().includes(blocked)
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function imageFromHtml(html?: string | null) {
+  if (!html) return null;
+
+  const match =
+    html.match(/<img[^>]+src=["']([^"']+)["']/i) ||
+    html.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)/i);
+
+  return match?.[1] || match?.[0] || null;
+}
+
+function imageFromRssItem(item: any) {
+  return (
+    item.enclosure?.url ||
+    item.mediaContent?.$?.url ||
+    item.mediaContent?.url ||
+    item.mediaThumbnail?.$?.url ||
+    item.mediaThumbnail?.url ||
+    imageFromHtml(item.contentEncoded) ||
+    imageFromHtml(item.content) ||
+    null
+  );
+}
+
+async function getArticleImage(url: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4500);
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; CineVaultNewsBot/1.0)",
+      },
+      redirect: "follow",
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) return null;
+
+    const html = await res.text();
+
+    const ogImage =
+      html.match(
+        /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
+      ) ||
+      html.match(
+        /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i
+      ) ||
+      html.match(
+        /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i
+      ) ||
+      html.match(
+        /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i
+      );
+
+    return ogImage?.[1] || null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 async function getGoogleNews(
   query: string,
@@ -20,15 +146,46 @@ async function getGoogleNews(
 
     const feed = await parser.parseURL(rssUrl);
 
-    return (feed.items || [])
-      .filter((item) => item.title && item.link)
-      .slice(0, pageSize)
-      .map((item) => ({
-        title: item.title || "Untitled",
-        url: item.link || "#",
-        source: item.creator || "Google News",
-        image: null,
-      }));
+    const cleaned = (feed.items || [])
+      .map((item: any) => {
+        const title = cleanHeadline(item.title || "");
+        const source =
+          item.creator ||
+          item.source ||
+          item["dc:creator"] ||
+          "Google News";
+
+        return {
+          title,
+          url: item.link || "",
+          source,
+          image: imageFromRssItem(item),
+        };
+      })
+      .filter(
+        (item) =>
+          item.title &&
+          item.url &&
+          isGoodHeadline(item.title, item.source)
+      )
+      .slice(0, pageSize);
+
+    // Try to find images only for stories that do not already have one.
+    const withImages = await Promise.all(
+      cleaned.map(async (item, index) => {
+        // Limit extra requests to the first eight stories.
+        if (item.image || index >= 8) return item;
+
+        const image = await getArticleImage(item.url);
+
+        return {
+          ...item,
+          image,
+        };
+      })
+    );
+
+    return withImages;
   } catch (error) {
     console.error("Google News RSS error:", error);
     return [];
@@ -76,10 +233,13 @@ async function getNewsByCategory(
   }
 
   const fallbackQueries = {
-    entertainment: "movies OR television OR streaming OR celebrities",
-    sports: "sports OR soccer OR football OR Formula 1",
-    technology: "gaming OR PlayStation OR Xbox OR Nintendo OR PC gaming",
-  };
+  entertainment:
+    '(movies OR cinema OR television OR streaming OR Hollywood) -livestream -"live stream" -"watch free"',
+  sports:
+    '(sports OR soccer OR rugby OR Formula 1 OR cricket) -livestream -"live stream" -"watch free"',
+  technology:
+    '(gaming OR PlayStation OR Xbox OR Nintendo OR Steam) -livestream -"live stream" -"watch free"',
+};
 
   return getGoogleNews(fallbackQueries[category], pageSize);
 }
