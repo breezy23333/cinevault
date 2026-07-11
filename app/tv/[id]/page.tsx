@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import CineImage from "@/components/CineImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import UserRating from "@/components/UserRating";
@@ -194,18 +194,12 @@ const breadcrumbJsonLd = {
       />
       <section className="relative left-1/2 w-[100svw] -translate-x-1/2 overflow-hidden">
         <div className="relative h-[54vh] md:h-[64vh]">
-          {backdrop ? (
-            <Image
+          <CineImage
               src={backdrop}
               alt={title}
-              fill
-              sizes="(max-width: 768px) 100vw, 90vw"
-              priority
+              fallback="No backdrop"
               className="object-cover"
             />
-          ) : (
-            <div className="absolute inset-0 bg-black/40" />
-          )}
 
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#0e131f]" />
@@ -213,19 +207,12 @@ const breadcrumbJsonLd = {
           <div className="relative z-10 mx-auto flex h-full max-w-[1200px] items-end px-4 md:items-center md:px-6">
             <div className="hidden shrink-0 md:mb-0 md:mr-6 md:block">
               <div className="relative h-[320px] w-[220px] overflow-hidden rounded-xl bg-black/30 ring-1 ring-white/15">
-                {poster ? (
-                  <Image
+                <CineImage
                     src={poster}
                     alt={title}
-                    fill
-                    sizes="220px"
+                    fallback="No poster"
                     className="object-cover"
                   />
-                ) : (
-                  <div className="absolute inset-0 grid place-items-center text-sm text-white/70">
-                    No poster
-                  </div>
-                )}
               </div>
             </div>
 
@@ -436,12 +423,12 @@ const breadcrumbJsonLd = {
                       className="group overflow-hidden rounded-2xl border border-white/10 bg-black/30 transition hover:border-yellow-400/60 hover:bg-white/10"
                     >
                       <div className="relative aspect-video bg-black">
-                        <Image
-                          src={`https://i.ytimg.com/vi/${v.key}/hqdefault.jpg`}
-                          alt={v.type || "TV video"}
-                          fill
-                          className="object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100"
-                        />
+                        <CineImage
+                            src={`https://i.ytimg.com/vi/${v.key}/hqdefault.jpg`}
+                            alt={v.type || "TV video"}
+                            fallback="Video unavailable"
+                            className="object-cover opacity-80 transition duration-300 group-hover:scale-105 group-hover:opacity-100"
+                          />
 
                         <div className="absolute inset-0 grid place-items-center bg-black/20">
                           <div className="rounded-full bg-yellow-400 px-4 py-3 font-black text-black">
@@ -480,20 +467,12 @@ const breadcrumbJsonLd = {
                     className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
                   >
                     <div className="relative aspect-[2/3] bg-black/20">
-                      {profile ? (
-                        <Image
-                          src={profile}
-                          alt={c.name}
-                          fill
-                          sizes="185px"
-                          loading="lazy"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 grid place-items-center text-xs text-white/50">
-                          No photo
-                        </div>
-                      )}
+                      <CineImage
+                        src={profile}
+                        alt={c.name}
+                        fallback="No photo"
+                        className="object-cover"
+                      />
                     </div>
 
                     <div className="p-2">
@@ -529,20 +508,12 @@ const breadcrumbJsonLd = {
                     className="group relative w-[180px] shrink-0 snap-start overflow-hidden rounded-xl ring-1 ring-white/10 hover:ring-white/20"
                   >
                     <div className="relative aspect-[2/3] bg-white/5">
-                      {p ? (
-                        <Image
-                          src={p}
-                          alt={s.name || "Untitled"}
-                          fill
-                          sizes="180px"
-                          loading="lazy"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 grid place-items-center text-xs text-white/60">
-                          No poster
-                        </div>
-                      )}
+                      <CineImage
+                        src={p}
+                        alt={s.name || "Untitled"}
+                        fallback="No poster"
+                        className="object-cover transition duration-300 group-hover:scale-105"
+                      />
                     </div>
 
                     <div className="p-2">
