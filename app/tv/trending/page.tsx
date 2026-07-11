@@ -1,4 +1,4 @@
-import Image from "next/image";
+import CineImage from "@/components/CineImage";
 import Link from "next/link";
 import { getTrendingTv } from "@/lib/fetchers";
 import type { Metadata } from "next";
@@ -38,17 +38,18 @@ export default async function TrendingTvPage({
             href={`/tv/${show.id}`}
             className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5"
           >
-            <Image
-              src={
-                show.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-                  : "/placeholder.png"
-              }
-              alt={show.name || "TV Show"}
-              width={500}
-              height={750}
-              className="aspect-[2/3] w-full object-cover transition duration-300 group-hover:scale-105"
-            />
+            <div className="relative aspect-[2/3] bg-white/5">
+              <CineImage
+                src={
+                  show.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
+                    : null
+                }
+                alt={show.name || "TV Show"}
+                fallback="No poster"
+                className="object-cover transition duration-300 group-hover:scale-105"
+              />
+            </div>
 
             <div className="p-3">
               <h2 className="line-clamp-1 font-semibold text-white">
