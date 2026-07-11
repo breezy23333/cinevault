@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 
-export default function CineImage({
-  src,
-  alt,
-  className = "h-full w-full object-cover",
-  fallback = "No image",
-}: {
+type CineImageProps = {
   src?: string | null;
   alt: string;
   className?: string;
   fallback?: string;
-}) {
+  priority?: boolean;
+};
+
+export default function CineImage({
+  src,
+  alt,
+  className = "",
+  fallback = "No image",
+  priority = false,
+}: CineImageProps) {
   const [error, setError] = useState(false);
 
   if (!src || error) {
@@ -27,9 +31,9 @@ export default function CineImage({
     <img
       src={src}
       alt={alt}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
       onError={() => setError(true)}
-      className={className}
+      className={`absolute inset-0 h-full w-full ${className}`}
     />
   );
 }

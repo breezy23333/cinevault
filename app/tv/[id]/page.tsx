@@ -208,9 +208,10 @@ const breadcrumbJsonLd = {
             <div className="hidden shrink-0 md:mb-0 md:mr-6 md:block">
               <div className="relative h-[320px] w-[220px] overflow-hidden rounded-xl bg-black/30 ring-1 ring-white/15">
                 <CineImage
-                    src={poster}
+                    src={backdrop}
                     alt={title}
-                    fallback="No poster"
+                    fallback="No backdrop"
+                    priority
                     className="object-cover"
                   />
               </div>

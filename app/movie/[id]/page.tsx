@@ -19,7 +19,6 @@ import {
   fetchTmdbProviders,
 } from "@/lib/fetchers";
 
-
 export const runtime = "nodejs";
 export const revalidate = 300;
 
@@ -415,9 +414,10 @@ const breadcrumbJsonLd = {
                     >
                       <div className="relative aspect-[2/3] bg-black/20">
                         <CineImage
-                          src={profile}
-                          alt={c.name}
-                          fallback="No photo"
+                          src={backdrop}
+                          alt={details.title}
+                          fallback="No backdrop"
+                          priority
                           className="object-cover"
                         />
                       </div>
