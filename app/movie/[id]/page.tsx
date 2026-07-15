@@ -12,15 +12,12 @@ import WatchOptions from "@/components/WatchOptions";
 import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
 import {
-  getMovieDetails,
-  getMovieVideos,
-  getMovieCredits,
-  getSimilarMovies,
+  fetchTmdbTitle,
   fetchTmdbProviders,
 } from "@/lib/fetchers";
 
 export const runtime = "nodejs";
-export const revalidate = 300;
+export const revalidate = 86400;
 
 type TMDBVideo = { key?: string; site?: string; type?: string; official?: boolean };
 type Cast = { id: number; name: string; character?: string; profile_path?: string | null };
@@ -50,35 +47,35 @@ export default async function MoviePage({ params }: PageProps) {
   if (!Number.isFinite(id)) return notFound();
 
   // ---------- data ----------
-  const [detailsRes, videosRes, creditsRes, similarRes, providersRes] =
-  await Promise.allSettled([
-    withTimeout(getMovieDetails(id), 8000, "details"),
-    withTimeout(getMovieVideos(id), 8000, "videos"),
-    withTimeout(getMovieCredits(id), 8000, "credits"),
-    withTimeout(getSimilarMovies(id), 8000, "similar"),
-    withTimeout(fetchTmdbProviders(id, "movie"), 8000, "providers"),
-  ]);
-  
-  const details: any =
-    detailsRes.status === "fulfilled" ? detailsRes.value : null;
-  if (!details) return notFound();
+  const [detailsRes, providersRes] = await Promise.allSettled([
+  withTimeout(fetchTmdbTitle(id, "movie"), 10000, "movie details"),
+  withTimeout(fetchTmdbProviders(id, "movie"), 10000, "providers"),
+]);
 
-  const videos: TMDBVideo[] =
-    videosRes.status === "fulfilled" && Array.isArray((videosRes.value as any)?.results)
-      ? (videosRes.value as any).results
-      : [];
+const details: any =
+  detailsRes.status === "fulfilled" ? detailsRes.value : null;
 
-  const cast: Cast[] =
-    creditsRes.status === "fulfilled" && Array.isArray((creditsRes.value as any)?.cast)
-      ? (creditsRes.value as any).cast.slice(0, 12)
-      : [];
+if (!details) return notFound();
 
-  const similar: Similar[] =
-    similarRes.status === "fulfilled" && Array.isArray((similarRes.value as any)?.results)
-      ? (similarRes.value as any).results.slice(0, 12)
-      : [];
+const videos: TMDBVideo[] = Array.isArray(details?.videos?.results)
+  ? details.videos.results
+  : [];
 
-  const providersData: any =
+const cast: Cast[] = Array.isArray(details?.credits?.cast)
+  ? details.credits.cast.slice(0, 12)
+  : [];
+
+const similarSource =
+  Array.isArray(details?.recommendations?.results) &&
+  details.recommendations.results.length > 0
+    ? details.recommendations.results
+    : details?.similar?.results;
+
+const similar: Similar[] = Array.isArray(similarSource)
+  ? similarSource.slice(0, 12)
+  : [];
+
+const providersData: any =
   providersRes.status === "fulfilled" ? providersRes.value : null;
 
   const country = "ZA";
@@ -555,7 +552,7 @@ const breadcrumbJsonLd = {
 export async function generateMetadata({ params }: PageProps) {
   try {
     const { id } = await params;
-    const movie = await getMovieDetails(Number(id));
+    const movie = await fetchTmdbTitle(Number(id), "movie");
 
     const year = movie.release_date?.slice(0, 4) || "";
     const image =

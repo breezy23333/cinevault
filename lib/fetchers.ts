@@ -8,8 +8,8 @@ const TMDB_BEARER =
 const TMDB_V3 = process.env.TMDB_API_KEY;
 
 // knobs (can override via .env.local)
-const DEFAULT_TIMEOUT = Number(process.env.TMDB_TIMEOUT_MS || 20000); // 20s
-const MAX_RETRIES     = Number(process.env.TMDB_RETRIES    || 1);     // one retry
+const DEFAULT_TIMEOUT = Number(process.env.TMDB_TIMEOUT_MS || 10000);
+const MAX_RETRIES = Number(process.env.TMDB_RETRIES || 0); // no retries
 
 /** Build a URL with optional query params (adds v3 api_key if no bearer) */
 function toURL(path: string, params?: Record<string, any>) {
@@ -41,7 +41,7 @@ function isNonCritical(path: string) {
 async function tmdb(
   path: string,
   params?: Record<string, any>,
-  { revalidate = 300, timeoutMs = DEFAULT_TIMEOUT }: { revalidate?: number; timeoutMs?: number } = {}
+  { revalidate = 86400, timeoutMs = DEFAULT_TIMEOUT }: { revalidate?: number; timeoutMs?: number } = {}
 ) {
   if (!TMDB_BEARER && !TMDB_V3) {
     throw new Error("TMDB credentials missing. Set TMDB_BEARER (v4) or TMDB_API_KEY (v3) in .env.local");
@@ -154,11 +154,13 @@ export async function fetchTmdbTitle(
         "videos,images,credits,external_ids,release_dates,content_ratings,recommendations,similar",
       include_image_language: "en,null",
     },
-    { revalidate: 300 }
+    { revalidate: 86400 }
   );
 }
 export async function fetchTmdbProviders(tmdbId: number | string, type: "movie" | "tv") {
-  return tmdb(`/${type}/${tmdbId}/watch/providers`, undefined, { revalidate: 600 });
+ return tmdb(`/${type}/${tmdbId}/watch/providers`, undefined, {
+  revalidate: 86400,
+}); 
 }
 
 // Detail (movie-specific)
