@@ -10,6 +10,7 @@ import WatchlistButton from "@/components/WatchlistButton";
 import WatchOptions from "@/components/WatchOptions";
 import TVSeasons from "@/components/TVSeasons";
 import AwardsSection from "@/components/AwardsSection";
+import { fetchAwardsByImdbId } from "@/lib/awards";
 import {
   getTVDetails,
   getTVVideos,
@@ -75,9 +76,13 @@ export default async function TvPage({ params }: PageProps) {
   ]);
 
   const details: any =
-    detailsRes.status === "fulfilled" ? detailsRes.value : null;
+  detailsRes.status === "fulfilled" ? detailsRes.value : null;
 
   if (!details) return notFound();
+
+  const awards = await fetchAwardsByImdbId(
+    details.external_ids?.imdb_id
+  );
 
   const videos: TMDBVideo[] =
     videosRes.status === "fulfilled" &&
@@ -395,7 +400,7 @@ const breadcrumbJsonLd = {
         </section>
 
          <AwardsSection
-            titleId={details.id}
+            awards={awards}
             mediaType="tv"
           />
 

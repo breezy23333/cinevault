@@ -1,101 +1,125 @@
-import {
-  awardsDatabase,
-  type AwardsMediaType,
-} from "@/lib/awards";
+import type { AwardsData } from "@/lib/awards";
 
 type AwardsSectionProps = {
-  titleId: number;
-  mediaType: AwardsMediaType;
+  awards: AwardsData | null;
+  mediaType: "movie" | "tv";
 };
 
 export default function AwardsSection({
-  titleId,
+  awards,
   mediaType,
 }: AwardsSectionProps) {
-  const awards = awardsDatabase[mediaType]?.[titleId] || [];
+  if (!awards) return null;
 
-  if (awards.length === 0) return null;
-
-  const wins = awards.filter((award) => award.result === "Won").length;
-  const nominations = awards.filter(
-    (award) => award.result === "Nominated"
-  ).length;
+  const hasScores =
+    awards.imdbRating ||
+    awards.imdbVotes ||
+    awards.rottenTomatoes ||
+    awards.metascore ||
+    awards.boxOffice;
 
   return (
     <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
       <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-        CineVault Awards
+        CineVault Critics & Awards
       </p>
 
-      <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-black text-white">
-            Awards & Recognition
-          </h2>
+      <h2 className="mt-2 text-3xl font-black text-white">
+        Critics, Ratings & Recognition
+      </h2>
 
-          <p className="mt-2 text-white/60">
-            Major awards, wins and nominations connected to this{" "}
-            {mediaType === "tv" ? "series" : "movie"}.
-          </p>
+      <p className="mt-3 max-w-3xl text-white/60">
+        Ratings, critic scores and award information connected to this{" "}
+        {mediaType === "tv" ? "series" : "movie"}.
+      </p>
+
+      {awards.awards && (
+        <div className="mt-6 rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.08] p-5">
+          <div className="flex items-start gap-4">
+            <div className="text-4xl" aria-hidden="true">
+              🏆
+            </div>
+
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-400">
+                Awards Summary
+              </p>
+
+              <p className="mt-2 text-lg font-bold leading-8 text-white">
+                {awards.awards}
+              </p>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="flex gap-3">
-          {wins > 0 && (
-            <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-center">
-              <p className="text-2xl font-black text-yellow-400">{wins}</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-white/60">
-                Wins
+      {hasScores && (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {awards.imdbRating && (
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/40">
+                IMDb Rating
+              </p>
+
+              <p className="mt-2 text-2xl font-black text-yellow-400">
+                ★ {awards.imdbRating}/10
               </p>
             </div>
           )}
 
-          {nominations > 0 && (
-            <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-center">
-              <p className="text-2xl font-black text-white">{nominations}</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-white/60">
-                Nominations
+          {awards.imdbVotes && (
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/40">
+                IMDb Votes
+              </p>
+
+              <p className="mt-2 text-2xl font-black text-white">
+                {awards.imdbVotes}
+              </p>
+            </div>
+          )}
+
+          {awards.rottenTomatoes && (
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/40">
+                Rotten Tomatoes
+              </p>
+
+              <p className="mt-2 text-2xl font-black text-white">
+                🍅 {awards.rottenTomatoes}
+              </p>
+            </div>
+          )}
+
+          {awards.metascore && (
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/40">
+                Metascore
+              </p>
+
+              <p className="mt-2 text-2xl font-black text-white">
+                {awards.metascore}/100
+              </p>
+            </div>
+          )}
+
+          {mediaType === "movie" && awards.boxOffice && (
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/40">
+                Box Office
+              </p>
+
+              <p className="mt-2 text-2xl font-black text-white">
+                {awards.boxOffice}
               </p>
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        {awards.map((award, index) => {
-          const won = award.result === "Won";
-
-          return (
-            <article
-              key={`${award.award}-${award.category}-${award.year}-${index}`}
-              className="rounded-2xl border border-white/10 bg-black/30 p-4 transition hover:border-yellow-400/40 hover:bg-white/[0.06]"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-yellow-400">
-                    {award.award}
-                  </p>
-
-                  <h3 className="mt-2 font-bold leading-snug text-white">
-                    {award.category}
-                  </h3>
-                </div>
-
-                <span
-                  className={
-                    won
-                      ? "shrink-0 rounded-full bg-yellow-400 px-3 py-1 text-xs font-black text-black"
-                      : "shrink-0 rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white/70"
-                  }
-                >
-                  {won ? "🏆 Won" : "Nominated"}
-                </span>
-              </div>
-
-              <p className="mt-3 text-sm text-white/45">{award.year}</p>
-            </article>
-          );
-        })}
-      </div>
+      <p className="mt-5 text-xs text-white/35">
+        Ratings and awards information supplied by OMDb.
+      </p>
     </section>
   );
 }

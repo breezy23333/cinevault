@@ -11,6 +11,7 @@ import WatchlistButton from "@/components/WatchlistButton";
 import WatchOptions from "@/components/WatchOptions";
 import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
+import { fetchAwardsByImdbId } from "@/lib/awards";
 import AwardsSection from "@/components/AwardsSection";
 import {
   fetchTmdbTitle,
@@ -57,6 +58,10 @@ const details: any =
   detailsRes.status === "fulfilled" ? detailsRes.value : null;
 
 if (!details) return notFound();
+
+const awards = await fetchAwardsByImdbId(
+  details.imdb_id || details.external_ids?.imdb_id
+);
 
 const videos: TMDBVideo[] = Array.isArray(details?.videos?.results)
   ? details.videos.results
@@ -335,9 +340,9 @@ const breadcrumbJsonLd = {
         </section>
 
         <AwardsSection
-            titleId={details.id}
+            awards={awards}
             mediaType="movie"
-          />
+        />
 
         {/* CineVault Extras */}
           {videos.length > 0 && (
