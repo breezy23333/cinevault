@@ -9,6 +9,7 @@ import ContinueWatchingTracker from "@/components/ContinueWatchingTracker";
 import WatchlistButton from "@/components/WatchlistButton";
 import WatchOptions from "@/components/WatchOptions";
 import TVSeasons from "@/components/TVSeasons";
+import AwardsSection from "@/components/AwardsSection";
 import {
   getTVDetails,
   getTVVideos,
@@ -393,6 +394,11 @@ const breadcrumbJsonLd = {
           )}
         </section>
 
+         <AwardsSection
+            titleId={details.id}
+            mediaType="tv"
+          />
+
         {/* CineVault Extras */}
           {videos.length > 0 && (
             <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
@@ -452,6 +458,8 @@ const breadcrumbJsonLd = {
               </div>
             </section>
           )}
+
+         
 
         {cast.length > 0 && (
           <div>

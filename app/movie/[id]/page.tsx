@@ -11,6 +11,7 @@ import WatchlistButton from "@/components/WatchlistButton";
 import WatchOptions from "@/components/WatchOptions";
 import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
+import AwardsSection from "@/components/AwardsSection";
 import {
   fetchTmdbTitle,
   fetchTmdbProviders,
@@ -332,6 +333,11 @@ const breadcrumbJsonLd = {
             </div>
           )}
         </section>
+
+        <AwardsSection
+            titleId={details.id}
+            mediaType="movie"
+          />
 
         {/* CineVault Extras */}
           {videos.length > 0 && (
