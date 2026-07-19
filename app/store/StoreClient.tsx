@@ -4,35 +4,65 @@ import Link from "next/link";
 import { useState } from "react";
 
 const currencies = {
-  USD: { symbol: "$", rate: 1 },
-  ZAR: { symbol: "R", rate: 18.5 },
-  EUR: { symbol: "€", rate: 0.93 },
-  GBP: { symbol: "£", rate: 0.8 },
+  USD: { symbol: "$", rate: 1, name: "US Dollar" },
+  EUR: { symbol: "€", rate: 0.93, name: "Euro" },
+  GBP: { symbol: "£", rate: 0.80, name: "British Pound" },
+  ZAR: { symbol: "R", rate: 18.50, name: "South African Rand" },
+  CAD: { symbol: "C$", rate: 1.37, name: "Canadian Dollar" },
+  AUD: { symbol: "A$", rate: 1.53, name: "Australian Dollar" },
+  NZD: { symbol: "NZ$", rate: 1.67, name: "New Zealand Dollar" },
+  INR: { symbol: "₹", rate: 86.50, name: "Indian Rupee" },
+  JPY: { symbol: "¥", rate: 148, name: "Japanese Yen" },
+  CNY: { symbol: "CN¥", rate: 7.20, name: "Chinese Yuan" },
+  KRW: { symbol: "₩", rate: 1390, name: "South Korean Won" },
+  BRL: { symbol: "R$", rate: 5.60, name: "Brazilian Real" },
+  MXN: { symbol: "MX$", rate: 18.70, name: "Mexican Peso" },
+  SGD: { symbol: "S$", rate: 1.35, name: "Singapore Dollar" },
+  AED: { symbol: "د.إ", rate: 3.67, name: "UAE Dirham" },
+  CHF: { symbol: "CHF", rate: 0.88, name: "Swiss Franc" },
 };
 
 const plans = [
   {
     name: "Free",
     price: 0,
-    desc: "Browse movies and shows with basic features.",
-    features: ["Search titles", "Movie & TV pages", "Basic watchlist"],
+    desc: "Everything you need to discover movies and TV shows.",
+    features: [
+      "Unlimited title search",
+      "Movie & TV pages",
+      "Basic watchlist",
+      "Community access",
+    ],
     button: "Current Plan",
     href: "/browse",
   },
   {
-    name: "No Ads",
-    price: 20,
-    desc: "Remove ads and enjoy a cleaner CineVault experience.",
-    features: ["No ads", "Cleaner browsing", "Faster experience", "Support CineVault"],
-    button: "Upgrade to No Ads",
-    href: "/checkout/no-ads",
+    name: "Plus",
+    price: 1.99,
+    desc: "Support CineVault and enjoy a cleaner ad-free experience.",
+    features: [
+      "No ads",
+      "Unlimited watchlist",
+      "Continue Watching sync",
+      "Early access to new features",
+      "Support CineVault",
+    ],
+    button: "Upgrade to Plus",
+    href: "/checkout/plus",
     highlight: true,
   },
   {
     name: "Premium",
-    price: 49,
-    desc: "For users who want the full CineVault experience.",
-    features: ["No ads", "Advanced filters", "Priority support", "Early features"],
+    price: 4.99,
+    desc: "Unlock the ultimate CineVault experience.",
+    features: [
+      "Everything in Plus",
+      "AI recommendations",
+      "Advanced filters",
+      "Exclusive profile badge",
+      "Priority support",
+      "Beta features",
+    ],
     button: "Go Premium",
     href: "/checkout/premium",
   },
@@ -43,9 +73,16 @@ export default function StorePage() {
   const selected = currencies[currency];
 
   function formatPrice(price: number) {
-    const value = Math.round(price * selected.rate);
-    return `${selected.symbol}${value}`;
+  if (price === 0) return `${selected.symbol}0`;
+
+  const value = price * selected.rate;
+
+  if (currency === "JPY" || currency === "KRW") {
+    return `${selected.symbol}${Math.round(value).toLocaleString()}`;
   }
+
+  return `${selected.symbol}${value.toFixed(2)}`;
+}
 
   return (
     <main className="mx-auto max-w-7xl px-6 pb-20">
@@ -66,16 +103,33 @@ export default function StorePage() {
             </p>
           </div>
 
-          <select
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value as keyof typeof currencies)}
-            className="w-fit rounded-xl border border-white/10 bg-zinc-900 text-white px-4 py-3 outline-none"
-          >
-            <option className="bg-zinc-900 text-white" value="USD">USD</option>
-            <option className="bg-zinc-900 text-white" value="ZAR">ZAR</option>
-            <option className="bg-zinc-900 text-white" value="EUR">EUR</option>
-            <option className="bg-zinc-900 text-white" value="GBP">GBP</option>
-          </select>
+          <div>
+            <label
+              htmlFor="currency"
+              className="mb-2 block text-xs font-semibold uppercase tracking-wider text-white/50"
+            >
+              Currency
+            </label>
+
+            <select
+              id="currency"
+              value={currency}
+              onChange={(e) =>
+                setCurrency(e.target.value as keyof typeof currencies)
+              }
+              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-yellow-400 md:w-auto"
+            >
+              {Object.entries(currencies).map(([code, value]) => (
+                <option
+                  key={code}
+                  value={code}
+                  className="bg-zinc-900 text-white"
+                >
+                  {code} — {value.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </section>
 
@@ -90,6 +144,12 @@ export default function StorePage() {
             }`}
           >
             <h2 className="text-2xl font-bold text-white">{plan.name}</h2>
+
+            {plan.highlight && (
+              <div className="mt-2 inline-flex rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-black">
+                ⭐ Most Popular
+              </div>
+            )}
 
             <div className="mt-4 flex items-end gap-1">
               <span className="text-5xl font-black text-yellow-400">
