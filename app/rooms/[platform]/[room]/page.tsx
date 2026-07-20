@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RoomChatClient from "@/components/RoomChatClient";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "CineVault Room | Chat",
@@ -35,26 +38,53 @@ const channels = [
   "off-topic",
 ];
 
-const members = [
-  "CineVault",
-  "MovieFan",
-  "AnimeVault",
-  "VaultUser",
-  "TrailerHunter",
-  "SeriesKing",
-  "CartoonFan",
-];
 
 export default async function RoomPage({ params }: PageProps) {
   const { platform, room } = await params;
-  const title = roomNames[room] || room;
-  const username = "luvo";
+
+  if (platform !== "cinevault" || !roomNames[room]) {
+    notFound();
+  }
+
+  const cookieStore = await cookies();
+
+  const userId =
+    cookieStore.get("cinevault_user_id")?.value ||
+    cookieStore.get("cinevault_user")?.value;
+
+  if (!userId) {
+    redirect("/login");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const title = roomNames[room];
+  const username = (
+    user.name ||
+    user.email?.split("@")[0] ||
+    "CineVault Member"
+  )
+    .trim()
+    .slice(0, 40);
+
+  const roomKey = `${platform}:${room}:general`;
 
   return (
     <main className="min-h-screen bg-[#05070d] pt-20 text-white">
       <section className="mx-auto max-w-[1600px] px-3 py-4">
        <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#10141f] shadow-[0_30px_120px_rgba(0,0,0,0.5)]">
-          <div className="grid h-[calc(100vh-7rem)] min-h-[680px] grid-cols-1 lg:grid-cols-[72px_240px_1fr_260px]">
+          <div className="grid h-[calc(100vh-7rem)] min-h-[680px] grid-cols-1 lg:grid-cols-[72px_240px_1fr]">
             
             {/* Server Icons */}
             <aside className="hidden border-r border-white/10 bg-[#080b12] p-3 lg:block">
@@ -147,50 +177,11 @@ export default async function RoomPage({ params }: PageProps) {
 
               <RoomChatClient
                 title={title}
+                roomKey={roomKey}
+                userId={user.id}
                 username={username}
-              />  
+              /> 
             </section>
-
-            {/* Members */}
-            <aside className="hidden border-l border-white/10 bg-[#111722] p-4 lg:block">      
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-white/35">
-                Online
-              </p>
-
-              <div className="mt-4 space-y-3">
-                {members.map((member, index) => (
-                  <div key={member} className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-white/[0.08] font-black text-yellow-300">
-                        {member.slice(0, 1)}
-                      </div>
-                      <span
-                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#111722] ${
-                          index < 5 ? "bg-emerald-400" : "bg-zinc-500"
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-bold text-white/75">{member}</p>
-                      <p className="text-xs text-white/30">
-                        {index < 2 ? "Watching trailers" : "Online"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4">
-                <p className="font-black text-yellow-300">Room Rules</p>
-                <ul className="mt-3 space-y-2 text-xs leading-5 text-white/55">
-                  <li>• Be respectful</li>
-                  <li>• Use spoiler room for spoilers</li>
-                  <li>• No spam</li>
-                  <li>• Keep it entertainment focused</li>
-                </ul>
-              </div>
-            </aside>
           </div>
         </div>
       </section>
