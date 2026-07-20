@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 const API_KEY = process.env.TMDB_API_KEY;
 
@@ -41,6 +41,10 @@ async function tmdb(path: string) {
 
 export default async function PersonPage({ params }: PageProps) {
   const { id } = await params;
+
+    if (!/^\d+$/.test(id)) {
+    return notFound();
+  }
 
   const [person, credits] = await Promise.all([
     tmdb(`/person/${id}`),
@@ -122,6 +126,7 @@ export default async function PersonPage({ params }: PageProps) {
                 <Link
                   key={movie.id}
                   href={`/movie/${movie.id}`}
+                  prefetch={false}
                   className="group overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
                 >
                   <div className="relative aspect-[2/3] bg-black/20">

@@ -43,10 +43,10 @@ type PageProps = {
 export default async function MoviePage({ params }: PageProps) {
   const { id: idStr } = await params;
 
-  if (!idStr) return notFound();
+  if (!/^\d+$/.test(idStr)) return notFound();
 
   const id = Number(idStr);
-  if (!Number.isFinite(id)) return notFound();
+  if (!Number.isSafeInteger(id) || id <= 0) return notFound();
 
   // ---------- data ----------
   const [detailsRes, providersRes] = await Promise.allSettled([
@@ -422,6 +422,8 @@ const breadcrumbJsonLd = {
                     <Link
                       key={`${c.id}-${c.profile_path || "no-photo"}`}
                       href={`/person/${c.id}`}
+                      prefetch={false}
+                      rel="nofollow"
                       className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
                     >
                       <div className="relative aspect-[2/3] bg-black/20">
@@ -461,6 +463,8 @@ const breadcrumbJsonLd = {
                   <Link
                     key={s.id}
                     href={`/movie/${s.id}`}
+                    prefetch={false}
+                    rel="nofollow"
                     className="group relative w-[180px] shrink-0 snap-start rounded-xl overflow-hidden ring-1 ring-white/10 hover:ring-white/20"
                   >
                     <div className="relative aspect-[2/3] bg-white/5">
@@ -560,10 +564,29 @@ const breadcrumbJsonLd = {
   );
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   try {
     const { id } = await params;
-    const movie = await fetchTmdbTitle(Number(id), "movie");
+
+    if (!/^\d+$/.test(id)) {
+      return {
+        title: "Movie Not Found | CineVault",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const movieId = Number(id);
+
+    if (!Number.isSafeInteger(movieId) || movieId <= 0) {
+      return {
+        title: "Movie Not Found | CineVault",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const movie = await fetchTmdbTitle(movieId, "movie");
 
     const year = movie.release_date?.slice(0, 4) || "";
     const image =
