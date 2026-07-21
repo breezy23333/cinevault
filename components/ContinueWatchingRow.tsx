@@ -1,33 +1,101 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ContinueItem, getContinueWatching } from "@/lib/continueWatching";
+import {
+  ContinueItem,
+  getContinueWatching,
+} from "@/lib/continueWatching";
 
 const img = (p?: string | null) =>
   p ? `https://image.tmdb.org/t/p/w342${p}` : null;
 
 export default function ContinueWatchingRow() {
   const [items, setItems] = useState<ContinueItem[]>([]);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setItems(getContinueWatching());
   }, []);
 
+  function scrollRow(direction: "left" | "right") {
+    const row = rowRef.current;
+
+    if (!row) return;
+
+    const amount = row.clientWidth * 0.85;
+
+    row.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  }
+
   if (items.length === 0) return null;
 
   return (
     <section className="rounded-[30px] border border-yellow-400/20 bg-white/[0.045] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-      <p className="mb-1 text-[10px] font-black uppercase tracking-[0.32em] text-yellow-400/80">
-        Your vault
-      </p>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <p className="mb-1 text-[10px] font-black uppercase tracking-[0.32em] text-yellow-400/80">
+            Your vault
+          </p>
 
-      <h2 className="mb-4 text-xl font-black md:text-2xl">
-        Continue Watching
-      </h2>
+          <h2 className="text-xl font-black md:text-2xl">
+            Continue Watching
+          </h2>
+        </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+        <div className="hidden items-center gap-2 sm:flex">
+          <button
+            type="button"
+            onClick={() => scrollRow("left")}
+            aria-label="Scroll Continue Watching left"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-black/40 text-xl text-white transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <path
+                d="M15 18l-6-6 6-6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => scrollRow("right")}
+            aria-label="Scroll Continue Watching right"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-black/40 text-xl text-white transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <path
+                d="M9 6l6 6-6 6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div
+        ref={rowRef}
+        className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth pb-2"
+      >
         {items.map((item) => {
           const poster = img(item.poster_path);
 
