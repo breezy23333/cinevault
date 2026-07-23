@@ -169,12 +169,12 @@ export default function GameHero({ games }: { games: RawgGame[] }) {
                 </div>
               )}
 
-              <Link
-                href={`/game/${game.id}`}
+             <Link
+                href={`/games/${game.id}`}
                 className="mt-6 inline-flex items-center justify-center rounded-xl bg-yellow-400 px-6 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
-              >
+                >
                 View game →
-              </Link>
+            </Link> 
             </div>
           </div>
         </div>

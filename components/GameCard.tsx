@@ -20,7 +20,7 @@ export default function GameCard({ game }: { game: RawgGame }) {
 
   return (
     <Link
-      href={`/game/${game.id}`}
+      href={`/games/${game.id}`}
       className="group block w-[280px] flex-none overflow-hidden rounded-2xl bg-white/[0.05] ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:ring-yellow-400/70"
     >
       <div className="relative aspect-video overflow-hidden bg-zinc-900">
