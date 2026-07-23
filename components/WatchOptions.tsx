@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 
 type Provider = {
   provider_id: number;
@@ -14,10 +14,70 @@ type WatchData = {
   buy?: Provider[];
 };
 
+function getProviderUrl(providerName: string, title: string) {
+  const provider = providerName.toLowerCase();
+  const query = encodeURIComponent(title.trim());
+
+  if (provider.includes("apple tv")) {
+    return `https://tv.apple.com/search?term=${query}`;
+  }
+
+  if (provider.includes("netflix")) {
+    return `https://www.netflix.com/search?q=${query}`;
+  }
+
+  if (
+    provider.includes("amazon") ||
+    provider.includes("prime video")
+  ) {
+    return `https://www.primevideo.com/search/ref=atv_nb_sr?phrase=${query}`;
+  }
+
+  if (provider.includes("disney")) {
+    return "https://www.disneyplus.com/search";
+  }
+
+  if (provider.includes("showmax")) {
+    return "https://www.showmax.com/za/search";
+  }
+
+  if (provider.includes("crunchyroll")) {
+    return `https://www.crunchyroll.com/search?q=${query}`;
+  }
+
+  if (provider.includes("youtube")) {
+    return `https://www.youtube.com/results?search_query=${query}`;
+  }
+
+  if (
+    provider.includes("google play") ||
+    provider.includes("google tv")
+  ) {
+    return `https://play.google.com/store/search?q=${query}&c=movies`;
+  }
+
+  if (
+    provider.includes("microsoft") ||
+    provider.includes("xbox")
+  ) {
+    return `https://www.microsoft.com/en-za/search?q=${query}`;
+  }
+
+  if (provider.includes("mubi")) {
+    return `https://mubi.com/en/za/search/films?query=${query}`;
+  }
+
+  return `https://www.google.com/search?q=${encodeURIComponent(
+    `${title} watch on ${providerName}`
+  )}`;
+}
+
 function ProviderRow({
+  label,
   title,
   providers,
 }: {
+  label: string;
   title: string;
   providers?: Provider[];
 }) {
@@ -25,33 +85,40 @@ function ProviderRow({
 
   return (
     <div className="mt-6">
-      <h3 className="mb-3 text-lg font-black text-white">{title}</h3>
+      <h3 className="mb-3 text-lg font-black text-white">{label}</h3>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {providers.map((provider) => (
-          <div
+          <a
             key={provider.provider_id}
-            className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-yellow-400/60 hover:bg-white/[0.08]"
+            href={getProviderUrl(provider.provider_name, title)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open ${provider.provider_name} and search for ${title}`}
+            className="group rounded-3xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-1 hover:border-yellow-400/60 hover:bg-white/[0.08]"
           >
             <div className="mb-5 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white">
               {provider.logo_path ? (
-                <Image
+                <img
                   src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
                   alt={provider.provider_name}
-                  width={56}
-                  height={56}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-14 w-14 object-cover"
                 />
               ) : (
                 <span className="text-black">▶</span>
               )}
             </div>
 
-            <h4 className="font-black text-white">{provider.provider_name}</h4>
+            <h4 className="font-black text-white transition group-hover:text-yellow-400">
+              {provider.provider_name}
+            </h4>
 
             <p className="mt-2 text-sm text-white/50">
-              Available provider
+              Open provider ↗
             </p>
-          </div>
+          </a>
         ))}
       </div>
     </div>
@@ -91,9 +158,23 @@ export default function WatchOptions({
 
       {hasProviders ? (
         <>
-          <ProviderRow title="Stream" providers={watchData?.flatrate} />
-          <ProviderRow title="Rent" providers={watchData?.rent} />
-          <ProviderRow title="Buy" providers={watchData?.buy} />
+          <ProviderRow
+            label="Stream"
+            title={title}
+            providers={watchData?.flatrate}
+          />
+
+          <ProviderRow
+            label="Rent"
+            title={title}
+            providers={watchData?.rent}
+          />
+
+          <ProviderRow
+            label="Buy"
+            title={title}
+            providers={watchData?.buy}
+          />
         </>
       ) : (
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
@@ -107,7 +188,9 @@ export default function WatchOptions({
 
           <div className="mt-5 flex flex-wrap gap-3">
             <a
-              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`}
+              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
+                title
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full bg-yellow-400 px-5 py-2 font-black text-black"
@@ -116,7 +199,9 @@ export default function WatchOptions({
             </a>
 
             <a
-              href={`https://www.google.com/search?q=${encodeURIComponent(title + " where to watch")}`}
+              href={`https://www.google.com/search?q=${encodeURIComponent(
+                `${title} where to watch`
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-white/10 px-5 py-2 font-black text-white hover:bg-white/10"

@@ -1,3 +1,5 @@
+import "server-only";
+
 const RAWG_BASE_URL = "https://api.rawg.io/api";
 const CACHE_TIME = 60 * 60 * 24; // 24 hours
 
@@ -114,10 +116,10 @@ async function rawgFetch<T>(
 }
 
 export async function getGames(
-  query: RawgQuery = {}
+  query: RawgQuery = {},
 ): Promise<RawgGame[]> {
   const response = await rawgFetch<RawgGamesResponse>("/games", {
-    page_size: 12,
+    page_size: 20,
     ...query,
   });
 
@@ -245,4 +247,121 @@ export async function getGameDetails(
   const safeId = encodeURIComponent(String(id));
 
   return rawgFetch<GameDetails>(`/games/${safeId}`);
+}
+
+type RawgScreenshotsResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: GameScreenshot[];
+};
+
+export async function getGameScreenshots(
+  id: string | number,
+): Promise<GameScreenshot[]> {
+  const safeId = encodeURIComponent(String(id));
+
+  const response = await rawgFetch<RawgScreenshotsResponse>(
+    `/games/${safeId}/screenshots`,
+    {
+      page_size: 12,
+    },
+  );
+
+  return response?.results ?? [];
+}
+
+export async function getGameSeries(
+  id: string | number,
+): Promise<RawgGame[]> {
+  const safeId = encodeURIComponent(String(id));
+
+  const response = await rawgFetch<RawgGamesResponse>(
+    `/games/${safeId}/game-series`,
+    {
+      page_size: 12,
+    },
+  );
+
+  return response?.results ?? [];
+}
+
+export async function getRelatedGames(
+  game: GameDetails,
+): Promise<RawgGame[]> {
+  const primaryGenre = game.genres?.[0]?.slug;
+
+  if (!primaryGenre) {
+    return [];
+  }
+
+  const games = await getGames({
+    genres: primaryGenre,
+    ordering: "-added",
+    page_size: 18,
+  });
+
+  return games.filter((item) => item.id !== game.id);
+}
+
+function prepareMoreGames(
+  currentGameId: number,
+  games: RawgGame[],
+): RawgGame[] {
+  const usedIds = new Set<number>([currentGameId]);
+
+  return games
+    .filter((game) => {
+      if (usedIds.has(game.id) || !game.background_image) {
+        return false;
+      }
+
+      usedIds.add(game.id);
+      return true;
+    })
+    .slice(0, 12);
+}
+
+export type GamePageData = {
+  game: GameDetails;
+  screenshots: GameScreenshot[];
+  seriesGames: RawgGame[];
+  moreGames: RawgGame[];
+};
+
+export async function getGamePageData(
+  id: string | number,
+): Promise<GamePageData | null> {
+  const game = await getGameDetails(id);
+
+  if (!game) {
+    return null;
+  }
+
+  const [screenshots, seriesResults] = await Promise.all([
+    getGameScreenshots(game.id),
+    getGameSeries(game.id),
+  ]);
+
+  const seriesGames = prepareMoreGames(game.id, seriesResults);
+
+  let relatedGames: RawgGame[] = [];
+
+  if (seriesGames.length < 12) {
+    relatedGames = await getRelatedGames(game);
+  }
+
+  const moreGames = prepareMoreGames(game.id, [
+    ...seriesGames,
+    ...relatedGames,
+  ]);
+
+  return {
+    game,
+    screenshots: screenshots
+      .filter((screenshot) => Boolean(screenshot.image))
+      .slice(0, 12),
+    seriesGames,
+    moreGames,
+  };
 }
