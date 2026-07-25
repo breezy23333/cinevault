@@ -119,11 +119,52 @@ export async function getGames(
   query: RawgQuery = {},
 ): Promise<RawgGame[]> {
   const response = await rawgFetch<RawgGamesResponse>("/games", {
-    page_size: 20,
+    page_size: 24,
+    exclude_additions: true,
     ...query,
   });
 
   return response?.results ?? [];
+}
+
+function cleanGameCollection(
+  games: RawgGame[],
+  limit: number,
+): RawgGame[] {
+  const usedIds = new Set<number>();
+
+  return games
+    .filter((game) => {
+      if (
+        !game?.id ||
+        !game.name ||
+        !game.background_image ||
+        usedIds.has(game.id)
+      ) {
+        return false;
+      }
+
+      usedIds.add(game.id);
+      return true;
+    })
+    .slice(0, limit);
+}
+
+async function getGameCollection(
+  query: RawgQuery,
+  limit = 20,
+): Promise<RawgGame[]> {
+  const pageSize = Math.min(
+    40,
+    Math.max(limit + 8, 24),
+  );
+
+  const games = await getGames({
+    ...query,
+    page_size: pageSize,
+  });
+
+  return cleanGameCollection(games, limit);
 }
 
 function dateWithYearOffset(offset: number) {
@@ -132,57 +173,84 @@ function dateWithYearOffset(offset: number) {
   return date.toISOString().slice(0, 10);
 }
 
-export function getFeaturedGames() {
-  return getGames({
-    dates: `${dateWithYearOffset(-1)},${dateWithYearOffset(1)}`,
-    ordering: "-added",
-    page_size: 8,
-  });
+function currentDate() {
+  return new Date().toISOString().slice(0, 10);
 }
 
-export function getFirstPersonShooters() {
-  return getGames({
-    genres: "shooter",
-    tags: "first-person",
-    ordering: "-added",
-  });
+/* ---------------------------------- */
+/* Homepage gaming data               */
+/* ---------------------------------- */
+
+export function getFeaturedGames(limit = 8) {
+  return getGameCollection(
+    {
+      dates: `${dateWithYearOffset(-1)},${dateWithYearOffset(1)}`,
+      ordering: "-added",
+    },
+    limit,
+  );
 }
 
-export function getThirdPersonShooters() {
-  return getGames({
-    genres: "shooter",
-    tags: "third-person",
-    ordering: "-added",
-  });
+export function getFirstPersonShooters(limit = 20) {
+  return getGameCollection(
+    {
+      genres: "shooter",
+      tags: "first-person",
+      ordering: "-added",
+    },
+    limit,
+  );
 }
 
-export function getEsportsGames() {
-  return getGames({
-    tags: "esports",
-    ordering: "-added",
-  });
+export function getThirdPersonShooters(limit = 20) {
+  return getGameCollection(
+    {
+      genres: "shooter",
+      tags: "third-person",
+      ordering: "-added",
+    },
+    limit,
+  );
 }
 
-export function getRacingGames() {
-  return getGames({
-    genres: "racing",
-    ordering: "-added",
-  });
+export function getEsportsGames(limit = 20) {
+  return getGameCollection(
+    {
+      tags: "esports",
+      ordering: "-added",
+    },
+    limit,
+  );
 }
 
-export function getStoryRpgGames() {
-  return getGames({
-    genres: "role-playing-games-rpg",
-    tags: "story-rich",
-    ordering: "-added",
-  });
+export function getRacingGames(limit = 20) {
+  return getGameCollection(
+    {
+      genres: "racing",
+      ordering: "-added",
+    },
+    limit,
+  );
 }
 
-export function getHorrorSurvivalGames() {
-  return getGames({
-    tags: "horror,survival",
-    ordering: "-added",
-  });
+export function getStoryRpgGames(limit = 20) {
+  return getGameCollection(
+    {
+      genres: "role-playing-games-rpg",
+      ordering: "-added",
+    },
+    limit,
+  );
+}
+
+export function getHorrorSurvivalGames(limit = 20) {
+  return getGameCollection(
+    {
+      tags: "horror",
+      ordering: "-added",
+    },
+    limit,
+  );
 }
 
 export async function getGamingHomeData() {
@@ -195,17 +263,142 @@ export async function getGamingHomeData() {
     storyRpg,
     horrorSurvival,
   ] = await Promise.all([
-    getFeaturedGames(),
-    getFirstPersonShooters(),
-    getThirdPersonShooters(),
-    getEsportsGames(),
-    getRacingGames(),
-    getStoryRpgGames(),
-    getHorrorSurvivalGames(),
+    getFeaturedGames(8),
+    getFirstPersonShooters(20),
+    getThirdPersonShooters(20),
+    getEsportsGames(20),
+    getRacingGames(20),
+    getStoryRpgGames(20),
+    getHorrorSurvivalGames(20),
   ]);
 
   return {
     featured,
+    firstPersonShooters,
+    thirdPersonShooters,
+    esports,
+    racing,
+    storyRpg,
+    horrorSurvival,
+  };
+}
+
+/* ---------------------------------- */
+/* Full /games catalogue data         */
+/* ---------------------------------- */
+
+export function getPopularGames(limit = 20) {
+  return getGameCollection(
+    {
+      dates: `${dateWithYearOffset(-5)},${currentDate()}`,
+      ordering: "-added",
+    },
+    limit,
+  );
+}
+
+export function getNewReleaseGames(limit = 20) {
+  return getGameCollection(
+    {
+      dates: `${dateWithYearOffset(-1)},${currentDate()}`,
+      ordering: "-released",
+    },
+    limit,
+  );
+}
+
+export function getTopRatedGames(limit = 20) {
+  return getGameCollection(
+    {
+      dates: `${dateWithYearOffset(-15)},${currentDate()}`,
+      metacritic: "80,100",
+      ordering: "-metacritic",
+    },
+    limit,
+  );
+}
+
+export function getUpcomingGames(limit = 20) {
+  return getGameCollection(
+    {
+      dates: `${currentDate()},${dateWithYearOffset(2)}`,
+      ordering: "-added",
+    },
+    limit,
+  );
+}
+
+function getPlatformGames(
+  parentPlatform: number,
+  limit = 20,
+) {
+  return getGameCollection(
+    {
+      parent_platforms: parentPlatform,
+      ordering: "-added",
+    },
+    limit,
+  );
+}
+
+export function getPcGames(limit = 20) {
+  return getPlatformGames(1, limit);
+}
+
+export function getPlayStationGames(limit = 20) {
+  return getPlatformGames(2, limit);
+}
+
+export function getXboxGames(limit = 20) {
+  return getPlatformGames(3, limit);
+}
+
+export function getNintendoGames(limit = 20) {
+  return getPlatformGames(7, limit);
+}
+
+export async function getGamingBrowseData() {
+  const [
+    popular,
+    newReleases,
+    topRated,
+    upcoming,
+    pc,
+    playStation,
+    xbox,
+    nintendo,
+    firstPersonShooters,
+    thirdPersonShooters,
+    esports,
+    racing,
+    storyRpg,
+    horrorSurvival,
+  ] = await Promise.all([
+    getPopularGames(20),
+    getNewReleaseGames(20),
+    getTopRatedGames(20),
+    getUpcomingGames(20),
+    getPcGames(20),
+    getPlayStationGames(20),
+    getXboxGames(20),
+    getNintendoGames(20),
+    getFirstPersonShooters(20),
+    getThirdPersonShooters(20),
+    getEsportsGames(20),
+    getRacingGames(20),
+    getStoryRpgGames(20),
+    getHorrorSurvivalGames(20),
+  ]);
+
+  return {
+    popular,
+    newReleases,
+    topRated,
+    upcoming,
+    pc,
+    playStation,
+    xbox,
+    nintendo,
     firstPersonShooters,
     thirdPersonShooters,
     esports,
