@@ -71,78 +71,78 @@ export default async function GamesPage() {
     )
     .slice(0, 8);
 
-  const browseCategories: GameCategory[] = [
+    const browseCategories: GameCategory[] = [
     {
       label: "Popular",
-      href: "#popular",
+      href: "/games/category/popular",
       image: popular[0]?.background_image,
     },
     {
       label: "New Releases",
-      href: "#new-releases",
+      href: "/games/category/new-releases",
       image: newReleases[0]?.background_image,
     },
     {
       label: "Top Rated",
-      href: "#top-rated",
+      href: "/games/category/top-rated",
       image: topRated[0]?.background_image,
     },
     {
       label: "Upcoming",
-      href: "#upcoming",
+      href: "/games/category/upcoming",
       image: upcoming[0]?.background_image,
     },
     {
       label: "PC",
-      href: "#pc",
+      href: "/games/category/pc",
       image: pc[0]?.background_image,
     },
     {
       label: "PlayStation",
-      href: "#playstation",
+      href: "/games/category/playstation",
       image: playStation[0]?.background_image,
     },
     {
       label: "Xbox",
-      href: "#xbox",
+      href: "/games/category/xbox",
       image: xbox[0]?.background_image,
     },
     {
       label: "Nintendo",
-      href: "#nintendo",
+      href: "/games/category/nintendo",
       image: nintendo[0]?.background_image,
     },
     {
       label: "First-Person",
-      href: "#first-person",
+      href: "/games/category/first-person",
       image: firstPersonShooters[0]?.background_image,
     },
     {
       label: "Third-Person",
-      href: "#third-person",
+      href: "/games/category/third-person",
       image: thirdPersonShooters[0]?.background_image,
     },
     {
       label: "Esports",
-      href: "#esports",
+      href: "/games/category/esports",
       image: esports[0]?.background_image,
     },
     {
       label: "Racing",
-      href: "#racing",
+      href: "/games/category/racing",
       image: racing[0]?.background_image,
     },
     {
       label: "RPG",
-      href: "#rpg",
+      href: "/games/category/rpg",
       image: storyRpg[0]?.background_image,
     },
     {
       label: "Horror",
-      href: "#horror",
+      href: "/games/category/horror",
       image: horrorSurvival[0]?.background_image,
     },
-  ]; 
+  ];  
 
   const collectionJsonLd = {
     "@context": "https://schema.org",
@@ -221,6 +221,7 @@ export default async function GamesPage() {
               title="New Releases"
               subtitle="Recently released games ready to discover."
               games={newReleases}
+              viewAllHref="/games/category/new-releases"
             />
           </div>
 
@@ -229,6 +230,7 @@ export default async function GamesPage() {
               title="Top-Rated Games"
               subtitle="Critically acclaimed games with exceptional reviews."
               games={topRated}
+              viewAllHref="/games/category/top-rated"
             />
           </div>
 
@@ -237,6 +239,7 @@ export default async function GamesPage() {
               title="Upcoming Games"
               subtitle="The most anticipated games arriving next."
               games={upcoming}
+              viewAllHref="/games/category/upcoming"
             />
           </div>
 
@@ -245,6 +248,7 @@ export default async function GamesPage() {
               title="PC Games"
               subtitle="Popular releases and essential experiences for PC players."
               games={pc}
+              viewAllHref="/games/category/pc"
             />
           </div>
 
@@ -253,6 +257,7 @@ export default async function GamesPage() {
               title="PlayStation"
               subtitle="Discover games available across the PlayStation family."
               games={playStation}
+              viewAllHref="/games/category/playstation"
             />
           </div>
 
@@ -261,6 +266,7 @@ export default async function GamesPage() {
               title="Xbox"
               subtitle="Explore popular Xbox adventures, shooters and racing games."
               games={xbox}
+              viewAllHref="/games/category/xbox"
             />
           </div>
 
@@ -269,6 +275,7 @@ export default async function GamesPage() {
               title="Nintendo"
               subtitle="Family favourites and unforgettable Nintendo adventures."
               games={nintendo}
+              viewAllHref="/games/category/nintendo"
             />
           </div>
 
@@ -277,6 +284,7 @@ export default async function GamesPage() {
               title="First-Person Shooters"
               subtitle="Experience the action directly through the eyes of the hero."
               games={firstPersonShooters}
+              viewAllHref="/games/category/first-person"
             />
           </div>
 
@@ -285,6 +293,7 @@ export default async function GamesPage() {
               title="Third-Person Shooters"
               subtitle="Action, exploration and combat from a cinematic perspective."
               games={thirdPersonShooters}
+              viewAllHref="/games/category/third-person"
             />
           </div>
 
@@ -293,6 +302,7 @@ export default async function GamesPage() {
               title="Esports & Competitive"
               subtitle="Competitive games built around skill, teamwork and rankings."
               games={esports}
+              viewAllHref="/games/category/esports"
             />
           </div>
 
@@ -301,6 +311,7 @@ export default async function GamesPage() {
               title="Racing & Motorsport"
               subtitle="From street racing to professional motorsport simulations."
               games={racing}
+              viewAllHref="/games/category/racing"
             />
           </div>
 
@@ -309,6 +320,7 @@ export default async function GamesPage() {
               title="RPG Adventures"
               subtitle="Deep worlds, memorable characters and player-driven stories."
               games={storyRpg}
+              viewAllHref="/games/category/rpg"
             />
           </div>
 
@@ -317,6 +329,7 @@ export default async function GamesPage() {
               title="Horror & Survival"
               subtitle="Enter terrifying worlds where every decision matters."
               games={horrorSurvival}
+              viewAllHref="/games/category/horror"
             />
           </div>
         </div>

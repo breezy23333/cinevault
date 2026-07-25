@@ -52,6 +52,22 @@ const NAV_GROUPS = [
   },
 
   {
+    label: "Games",
+    href: "/games",
+    dropdown: [
+      { label: "All Games", href: "/games" },
+      { label: "Popular Games", href: "/games/category/popular" },
+      { label: "New Releases", href: "/games/category/new-releases" },
+      { label: "Top Rated", href: "/games/category/top-rated" },
+      { label: "Upcoming Games", href: "/games/category/upcoming" },
+      { label: "PC Games", href: "/games/category/pc" },
+      { label: "PlayStation", href: "/games/category/playstation" },
+      { label: "Racing Games", href: "/games/category/racing" },
+    ],
+  },
+
+
+  {
   label: "Browse",
   href: "/search",
   dropdown: [

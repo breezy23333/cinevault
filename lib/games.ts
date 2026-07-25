@@ -408,6 +408,293 @@ export async function getGamingBrowseData() {
   };
 }
 
+export const GAME_CATEGORY_SLUGS = [
+  "popular",
+  "new-releases",
+  "top-rated",
+  "upcoming",
+  "pc",
+  "playstation",
+  "xbox",
+  "nintendo",
+  "first-person",
+  "third-person",
+  "esports",
+  "racing",
+  "rpg",
+  "horror",
+] as const;
+
+export type GameCategorySlug =
+  (typeof GAME_CATEGORY_SLUGS)[number];
+
+export type GameCategoryInfo = {
+  slug: GameCategorySlug;
+  label: string;
+  title: string;
+  description: string;
+};
+
+type GameCategoryConfig = GameCategoryInfo & {
+  query: RawgQuery;
+};
+
+export type GameCategoryPageData = GameCategoryInfo & {
+  games: RawgGame[];
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  totalResults: number;
+};
+
+const GAME_CATEGORY_PAGE_SIZE = 24;
+
+function getGameCategoryConfig(
+  slug: string,
+): GameCategoryConfig | null {
+  const today = currentDate();
+
+  const categories: Record<GameCategorySlug, GameCategoryConfig> = {
+    popular: {
+      slug: "popular",
+      label: "Popular",
+      title: "Popular Games",
+      description:
+        "Explore the games attracting the most players and attention right now.",
+      query: {
+        dates: `${dateWithYearOffset(-5)},${today}`,
+        ordering: "-added",
+      },
+    },
+
+    "new-releases": {
+      slug: "new-releases",
+      label: "New Releases",
+      title: "New Game Releases",
+      description:
+        "Discover recently released games across PC and console.",
+      query: {
+        dates: `${dateWithYearOffset(-1)},${today}`,
+        ordering: "-released",
+      },
+    },
+
+    "top-rated": {
+      slug: "top-rated",
+      label: "Top Rated",
+      title: "Top-Rated Games",
+      description:
+        "Browse critically acclaimed games with exceptional ratings.",
+      query: {
+        dates: `${dateWithYearOffset(-15)},${today}`,
+        metacritic: "80,100",
+        ordering: "-metacritic",
+      },
+    },
+
+    upcoming: {
+      slug: "upcoming",
+      label: "Upcoming",
+      title: "Upcoming Games",
+      description:
+        "See the most anticipated games scheduled for release next.",
+      query: {
+        dates: `${today},${dateWithYearOffset(2)}`,
+        ordering: "-added",
+      },
+    },
+
+    pc: {
+      slug: "pc",
+      label: "PC",
+      title: "PC Games",
+      description:
+        "Explore popular releases and essential experiences available on PC.",
+      query: {
+        parent_platforms: 1,
+        ordering: "-added",
+      },
+    },
+
+    playstation: {
+      slug: "playstation",
+      label: "PlayStation",
+      title: "PlayStation Games",
+      description:
+        "Discover popular games across the PlayStation family of consoles.",
+      query: {
+        parent_platforms: 2,
+        ordering: "-added",
+      },
+    },
+
+    xbox: {
+      slug: "xbox",
+      label: "Xbox",
+      title: "Xbox Games",
+      description:
+        "Browse adventures, shooters, racers and more available on Xbox.",
+      query: {
+        parent_platforms: 3,
+        ordering: "-added",
+      },
+    },
+
+    nintendo: {
+      slug: "nintendo",
+      label: "Nintendo",
+      title: "Nintendo Games",
+      description:
+        "Explore memorable Nintendo adventures, family games and exclusives.",
+      query: {
+        parent_platforms: 7,
+        ordering: "-added",
+      },
+    },
+
+    "first-person": {
+      slug: "first-person",
+      label: "First-Person",
+      title: "First-Person Games",
+      description:
+        "Experience shooters and adventures directly through the character's eyes.",
+      query: {
+        genres: "shooter",
+        tags: "first-person",
+        ordering: "-added",
+      },
+    },
+
+    "third-person": {
+      slug: "third-person",
+      label: "Third-Person",
+      title: "Third-Person Games",
+      description:
+        "Discover cinematic action, exploration and combat from a third-person perspective.",
+      query: {
+        tags: "third-person",
+        ordering: "-added",
+      },
+    },
+
+    esports: {
+      slug: "esports",
+      label: "Esports",
+      title: "Esports & Competitive Games",
+      description:
+        "Competitive games built around skill, teamwork and ranked play.",
+      query: {
+        tags: "esports",
+        ordering: "-added",
+      },
+    },
+
+    racing: {
+      slug: "racing",
+      label: "Racing",
+      title: "Racing & Motorsport Games",
+      description:
+        "Experience street racing, rally, open-wheel racing and realistic motorsport.",
+      query: {
+        genres: "racing",
+        ordering: "-added",
+      },
+    },
+
+    rpg: {
+      slug: "rpg",
+      label: "RPG",
+      title: "Role-Playing Games",
+      description:
+        "Enter deep worlds filled with memorable characters and player-driven stories.",
+      query: {
+        genres: "role-playing-games-rpg",
+        ordering: "-added",
+      },
+    },
+
+    horror: {
+      slug: "horror",
+      label: "Horror",
+      title: "Horror & Survival Games",
+      description:
+        "Enter terrifying worlds where every decision can determine whether you survive.",
+      query: {
+        tags: "horror",
+        ordering: "-added",
+      },
+    },
+  };
+
+  return categories[slug as GameCategorySlug] ?? null;
+}
+
+export function getGameCategoryInfo(
+  slug: string,
+): GameCategoryInfo | null {
+  const category = getGameCategoryConfig(slug);
+
+  if (!category) return null;
+
+  return {
+    slug: category.slug,
+    label: category.label,
+    title: category.title,
+    description: category.description,
+  };
+}
+
+export async function getGameCategoryPage(
+  slug: string,
+  requestedPage = 1,
+): Promise<GameCategoryPageData | null> {
+  const category = getGameCategoryConfig(slug);
+
+  if (!category) return null;
+
+  const page =
+    Number.isSafeInteger(requestedPage) && requestedPage > 0
+      ? requestedPage
+      : 1;
+
+  const response = await rawgFetch<RawgGamesResponse>("/games", {
+    ...category.query,
+    page,
+    page_size: GAME_CATEGORY_PAGE_SIZE,
+    exclude_additions: true,
+  });
+
+  const usedIds = new Set<number>();
+
+  const games = (response?.results ?? []).filter((game) => {
+    if (!game?.id || !game.name || usedIds.has(game.id)) {
+      return false;
+    }
+
+    usedIds.add(game.id);
+    return true;
+  });
+
+  const totalResults = response?.count ?? games.length;
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalResults / GAME_CATEGORY_PAGE_SIZE),
+  );
+
+  return {
+    slug: category.slug,
+    label: category.label,
+    title: category.title,
+    description: category.description,
+    games,
+    page,
+    pageSize: GAME_CATEGORY_PAGE_SIZE,
+    totalPages,
+    totalResults,
+  };
+}
+
 export type GameCompany = {
   id: number;
   name: string;
