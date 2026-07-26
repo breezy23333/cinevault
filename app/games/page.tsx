@@ -11,20 +11,64 @@ import {
 
 export const revalidate = 86400;
 
+const SITE_URL = "https://cinevault-tau-drab.vercel.app";
+
+const gamesTitle =
+  "Gaming | Games, Ratings & Where to Play | CineVault";
+
+const gamesDescription =
+  "Discover popular games, new releases, top-rated titles, upcoming games, esports, racing, RPGs, horror games, platforms, ratings and where to play them on CineVault.";
+
 export const metadata: Metadata = {
-  title: "Games | New, Popular & Top-Rated Games | CineVault",
-  description:
-    "Browse popular games, new releases, upcoming titles, top-rated games, PC, PlayStation, Xbox, Nintendo, shooters, racing, RPGs and horror games.",
+  title: gamesTitle,
+  description: gamesDescription,
+
+  keywords: [
+    "games",
+    "gaming",
+    "popular games",
+    "new game releases",
+    "upcoming games",
+    "top-rated games",
+    "PC games",
+    "PlayStation games",
+    "Xbox games",
+    "racing games",
+    "esports",
+    "game ratings",
+    "CineVault Gaming",
+  ],
+
   alternates: {
-    canonical: "/games",
+    canonical: `${SITE_URL}/games`,
   },
+
   openGraph: {
-    title: "Games | CineVault",
-    description:
-      "Discover popular, new, upcoming and top-rated games across every major platform.",
-    url: "/games",
+    title: gamesTitle,
+    description: gamesDescription,
+    url: `${SITE_URL}/games`,
     siteName: "CineVault",
     type: "website",
+    images: [
+      {
+        url: `${SITE_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "Discover games on CineVault",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: gamesTitle,
+    description: gamesDescription,
+    images: [`${SITE_URL}/og-image.png`],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

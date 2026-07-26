@@ -15,6 +15,9 @@ import { getGameTrailer } from "@/lib/youtube";
 export const revalidate = 86400;
 export const dynamicParams = true;
 
+const SITE_URL = "https://cinevault-tau-drab.vercel.app";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+
 type PageProps = {
   params: Promise<{
     id: string;
@@ -86,6 +89,7 @@ function getStoreSearchUrl(storeName: string, gameName: string) {
   )}`;
 }
 
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -96,34 +100,78 @@ export async function generateMetadata({
     return {
       title: "Game Not Found | CineVault",
       description: "The requested game could not be found.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
+  const plainDescription = game.description_raw
+    ?.replace(/\s+/g, " ")
+    .trim();
+
   const description =
-    game.description_raw?.slice(0, 155) ||
+    plainDescription?.slice(0, 155) ||
     `Discover ${game.name}, trailers, screenshots, platforms, ratings and where to play on CineVault.`;
 
+  const title =
+    `${game.name} | Trailers, Ratings & Where to Play | CineVault`;
+
+  const canonicalUrl = `${SITE_URL}/game/${game.id}`;
+
+  const socialImage =
+    game.background_image || DEFAULT_OG_IMAGE;
+
   return {
-    title: `${game.name} | Trailers, Ratings & Where to Play | CineVault`,
+    title,
     description,
-    openGraph: {
-      title: `${game.name} | CineVault Gaming`,
-      description,
-      type: "website",
-      images: game.background_image
-        ? [
-            {
-              url: game.background_image,
-              alt: game.name,
-            },
-          ]
-        : [],
+
+    keywords: [
+      game.name,
+      `${game.name} game`,
+      "video games",
+      "game trailers",
+      "game ratings",
+      "game screenshots",
+      "where to play games",
+      ...(game.genres?.map(
+        (genre) => `${genre.name} games`,
+      ) || []),
+      ...(game.platforms?.map(
+        (item) => `${item.platform.name} games`,
+      ) || []),
+      "CineVault Gaming",
+    ],
+
+    alternates: {
+      canonical: canonicalUrl,
     },
+
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "CineVault",
+      type: "website",
+      images: [
+        {
+          url: socialImage,
+          alt: `${game.name} game artwork`,
+        },
+      ],
+    },
+
     twitter: {
       card: "summary_large_image",
-      title: `${game.name} | CineVault Gaming`,
+      title,
       description,
-      images: game.background_image ? [game.background_image] : [],
+      images: [socialImage],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -164,8 +212,8 @@ export default async function GameDetailsPage({ params }: PageProps) {
     game.description_raw ||
     "A complete description is not currently available.";
 
-  const pageUrl = `https://cinevault-tau-drab.vercel.app/games/${game.id}`;
-
+  const pageUrl = `${SITE_URL}/game/${game.id}`;
+  
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
@@ -304,7 +352,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <nav className="sticky top-24 z-30 overflow-x-auto rounded-2xl border border-white/10 bg-[#101722]/90 p-2 shadow-xl backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="sticky top-[72px] z-40 overflow-x-auto rounded-2xl border border-white/10 bg-[#101722]/95 p-2 shadow-2xl backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex min-w-max gap-1">
             <a
               href="#trailer"
