@@ -1,10 +1,17 @@
-// components/HeroCarousel.tsx
 "use client";
 
 import CineImage from "@/components/CineImage";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Play,
+} from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type Norm = {
   id: number;
@@ -22,127 +29,199 @@ export default function HeroCarousel({
 }: {
   items: Norm[];
 }) {
-  // only keep heroes with a backdrop
-  const heroes = useMemo(() => (items || []).filter((x) => !!x.backdrop), [items]);
+  const heroes = useMemo(
+    () => (items || []).filter((item) => Boolean(item.backdrop)),
+    [items],
+  );
 
-  // guard: nothing to show
-  if (!heroes.length) return null;
-
-  // index state
-  const [i, setI] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
-  // if heroes list changes (navigation), keep index valid
   useEffect(() => {
-    if (i >= heroes.length) setI(0);
-  }, [heroes.length, i]);
+    if (
+      heroes.length > 0 &&
+      currentIndex >= heroes.length
+    ) {
+      setCurrentIndex(0);
+    }
+  }, [heroes.length, currentIndex]);
 
-  const cur = heroes[i];
-  const next = () => setI((p) => (p + 1) % heroes.length);
-  const prev = () => setI((p) => (p - 1 + heroes.length) % heroes.length);
+  useEffect(() => {
+    if (heroes.length <= 1) return;
 
-  const href = `/${cur.media}/${cur.id}`;
+    const interval = window.setInterval(() => {
+      setCurrentIndex(
+        (previous) => (previous + 1) % heroes.length,
+      );
+    }, 8000);
+
+    return () => window.clearInterval(interval);
+  }, [heroes.length]);
+
+  if (!heroes.length) {
+    return null;
+  }
+
+  const currentHero = heroes[currentIndex];
+
+  const href =
+    `/${currentHero.media}/${currentHero.id}`;
+
+  function showNext() {
+    setCurrentIndex(
+      (previous) => (previous + 1) % heroes.length,
+    );
+  }
+
+  function showPrevious() {
+    setCurrentIndex(
+      (previous) =>
+        (previous - 1 + heroes.length) % heroes.length,
+    );
+  }
+
+  function handleTouchEnd() {
+    const distance = touchStart - touchEnd;
+
+    if (distance > 50) {
+      showNext();
+    }
+
+    if (distance < -50) {
+      showPrevious();
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  }
 
   return (
-    <section className="relative z-0 w-[100svw] md:w-[100vw] left-1/2 -translate-x-1/2 overflow-hidden">
+    <section className="relative left-1/2 z-0 w-[100svw] -translate-x-1/2 overflow-hidden bg-[#05070d]">
       <div
-        className="relative h-[68vh] md:h-[78vh] max-w-[100vw]"
-        onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
-        onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
-        onTouchEnd={() => {
-          if (touchStart - touchEnd > 50) next();
-          if (touchEnd - touchStart > 50) prev();
+        className="relative min-h-[calc(100svh-72px)] w-full"
+        onTouchStart={(event) => {
+          const position =
+            event.targetTouches[0].clientX;
+
+          setTouchStart(position);
+          setTouchEnd(position);
         }}
+        onTouchMove={(event) => {
+          setTouchEnd(
+            event.targetTouches[0].clientX,
+          );
+        }}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Backdrop */}
         <CineImage
-          src={cur.backdrop}
-          alt={cur.title}
+          key={`${currentHero.media}-${currentHero.id}`}
+          src={currentHero.backdrop}
+          alt={currentHero.title}
           fallback="No backdrop"
-          priority={i === 0}
+          priority={currentIndex === 0}
           className="object-cover object-center"
         />
 
-        {/* Left-to-right darkening (click-through) */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10" />
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/80 via-black/55 to-black/25" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/75 to-[#05070d]/15" />
 
-        {/* Content */}
-        <div className="relative z-10 mx-auto max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] px-4 md:px-8 h-full flex items-center">
-          <div className="max-w-[760px]">
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-white/85">
-              <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/15">
-                {cur.media.toUpperCase()}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#05070d] via-transparent to-[#05070d]/45" />
+
+        <div className="pointer-events-none absolute inset-0 bg-black/10" />
+
+        <div className="relative z-10 mx-auto flex min-h-[calc(100svh-72px)] w-full max-w-[1600px] items-end px-5 pb-24 pt-32 md:px-10 md:pb-28 lg:px-16">
+          <div className="max-w-4xl">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 font-bold text-white/80 backdrop-blur">
+                {currentHero.media === "tv"
+                  ? "TV Series"
+                  : "Movie"}
               </span>
-              {!!cur.year && (
-                <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/15">
-                  {cur.year}
+
+              {currentHero.year && (
+                <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 font-bold text-white/80 backdrop-blur">
+                  {currentHero.year}
                 </span>
               )}
-              {typeof cur.rating === "number" && (
-                <span className="rounded-md bg-yellow-400 px-2.5 py-1 text-black font-semibold">
-                  ★ {cur.rating}
+
+              {typeof currentHero.rating === "number" && (
+                <span className="rounded-lg bg-yellow-400 px-3 py-1.5 font-black text-black">
+                  ★ {currentHero.rating}
                 </span>
               )}
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight">{cur.title}</h1>
-            {!!cur.overview && (
-              <p className="mt-3 text-white/85 line-clamp-3 md:line-clamp-4">
-                {cur.overview}
+            <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.02] text-white sm:text-5xl md:text-7xl lg:text-8xl">
+              {currentHero.title}
+            </h1>
+
+            {currentHero.overview && (
+              <p className="mt-6 max-w-3xl text-base leading-7 text-white/75 line-clamp-3 md:text-lg md:leading-8">
+                {currentHero.overview}
               </p>
             )}
 
-            {/* Actions */}
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href={href}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-black font-semibold px-5 py-2.5 shadow hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-7 py-3.5 text-sm font-black text-black shadow-[0_15px_40px_rgba(250,204,21,0.2)] transition hover:bg-yellow-300"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                Play
+                <Play
+                  className="h-4 w-4"
+                  fill="currentColor"
+                />
+                View details
               </Link>
+
               <Link
                 href={`${href}?tab=trailer`}
-                className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/20 px-5 py-2.5 hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+                className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-black/45 px-7 py-3.5 text-sm font-black text-white backdrop-blur transition hover:border-yellow-400 hover:text-yellow-400"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M4 6h16v12H4z"/></svg>
-                Trailer
+                Watch trailer
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Arrows */}
         {heroes.length > 1 && (
-          <div className="absolute inset-0 z-10 grid grid-cols-[112px_1fr_112px] items-center pointer-events-none">
-            <div className="flex pl-3">
-              <button
-                type="button"
-                aria-label="Previous"
-                onClick={prev}
-                className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/20 hover:bg-black/70 transition"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
+          <>
+            <button
+              type="button"
+              aria-label="Previous featured title"
+              onClick={showPrevious}
+              className="absolute left-3 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/55 text-white backdrop-blur transition hover:border-yellow-400 hover:text-yellow-400 md:left-6"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+
+            <button
+              type="button"
+              aria-label="Next featured title"
+              onClick={showNext}
+              className="absolute right-3 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/55 text-white backdrop-blur transition hover:border-yellow-400 hover:text-yellow-400 md:right-6"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+
+            <div className="absolute bottom-7 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+              {heroes.map((hero, index) => (
+                <button
+                  key={`${hero.media}-${hero.id}`}
+                  type="button"
+                  aria-label={`Show ${hero.title}`}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    index === currentIndex
+                      ? "w-10 bg-yellow-400"
+                      : "w-4 bg-white/35 hover:bg-white/60"
+                  }`}
+                />
+              ))}
             </div>
-            <div />
-            <div className="flex justify-end pr-3">
-              <button
-                type="button"
-                aria-label="Next"
-                onClick={next}
-                className="pointer-events-auto hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/20 hover:bg-black/70 transition"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
+          </>
         )}
 
-        {/* Bottom blend into sheet color */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#0e131f]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-[#05070d]/55 to-[#05070d]" />
       </div>
     </section>
   );
