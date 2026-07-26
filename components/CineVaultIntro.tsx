@@ -27,32 +27,14 @@ export default function CineVaultIntro() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const alreadyPlayed = sessionStorage.getItem(
-      "cinevault_intro_played",
-    );
+  setShow(true);
 
-    if (alreadyPlayed) {
-      return;
-    }
+  const timer = window.setTimeout(() => {
+    setShow(false);
+  }, 7000);
 
-    setShow(true);
-
-    sessionStorage.setItem(
-      "cinevault_intro_played",
-      "true",
-    );
-
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    const timer = window.setTimeout(
-      () => setShow(false),
-      reducedMotion ? 700 : 5400,
-    );
-
-    return () => window.clearTimeout(timer);
-  }, []);
+  return () => window.clearTimeout(timer);
+}, []);
 
   if (!show) {
     return null;
@@ -149,8 +131,8 @@ export default function CineVaultIntro() {
 
       <style jsx>{`
         .intro-root {
-          animation: introExit 5.4s ease forwards;
-        }
+            animation: introExit 7s ease forwards;
+          }
 
         .poster-card {
           transform: scale(1.06);
@@ -586,29 +568,7 @@ export default function CineVaultIntro() {
           }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          .intro-root {
-            animation: none;
-          }
-
-          .zipper-fabric,
-          .zipper-track,
-          .zipper-slider {
-            display: none;
-          }
-
-          .intro-letter,
-          .intro-kicker,
-          .intro-line,
-          .intro-tagline,
-          .poster-card,
-          .poster-shade {
-            opacity: 1;
-            transform: none;
-            filter: none;
-            animation: none;
-          }
-        }
+        
       `}</style>
     </div>
   );
