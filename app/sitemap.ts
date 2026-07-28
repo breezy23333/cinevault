@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
-
+import { GAME_CATEGORY_SLUGS } from "@/lib/games";
 export const revalidate = 86400;
 
 const baseUrl = "https://cinevault-tau-drab.vercel.app";
 const TMDB_BASE = "https://api.themoviedb.org/3";
+const RAWG_BASE = "https://api.rawg.io/api";
 
 function authHeaders() {
   const bearer =
@@ -48,6 +49,43 @@ async function fetchIds(path: string): Promise<number[]> {
   }
 }
 
+async function fetchGameIds(): Promise<number[]> {
+  const apiKey = process.env.RAWG_API_KEY;
+
+  if (!apiKey) return [];
+
+  const url = new URL(`${RAWG_BASE}/games`);
+
+  url.searchParams.set("key", apiKey);
+  url.searchParams.set("page_size", "40");
+  url.searchParams.set("ordering", "-added");
+  url.searchParams.set("exclude_additions", "true");
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        Accept: "application/json",
+      },
+      next: {
+        revalidate: 86400,
+      },
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+
+    return (data.results || [])
+      .map((game: { id?: number }) => game.id)
+      .filter(
+        (id: number | undefined): id is number =>
+          typeof id === "number",
+      );
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     {
@@ -84,6 +122,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       path: "/news",
       changeFrequency: "daily" as const,
       priority: 0.8,
+    },
+    {
+      path: "/games",
+      changeFrequency: "daily" as const,
+      priority: 0.9,
     },
     {
       path: "/anime",
@@ -152,13 +195,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const [
+    const [
     trendingMovieIds,
     popularMovieIds,
     topRatedMovieIds,
     trendingTvIds,
     popularTvIds,
     topRatedTvIds,
+    gameIds,
   ] = await Promise.all([
     fetchIds("/trending/movie/week?language=en-US"),
     fetchIds("/movie/popular?language=en-US"),
@@ -166,6 +210,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchIds("/trending/tv/week?language=en-US"),
     fetchIds("/tv/popular?language=en-US"),
     fetchIds("/tv/top_rated?language=en-US"),
+    fetchGameIds(),
   ]);
 
   const uniqueMovieIds = [
@@ -191,6 +236,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: page.priority,
     })),
 
+    ...GAME_CATEGORY_SLUGS.map((slug) => ({
+      url: `${baseUrl}/games/category/${slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+
     ...uniqueMovieIds.map((id) => ({
       url: `${baseUrl}/movie/${id}`,
       changeFrequency: "weekly" as const,
@@ -199,6 +250,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     ...uniqueTvIds.map((id) => ({
       url: `${baseUrl}/tv/${id}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+
+    ...gameIds.map((id) => ({
+      url: `${baseUrl}/games/${id}`,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
