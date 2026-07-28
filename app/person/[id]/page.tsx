@@ -28,7 +28,7 @@ async function tmdb(path: string) {
           accept: "application/json",
         }
       : {},
-    next: { revalidate: 300 },
+    next: { revalidate: 86400 },
   });
 
   if (!res.ok) {
