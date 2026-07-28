@@ -446,7 +446,7 @@ export type GameCategorySlug =
   (typeof GAME_CATEGORY_SLUGS)[number];
 
 export type GameCategoryInfo = {
-  slug: GameCategorySlug;
+  slug: string;
   label: string;
   title: string;
   description: string;
@@ -847,7 +847,39 @@ function getGameCategoryConfig(
     },
   };
 
-  return categories[slug as GameCategorySlug] ?? null;
+    const knownCategory =
+    categories[slug as GameCategorySlug];
+
+  if (knownCategory) {
+    return knownCategory;
+  }
+
+  const safeTagSlug = slug.trim().toLowerCase();
+
+  if (
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(safeTagSlug)
+  ) {
+    return null;
+  }
+
+  const label = safeTagSlug
+    .split("-")
+    .map(
+      (word) =>
+        word.charAt(0).toUpperCase() + word.slice(1),
+    )
+    .join(" ");
+
+  return {
+    slug: safeTagSlug,
+    label,
+    title: `${label} Games`,
+    description: `Discover games associated with the ${label} tag.`,
+    query: {
+      tags: safeTagSlug,
+      ordering: "-added",
+    },
+  };
 }
 
 export function getGameCategoryInfo(

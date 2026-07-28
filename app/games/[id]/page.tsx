@@ -118,7 +118,7 @@ export async function generateMetadata({
   const title =
     `${game.name} | Trailers, Ratings & Where to Play | CineVault`;
 
-  const canonicalUrl = `${SITE_URL}/game/${game.id}`;
+  const canonicalUrl = `${SITE_URL}/games/${game.id}`;
 
   const socialImage =
     game.background_image || DEFAULT_OG_IMAGE;
@@ -540,13 +540,16 @@ export default async function GameDetailsPage({ params }: PageProps) {
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {game.tags.slice(0, 16).map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="rounded-full bg-white/[0.07] px-3 py-1.5 text-xs text-white/60"
-                    >
-                      {tag.name}
-                    </span>
-                  ))}
+                      <Link
+                        key={tag.id}
+                        href={`/games/category/${tag.slug}`}
+                        prefetch={false}
+                        rel="nofollow"
+                        className="rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold text-white/65 transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
+                      >
+                        {tag.name}
+                      </Link>
+                    ))}
                 </div>
               </section>
             )}
@@ -605,7 +608,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
           </section>
         )}
 
-        {(minimumRequirements || recommendedRequirements) && (
+        {pcPlatform && (
           <section
             id="requirements"
             className="mt-16 scroll-mt-40 rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl md:p-8"
@@ -619,28 +622,88 @@ export default async function GameDetailsPage({ params }: PageProps) {
             </h2>
 
             <div className="mt-7 grid gap-5 md:grid-cols-2">
-              {minimumRequirements && (
-                <div className="rounded-2xl bg-black/30 p-5 ring-1 ring-white/10 md:p-6">
-                  <h3 className="font-black text-white">Minimum</h3>
+              <div className="rounded-2xl bg-black/30 p-5 ring-1 ring-white/10 md:p-6">
+                <h3 className="font-black text-white">Minimum</h3>
 
+                {minimumRequirements ? (
                   <p className="mt-4 whitespace-pre-line text-sm leading-7 text-white/60">
                     {minimumRequirements}
                   </p>
-                </div>
-              )}
+                ) : (
+                  <div className="mt-4 space-y-3 text-sm text-white/50">
+                    <p>
+                      RAM: <span className="text-white/75">Not listed</span>
+                    </p>
 
-              {recommendedRequirements && (
-                <div className="rounded-2xl bg-black/30 p-5 ring-1 ring-white/10 md:p-6">
-                  <h3 className="font-black text-white">
-                    Recommended
-                  </h3>
+                    <p>
+                      Storage: <span className="text-white/75">Not listed</span>
+                    </p>
 
+                    <p>
+                      Minimum specifications have not been provided.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl bg-black/30 p-5 ring-1 ring-white/10 md:p-6">
+                <h3 className="font-black text-white">
+                  Recommended
+                </h3>
+
+                {recommendedRequirements ? (
                   <p className="mt-4 whitespace-pre-line text-sm leading-7 text-white/60">
                     {recommendedRequirements}
                   </p>
-                </div>
-              )}
+                ) : (
+                  <div className="mt-4 space-y-3 text-sm text-white/50">
+                    <p>
+                      RAM: <span className="text-white/75">Not listed</span>
+                    </p>
+
+                    <p>
+                      Storage: <span className="text-white/75">Not listed</span>
+                    </p>
+
+                    <p>
+                      Recommended specifications have not been provided.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {(!minimumRequirements || !recommendedRequirements) && (
+              <div className="mt-6 rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.06] p-5">
+                <p className="text-sm leading-6 text-white/60">
+                  Complete verified requirements are not currently available
+                  for this game. Check the official store listing before
+                  purchasing or installing it.
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a
+                    href={getStoreSearchUrl("Steam", game.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-xl bg-yellow-400 px-4 py-2.5 text-sm font-black text-black transition hover:bg-yellow-300"
+                  >
+                    Check Steam requirements ↗
+                  </a>
+
+                  {game.website && (
+                    <a
+                      href={game.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-black text-white transition hover:border-yellow-400 hover:text-yellow-400"
+                    >
+                      Official website ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
