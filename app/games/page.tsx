@@ -75,14 +75,11 @@ export const metadata: Metadata = {
 const gamingCategories = [
   { label: "Featured", href: "#featured" },
   { label: "Popular", href: "#popular" },
+  { label: "Categories", href: "#browse-categories" },
   { label: "New Releases", href: "#new-releases" },
   { label: "Top Rated", href: "#top-rated" },
   { label: "Upcoming", href: "#upcoming" },
-  { label: "PC", href: "#pc" },
-  { label: "PlayStation", href: "#playstation" },
-  { label: "Xbox", href: "#xbox" },
-  { label: "Nintendo", href: "#nintendo" },
-  { label: "FPS", href: "#first-person" },
+  { label: "First-Person", href: "#first-person" },
   { label: "Third-Person", href: "#third-person" },
   { label: "Esports", href: "#esports" },
   { label: "Racing", href: "#racing" },
@@ -115,61 +112,36 @@ export default async function GamesPage() {
     )
     .slice(0, 8);
 
-    const browseCategories: GameCategory[] = [
+      const browseCategories: GameCategory[] = [
     {
-      label: "Popular",
-      href: "/games/category/popular",
-      image: popular[0]?.background_image,
+      label: "Role-Playing",
+      href: "/games/category/rpg",
+      image: storyRpg[0]?.background_image,
     },
     {
-      label: "New Releases",
-      href: "/games/category/new-releases",
-      image: newReleases[0]?.background_image,
+      label: "Puzzle",
+      href: "/games/category/puzzle",
+      image: nintendo[1]?.background_image,
     },
     {
-      label: "Top Rated",
-      href: "/games/category/top-rated",
-      image: topRated[0]?.background_image,
+      label: "Horror",
+      href: "/games/category/horror",
+      image: horrorSurvival[0]?.background_image,
     },
     {
-      label: "Upcoming",
-      href: "/games/category/upcoming",
-      image: upcoming[0]?.background_image,
+      label: "Survival",
+      href: "/games/category/survival",
+      image: horrorSurvival[2]?.background_image,
     },
     {
-      label: "PC",
-      href: "/games/category/pc",
-      image: pc[0]?.background_image,
+      label: "Sci-Fi & Cyberpunk",
+      href: "/games/category/sci-fi-cyberpunk",
+      image: firstPersonShooters[2]?.background_image,
     },
     {
-      label: "PlayStation",
-      href: "/games/category/playstation",
-      image: playStation[0]?.background_image,
-    },
-    {
-      label: "Xbox",
-      href: "/games/category/xbox",
-      image: xbox[0]?.background_image,
-    },
-    {
-      label: "Nintendo",
-      href: "/games/category/nintendo",
-      image: nintendo[0]?.background_image,
-    },
-    {
-      label: "First-Person",
-      href: "/games/category/first-person",
-      image: firstPersonShooters[0]?.background_image,
-    },
-    {
-      label: "Third-Person",
-      href: "/games/category/third-person",
-      image: thirdPersonShooters[0]?.background_image,
-    },
-    {
-      label: "Esports",
-      href: "/games/category/esports",
-      image: esports[0]?.background_image,
+      label: "City & Settlement",
+      href: "/games/category/city-settlement",
+      image: topRated[5]?.background_image,
     },
     {
       label: "Racing",
@@ -177,16 +149,71 @@ export default async function GamesPage() {
       image: racing[0]?.background_image,
     },
     {
-      label: "RPG",
-      href: "/games/category/rpg",
-      image: storyRpg[0]?.background_image,
+      label: "Open World",
+      href: "/games/category/open-world",
+      image: thirdPersonShooters[1]?.background_image,
     },
     {
-      label: "Horror",
-      href: "/games/category/horror",
-      image: horrorSurvival[0]?.background_image,
+      label: "Strategy",
+      href: "/games/category/strategy",
+      image: esports[4]?.background_image,
     },
-  ];  
+    {
+      label: "Adventure",
+      href: "/games/category/adventure",
+      image: topRated[1]?.background_image,
+    },
+    {
+      label: "Visual Novel",
+      href: "/games/category/visual-novel",
+      image: storyRpg[5]?.background_image,
+    },
+    {
+      label: "Story-Rich",
+      href: "/games/category/story-rich",
+      image: storyRpg[1]?.background_image,
+    },
+    {
+      label: "Simulation",
+      href: "/games/category/simulation",
+      image: racing[3]?.background_image,
+    },
+    {
+      label: "Fighting",
+      href: "/games/category/fighting",
+      image: esports[2]?.background_image,
+    },
+    {
+      label: "Co-Operative",
+      href: "/games/category/co-op",
+      image: esports[1]?.background_image,
+    },
+    {
+      label: "Rogue-Like",
+      href: "/games/category/roguelike",
+      image: popular[5]?.background_image,
+    },
+    {
+      label: "Action",
+      href: "/games/category/action",
+      image: thirdPersonShooters[0]?.background_image,
+    },
+    {
+      label: "Casual",
+      href: "/games/category/casual",
+      image: nintendo[3]?.background_image,
+    },
+    {
+      label: "Anime",
+      href: "/games/category/anime",
+      image: storyRpg[7]?.background_image,
+    },
+    {
+      label: "VR Titles",
+      href: "/games/category/vr",
+      image: firstPersonShooters[5]?.background_image,
+    },
+  ];
 
   const collectionJsonLd = {
     "@context": "https://schema.org",
@@ -258,7 +285,9 @@ export default async function GamesPage() {
             />
           </div>
 
-          <GameCategoryCarousel categories={browseCategories} />
+          <div id="browse-categories" className="scroll-mt-32">
+            <GameCategoryCarousel categories={browseCategories} />
+          </div>
 
           <div id="new-releases" className="scroll-mt-32">
             <GameShelf

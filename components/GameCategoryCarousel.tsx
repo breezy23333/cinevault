@@ -21,8 +21,6 @@ const categoryTints = [
   "bg-gradient-to-br from-green-400/20 via-green-700/55 to-black/80",
   "bg-gradient-to-br from-blue-400/20 via-blue-700/55 to-black/80",
   "bg-gradient-to-br from-orange-400/20 via-orange-700/55 to-black/80",
-  "bg-gradient-to-br from-cyan-400/20 via-cyan-700/55 to-black/80",
-  "bg-gradient-to-br from-pink-400/20 via-pink-700/55 to-black/80",
 ];
 
 export default function GameCategoryCarousel({
@@ -34,29 +32,48 @@ export default function GameCategoryCarousel({
   const [activePage, setActivePage] = useState(0);
   const [pageCount, setPageCount] = useState(1);
 
+  function getPageMetrics(shelf: HTMLDivElement) {
+    const firstCard = shelf.firstElementChild as HTMLElement | null;
+    const styles = window.getComputedStyle(shelf);
+    const gap = Number.parseFloat(styles.columnGap || "16") || 16;
+
+    const cardWidth =
+      firstCard?.getBoundingClientRect().width || shelf.clientWidth;
+
+    const cardsPerPage = Math.max(
+      1,
+      Math.floor(
+        (shelf.clientWidth + gap) / (cardWidth + gap),
+      ),
+    );
+
+    return {
+      pages: Math.max(
+        1,
+        Math.ceil(categories.length / cardsPerPage),
+      ),
+      distance: (cardWidth + gap) * cardsPerPage,
+    };
+  }
+
   function updateScrollState() {
     const shelf = shelfRef.current;
 
     if (!shelf) return;
 
     const maxScrollLeft = shelf.scrollWidth - shelf.clientWidth;
+    const { pages, distance } = getPageMetrics(shelf);
 
     setCanScrollLeft(shelf.scrollLeft > 8);
     setCanScrollRight(shelf.scrollLeft < maxScrollLeft - 8);
-
-    const pages = Math.max(
-      1,
-      Math.ceil(shelf.scrollWidth / shelf.clientWidth),
-    );
-
     setPageCount(pages);
 
-    const currentPage = Math.min(
-      pages - 1,
-      Math.round(shelf.scrollLeft / shelf.clientWidth),
+    setActivePage(
+      Math.min(
+        pages - 1,
+        Math.round(shelf.scrollLeft / distance),
+      ),
     );
-
-    setActivePage(currentPage);
   }
 
   useEffect(() => {
@@ -84,7 +101,7 @@ export default function GameCategoryCarousel({
 
     if (!shelf) return;
 
-    const distance = shelf.clientWidth * 0.9;
+    const { distance } = getPageMetrics(shelf);
 
     shelf.scrollBy({
       left: direction === "left" ? -distance : distance,
@@ -97,8 +114,10 @@ export default function GameCategoryCarousel({
 
     if (!shelf) return;
 
+    const { distance } = getPageMetrics(shelf);
+
     shelf.scrollTo({
-      left: shelf.clientWidth * page,
+      left: distance * page,
       behavior: "smooth",
     });
   }
@@ -137,7 +156,8 @@ export default function GameCategoryCarousel({
             <Link
               key={`${category.label}-${category.href}`}
               href={category.href}
-              className="group relative aspect-[1.55/1] w-[230px] shrink-0 snap-start overflow-hidden rounded-2xl bg-[#151c29] ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:ring-yellow-400/70 sm:w-[250px]"
+              prefetch={false}
+              className="group relative aspect-[1.55/1] w-[230px] shrink-0 snap-start overflow-hidden rounded-2xl bg-[#151c29] ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:ring-yellow-400/70 sm:w-[250px] lg:w-[calc((100%_-_4rem)/5)]"
             >
               {category.image && (
                 <img

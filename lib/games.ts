@@ -423,6 +423,23 @@ export const GAME_CATEGORY_SLUGS = [
   "racing",
   "rpg",
   "horror",
+  "puzzle",
+  "survival",
+  "sci-fi-cyberpunk",
+  "city-settlement",
+  "open-world",
+  "strategy",
+  "adventure",
+  "visual-novel",
+  "story-rich",
+  "simulation",
+  "fighting",
+  "co-op",
+  "roguelike",
+  "action",
+  "casual",
+  "anime",
+  "vr",
 ] as const;
 
 export type GameCategorySlug =
@@ -621,6 +638,210 @@ function getGameCategoryConfig(
         "Enter terrifying worlds where every decision can determine whether you survive.",
       query: {
         tags: "horror",
+        ordering: "-added",
+      },
+    },
+
+        puzzle: {
+      slug: "puzzle",
+      label: "Puzzle",
+      title: "Puzzle Games",
+      description:
+        "Solve mysteries, master logic challenges and discover inventive puzzle experiences.",
+      query: {
+        genres: "puzzle",
+        ordering: "-added",
+      },
+    },
+
+    survival: {
+      slug: "survival",
+      label: "Survival",
+      title: "Survival Games",
+      description:
+        "Gather resources, build shelter and survive against dangerous worlds.",
+      query: {
+        tags: "survival",
+        ordering: "-added",
+      },
+    },
+
+    "sci-fi-cyberpunk": {
+      slug: "sci-fi-cyberpunk",
+      label: "Sci-Fi & Cyberpunk",
+      title: "Sci-Fi & Cyberpunk Games",
+      description:
+        "Explore futuristic cities, distant worlds and technology-driven adventures.",
+      query: {
+        tags: "sci-fi,cyberpunk",
+        ordering: "-added",
+      },
+    },
+
+    "city-settlement": {
+      slug: "city-settlement",
+      label: "City & Settlement",
+      title: "City & Settlement Games",
+      description:
+        "Build cities, manage communities and create thriving settlements.",
+      query: {
+        tags: "city-builder",
+        ordering: "-added",
+      },
+    },
+
+    "open-world": {
+      slug: "open-world",
+      label: "Open World",
+      title: "Open-World Games",
+      description:
+        "Explore enormous worlds filled with quests, discoveries and freedom.",
+      query: {
+        tags: "open-world",
+        ordering: "-added",
+      },
+    },
+
+    strategy: {
+      slug: "strategy",
+      label: "Strategy",
+      title: "Strategy Games",
+      description:
+        "Plan carefully, command armies and outthink your opponents.",
+      query: {
+        genres: "strategy",
+        ordering: "-added",
+      },
+    },
+
+    adventure: {
+      slug: "adventure",
+      label: "Adventure",
+      title: "Adventure Games",
+      description:
+        "Embark on unforgettable journeys filled with discovery and danger.",
+      query: {
+        genres: "adventure",
+        ordering: "-added",
+      },
+    },
+
+    "visual-novel": {
+      slug: "visual-novel",
+      label: "Visual Novel",
+      title: "Visual Novel Games",
+      description:
+        "Experience character-driven stories where your decisions shape the journey.",
+      query: {
+        tags: "visual-novel",
+        ordering: "-added",
+      },
+    },
+
+    "story-rich": {
+      slug: "story-rich",
+      label: "Story-Rich",
+      title: "Story-Rich Games",
+      description:
+        "Discover memorable characters, powerful narratives and cinematic worlds.",
+      query: {
+        tags: "story-rich",
+        ordering: "-added",
+      },
+    },
+
+    simulation: {
+      slug: "simulation",
+      label: "Simulation",
+      title: "Simulation Games",
+      description:
+        "Experience detailed systems, realistic careers and simulated worlds.",
+      query: {
+        genres: "simulation",
+        ordering: "-added",
+      },
+    },
+
+    fighting: {
+      slug: "fighting",
+      label: "Fighting",
+      title: "Fighting Games",
+      description:
+        "Master powerful fighters, competitive combat and spectacular special moves.",
+      query: {
+        genres: "fighting",
+        ordering: "-added",
+      },
+    },
+
+    "co-op": {
+      slug: "co-op",
+      label: "Co-Operative",
+      title: "Co-Operative Games",
+      description:
+        "Team up with friends and overcome challenges together.",
+      query: {
+        tags: "co-op",
+        ordering: "-added",
+      },
+    },
+
+    roguelike: {
+      slug: "roguelike",
+      label: "Rogue-Like",
+      title: "Rogue-Like Games",
+      description:
+        "Take on replayable challenges, changing worlds and high-stakes runs.",
+      query: {
+        tags: "roguelike",
+        ordering: "-added",
+      },
+    },
+
+    action: {
+      slug: "action",
+      label: "Action",
+      title: "Action Games",
+      description:
+        "Discover fast combat, spectacular set pieces and thrilling adventures.",
+      query: {
+        genres: "action",
+        ordering: "-added",
+      },
+    },
+
+    casual: {
+      slug: "casual",
+      label: "Casual",
+      title: "Casual Games",
+      description:
+        "Enjoy accessible games designed for relaxing and entertaining play.",
+      query: {
+        genres: "casual",
+        ordering: "-added",
+      },
+    },
+
+    anime: {
+      slug: "anime",
+      label: "Anime",
+      title: "Anime Games",
+      description:
+        "Explore colourful worlds inspired by anime storytelling and art.",
+      query: {
+        tags: "anime",
+        ordering: "-added",
+      },
+    },
+
+    vr: {
+      slug: "vr",
+      label: "VR Titles",
+      title: "Virtual Reality Games",
+      description:
+        "Step inside immersive worlds created for virtual reality.",
+      query: {
+        tags: "vr",
         ordering: "-added",
       },
     },
