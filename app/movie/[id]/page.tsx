@@ -246,26 +246,27 @@ const breadcrumbJsonLd = {
 
       {/* BODY */}
       <section className="mx-auto w-full max-w-[1200px] px-4 md:px-6 mt-8 space-y-10">
-
         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
-        <p className="mt-4 leading-8 text-white/70">
-            {details.overview}
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+            Movie Overview
           </p>
 
-          <p className="mt-4 leading-8 text-white/60">
-            {details.title || details.name}
-            {year ? ` (${year})` : ""} delivers a visually immersive{" "}
-            {details.first_air_date ? "series" : "movie"} experience filled with
-            emotional storytelling, memorable characters, cinematic world-building,
-            and high-impact moments that continue to resonate with audiences.
-          </p>
+          <h2 className="mt-2 text-3xl font-black text-white">
+            About {details.title}
+            {year ? ` (${year})` : ""}
+          </h2>
 
-          <p className="mt-4 leading-8 text-white/60">
-            From performances and atmosphere to action, drama, and visual design,
-            this title stands out as one of the most talked-about entertainment
-            experiences currently featured on CineVault.
-          </p>
-      </section> 
+          {details.overview ? (
+            <p className="mt-4 leading-8 text-white/70">
+              {details.overview}
+            </p>
+          ) : (
+            <p className="mt-4 leading-8 text-white/70">
+              Explore the cast, trailers, ratings, movie details and where to watch
+              this title on CineVault.
+            </p>
+          )}
+        </section>
 
       {/* CineVault Database */}
         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
@@ -572,7 +573,7 @@ export async function generateMetadata({
 
     if (!/^\d+$/.test(id)) {
       return {
-        title: "Movie Not Found | CineVault",
+        title: "Movie Not Found",
         robots: { index: false, follow: false },
       };
     }
@@ -581,55 +582,73 @@ export async function generateMetadata({
 
     if (!Number.isSafeInteger(movieId) || movieId <= 0) {
       return {
-        title: "Movie Not Found | CineVault",
+        title: "Movie Not Found",
         robots: { index: false, follow: false },
       };
     }
 
     const movie = await fetchTmdbTitle(movieId, "movie");
 
+    const movieTitle = movie.title || movie.name || "Movie";
     const year = movie.release_date?.slice(0, 4) || "";
-    const image =
-      movie.backdrop_path
-        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-        : movie.poster_path
+    const displayTitle = `${movieTitle}${year ? ` (${year})` : ""}`;
+    const pageTitle = `${displayTitle} Movie`;
+
+    const fullDescription = movie.overview?.trim()
+      ? `${movie.overview.trim()} Discover the cast, trailer, ratings and where to watch.`
+      : `Discover ${displayTitle}, including its cast, trailer, ratings, similar movies and where to watch on CineVault.`;
+
+    const description =
+      fullDescription.length > 160
+        ? `${fullDescription
+            .slice(0, 157)
+            .replace(/\s+\S*$/, "")}...`
+        : fullDescription;
+
+    const image = movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      : movie.poster_path
         ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
-        : null;
+        : "https://cinevault-tau-drab.vercel.app/og-image.png";
+
+    const canonical =
+      `https://cinevault-tau-drab.vercel.app/movie/${id}`;
 
     return {
-      title: `${movie.title} (${year}) – CineVault`,
-      description:
-        movie.overview ||
-        `Watch ${movie.title} online on CineVault.`,
+      title: pageTitle,
+      description,
 
-        alternates: {
-        canonical: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+      alternates: {
+        canonical,
       },
 
       openGraph: {
-        title: `${movie.title} (${year}) – CineVault`,
-        description:
-          movie.overview ||
-          `Watch ${movie.title} online on CineVault.`,
-        url: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+        title: `${pageTitle} | CineVault`,
+        description,
+        url: canonical,
         siteName: "CineVault",
-        images: image ? [image] : [],
+        images: [
+          {
+            url: image,
+            alt: `${displayTitle} movie`,
+          },
+        ],
         locale: "en_US",
         type: "video.movie",
       },
-       twitter: {
+
+      twitter: {
         card: "summary_large_image",
-        title: `${movie.title} (${year}) – CineVault`,
-        description:
-          movie.overview ||
-          `Watch ${movie.title} online on CineVault.`,
-        images: image ? [image] : [],
-      },     
+        title: `${pageTitle} | CineVault`,
+        description,
+        images: [image],
+      },
     };
   } catch {
     return {
-      title: "Watch Movies Online | CineVault",
-      description: "Discover and watch movies on CineVault.",
+      title: "Discover Movies",
+      description:
+        "Explore movie details, casts, trailers, ratings and where to watch on CineVault.",
     };
   }
 }
