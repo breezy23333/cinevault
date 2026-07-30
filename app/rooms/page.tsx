@@ -1,89 +1,111 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import RoomsCarousel from "@/components/rooms/RoomsCarousel";
 
 export const metadata: Metadata = {
-  title: "CineVault Rooms | Movie & TV Chat Rooms",
+  title: "Rooms | Movie, TV, Anime & Gaming Chat",
   description:
-    "Join CineVault Rooms to chat about movies, TV shows, anime, cartoons, spoilers, gaming, and entertainment news.",
+    "Join real-time CineVault chat rooms for movies, TV shows, anime, cartoons, spoilers, gaming and entertainment news.",
+
   alternates: {
     canonical: "/rooms",
   },
+
   openGraph: {
-    title: "CineVault Rooms | Movie & TV Chat Rooms",
+    title: "CineVault Rooms | Live Entertainment Communities",
     description:
-      "Chat with fans in CineVault Rooms about movies, TV shows, anime, cartoons, spoilers, gaming, and entertainment news.",
+      "Join themed live rooms for movies, television, anime, cartoons, spoilers, gaming and entertainment news.",
     url: "/rooms",
     siteName: "CineVault",
     images: ["/og-image.png"],
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "CineVault Rooms",
-    description: "Movie, TV, anime, cartoon, gaming, and spoiler chat rooms.",
+    title: "CineVault Rooms | Live Fan Communities",
+    description:
+      "Real-time movie, TV, anime, cartoon, gaming, spoiler and news discussions.",
     images: ["/og-image.png"],
   },
 };
 
-const rooms = [
+const roomLinks = [
   {
     icon: "🎬",
-    title: "Movie Room",
-    text: "Talk about new releases, classics, hidden gems, cinema news, and what to watch next.",
+    title: "Movies",
     href: "/rooms/cinevault/movie",
-    status: "Live",
+    colour: "hover:border-amber-400 hover:text-amber-300",
   },
   {
     icon: "📺",
-    title: "TV Room",
-    text: "Discuss episodes, seasons, finales, theories, streaming shows, and binge-worthy picks.",
+    title: "Television",
     href: "/rooms/cinevault/tv",
-    status: "Live",
+    colour: "hover:border-indigo-400 hover:text-indigo-300",
   },
   {
     icon: "⚡",
-    title: "Anime Room",
-    text: "Share anime recommendations, story arcs, characters, studios, and fan favorites.",
+    title: "Anime",
     href: "/rooms/cinevault/anime",
-    status: "Live",
+    colour: "hover:border-pink-400 hover:text-pink-300",
   },
   {
     icon: "🎨",
-    title: "Cartoon Room",
-    text: "Chat about animated classics, modern cartoons, family picks, and nostalgic favorites.",
+    title: "Cartoons",
     href: "/rooms/cinevault/cartoons",
-    status: "Live",
+    colour: "hover:border-cyan-400 hover:text-cyan-300",
   },
   {
     icon: "🔥",
-    title: "Spoiler Room",
-    text: "A dedicated place for endings, plot twists, theories, reveals, and full spoiler discussions.",
+    title: "Spoilers",
     href: "/rooms/cinevault/spoilers",
-    status: "Careful",
+    colour: "hover:border-orange-400 hover:text-orange-300",
   },
   {
     icon: "📰",
-    title: "News Room",
-    text: "React to entertainment news, casting updates, trailers, gaming news, and release announcements.",
+    title: "News",
     href: "/rooms/cinevault/news",
-    status: "Live",
+    colour: "hover:border-red-400 hover:text-red-300",
   },
   {
     icon: "🎮",
-    title: "Gaming Room",
-    text: "Talk about games, consoles, adaptations, gaming movies, esports, and upcoming releases.",
+    title: "Gaming",
     href: "/rooms/cinevault/gaming",
-    status: "Live",
+    colour: "hover:border-purple-400 hover:text-purple-300",
   },
 ];
 
-const features = [
-  "Real-time style chat interface",
-  "Movie and TV fan discussions",
-  "Spoiler-safe rooms",
-  "Anime and cartoon spaces",
-  "Gaming and entertainment news",
-  "User profiles coming next",
+const communityFeatures = [
+  {
+    icon: "⚡",
+    title: "Real-time conversations",
+    text: "Messages appear live so members can react, recommend and discuss together.",
+  },
+  {
+    icon: "🟢",
+    title: "Online presence",
+    text: "See when other CineVault members are online inside the same room.",
+  },
+  {
+    icon: "⌨️",
+    title: "Typing indicators",
+    text: "Know when another member is preparing a reply during active discussions.",
+  },
+  {
+    icon: "#",
+    title: "Topic channels",
+    text: "Each room includes dedicated channels for focused community conversations.",
+  },
+  {
+    icon: "🎭",
+    title: "Unique room identities",
+    text: "Every community has its own interface, atmosphere, channels and personality.",
+  },
+  {
+    icon: "🛡️",
+    title: "Member-only participation",
+    text: "Members sign in before joining and posting in live CineVault conversations.",
+  },
 ];
 
 export default function RoomsPage() {
@@ -92,12 +114,21 @@ export default function RoomsPage() {
     "@type": "CollectionPage",
     name: "CineVault Rooms",
     description:
-      "Movie, TV show, anime, cartoon, gaming, spoiler, and entertainment chat rooms on CineVault.",
+      "Real-time themed community rooms for movies, television, anime, cartoons, spoilers, gaming and entertainment news.",
     url: "https://cinevault-tau-drab.vercel.app/rooms",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: roomLinks.map((room, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: `${room.title} Room`,
+        url: `https://cinevault-tau-drab.vercel.app${room.href}`,
+      })),
+    },
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#05070d] px-4 py-24 text-white md:px-8">
+    <main className="min-h-screen overflow-hidden bg-[#05070d] pb-24 pt-24 text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -105,132 +136,193 @@ export default function RoomsPage() {
         }}
       />
 
-      <section className="mx-auto max-w-[1500px]">
-        <div className="relative overflow-hidden rounded-[2.5rem] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/10 via-white/[0.04] to-blue-500/10 p-8 shadow-[0_30px_120px_rgba(0,0,0,0.45)] md:p-12">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(250,204,21,0.18),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(99,102,241,0.18),transparent_30%)]" />
+      {/* Hero */}
+      <section className="relative px-4 pb-12 pt-10 md:px-8 md:pt-16">
+        <div className="pointer-events-none absolute left-1/4 top-0 h-96 w-96 rounded-full bg-yellow-400/10 blur-[130px]" />
+        <div className="pointer-events-none absolute right-1/4 top-12 h-96 w-96 rounded-full bg-purple-500/10 blur-[130px]" />
 
-          <div className="relative z-10 grid gap-10 lg:grid-cols-[1fr_420px] lg:items-center">
+        <div className="relative mx-auto max-w-[1500px]">
+          <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.45em] text-yellow-300">
-                CineVault Social Network
-              </p>
+              <div className="inline-flex items-center gap-3 rounded-full border border-yellow-400/20 bg-yellow-400/[0.07] px-4 py-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)]" />
+                <span className="text-xs font-black uppercase tracking-[0.3em] text-yellow-300">
+                  CineVault Rooms are live
+                </span>
+              </div>
 
-              <h1 className="mt-4 max-w-4xl text-5xl font-black leading-[0.95] md:text-7xl">
-                Chat rooms for every kind of fan.
+              <h1 className="mt-6 max-w-5xl text-5xl font-black leading-[0.92] tracking-tight md:text-7xl lg:text-8xl">
+                Where fandom becomes{" "}
+                <span className="bg-gradient-to-r from-yellow-300 via-white to-purple-300 bg-clip-text text-transparent">
+                  conversation.
+                </span>
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-white/65">
-                Join dedicated rooms for movies, TV shows, anime, cartoons,
-                spoilers, gaming, and entertainment news. Share reactions,
-                recommendations, theories, and what you are watching next.
+              <p className="mt-7 max-w-3xl text-base leading-8 text-white/60 md:text-lg">
+                Enter seven completely different live communities built around
+                movies, television, anime, cartoons, spoilers, entertainment news
+                and gaming. Choose your room, find a channel and join the
+                discussion.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
-                  href="#rooms"
-                  className="rounded-full bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+                  href="#featured-rooms"
+                  className="rounded-full bg-yellow-400 px-6 py-3 font-black text-black transition hover:-translate-y-0.5 hover:bg-yellow-300"
                 >
-                  Browse Rooms
+                  Explore Live Rooms
                 </a>
 
                 <Link
                   href="/community"
-                  className="rounded-full border border-white/15 px-6 py-3 font-black text-white hover:border-yellow-400/70"
+                  className="rounded-full border border-white/15 bg-white/[0.04] px-6 py-3 font-black text-white/75 hover:border-yellow-400/50 hover:text-yellow-300"
                 >
-                  Community Hub
+                  Visit Community Hub
                 </Link>
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-black/35 p-5 backdrop-blur">
-              <p className="text-sm font-black text-yellow-300">
-                Rooms Preview
-              </p>
+            {/* Honest platform facts */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center backdrop-blur">
+                <p className="text-3xl font-black text-yellow-300">7</p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-wider text-white/35">
+                  Themed rooms
+                </p>
+              </div>
 
-              <div className="mt-4 space-y-3">
-                {[
-                  ["MovieFan", "What is everyone watching tonight?"],
-                  ["AnimeVault", "New anime recommendations?"],
-                  ["SpoilerAlert", "Use the spoiler room for endings."],
-                ].map(([name, text]) => (
-                  <div
-                    key={name}
-                    className="rounded-2xl border border-white/10 bg-white/[0.06] p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-black text-yellow-300">{name}</p>
-                      <span className="text-xs text-white/35">Now</span>
-                    </div>
-                    <p className="mt-2 text-sm text-white/65">{text}</p>
-                  </div>
-                ))}
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center backdrop-blur">
+                <p className="text-3xl font-black text-emerald-300">Live</p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-wider text-white/35">
+                  Messages
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center backdrop-blur">
+                <p className="text-3xl font-black text-purple-300">50+</p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-wider text-white/35">
+                  Topic channels
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Quick-access room navigation */}
+          <div className="mt-12 flex gap-3 overflow-x-auto pb-2">
+            {roomLinks.map((room) => (
+              <Link
+                key={room.title}
+                href={room.href}
+                className={`flex shrink-0 items-center gap-3 rounded-full border border-white/10 bg-white/[0.035] px-5 py-3 text-sm font-black text-white/55 transition hover:-translate-y-0.5 hover:bg-white/[0.07] ${room.colour}`}
+              >
+                <span>{room.icon}</span>
+                <span>{room.title}</span>
+              </Link>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div id="rooms" className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {rooms.map((room) => (
-            <Link
-              key={room.title}
-              href={room.href}
-              className="group rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-yellow-400/60 hover:bg-white/[0.07]"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-yellow-400 text-2xl shadow-[0_0_35px_rgba(250,204,21,0.22)]">
-                  {room.icon}
-                </div>
-
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-black ${
-                    room.status === "Careful"
-                      ? "bg-red-500/10 text-red-300"
-                      : "bg-emerald-500/10 text-emerald-300"
-                  }`}
-                >
-                  {room.status}
-                </span>
-              </div>
-
-              <h2 className="mt-5 text-2xl font-black text-white group-hover:text-yellow-300">
-                {room.title}
-              </h2>
-
-              <p className="mt-3 min-h-[84px] text-sm leading-7 text-white/60">
-                {room.text}
-              </p>
-
-              <p className="mt-5 text-sm font-black text-white/80 group-hover:text-yellow-300">
-                Enter room →
-              </p>
-            </Link>
-          ))}
-        </div>
-
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 md:p-8">
-          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+      {/* Featured carousel */}
+      <section
+        id="featured-rooms"
+        className="scroll-mt-28 px-4 py-8 md:px-8"
+      >
+        <div className="mx-auto max-w-[1500px]">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-300">
-                Coming Feature
+                Choose your community
               </p>
-              <h2 className="mt-3 text-3xl font-black md:text-4xl">
-                CineVault Rooms will become your fan network.
+              <h2 className="mt-3 text-3xl font-black md:text-5xl">
+                Seven rooms. Seven different worlds.
               </h2>
-              <p className="mt-4 text-white/60">
-                This starts as a beautiful room system. Later we can connect it
-                to Neon so messages, users, rooms, and reactions become real.
+            </div>
+
+            <p className="max-w-lg text-sm leading-7 text-white/45">
+              Move through the carousel to preview each room’s identity and
+              available conversation channels.
+            </p>
+          </div>
+
+          <RoomsCarousel />
+        </div>
+      </section>
+
+      {/* Community features */}
+      <section className="px-4 py-16 md:px-8">
+        <div className="mx-auto max-w-[1500px]">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-purple-300">
+              Built for conversation
+            </p>
+
+            <h2 className="mt-4 text-4xl font-black md:text-6xl">
+              More than another comment section.
+            </h2>
+
+            <p className="mt-5 text-base leading-8 text-white/50">
+              CineVault Rooms combine themed fan communities with real-time
+              messaging, presence and focused discussion channels.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {communityFeatures.map((feature) => (
+              <div
+                key={feature.title}
+                className="group rounded-[2rem] border border-white/10 bg-white/[0.035] p-6 transition hover:-translate-y-1 hover:border-yellow-400/30 hover:bg-white/[0.055]"
+              >
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-yellow-400/10 text-xl text-yellow-300 ring-1 ring-yellow-400/15">
+                  {feature.icon}
+                </div>
+
+                <h3 className="mt-5 text-xl font-black group-hover:text-yellow-300">
+                  {feature.title}
+                </h3>
+
+                <p className="mt-3 text-sm leading-7 text-white/45">
+                  {feature.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final call to action */}
+      <section className="px-4 pt-6 md:px-8">
+        <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[2.5rem] border border-yellow-400/20 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.2),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(147,51,234,0.22),transparent_35%),#0c0d14] p-8 md:p-12">
+          <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-300">
+                Your room is waiting
+              </p>
+
+              <h2 className="mt-4 max-w-3xl text-4xl font-black md:text-6xl">
+                Find your people. Start the conversation.
+              </h2>
+
+              <p className="mt-5 max-w-2xl text-base leading-8 text-white/50">
+                Sign in, choose a community and join CineVault members discussing
+                what they watch, play and care about.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {features.map((feature) => (
-                <div
-                  key={feature}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4 text-sm font-bold text-white/70"
-                >
-                  ✓ {feature}
-                </div>
-              ))}
+            <div className="flex shrink-0 flex-wrap gap-3">
+              <Link
+                href="/rooms/cinevault/movie"
+                className="rounded-full bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
+              >
+                Enter Movie Room
+              </Link>
+
+              <Link
+                href="/rooms/cinevault/gaming"
+                className="rounded-full bg-purple-500 px-6 py-3 font-black text-white hover:bg-purple-400"
+              >
+                Enter Gaming Room
+              </Link>
             </div>
           </div>
         </div>
