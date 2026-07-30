@@ -26,6 +26,7 @@ import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
 import GameHero from "@/components/GameHero";
 import GameShelf from "@/components/GameShelf";
+import type { Metadata } from "next";
 import {
   getGamingHomeData,
   RAWG_ATTRIBUTION_URL,
@@ -35,6 +36,43 @@ import MovieEras from "@/components/MovieEras";
 // runtime/perf
 export const runtime = "nodejs";
 export const revalidate = 3600;
+
+const homeDescription =
+  "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "CineVault – Movies, TV Shows, Anime, Cartoons & Games",
+  },
+  description: homeDescription,
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    title: "CineVault – Movies, TV Shows, Anime, Cartoons & Games",
+    description: homeDescription,
+    url: "/",
+    siteName: "CineVault",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CineVault – Discover movies, shows, animation and games",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "CineVault – Movies, TV Shows, Anime, Cartoons & Games",
+    description: homeDescription,
+    images: ["/og-image.png"],
+  },
+};
 
 type Norm = {
   id: number;

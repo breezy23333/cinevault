@@ -9,15 +9,13 @@ import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
-  alternates: {
-  canonical: "/",
-},
+  
   title: {
     default: "CineVault – Movies, TV Shows, Anime & Cartoons",
     template: "%s | CineVault",
   },
   description:
-    "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
+    "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.",
   openGraph: {
     images: [
       {
@@ -29,8 +27,8 @@ export const metadata: Metadata = {
     ],
     title: "CineVault – Movies, TV Shows, Anime & Cartoons",
     description:
-      "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
-    url: "https://cinevault-tau-drab.vercel.app",
+      "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.",
+    
     siteName: "CineVault",
     type: "website",
   },
@@ -39,33 +37,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CineVault – Movies, TV Shows, Anime & Cartoons",
     description:
-      "Stream trending movies, TV shows, anime, cartoons, trailers, and cinematic discoveries on CineVault. Explore the live TMDB universe with rich visuals and watchlists.",
+      "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.",
   },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const websiteJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "CineVault",
-    url: "https://cinevault-tau-drab.vercel.app",
-    potentialAction: {
-      "@type": "SearchAction",
-      target:
-        "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
-      "query-input": "required name=search_term_string",
-    },
-    
-  };
-
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "CineVault",
-    url: "https://cinevault-tau-drab.vercel.app",
-    logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
-    sameAs: [],
-  };
 
 return (
   <html lang="en">

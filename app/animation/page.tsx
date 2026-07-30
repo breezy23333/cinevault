@@ -6,9 +6,12 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Animation Movies & Shows | CineVault",
+  title: "Animation Movies & Shows",
   description:
     "Discover anime, cartoons, animated movies, family adventures, fantasy worlds, and top animated entertainment on CineVault.",
+  alternates: {
+    canonical: "/animation",
+  },
 };
 
 export default async function AnimationPage() {

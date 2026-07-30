@@ -136,7 +136,7 @@ const breadcrumbJsonLd = {
       "@type": "ListItem",
       position: 2,
       name: "Movies",
-      item: "https://cinevault-tau-drab.vercel.app/movies",
+      item: "https://cinevault-tau-drab.vercel.app/movie",
     },
     {
       "@type": "ListItem",
