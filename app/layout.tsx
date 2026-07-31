@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import CineVaultIntro from "@/components/CineVaultIntro";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import JsonLd from "@/components/JsonLd";
+import { Analytics } from "@vercel/analytics/next";
 
 
 export const metadata: Metadata = {
@@ -77,6 +78,7 @@ return (
         }}
       />
 
+      <Analytics />    
       <GoogleAnalytics />
     </body>
   </html>
