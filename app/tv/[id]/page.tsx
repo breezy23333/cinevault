@@ -11,6 +11,7 @@ import WatchOptions from "@/components/WatchOptions";
 import TVSeasons from "@/components/TVSeasons";
 import AwardsSection from "@/components/AwardsSection";
 import { fetchAwardsByImdbId } from "@/lib/awards";
+import { headers } from "next/headers";
 import {
   getTVDetails,
   getTVVideos,
@@ -105,13 +106,18 @@ export default async function TvPage({ params }: PageProps) {
   const providersData: any =
   providersRes.status === "fulfilled" ? providersRes.value : null;
 
-  const country = "ZA";
+  const requestHeaders = await headers();
+  const detectedCountry = requestHeaders
+    .get("x-vercel-ip-country")
+    ?.trim()
+    .toUpperCase();
 
-  const watchData =
-    providersData?.results?.[country] ||
-    providersData?.results?.US ||
-    providersData?.results?.GB ||
-    null;    
+  const country =
+    detectedCountry && /^[A-Z]{2}$/.test(detectedCountry)
+      ? detectedCountry
+      : "US";
+
+  const watchData = providersData?.results?.[country] ?? null; 
 
   const title = details.name || details.original_name || "Untitled";
   const backdrop = img(details.backdrop_path, "w1280") || img(details.poster_path, "w780");
@@ -610,55 +616,90 @@ const breadcrumbJsonLd = {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   try {
     const { id } = await params;
-    const tv = await getTVDetails(Number(id));
 
-    const title = tv.name || tv.original_name || "TV Show";
+    if (!/^\d+$/.test(id)) {
+      return {
+        title: "TV Show Not Found",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const tvId = Number(id);
+
+    if (!Number.isSafeInteger(tvId) || tvId <= 0) {
+      return {
+        title: "TV Show Not Found",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const tv = await getTVDetails(tvId);
+
+    const tvTitle = tv.name || tv.original_name || "TV Show";
     const year = tv.first_air_date?.slice(0, 4) || "";
-    const image =
-      tv.backdrop_path
-        ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}`
-        : tv.poster_path
+    const displayTitle = `${tvTitle}${year ? ` (${year})` : ""}`;
+    const pageTitle = `${displayTitle} TV Series`;
+
+    const fullDescription = tv.overview?.trim()
+      ? `${tv.overview.trim()} Explore the cast, seasons, episodes, trailers, ratings and where to watch.`
+      : `Discover ${displayTitle}, including its cast, seasons, episodes, trailers, ratings and where to watch on CineVault.`;
+
+    const description =
+      fullDescription.length > 160
+        ? `${fullDescription
+            .slice(0, 157)
+            .replace(/\s+\S*$/, "")}...`
+        : fullDescription;
+
+    const image = tv.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}`
+      : tv.poster_path
         ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
-        : null;
+        : "https://cinevault-tau-drab.vercel.app/og-image.png";
+
+    const canonical =
+      `https://cinevault-tau-drab.vercel.app/tv/${id}`;
 
     return {
-      title: `${title} (${year}) – CineVault`,
-      description:
-        tv.overview ||
-        `Watch ${title} online on CineVault.`,
-      alternates: {
-          canonical: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
-        },
+      title: pageTitle,
+      description,
 
+      alternates: {
+        canonical,
+      },
 
       openGraph: {
-        title: `${title} (${year}) – CineVault`,
-        description:
-          tv.overview ||
-          `Watch ${title} online on CineVault.`,
-        url: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
+        title: `${pageTitle} | CineVault`,
+        description,
+        url: canonical,
         siteName: "CineVault",
-        images: image ? [image] : [],
+        images: [
+          {
+            url: image,
+            alt: `${displayTitle} TV series`,
+          },
+        ],
         locale: "en_US",
         type: "video.tv_show",
       },
 
       twitter: {
         card: "summary_large_image",
-        title: `${title} (${year}) – CineVault`,
-        description:
-          tv.overview ||
-          `Watch ${title} online on CineVault.`,
-        images: image ? [image] : [],
+        title: `${pageTitle} | CineVault`,
+        description,
+        images: [image],
       },
     };
   } catch {
     return {
-      title: "Watch TV Shows Online | CineVault",
-      description: "Discover and watch TV shows on CineVault.",
+      title: "Discover TV Shows",
+      description:
+        "Explore TV series, casts, seasons, episodes, trailers, ratings and where to watch on CineVault.",
     };
   }
 }

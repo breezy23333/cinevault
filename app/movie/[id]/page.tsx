@@ -13,6 +13,7 @@ import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
 import { fetchAwardsByImdbId } from "@/lib/awards";
 import AwardsSection from "@/components/AwardsSection";
+import { headers } from "next/headers";
 import {
   fetchTmdbTitle,
   fetchTmdbProviders,
@@ -84,13 +85,18 @@ const similar: Similar[] = Array.isArray(similarSource)
 const providersData: any =
   providersRes.status === "fulfilled" ? providersRes.value : null;
 
-  const country = "ZA";
+  const requestHeaders = await headers();
+  const detectedCountry = requestHeaders
+    .get("x-vercel-ip-country")
+    ?.trim()
+    .toUpperCase();
 
-  const watchData =
-    providersData?.results?.[country] ||
-    providersData?.results?.US ||
-    providersData?.results?.GB ||
-    null;    
+  const country =
+    detectedCountry && /^[A-Z]{2}$/.test(detectedCountry)
+      ? detectedCountry
+      : "US";
+
+  const watchData = providersData?.results?.[country] ?? null;
 
   // ---------- derived ----------
   const backdrop = img(details.backdrop_path, "w1280") || img(details.poster_path, "w780");

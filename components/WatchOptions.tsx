@@ -14,9 +14,15 @@ type WatchData = {
   buy?: Provider[];
 };
 
-function getProviderUrl(providerName: string, title: string) {
+function getProviderUrl(
+  providerName: string,
+  title: string,
+  country: string
+) {
   const provider = providerName.toLowerCase();
   const query = encodeURIComponent(title.trim());
+  const region = country.toLowerCase();
+  const locale = `en-${region}`;
 
   if (provider.includes("apple tv")) {
     return `https://tv.apple.com/search?term=${query}`;
@@ -38,7 +44,7 @@ function getProviderUrl(providerName: string, title: string) {
   }
 
   if (provider.includes("showmax")) {
-    return "https://www.showmax.com/za/search";
+    return `https://www.showmax.com/${region}/search`;
   }
 
   if (provider.includes("crunchyroll")) {
@@ -60,11 +66,11 @@ function getProviderUrl(providerName: string, title: string) {
     provider.includes("microsoft") ||
     provider.includes("xbox")
   ) {
-    return `https://www.microsoft.com/en-za/search?q=${query}`;
+    return `https://www.microsoft.com/${locale}/search?q=${query}`;
   }
 
   if (provider.includes("mubi")) {
-    return `https://mubi.com/en/za/search/films?query=${query}`;
+    return `https://mubi.com/en/${region}/search/films?query=${query}`;
   }
 
   return `https://www.google.com/search?q=${encodeURIComponent(
@@ -76,10 +82,12 @@ function ProviderRow({
   label,
   title,
   providers,
+  country,
 }: {
   label: string;
   title: string;
   providers?: Provider[];
+  country: string;
 }) {
   if (!providers || providers.length === 0) return null;
 
@@ -91,7 +99,7 @@ function ProviderRow({
         {providers.map((provider) => (
           <a
             key={provider.provider_id}
-            href={getProviderUrl(provider.provider_name, title)}
+            href={getProviderUrl(provider.provider_name, title, country)}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${provider.provider_name} and search for ${title}`}
@@ -128,11 +136,11 @@ function ProviderRow({
 export default function WatchOptions({
   title,
   watchData,
-  country = "ZA",
+  country,
 }: {
   title: string;
   watchData?: WatchData | null;
-  country?: string;
+  country: string;
 }) {
   const hasProviders =
     watchData?.flatrate?.length ||
@@ -162,18 +170,21 @@ export default function WatchOptions({
             label="Stream"
             title={title}
             providers={watchData?.flatrate}
+            country={country}
           />
 
           <ProviderRow
             label="Rent"
             title={title}
             providers={watchData?.rent}
+            country={country}
           />
 
           <ProviderRow
             label="Buy"
             title={title}
             providers={watchData?.buy}
+            country={country}
           />
         </>
       ) : (
