@@ -118,10 +118,12 @@ const providersData: any =
     datePublished: details.release_date,
     url: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
     genre: details.genres?.map((g: any) => g.name),
-    aggregateRating: rating
+    aggregateRating:
+    rating && details.vote_count > 0
       ? {
           "@type": "AggregateRating",
           ratingValue: rating,
+          ratingCount: details.vote_count,
           bestRating: 10,
           worstRating: 0,
         }
@@ -430,7 +432,6 @@ const breadcrumbJsonLd = {
                       key={`${c.id}-${c.profile_path || "no-photo"}`}
                       href={`/person/${c.id}`}
                       prefetch={false}
-                      rel="nofollow"
                       className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
                     >
                       <div className="relative aspect-[2/3] bg-black/20">
@@ -471,7 +472,6 @@ const breadcrumbJsonLd = {
                     key={s.id}
                     href={`/movie/${s.id}`}
                     prefetch={false}
-                    rel="nofollow"
                     className="group relative w-[180px] shrink-0 snap-start rounded-xl overflow-hidden ring-1 ring-white/10 hover:ring-white/20"
                   >
                     <div className="relative aspect-[2/3] bg-white/5">
@@ -598,11 +598,15 @@ export async function generateMetadata({
     const movieTitle = movie.title || movie.name || "Movie";
     const year = movie.release_date?.slice(0, 4) || "";
     const displayTitle = `${movieTitle}${year ? ` (${year})` : ""}`;
-    const pageTitle = `${displayTitle} Movie`;
+    const pageTitle = `${displayTitle} — Cast, Trailer & Where to Watch`;
+
+    const seoIntro =
+      `Explore ${displayTitle}: cast, trailer, ratings, runtime, ` +
+      `similar movies and where to watch on CineVault.`;
 
     const fullDescription = movie.overview?.trim()
-      ? `${movie.overview.trim()} Discover the cast, trailer, ratings and where to watch.`
-      : `Discover ${displayTitle}, including its cast, trailer, ratings, similar movies and where to watch on CineVault.`;
+      ? `${seoIntro} ${movie.overview.trim()}`
+      : seoIntro;
 
     const description =
       fullDescription.length > 160
@@ -623,6 +627,11 @@ export async function generateMetadata({
     return {
       title: pageTitle,
       description,
+
+      robots: {
+        index: true,
+        follow: true,
+      },
 
       alternates: {
         canonical,

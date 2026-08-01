@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 export const revalidate = 86400;
-
-const API_KEY = process.env.TMDB_API_KEY;
 
 const img = (p?: string | null, size = "w500") =>
   p ? `https://image.tmdb.org/t/p/${size}${p}` : null;
@@ -159,4 +158,92 @@ export default async function PersonPage({ params }: PageProps) {
       )}
     </main>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  try {
+    const { id } = await params;
+
+    if (!/^\d+$/.test(id)) {
+      return {
+        title: "Person Not Found",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const personId = Number(id);
+
+    if (!Number.isSafeInteger(personId) || personId <= 0) {
+      return {
+        title: "Person Not Found",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const person = await tmdb(`/person/${personId}`);
+
+    if (!person?.name) {
+      return {
+        title: "Person Not Found",
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const name = person.name;
+    const pageTitle = `${name} — Biography, Movies & Filmography`;
+    const intro =
+      `Explore ${name}'s biography, movies, birthday, birthplace ` +
+      `and filmography on CineVault.`;
+
+    const fullDescription = person.biography?.trim()
+      ? `${intro} ${person.biography.trim()}`
+      : intro;
+
+    const description =
+      fullDescription.length > 160
+        ? `${fullDescription
+            .slice(0, 157)
+            .replace(/\s+\S*$/, "")}...`
+        : fullDescription;
+
+    const canonical =
+      `https://cinevault-tau-drab.vercel.app/person/${personId}`;
+
+    const image = person.profile_path
+      ? `https://image.tmdb.org/t/p/w780${person.profile_path}`
+      : "https://cinevault-tau-drab.vercel.app/og-image.png";
+
+    return {
+      title: pageTitle,
+      description,
+      robots: {
+        index: true,
+        follow: true,
+      },
+      alternates: {
+        canonical,
+      },
+      openGraph: {
+        title: `${pageTitle} | CineVault`,
+        description,
+        url: canonical,
+        siteName: "CineVault",
+        images: [{ url: image, alt: name }],
+        type: "profile",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${pageTitle} | CineVault`,
+        description,
+        images: [image],
+      },
+    };
+  } catch {
+    return {
+      title: "Person Not Found",
+      robots: { index: false, follow: false },
+    };
+  }
 }

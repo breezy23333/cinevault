@@ -153,20 +153,16 @@ export default async function TvPage({ params }: PageProps) {
   url: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
   genre: details.genres?.map((g: any) => g.name),
   datePublished: details.first_air_date,
-  aggregateRating: rating
-  ? {
-      "@type": "AggregateRating",
-      ratingValue: rating,
-      bestRating: 10,
-      worstRating: 0,
-      ratingCount: details.vote_count || 1,
-    }
-  : undefined,
-  potentialAction: {
-    "@type": "WatchAction",
-    target: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
-  },
-  
+  aggregateRating:
+  rating && details.vote_count > 0
+    ? {
+        "@type": "AggregateRating",
+        ratingValue: rating,
+        ratingCount: details.vote_count,
+        bestRating: 10,
+        worstRating: 0,
+      }
+    : undefined,
 };
 
 const breadcrumbJsonLd = {
@@ -309,20 +305,6 @@ const breadcrumbJsonLd = {
         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
         <p className="mt-4 leading-8 text-white/70">
             {details.overview}
-          </p>
-
-          <p className="mt-4 leading-8 text-white/60">
-            {details.title || details.name}
-            {year ? ` (${year})` : ""} delivers a visually immersive{" "}
-            {details.first_air_date ? "series" : "movie"} experience filled with
-            emotional storytelling, memorable characters, cinematic world-building,
-            and high-impact moments that continue to resonate with audiences.
-          </p>
-
-          <p className="mt-4 leading-8 text-white/60">
-            From performances and atmosphere to action, drama, and visual design,
-            this title stands out as one of the most talked-about entertainment
-            experiences currently featured on CineVault.
           </p>
       </section> 
 
@@ -643,11 +625,15 @@ export async function generateMetadata({
     const tvTitle = tv.name || tv.original_name || "TV Show";
     const year = tv.first_air_date?.slice(0, 4) || "";
     const displayTitle = `${tvTitle}${year ? ` (${year})` : ""}`;
-    const pageTitle = `${displayTitle} TV Series`;
+    const pageTitle = `${displayTitle} — Cast, Seasons & Where to Watch`;
+
+    const seoIntro =
+      `Explore ${displayTitle}: cast, seasons, episodes, trailer, ratings ` +
+      `and where to watch on CineVault.`;
 
     const fullDescription = tv.overview?.trim()
-      ? `${tv.overview.trim()} Explore the cast, seasons, episodes, trailers, ratings and where to watch.`
-      : `Discover ${displayTitle}, including its cast, seasons, episodes, trailers, ratings and where to watch on CineVault.`;
+      ? `${seoIntro} ${tv.overview.trim()}`
+      : seoIntro;
 
     const description =
       fullDescription.length > 160
@@ -668,6 +654,11 @@ export async function generateMetadata({
     return {
       title: pageTitle,
       description,
+
+      robots: {
+        index: true,
+        follow: true,
+      },
 
       alternates: {
         canonical,
