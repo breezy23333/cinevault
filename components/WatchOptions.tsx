@@ -9,6 +9,7 @@ type Provider = {
 };
 
 type WatchData = {
+  link?: string;
   flatrate?: Provider[];
   rent?: Provider[];
   buy?: Provider[];
@@ -17,12 +18,28 @@ type WatchData = {
 function getProviderUrl(
   providerName: string,
   title: string,
-  country: string
+  country: string,
+  watchUrl?: string
 ) {
   const provider = providerName.toLowerCase();
   const query = encodeURIComponent(title.trim());
   const region = country.toLowerCase();
   const locale = `en-${region}`;
+
+  if (
+    provider.includes("apple tv store") ||
+    provider.includes("google play") ||
+    provider.includes("google tv") ||
+    provider.includes("microsoft") ||
+    provider.includes("xbox")
+  ) {
+    return (
+      watchUrl ||
+      `https://www.google.com/search?q=${encodeURIComponent(
+        `${title} ${providerName} ${country}`
+      )}`
+    );
+  }
 
   if (provider.includes("apple tv")) {
     return `https://tv.apple.com/search?term=${query}`;
@@ -83,11 +100,13 @@ function ProviderRow({
   title,
   providers,
   country,
+  watchUrl,
 }: {
   label: string;
   title: string;
   providers?: Provider[];
   country: string;
+  watchUrl?: string;
 }) {
   if (!providers || providers.length === 0) return null;
 
@@ -99,7 +118,12 @@ function ProviderRow({
         {providers.map((provider) => (
           <a
             key={provider.provider_id}
-            href={getProviderUrl(provider.provider_name, title, country)}
+            href={getProviderUrl(
+              provider.provider_name,
+              title,
+              country,
+              watchUrl
+            )}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${provider.provider_name} and search for ${title}`}
@@ -171,6 +195,7 @@ export default function WatchOptions({
             title={title}
             providers={watchData?.flatrate}
             country={country}
+            watchUrl={watchData?.link}
           />
 
           <ProviderRow
@@ -178,6 +203,7 @@ export default function WatchOptions({
             title={title}
             providers={watchData?.rent}
             country={country}
+            watchUrl={watchData?.link}
           />
 
           <ProviderRow
@@ -185,6 +211,7 @@ export default function WatchOptions({
             title={title}
             providers={watchData?.buy}
             country={country}
+            watchUrl={watchData?.link}
           />
         </>
       ) : (
