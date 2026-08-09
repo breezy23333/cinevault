@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy | CineVault",
+  title: "Cookie Policy | CINRYVAN",
   description:
-    "Learn how CineVault uses cookies, browser storage, analytics, personalization, and related technologies.",
+    "Learn how CINRYVAN uses cookies, browser storage, analytics, personalization, and related technologies.",
   keywords: [
     "cookie policy",
-    "CineVault cookies",
+    "CINRYVAN cookies",
     "website cookies",
     "browser storage",
     "privacy",
@@ -16,19 +16,19 @@ export const metadata: Metadata = {
     canonical: "/cookies",
   },
   openGraph: {
-    title: "Cookie Policy | CineVault",
+    title: "Cookie Policy | CINRYVAN",
     description:
-      "Understand how CineVault uses cookies and browser storage technologies.",
+      "Understand how CINRYVAN uses cookies and browser storage technologies.",
     url: "/cookies",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cookie Policy | CineVault",
+    title: "Cookie Policy | CINRYVAN",
     description:
-      "Learn how CineVault uses cookies, analytics, and browser storage.",
+      "Learn how CINRYVAN uses cookies, analytics, and browser storage.",
     images: ["/og-image.png"],
   },
 };
@@ -38,8 +38,8 @@ const policyJsonLd = {
   "@type": "WebPage",
   name: "Cookie Policy",
   description:
-    "Learn how CineVault uses cookies, browser storage, analytics, and personalization technologies.",
-  url: "https://cinevault-tau-drab.vercel.app/cookies",
+    "Learn how CINRYVAN uses cookies, browser storage, analytics, and personalization technologies.",
+  url: "https://cinryvan.vercel.app/cookies",
 };
 
 export default function CookiesPage() {
@@ -57,7 +57,7 @@ export default function CookiesPage() {
         {/* Header */}
         <div className="mb-14">
           <p className="text-yellow-400 uppercase tracking-[0.35em] text-sm font-bold">
-            CineVault
+            CINRYVAN
           </p>
 
           <h1 className="mt-4 text-5xl font-black tracking-tight bg-gradient-to-r from-yellow-400 to-yellow-100 bg-clip-text text-transparent">
@@ -65,7 +65,7 @@ export default function CookiesPage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg text-white/70 leading-relaxed">
-            This Cookie Policy explains how CineVault uses cookies,
+            This Cookie Policy explains how CINRYVAN uses cookies,
             browser storage, and related technologies to improve
             platform functionality, personalization, analytics,
             and entertainment discovery experiences.
@@ -89,7 +89,7 @@ export default function CookiesPage() {
 
           <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
             <h2 className="text-2xl font-bold text-yellow-400">
-              How CineVault Uses Cookies
+              How CINRYVAN Uses Cookies
             </h2>
 
             <ul className="mt-4 space-y-3 text-white/70 leading-7 list-disc pl-6">
@@ -107,7 +107,7 @@ export default function CookiesPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              CineVault may use trusted third-party services such as TMDB,
+              CINRYVAN may use trusted third-party services such as TMDB,
               YouTube, analytics providers, or embedded content platforms.
               These services may use their own cookies or tracking
               technologies subject to their individual policies.
@@ -121,7 +121,7 @@ export default function CookiesPage() {
 
             <p className="mt-4 text-white/70 leading-8">
               You can manage or disable cookies through your browser
-              settings. Some CineVault features may not function correctly
+              settings. Some CINRYVAN features may not function correctly
               if cookies or local storage are disabled.
             </p>
           </section>
@@ -132,7 +132,7 @@ export default function CookiesPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              This Cookie Policy may be updated periodically as CineVault
+              This Cookie Policy may be updated periodically as CINRYVAN
               evolves and introduces new features or technologies.
             </p>
           </section>

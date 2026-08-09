@@ -5,13 +5,13 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export const runtime = "nodejs";
 
 const ALLOWED_ROOMS = new Set([
-  "cinevault:movie:general",
-  "cinevault:tv:general",
-  "cinevault:anime:general",
-  "cinevault:cartoons:general",
-  "cinevault:spoilers:general",
-  "cinevault:news:general",
-  "cinevault:gaming:general",
+  "cinryvan:movie:general",
+  "cinryvan:tv:general",
+  "cinryvan:anime:general",
+  "cinryvan:cartoons:general",
+  "cinryvan:spoilers:general",
+  "cinryvan:news:general",
+  "cinryvan:gaming:general",
 ]);
 
 export async function POST(req: NextRequest) {
@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
     }
 
     const userId =
-      req.cookies.get("cinevault_user_id")?.value ||
-      req.cookies.get("cinevault_user")?.value;
+      req.cookies.get("cinryvan_user_id")?.value ||
+      req.cookies.get("cinryvan_user")?.value;
 
     if (!userId) {
       return NextResponse.json(
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     const username = (
       user.name ||
       user.email?.split("@")[0] ||
-      "CineVault Member"
+      "CINRYVAN Member"
     )
       .trim()
       .slice(0, 40);

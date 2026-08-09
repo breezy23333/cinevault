@@ -51,8 +51,8 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 7,
     };
 
-    res.cookies.set("cinevault_user", user.id, cookieOptions);
-    res.cookies.set("cinevault_user_id", user.id, cookieOptions);
+    res.cookies.set("cinryvan_user", user.id, cookieOptions);
+    res.cookies.set("cinryvan_user_id", user.id, cookieOptions);
 
     return res;
   } catch (error: any) {

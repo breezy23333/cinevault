@@ -6,9 +6,9 @@ export const revalidate = 120;
 const MAX_SHELF = 60;
 
 export const metadata: Metadata = {
-  title: "Best Cartoons & Animated Shows | CineVault",
+  title: "Best Cartoons & Animated Shows | CINRYVAN",
   description:
-    "Discover classic cartoons, animated adventures, family favorites, trending animated series, and cartoon worlds on CineVault.",
+    "Discover classic cartoons, animated adventures, family favorites, trending animated series, and cartoon worlds on CINRYVAN.",
   keywords: [
     "cartoons",
     "animated shows",
@@ -18,32 +18,32 @@ export const metadata: Metadata = {
     "trending cartoons",
     "classic cartoons",
     "animated series",
-    "CineVault cartoons",
+    "CINRYVAN cartoons",
   ],
   alternates: {
     canonical: "/cartoons",
   },
   openGraph: {
-    title: "Best Cartoons & Animated Shows | CineVault",
+    title: "Best Cartoons & Animated Shows | CINRYVAN",
     description:
-      "Explore classic cartoons, animated shows, family favorites, and trending animated entertainment on CineVault.",
+      "Explore classic cartoons, animated shows, family favorites, and trending animated entertainment on CINRYVAN.",
     url: "/cartoons",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CineVault Cartoons",
+        alt: "CINRYVAN Cartoons",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Cartoons & Animated Shows | CineVault",
+    title: "Best Cartoons & Animated Shows | CINRYVAN",
     description:
-      "Discover classic cartoons, animated shows, family favorites, and trending animation on CineVault.",
+      "Discover classic cartoons, animated shows, family favorites, and trending animation on CINRYVAN.",
     images: ["/og-image.png"],
   },
 };
@@ -90,13 +90,13 @@ export default async function CartoonsPage({
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://cinevault-tau-drab.vercel.app",
+      item: "https://cinryvan.vercel.app",
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "Cartoons",
-      item: "https://cinevault-tau-drab.vercel.app/cartoons",
+      item: "https://cinryvan.vercel.app/cartoons",
     },
   ],
 };
@@ -106,12 +106,12 @@ const collectionJsonLd = {
   "@type": "CollectionPage",
   name: "Best Cartoons & Animated Shows",
   description:
-    "Discover classic cartoons, animated adventures, family favorites, trending animated series, and cartoon worlds on CineVault.",
-  url: "https://cinevault-tau-drab.vercel.app/cartoons",
+    "Discover classic cartoons, animated adventures, family favorites, trending animated series, and cartoon worlds on CINRYVAN.",
+  url: "https://cinryvan.vercel.app/cartoons",
   isPartOf: {
     "@type": "WebSite",
-    name: "CineVault",
-    url: "https://cinevault-tau-drab.vercel.app",
+    name: "CINRYVAN",
+    url: "https://cinryvan.vercel.app",
   },
 };
 
@@ -142,7 +142,7 @@ const collectionJsonLd = {
       >
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e131f] via-black/70 to-black/20" />
         <div className="relative z-10 max-w-2xl pb-12">
-          <p className="text-yellow-400 font-bold mb-2">CineVault Animation</p>
+          <p className="text-yellow-400 font-bold mb-2">CINRYVAN Animation</p>
           <h1 className="text-5xl md:text-7xl font-black mb-4">Cartoons</h1>
           <p className="text-white/70 text-lg">
             Discover animated comedy, family shows, classic cartoons, and modern animated worlds.

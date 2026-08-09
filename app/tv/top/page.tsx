@@ -6,8 +6,8 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Top Rated TV Shows | CineVault",
-  description: "Explore the highest rated TV shows on CineVault.",
+  title: "Top Rated TV Shows | CINRYVAN",
+  description: "Explore the highest rated TV shows on CINRYVAN.",
 };
 
 export default async function TopRatedTvPage({

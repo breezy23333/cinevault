@@ -16,23 +16,23 @@ export async function generateMetadata({
   const title = topics[topic] || "Gaming News";
 
   return {
-    title: `${title} News | CineVault`,
-    description: `Read the latest ${title.toLowerCase()} news, gaming updates, releases, console stories, PC gaming news, and mobile gaming headlines on CineVault.`,
+    title: `${title} News | CINRYVAN`,
+    description: `Read the latest ${title.toLowerCase()} news, gaming updates, releases, console stories, PC gaming news, and mobile gaming headlines on CINRYVAN.`,
     alternates: {
       canonical: `/news/gaming/${topic}`,
     },
     openGraph: {
-      title: `${title} News | CineVault`,
+      title: `${title} News | CINRYVAN`,
       description: `Latest ${title.toLowerCase()} headlines and gaming updates.`,
       url: `/news/gaming/${topic}`,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       images: ["/og-image.png"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} News | CineVault`,
-      description: `Read the latest ${title.toLowerCase()} news on CineVault.`,
+      title: `${title} News | CINRYVAN`,
+      description: `Read the latest ${title.toLowerCase()} news on CINRYVAN.`,
       images: ["/og-image.png"],
     },
   };
@@ -57,7 +57,7 @@ export default async function GamingTopicPage({
   "@type": "CollectionPage",
   name: `${title} News`,
   description: `Latest ${title.toLowerCase()} headlines and gaming updates.`,
-  url: `https://cinevault-tau-drab.vercel.app/news/gaming/${topic}`,
+  url: `https://cinryvan.vercel.app/news/gaming/${topic}`,
 };
 
   return (

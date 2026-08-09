@@ -26,7 +26,7 @@ const CATS: { label: string; id: number; hue: string }[] = [
 </div>
 
 export const metadata: Metadata = {
-  title: "Movie Categories & Genres | CineVault",
+  title: "Movie Categories & Genres | CINRYVAN",
   description:
     "Browse movies and TV shows by genre including Action, Comedy, Drama, Horror, Sci-Fi, Romance, Fantasy, Thriller, and more.",
   keywords: [
@@ -39,30 +39,30 @@ export const metadata: Metadata = {
     "science fiction movies",
     "fantasy movies",
     "thriller movies",
-    "CineVault genres",
+    "CINRYVAN genres",
   ],
   alternates: {
     canonical: "/categories",
   },
   openGraph: {
-    title: "Movie Categories & Genres | CineVault",
+    title: "Movie Categories & Genres | CINRYVAN",
     description:
-      "Explore movies and TV shows by genre on CineVault.",
+      "Explore movies and TV shows by genre on CINRYVAN.",
     url: "/categories",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CineVault Categories",
+        alt: "CINRYVAN Categories",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Movie Categories & Genres | CineVault",
+    title: "Movie Categories & Genres | CINRYVAN",
     description:
       "Browse Action, Comedy, Drama, Horror, Sci-Fi, Fantasy and more.",
     images: ["/og-image.png"],
@@ -75,7 +75,7 @@ const collectionJsonLd = {
   name: "Movie Categories & Genres",
   description:
     "Browse movies and TV shows by genre including Action, Comedy, Drama, Horror, Sci-Fi, Romance, Fantasy, and Thriller.",
-  url: "https://cinevault-tau-drab.vercel.app/categories",
+  url: "https://cinryvan.vercel.app/categories",
 };
 
 export default function CategoriesPage() {

@@ -6,8 +6,8 @@ async function getUserId() {
   const cookieStore = await cookies();
 
   return (
-    cookieStore.get("cinevault_user")?.value ||
-    cookieStore.get("cinevault_user_id")?.value ||
+    cookieStore.get("cinryvan_user")?.value ||
+    cookieStore.get("cinryvan_user_id")?.value ||
     null
   );
 }

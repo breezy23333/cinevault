@@ -51,7 +51,7 @@ export default function LoginPage() {
       }
 
       setSuccess(true);
-      localStorage.setItem("cinevault_user", JSON.stringify(data.user));
+      localStorage.setItem("cinryvan_user", JSON.stringify(data.user));
 
       setTimeout(() => {
         window.location.assign("/");
@@ -86,7 +86,7 @@ export default function LoginPage() {
       <section className="relative z-10 mx-auto grid min-h-screen max-w-7xl items-center gap-10 px-4 py-28 md:px-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.55em] text-yellow-300">
-            CineVault Access
+            CINRYVAN Access
           </p>
 
           <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.95] md:text-7xl">
@@ -134,7 +134,7 @@ export default function LoginPage() {
             Welcome Back
           </p>
 
-          <h2 className="text-4xl font-black">Enter CineVault</h2>
+          <h2 className="text-4xl font-black">Enter CINRYVAN</h2>
 
           <p className="mt-3 text-white/60">
             Log in to save titles, continue your watchlist, and track what you love.
@@ -173,10 +173,10 @@ export default function LoginPage() {
               className="w-full rounded-2xl bg-yellow-400 px-4 py-4 font-black text-black shadow-[0_0_35px_rgba(250,204,21,0.25)] transition hover:bg-yellow-300 disabled:opacity-60"
             >
               {success
-                ? "Opening CineVault..."
+                ? "Opening CINRYVAN..."
                 : loading
                 ? "Logging in..."
-                : "Enter CineVault"}
+                : "Enter CINRYVAN"}
             </button>
           </div>
 

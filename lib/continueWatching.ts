@@ -8,7 +8,7 @@ export type ContinueItem = {
   watched_at: string;
 };
 
-const KEY = "cinevault_continue_watching";
+const KEY = "cinryvan_continue_watching";
 
 export function getContinueWatching(): ContinueItem[] {
   if (typeof window === "undefined") return [];

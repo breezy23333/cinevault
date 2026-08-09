@@ -11,13 +11,13 @@ import {
 
 export const revalidate = 86400;
 
-const SITE_URL = "https://cinevault-tau-drab.vercel.app";
+const SITE_URL = "https://cinryvan.vercel.app";
 
 const gamesTitle =
-  "Gaming | Games, Ratings & Where to Play | CineVault";
+  "Gaming | Games, Ratings & Where to Play | CINRYVAN";
 
 const gamesDescription =
-  "Discover popular games, new releases, top-rated titles, upcoming games, esports, racing, RPGs, horror games, platforms, ratings and where to play them on CineVault.";
+  "Discover popular games, new releases, top-rated titles, upcoming games, esports, racing, RPGs, horror games, platforms, ratings and where to play them on CINRYVAN.";
 
 export const metadata: Metadata = {
   title: gamesTitle,
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     "racing games",
     "esports",
     "game ratings",
-    "CineVault Gaming",
+    "CINRYVAN Gaming",
   ],
 
   alternates: {
@@ -47,14 +47,14 @@ export const metadata: Metadata = {
     title: gamesTitle,
     description: gamesDescription,
     url: `${SITE_URL}/games`,
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     type: "website",
     images: [
       {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "Discover games on CineVault",
+        alt: "Discover games on CINRYVAN",
       },
     ],
   },
@@ -220,12 +220,12 @@ export default async function GamesPage() {
     "@type": "CollectionPage",
     name: "Games",
     description:
-      "Browse popular, new, upcoming and top-rated video games on CineVault.",
-    url: "https://cinevault-tau-drab.vercel.app/games",
+      "Browse popular, new, upcoming and top-rated video games on CINRYVAN.",
+    url: "https://cinryvan.vercel.app/games",
     isPartOf: {
       "@type": "WebSite",
-      name: "CineVault",
-      url: "https://cinevault-tau-drab.vercel.app",
+      name: "CINRYVAN",
+      url: "https://cinryvan.vercel.app",
     },
   };
 
@@ -241,7 +241,7 @@ export default async function GamesPage() {
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <header className="py-10 md:py-14">
           <p className="text-xs font-black uppercase tracking-[0.4em] text-yellow-400">
-            CineVault Gaming
+            CINRYVAN Gaming
           </p>
 
           <h1 className="mt-5 text-5xl font-black leading-none md:text-7xl lg:text-8xl">

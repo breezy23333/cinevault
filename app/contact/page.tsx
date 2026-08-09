@@ -6,33 +6,33 @@ import ContactAside from "../../components/ContactAside";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact CineVault",
+  title: "Contact CINRYVAN",
   description:
-    "Contact CineVault for support, bug reports, collaboration requests, feedback, and entertainment platform ideas.",
+    "Contact CINRYVAN for support, bug reports, collaboration requests, feedback, and entertainment platform ideas.",
   keywords: [
-    "contact CineVault",
-    "CineVault support",
+    "contact CINRYVAN",
+    "CINRYVAN support",
     "movie website contact",
-    "CineVault feedback",
-    "CineVault collaboration",
+    "CINRYVAN feedback",
+    "CINRYVAN collaboration",
   ],
   alternates: {
     canonical: "/contact",
   },
   openGraph: {
-    title: "Contact CineVault",
+    title: "Contact CINRYVAN",
     description:
-      "Get in touch with CineVault for support, feedback, bug reports, and collaboration.",
+      "Get in touch with CINRYVAN for support, feedback, bug reports, and collaboration.",
     url: "/contact",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contact CineVault",
+    title: "Contact CINRYVAN",
     description:
-      "Reach CineVault for support, feedback, bug reports, and collaboration.",
+      "Reach CINRYVAN for support, feedback, bug reports, and collaboration.",
     images: ["/og-image.png"],
   },
 };
@@ -46,7 +46,7 @@ export default function ContactPage() {
           <p className="mt-2 text-zinc-400">Home <span className="mx-2">/</span> Contact</p>
           <p className="mt-4 text-[15px] leading-7 text-zinc-300/90">
             Hey! We’re glad you’re here. Whether you’ve found a bug, want to collaborate,
-            or just have an idea to make CineVault better, drop us a message. We usually
+            or just have an idea to make CINRYVAN better, drop us a message. We usually
             reply within 24 hours (Mon–Fri).
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function ContactPage() {
         <div className="mt-10 rounded-3xl overflow-hidden border border-white/10 bg-white/[0.04] shadow-xl shadow-black/40">
           <div className="relative w-full" style={{ aspectRatio: "16 / 9" }}>
             <iframe
-              title="CineVault Map"
+              title="CINRYVAN Map"
               className="absolute inset-0 h-full w-full"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

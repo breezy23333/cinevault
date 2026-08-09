@@ -14,21 +14,21 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("cinevault_theme") || "Midnight";
+    const savedTheme = localStorage.getItem("cinryvan_theme") || "Midnight";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
-    setNotifications(localStorage.getItem("cinevault_notifications") !== "false");
+    setNotifications(localStorage.getItem("cinryvan_notifications") !== "false");
   }, []);
 
   function updateTheme(value: string) {
     setTheme(value);
-    localStorage.setItem("cinevault_theme", value);
+    localStorage.setItem("cinryvan_theme", value);
     document.documentElement.setAttribute("data-theme", value);
     }
 
   function updateNotifications(value: boolean) {
     setNotifications(value);
-    localStorage.setItem("cinevault_notifications", String(value));
+    localStorage.setItem("cinryvan_notifications", String(value));
   }
 
   return (
@@ -36,7 +36,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <div>
           <h2 className="text-lg font-black text-white">Settings</h2>
-          <p className="text-xs text-white/50">Customize your CineVault experience</p>
+          <p className="text-xs text-white/50">Customize your CINRYVAN experience</p>
         </div>
 
         <button
@@ -69,7 +69,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
         <SettingItem
           icon={<Moon size={18} />}
           title="Theme"
-          text="Change CineVault appearance"
+          text="Change CINRYVAN appearance"
         >
           <select
             value={theme}

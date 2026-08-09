@@ -39,13 +39,13 @@ const plans = [
   {
     name: "Plus",
     price: 1.99,
-    desc: "Support CineVault and enjoy a cleaner ad-free experience.",
+    desc: "Support CINRYVAN and enjoy a cleaner ad-free experience.",
     features: [
       "No ads",
       "Unlimited watchlist",
       "Continue Watching sync",
       "Early access to new features",
-      "Support CineVault",
+      "Support CINRYVAN",
     ],
     button: "Upgrade to Plus",
     href: "/checkout/plus",
@@ -54,7 +54,7 @@ const plans = [
   {
     name: "Premium",
     price: 4.99,
-    desc: "Unlock the ultimate CineVault experience.",
+    desc: "Unlock the ultimate CINRYVAN experience.",
     features: [
       "Everything in Plus",
       "AI recommendations",
@@ -88,7 +88,7 @@ export default function StorePage() {
     <main className="mx-auto max-w-7xl px-6 pb-20">
       <section className="py-12">
         <p className="text-xs uppercase tracking-[0.2em] text-yellow-400">
-          CineVault Store
+          CINRYVAN Store
         </p>
 
         <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -99,7 +99,7 @@ export default function StorePage() {
 
             <p className="mt-4 max-w-2xl text-white/70">
               Choose a monthly plan. Start free, or unlock a cleaner ad-free
-              CineVault experience.
+              CINRYVAN experience.
             </p>
           </div>
 

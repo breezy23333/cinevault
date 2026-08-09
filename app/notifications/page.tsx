@@ -6,8 +6,8 @@ export const revalidate = 3600;
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
 export const metadata: Metadata = {
-  title: "Notifications | CineVault",
-  description: "View your CineVault notifications and trending alerts.",
+  title: "Notifications | CINRYVAN",
+  description: "View your CINRYVAN notifications and trending alerts.",
   robots: {
     index: false,
     follow: false,

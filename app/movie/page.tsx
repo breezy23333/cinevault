@@ -3,9 +3,9 @@ import Link from "next/link";
 import CineImage from "@/components/CineImage";
 
 export const metadata: Metadata = {
-  title: "Movies | CineVault",
+  title: "Movies | CINRYVAN",
   description:
-    "Browse popular movies, trending films, top rated cinema, upcoming releases, and movie recommendations on CineVault.",
+    "Browse popular movies, trending films, top rated cinema, upcoming releases, and movie recommendations on CINRYVAN.",
   alternates: {
     canonical: "/movie",
   },
@@ -61,7 +61,7 @@ export default async function MoviesPage({
     <main className="min-h-screen bg-[#05070d] px-6 py-24 text-white">
       <section className="mx-auto max-w-7xl">
         <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-          CineVault Movies
+          CINRYVAN Movies
         </p>
 
         <h1 className="mt-4 text-5xl font-black md:text-7xl">

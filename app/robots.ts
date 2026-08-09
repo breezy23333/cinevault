@@ -28,7 +28,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://cinevault-tau-drab.vercel.app/sitemap.xml",
-    host: "https://cinevault-tau-drab.vercel.app",
+    sitemap: "https://cinryvan.vercel.app/sitemap.xml",
+    host: "https://cinryvan.vercel.app",
   };
 }

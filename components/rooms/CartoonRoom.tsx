@@ -12,7 +12,7 @@ const cartoonChannels = [
     slug: "general",
     label: "toon-town",
     icon: "🏙️",
-    description: "The colourful centre of the CineVault cartoon community.",
+    description: "The colourful centre of the CINRYVAN cartoon community.",
   },
   {
     slug: "classics",
@@ -85,7 +85,7 @@ export default function CartoonRoom({
     cartoonChannels.find((channel) => channel.slug === activeChannel) ||
     cartoonChannels[0];
 
-  const roomKey = `cinevault:cartoons:${selectedChannel.slug}`;
+  const roomKey = `cinryvan:cartoons:${selectedChannel.slug}`;
 
   return (
     <main className="min-h-screen bg-[#07111d] pt-20 text-white">
@@ -105,7 +105,7 @@ export default function CartoonRoom({
 
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.3em]">
-                    CineVault Animation
+                    CINRYVAN Animation
                   </p>
                   <h1 className="mt-1 text-4xl font-black tracking-tight">
                     Cartoon Room!
@@ -148,7 +148,7 @@ export default function CartoonRoom({
                   return (
                     <Link
                       key={channel.slug}
-                      href={`/rooms/cinevault/cartoons?channel=${channel.slug}`}
+                      href={`/rooms/cinryvan/cartoons?channel=${channel.slug}`}
                       className={`flex items-center gap-3 rounded-2xl border-2 px-3 py-3 text-sm font-black transition ${
                         active
                           ? "border-yellow-300 bg-yellow-300 text-[#07111d] shadow-[4px_4px_0_rgba(250,204,21,0.25)]"
@@ -214,7 +214,7 @@ export default function CartoonRoom({
                 {cartoonChannels.map((channel) => (
                   <Link
                     key={channel.slug}
-                    href={`/rooms/cinevault/cartoons?channel=${channel.slug}`}
+                    href={`/rooms/cinryvan/cartoons?channel=${channel.slug}`}
                     className={`shrink-0 rounded-full px-3 py-2 text-xs font-black ${
                       channel.slug === selectedChannel.slug
                         ? "bg-yellow-300 text-[#07111d]"

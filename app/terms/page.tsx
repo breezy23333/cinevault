@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Use | CineVault",
+  title: "Terms of Use | CINRYVAN",
   description:
-    "Read the CineVault Terms of Use covering platform access, accounts, watchlists, copyright, service availability, and user responsibilities.",
+    "Read the CINRYVAN Terms of Use covering platform access, accounts, watchlists, copyright, service availability, and user responsibilities.",
   keywords: [
     "terms of use",
     "terms and conditions",
-    "CineVault terms",
+    "CINRYVAN terms",
     "user agreement",
     "watchlist terms",
     "copyright",
@@ -16,19 +16,19 @@ export const metadata: Metadata = {
     canonical: "/terms",
   },
   openGraph: {
-    title: "Terms of Use | CineVault",
+    title: "Terms of Use | CINRYVAN",
     description:
-      "Read CineVault's terms covering accounts, watchlists, copyright, and platform usage.",
+      "Read CINRYVAN's terms covering accounts, watchlists, copyright, and platform usage.",
     url: "/terms",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Terms of Use | CineVault",
+    title: "Terms of Use | CINRYVAN",
     description:
-      "Read CineVault's Terms of Use and platform policies.",
+      "Read CINRYVAN's Terms of Use and platform policies.",
     images: ["/og-image.png"],
   },
 };
@@ -38,8 +38,8 @@ const termsJsonLd = {
   "@type": "WebPage",
   name: "Terms of Use",
   description:
-    "Terms of Use governing access to and use of CineVault services.",
-  url: "https://cinevault-tau-drab.vercel.app/terms",
+    "Terms of Use governing access to and use of CINRYVAN services.",
+  url: "https://cinryvan.vercel.app/terms",
 };
 
 export default function TermsPage() {
@@ -56,7 +56,7 @@ export default function TermsPage() {
         {/* Header */}
         <div className="mb-14">
           <p className="text-yellow-400 uppercase tracking-[0.35em] text-sm font-bold">
-            CineVault
+            CINRYVAN
           </p>
 
           <h1 className="mt-4 text-5xl font-black tracking-tight bg-gradient-to-r from-yellow-400 to-yellow-100 bg-clip-text text-transparent">
@@ -64,7 +64,7 @@ export default function TermsPage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg text-white/70 leading-relaxed">
-            These Terms of Use govern your access to and use of CineVault,
+            These Terms of Use govern your access to and use of CINRYVAN,
             including movies, TV show discovery features, watchlists,
             trailers, recommendations, and related entertainment services.
           </p>
@@ -79,7 +79,7 @@ export default function TermsPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              By using CineVault, you agree to use the platform only for
+              By using CINRYVAN, you agree to use the platform only for
               lawful, personal, and informational purposes. Users may not
               misuse, disrupt, reverse engineer, or attempt unauthorized
               access to platform systems.
@@ -92,7 +92,7 @@ export default function TermsPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              CineVault does not host or distribute copyrighted movies,
+              CINRYVAN does not host or distribute copyrighted movies,
               episodes, or premium streaming content directly. Posters,
               trailers, ratings, and metadata belong to their respective
               owners and providers.
@@ -111,7 +111,7 @@ export default function TermsPage() {
 
             <p className="mt-4 text-white/70 leading-8">
               Users are responsible for maintaining the security of their
-              accounts and personal watchlists. CineVault reserves the right
+              accounts and personal watchlists. CINRYVAN reserves the right
               to suspend accounts involved in abuse, spam, or malicious
               activity.
             </p>
@@ -123,7 +123,7 @@ export default function TermsPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              CineVault may update, modify, or temporarily suspend features
+              CINRYVAN may update, modify, or temporarily suspend features
               as the platform evolves. We do not guarantee uninterrupted
               availability of all services or third-party integrations.
             </p>
@@ -135,7 +135,7 @@ export default function TermsPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              CineVault is provided “as is” without warranties of any kind.
+              CINRYVAN is provided “as is” without warranties of any kind.
               We are not responsible for external websites, third-party
               services, or content linked through the platform.
             </p>
@@ -147,7 +147,7 @@ export default function TermsPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              These terms may evolve as CineVault expands. Continued use of
+              These terms may evolve as CINRYVAN expands. Continued use of
               the platform after updates means you accept the revised terms.
             </p>
           </section>

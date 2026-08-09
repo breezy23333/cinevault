@@ -6,9 +6,9 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Popular TV Shows | CineVault",
+  title: "Popular TV Shows | CINRYVAN",
   description:
-    "Discover the most popular TV shows streaming right now on CineVault.",
+    "Discover the most popular TV shows streaming right now on CINRYVAN.",
 };
 
 export default async function PopularTvPage({

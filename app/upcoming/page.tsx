@@ -84,8 +84,8 @@ export default async function UpcomingPage({
     "@type": "CollectionPage",
     name: "Upcoming Movies, TV Series & Animation",
     description:
-      "Discover upcoming movies, TV series, anime, cartoons, and animated releases before they arrive on CineVault.",
-    url: "https://cinevault-tau-drab.vercel.app/upcoming",
+      "Discover upcoming movies, TV series, anime, cartoons, and animated releases before they arrive on CINRYVAN.",
+    url: "https://cinryvan.vercel.app/upcoming",
   };
 
   return (
@@ -99,7 +99,7 @@ export default async function UpcomingPage({
       <div className="mx-auto max-w-[1500px] space-y-10">
         <section className="rounded-[34px] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/10 via-white/[0.04] to-blue-500/10 p-8">
           <p className="text-xs font-black uppercase tracking-[0.4em] text-yellow-400">
-            CineVault Future Radar
+            CINRYVAN Future Radar
           </p>
           <h1 className="mt-3 text-4xl font-black md:text-6xl">
             Upcoming Movies, TV Series & Animation

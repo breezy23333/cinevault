@@ -5,8 +5,8 @@ export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   const userId =
-    req.cookies.get("cinevault_user")?.value ||
-    req.cookies.get("cinevault_user_id")?.value;
+    req.cookies.get("cinryvan_user")?.value ||
+    req.cookies.get("cinryvan_user_id")?.value;
 
   const protectedRoutes = ["/watchlist", "/notifications", "/rooms"];
   const authRoutes = ["/login", "/signup"];

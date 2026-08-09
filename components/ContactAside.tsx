@@ -14,7 +14,7 @@ export default function ContactAside() {
         <InfoItem
           icon={<Mail className="h-5 w-5" />}
           title="Email Information"
-          value={<Link href="mailto:support@cinevault.app" className="hover:underline">support@cinevault.app</Link>}
+          value={<Link href="mailto:support@cinryvan.app" className="hover:underline">support@cinryvan.app</Link>}
         />
         <InfoItem
           icon={<Phone className="h-5 w-5" />}

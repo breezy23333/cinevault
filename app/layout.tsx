@@ -2,43 +2,43 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
-import CineVaultIntro from "@/components/CineVaultIntro";
+import CinryvanIntro from "@/components/CinryvanIntro";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import JsonLd from "@/components/JsonLd";
 import { Analytics } from "@vercel/analytics/next";
 
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cinevault-tau-drab.vercel.app"),
+  metadataBase: new URL("https://cinryvan.vercel.app"),
   
   title: {
-    default: "CineVault – Movies, TV Shows, Anime & Cartoons",
-    template: "%s | CineVault",
+    default: "CINRYVAN – Movies, TV Shows, Anime & Cartoons",
+    template: "%s",
   },
   description:
-    "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.",
+    "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CINRYVAN. Explore ratings, casts, watch options, and cinematic discoveries.",
   openGraph: {
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CineVault - Discover movies and shows",
+        alt: "CINRYVAN - Discover movies and shows",
       },
     ],
-    title: "CineVault – Movies, TV Shows, Anime & Cartoons",
+    title: "CINRYVAN – Movies, TV Shows, Anime & Cartoons",
     description:
-      "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.",
+      "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CINRYVAN. Explore ratings, casts, watch options, and cinematic discoveries.",
     
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     type: "website",
   },
   twitter: {
     images: ["/og-image.png"],
     card: "summary_large_image",
-    title: "CineVault – Movies, TV Shows, Anime & Cartoons",
+    title: "CINRYVAN – Movies, TV Shows, Anime & Cartoons",
     description:
-      "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.",
+      "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CINRYVAN. Explore ratings, casts, watch options, and cinematic discoveries.",
   },
 };
 
@@ -47,21 +47,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 return (
   <html lang="en">
     <body className="bg-[#05070d] text-white">
-      <CineVaultIntro />
+      <CinryvanIntro />
       <AppShell>{children}</AppShell>
 
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "CineVault",
-          url: "https://cinevault-tau-drab.vercel.app",
+          name: "CINRYVAN",
+          url: "https://cinryvan.vercel.app",
           description:
-            "CineVault helps you discover movies, TV shows, anime, cartoons, trending titles, top-rated content, and entertainment news.",
+            "CINRYVAN helps you discover movies, TV shows, anime, cartoons, trending titles, top-rated content, and entertainment news.",
           potentialAction: {
             "@type": "SearchAction",
             target:
-              "https://cinevault-tau-drab.vercel.app/search?q={search_term_string}",
+              "https://cinryvan.vercel.app/search?q={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         }}
@@ -71,9 +71,9 @@ return (
         data={{
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "CineVault",
-          url: "https://cinevault-tau-drab.vercel.app",
-          logo: "https://cinevault-tau-drab.vercel.app/og-image.png",
+          name: "CINRYVAN",
+          url: "https://cinryvan.vercel.app",
+          logo: "https://cinryvan.vercel.app/og-image.png",
           sameAs: [],
         }}
       />

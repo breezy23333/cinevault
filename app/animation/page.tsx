@@ -8,7 +8,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Animation Movies & Shows",
   description:
-    "Discover anime, cartoons, animated movies, family adventures, fantasy worlds, and top animated entertainment on CineVault.",
+    "Discover anime, cartoons, animated movies, family adventures, fantasy worlds, and top animated entertainment on CINRYVAN.",
   alternates: {
     canonical: "/animation",
   },
@@ -39,7 +39,7 @@ export default async function AnimationPage() {
 
         <div className="relative z-10 mx-auto max-w-6xl">
           <p className="text-sm font-bold uppercase tracking-[0.35em] text-yellow-400">
-            CineVault Animation
+            CINRYVAN Animation
           </p>
 
           <h1 className="mt-4 max-w-4xl text-4xl font-black md:text-7xl">

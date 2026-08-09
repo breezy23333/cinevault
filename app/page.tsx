@@ -38,11 +38,11 @@ export const runtime = "nodejs";
 export const revalidate = 3600;
 
 const homeDescription =
-  "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CineVault. Explore ratings, casts, watch options, and cinematic discoveries.";
+  "Discover trending movies, TV shows, anime, cartoons, games, trailers, and entertainment news on CINRYVAN. Explore ratings, casts, watch options, and cinematic discoveries.";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "CineVault – Movies, TV Shows, Anime, Cartoons & Games",
+    absolute: "CINRYVAN – Movies, TV Shows, Anime, Cartoons & Games",
   },
   description: homeDescription,
 
@@ -51,24 +51,24 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "CineVault – Movies, TV Shows, Anime, Cartoons & Games",
+    title: "CINRYVAN – Movies, TV Shows, Anime, Cartoons & Games",
     description: homeDescription,
     url: "/",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     type: "website",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CineVault – Discover movies, shows, animation and games",
+        alt: "CINRYVAN – Discover movies, shows, animation and games",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "CineVault – Movies, TV Shows, Anime, Cartoons & Games",
+    title: "CINRYVAN – Movies, TV Shows, Anime, Cartoons & Games",
     description: homeDescription,
     images: ["/og-image.png"],
   },
@@ -421,7 +421,7 @@ const oscarShelf = await Promise.all(
             <div className="mb-4 flex items-center justify-between px-2">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.35em] text-yellow-400">
-                  CineVault System
+                  CINRYVAN System
                 </p>
                 <h1 className="mt-2 text-2xl font-black md:text-4xl">
                   Explore worlds beyond cinema
@@ -866,7 +866,7 @@ function FeatureBreak({ title, text }: { title: string; text: string }) {
     <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-r from-yellow-400/10 via-white/[0.04] to-blue-500/10 p-6 backdrop-blur-xl md:p-8">
       <div className="absolute right-8 top-1/2 hidden h-28 w-28 -translate-y-1/2 rounded-full border border-yellow-400/20 shadow-[0_0_60px_rgba(255,184,0,0.25)] md:block" />
       <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-        CineVault Layer
+        CINRYVAN Layer
       </p>
       <h2 className="mt-2 text-2xl font-black md:text-4xl">{title}</h2>
       <p className="mt-2 max-w-2xl text-sm text-white/60 md:text-base">{text}</p>

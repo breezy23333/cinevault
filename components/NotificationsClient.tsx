@@ -17,7 +17,7 @@ const notifications: Notification[] = [
   {
     id: "trending-movies",
     title: "Trending movies updated",
-    message: "Fresh trending movies are now available on CineVault.",
+    message: "Fresh trending movies are now available on CINRYVAN.",
     time: "Today",
     href: "/trending",
     type: "trending",
@@ -33,7 +33,7 @@ const notifications: Notification[] = [
   {
     id: "new-episode-alerts",
     title: "New episode alerts coming online",
-    message: "CineVault will notify you when tracked TV shows release new episodes.",
+    message: "CINRYVAN will notify you when tracked TV shows release new episodes.",
     time: "Beta",
     href: "/tv",
     type: "episode",
@@ -72,20 +72,20 @@ export default function NotificationsClient({
   const [readIds, setReadIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("cinevault-read-notifications");
+    const saved = localStorage.getItem("cinryvan-read-notifications");
     if (saved) setReadIds(JSON.parse(saved));
   }, []);
 
   function markAsRead(id: string) {
     const next = Array.from(new Set([...readIds, id]));
     setReadIds(next);
-    localStorage.setItem("cinevault-read-notifications", JSON.stringify(next));
+    localStorage.setItem("cinryvan-read-notifications", JSON.stringify(next));
   }
 
   function markAllAsRead() {
     const allIds = allNotifications.map((n) => n.id);
     setReadIds(allIds);
-    localStorage.setItem("cinevault-read-notifications", JSON.stringify(allIds));
+    localStorage.setItem("cinryvan-read-notifications", JSON.stringify(allIds));
   }
 
   const allNotifications = [...tmdbNotifications, ...notifications];
@@ -103,7 +103,7 @@ export default function NotificationsClient({
           <div>
             <h1 className="text-4xl font-black">Notifications</h1>
             <p className="mt-3 max-w-2xl text-white/65">
-              You have {unreadCount} unread CineVault updates.
+              You have {unreadCount} unread CINRYVAN updates.
             </p>
           </div>
 

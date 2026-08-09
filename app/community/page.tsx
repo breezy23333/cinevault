@@ -2,24 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Community | CineVault",
+  title: "Community | CINRYVAN",
   description:
-    "Join the CineVault community to discuss movies, TV shows, anime, cartoons, reviews, recommendations, and entertainment news.",
+    "Join the CINRYVAN community to discuss movies, TV shows, anime, cartoons, reviews, recommendations, and entertainment news.",
   alternates: {
     canonical: "/community",
   },
   openGraph: {
-    title: "Community | CineVault",
+    title: "Community | CINRYVAN",
     description:
-      "Connect with movie fans, anime lovers, and entertainment enthusiasts on CineVault.",
+      "Connect with movie fans, anime lovers, and entertainment enthusiasts on CINRYVAN.",
     url: "/community",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Community | CineVault",
+    title: "Community | CINRYVAN",
     description: "Discuss movies, TV shows, anime, cartoons, and entertainment.",
     images: ["/og-image.png"],
   },
@@ -62,10 +62,10 @@ export default function CommunityPage() {
   const communityJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "CineVault Community",
+    name: "CINRYVAN Community",
     description:
       "Movie discussions, reviews, recommendations, anime, TV shows, cartoons, and entertainment conversations.",
-    url: "https://cinevault-tau-drab.vercel.app/community",
+    url: "https://cinryvan.vercel.app/community",
   };
 
   return (
@@ -80,11 +80,11 @@ export default function CommunityPage() {
       <section className="mx-auto max-w-6xl">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-yellow-400/[0.08] p-8 md:p-12">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-            CineVault Social Hub
+            CINRYVAN Social Hub
           </p>
 
           <h1 className="mt-4 max-w-4xl text-5xl font-black md:text-7xl">
-            Join the CineVault Community
+            Join the CINRYVAN Community
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/65">

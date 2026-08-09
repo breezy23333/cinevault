@@ -76,7 +76,7 @@ export default async function PersonPage({ params }: PageProps) {
 
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-            CineVault Person
+            CINRYVAN Person
           </p>
 
           <h1 className="mt-2 text-4xl font-black text-white md:text-6xl">
@@ -195,7 +195,7 @@ export async function generateMetadata({
     const pageTitle = `${name} — Biography, Movies & Filmography`;
     const intro =
       `Explore ${name}'s biography, movies, birthday, birthplace ` +
-      `and filmography on CineVault.`;
+      `and filmography on CINRYVAN.`;
 
     const fullDescription = person.biography?.trim()
       ? `${intro} ${person.biography.trim()}`
@@ -209,11 +209,11 @@ export async function generateMetadata({
         : fullDescription;
 
     const canonical =
-      `https://cinevault-tau-drab.vercel.app/person/${personId}`;
+      `https://cinryvan.vercel.app/person/${personId}`;
 
     const image = person.profile_path
       ? `https://image.tmdb.org/t/p/w780${person.profile_path}`
-      : "https://cinevault-tau-drab.vercel.app/og-image.png";
+      : "https://cinryvan.vercel.app/og-image.png";
 
     return {
       title: pageTitle,
@@ -226,16 +226,16 @@ export async function generateMetadata({
         canonical,
       },
       openGraph: {
-        title: `${pageTitle} | CineVault`,
+        title: `${pageTitle} | CINRYVAN`,
         description,
         url: canonical,
-        siteName: "CineVault",
+        siteName: "CINRYVAN",
         images: [{ url: image, alt: name }],
         type: "profile",
       },
       twitter: {
         card: "summary_large_image",
-        title: `${pageTitle} | CineVault`,
+        title: `${pageTitle} | CINRYVAN`,
         description,
         images: [image],
       },

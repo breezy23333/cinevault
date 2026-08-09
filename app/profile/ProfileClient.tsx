@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function ProfileClient() {
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    localStorage.removeItem("cinevault_user");
+    localStorage.removeItem("cinryvan_user");
     window.location.href = "/login";
   }
 
@@ -15,7 +15,7 @@ export default function ProfileClient() {
       <section className="mx-auto max-w-6xl">
         <div className="rounded-[2rem] border border-yellow-400/20 bg-gradient-to-br from-white/[0.08] to-white/[0.03] p-8 shadow-[0_0_80px_rgba(250,204,21,0.08)]">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-            CineVault Account
+            CINRYVAN Account
           </p>
 
           <div className="mt-6 flex items-center gap-5">

@@ -54,7 +54,7 @@ const gamingChannels = [
     slug: "looking-for-group",
     label: "looking-for-group",
     icon: "🎧",
-    description: "Find other CineVault members to play with.",
+    description: "Find other CINRYVAN members to play with.",
   },
 ];
 
@@ -74,7 +74,7 @@ export default function GamingRoom({
     gamingChannels.find((channel) => channel.slug === activeChannel) ||
     gamingChannels[0];
 
-  const roomKey = `cinevault:gaming:${selectedChannel.slug}`;
+  const roomKey = `cinryvan:gaming:${selectedChannel.slug}`;
 
   return (
     <main className="min-h-screen bg-[#08070b] pt-20 text-white">
@@ -89,7 +89,7 @@ export default function GamingRoom({
 
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-purple-300">
-                  CineVault Live
+                  CINRYVAN Live
                 </p>
                 <h1 className="font-black">Gaming Room</h1>
               </div>
@@ -140,7 +140,7 @@ export default function GamingRoom({
                   return (
                     <Link
                       key={channel.slug}
-                      href={`/rooms/cinevault/gaming?channel=${channel.slug}`}
+                      href={`/rooms/cinryvan/gaming?channel=${channel.slug}`}
                       className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition ${
                         active
                           ? "bg-purple-500/20 text-purple-100"
@@ -215,7 +215,7 @@ export default function GamingRoom({
                 {gamingChannels.map((channel) => (
                   <Link
                     key={channel.slug}
-                    href={`/rooms/cinevault/gaming?channel=${channel.slug}`}
+                    href={`/rooms/cinryvan/gaming?channel=${channel.slug}`}
                     className={`shrink-0 rounded-lg px-3 py-2 text-xs font-bold ${
                       channel.slug === selectedChannel.slug
                         ? "bg-purple-500 text-white"

@@ -73,7 +73,7 @@ export default function AnimeRoom({
     animeChannels.find((channel) => channel.slug === activeChannel) ||
     animeChannels[0];
 
-  const roomKey = `cinevault:anime:${selectedChannel.slug}`;
+  const roomKey = `cinryvan:anime:${selectedChannel.slug}`;
 
   return (
     <main className="min-h-screen bg-[#06040d] pt-20 text-white">
@@ -92,7 +92,7 @@ export default function AnimeRoom({
 
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.35em] text-cyan-300">
-                    CineVault Anime District
+                    CINRYVAN Anime District
                   </p>
                   <h1 className="mt-1 text-3xl font-black">
                     Anime Room
@@ -132,7 +132,7 @@ export default function AnimeRoom({
                   return (
                     <Link
                       key={channel.slug}
-                      href={`/rooms/cinevault/anime?channel=${channel.slug}`}
+                      href={`/rooms/cinryvan/anime?channel=${channel.slug}`}
                       className={`flex items-center gap-3 rounded-xl px-3 py-3 transition ${
                         active
                           ? "bg-gradient-to-r from-pink-500/20 to-cyan-400/10 text-pink-100 ring-1 ring-pink-400/25"
@@ -205,7 +205,7 @@ export default function AnimeRoom({
                 {animeChannels.map((channel) => (
                   <Link
                     key={channel.slug}
-                    href={`/rooms/cinevault/anime?channel=${channel.slug}`}
+                    href={`/rooms/cinryvan/anime?channel=${channel.slug}`}
                     className={`shrink-0 rounded-full px-3 py-2 text-xs font-bold ${
                       channel.slug === selectedChannel.slug
                         ? "bg-pink-500 text-white"

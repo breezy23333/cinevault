@@ -7,9 +7,9 @@ import type { Metadata } from "next";
 export const revalidate = 300; // cache homepage for 5 minutes
 
 export const metadata: Metadata = {
-  title: "Top Rated Movies & TV Shows | CineVault",
+  title: "Top Rated Movies & TV Shows | CINRYVAN",
   description:
-    "Explore top rated movies, popular TV shows, anime, animated classics, horror hits, and highly rated entertainment on CineVault.",
+    "Explore top rated movies, popular TV shows, anime, animated classics, horror hits, and highly rated entertainment on CINRYVAN.",
   keywords: [
     "top movies",
     "best movies",
@@ -18,23 +18,23 @@ export const metadata: Metadata = {
     "best anime",
     "top entertainment",
     "popular movies",
-    "CineVault top",
+    "CINRYVAN top",
   ],
   alternates: {
     canonical: "/top",
   },
   openGraph: {
-    title: "Top Rated Movies & TV Shows | CineVault",
+    title: "Top Rated Movies & TV Shows | CINRYVAN",
     description:
       "Discover top rated movies, popular shows, anime, cartoons, and highly rated entertainment.",
     url: "/top",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Top Rated Movies & TV Shows | CineVault",
+    title: "Top Rated Movies & TV Shows | CINRYVAN",
     description:
       "Explore top rated movies, popular shows, anime, and animated classics.",
     images: ["/og-image.png"],
@@ -114,13 +114,13 @@ export default async function TopPage({
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://cinevault-tau-drab.vercel.app",
+      item: "https://cinryvan.vercel.app",
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "Top",
-      item: "https://cinevault-tau-drab.vercel.app/top",
+      item: "https://cinryvan.vercel.app/top",
     },
   ],
 };
@@ -130,12 +130,12 @@ const topJsonLd = {
   "@type": "CollectionPage",
   name: "Top Rated Movies & TV Shows",
   description:
-    "Explore top rated movies, popular TV shows, anime, animated classics, horror hits, and highly rated entertainment on CineVault.",
-  url: "https://cinevault-tau-drab.vercel.app/top",
+    "Explore top rated movies, popular TV shows, anime, animated classics, horror hits, and highly rated entertainment on CINRYVAN.",
+  url: "https://cinryvan.vercel.app/top",
   isPartOf: {
     "@type": "WebSite",
-    name: "CineVault",
-    url: "https://cinevault-tau-drab.vercel.app",
+    name: "CINRYVAN",
+    url: "https://cinryvan.vercel.app",
   },
 };
 

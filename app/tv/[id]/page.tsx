@@ -150,7 +150,7 @@ export default async function TvPage({ params }: PageProps) {
   name: title,
   description: details.overview,
   image: poster,
-  url: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
+  url: `https://cinryvan.vercel.app/tv/${id}`,
   genre: details.genres?.map((g: any) => g.name),
   datePublished: details.first_air_date,
   aggregateRating:
@@ -173,19 +173,19 @@ const breadcrumbJsonLd = {
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://cinevault-tau-drab.vercel.app",
+      item: "https://cinryvan.vercel.app",
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "TV Shows",
-      item: "https://cinevault-tau-drab.vercel.app/tv",
+      item: "https://cinryvan.vercel.app/tv",
     },
     {
       "@type": "ListItem",
       position: 3,
       name: title,
-      item: `https://cinevault-tau-drab.vercel.app/tv/${id}`,
+      item: `https://cinryvan.vercel.app/tv/${id}`,
     },
   ],
 };
@@ -311,7 +311,7 @@ const breadcrumbJsonLd = {
       {/* TV Database */}
         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-            CineVault Database
+            CINRYVAN Database
           </p>
 
           <h2 className="mt-2 text-3xl font-black text-white">
@@ -392,11 +392,11 @@ const breadcrumbJsonLd = {
             mediaType="tv"
           />
 
-        {/* CineVault Extras */}
+        {/* CINRYVAN Extras */}
           {videos.length > 0 && (
             <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
               <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                CineVault Extras
+                CINRYVAN Extras
               </p>
 
               <h2 className="mt-2 text-3xl font-black text-white">
@@ -539,7 +539,7 @@ const breadcrumbJsonLd = {
             </p>
 
             <h2 className="mt-2 text-3xl font-black">
-              Continue Exploring CineVault
+              Continue Exploring CINRYVAN
             </h2>
 
             <p className="mt-3 max-w-2xl text-white/60">
@@ -629,7 +629,7 @@ export async function generateMetadata({
 
     const seoIntro =
       `Explore ${displayTitle}: cast, seasons, episodes, trailer, ratings ` +
-      `and where to watch on CineVault.`;
+      `and where to watch on CINRYVAN.`;
 
     const fullDescription = tv.overview?.trim()
       ? `${seoIntro} ${tv.overview.trim()}`
@@ -646,10 +646,10 @@ export async function generateMetadata({
       ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}`
       : tv.poster_path
         ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
-        : "https://cinevault-tau-drab.vercel.app/og-image.png";
+        : "https://cinryvan.vercel.app/og-image.png";
 
     const canonical =
-      `https://cinevault-tau-drab.vercel.app/tv/${id}`;
+      `https://cinryvan.vercel.app/tv/${id}`;
 
     return {
       title: pageTitle,
@@ -665,10 +665,10 @@ export async function generateMetadata({
       },
 
       openGraph: {
-        title: `${pageTitle} | CineVault`,
+        title: `${pageTitle} | CINRYVAN`,
         description,
         url: canonical,
-        siteName: "CineVault",
+        siteName: "CINRYVAN",
         images: [
           {
             url: image,
@@ -681,7 +681,7 @@ export async function generateMetadata({
 
       twitter: {
         card: "summary_large_image",
-        title: `${pageTitle} | CineVault`,
+        title: `${pageTitle} | CINRYVAN`,
         description,
         images: [image],
       },
@@ -690,7 +690,7 @@ export async function generateMetadata({
     return {
       title: "Discover TV Shows",
       description:
-        "Explore TV series, casts, seasons, episodes, trailers, ratings and where to watch on CineVault.",
+        "Explore TV series, casts, seasons, episodes, trailers, ratings and where to watch on CINRYVAN.",
     };
   }
 }

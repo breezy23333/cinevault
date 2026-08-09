@@ -15,7 +15,7 @@ import { getGameTrailer } from "@/lib/youtube";
 export const revalidate = 86400;
 export const dynamicParams = true;
 
-const SITE_URL = "https://cinevault-tau-drab.vercel.app";
+const SITE_URL = "https://cinryvan.vercel.app";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 type PageProps = {
@@ -98,7 +98,7 @@ export async function generateMetadata({
 
   if (!game) {
     return {
-      title: "Game Not Found | CineVault",
+      title: "Game Not Found | CINRYVAN",
       description: "The requested game could not be found.",
       robots: {
         index: false,
@@ -113,10 +113,10 @@ export async function generateMetadata({
 
   const description =
     plainDescription?.slice(0, 155) ||
-    `Discover ${game.name}, trailers, screenshots, platforms, ratings and where to play on CineVault.`;
+    `Discover ${game.name}, trailers, screenshots, platforms, ratings and where to play on CINRYVAN.`;
 
   const title =
-    `${game.name} | Trailers, Ratings & Where to Play | CineVault`;
+    `${game.name} | Trailers, Ratings & Where to Play | CINRYVAN`;
 
   const canonicalUrl = `${SITE_URL}/games/${game.id}`;
 
@@ -141,7 +141,7 @@ export async function generateMetadata({
       ...(game.platforms?.map(
         (item) => `${item.platform.name} games`,
       ) || []),
-      "CineVault Gaming",
+      "CINRYVAN Gaming",
     ],
 
     alternates: {
@@ -152,7 +152,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       type: "website",
       images: [
         {

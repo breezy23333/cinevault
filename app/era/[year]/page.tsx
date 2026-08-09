@@ -24,22 +24,22 @@ export async function generateMetadata({
   const endYear = startYear + 9;
 
   return {
-    title: `${startYear}s Movies | CineVault`,
-    description: `Explore popular movies released between ${startYear} and ${endYear} on CineVault.`,
+    title: `${startYear}s Movies | CINRYVAN`,
+    description: `Explore popular movies released between ${startYear} and ${endYear} on CINRYVAN.`,
     alternates: {
       canonical: `/era/${startYear}`,
     },
     openGraph: {
-      title: `${startYear}s Movies | CineVault`,
-      description: `Discover popular movies from the ${startYear}s era on CineVault.`,
+      title: `${startYear}s Movies | CINRYVAN`,
+      description: `Discover popular movies from the ${startYear}s era on CINRYVAN.`,
       url: `/era/${startYear}`,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       images: ["/og-image.png"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${startYear}s Movies | CineVault`,
+      title: `${startYear}s Movies | CINRYVAN`,
       description: `Explore popular movies from ${startYear} to ${endYear}.`,
       images: ["/og-image.png"],
     },
@@ -76,11 +76,11 @@ export default async function EraPage({
     "@type": "CollectionPage",
     name: `${startYear}s Movies`,
     description: `Explore popular movies released between ${startYear} and ${endYear}.`,
-    url: `https://cinevault-tau-drab.vercel.app/era/${startYear}`,
+    url: `https://cinryvan.vercel.app/era/${startYear}`,
     isPartOf: {
         "@type": "WebSite",
-        name: "CineVault",
-        url: "https://cinevault-tau-drab.vercel.app",
+        name: "CINRYVAN",
+        url: "https://cinryvan.vercel.app",
     },
     };
 

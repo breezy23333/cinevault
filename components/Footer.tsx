@@ -23,7 +23,7 @@ export default function Footer() {
         
         <div className="space-y-4">
           <div className="text-2xl font-bold text-amber-400">
-            CineVault
+            CINRYVAN
           </div>
 
           <p className="text-sm leading-relaxed text-white/100">
@@ -91,7 +91,7 @@ export default function Footer() {
       </div>
 
       <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/100 md:flex-row">
-        <div>© {year} CineVault. All rights reserved.</div>
+        <div>© {year} CINRYVAN. All rights reserved.</div>
 
         <div className="flex items-center gap-5">
           <Link href="/terms" className="transition hover:text-amber-300">Terms</Link>

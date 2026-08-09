@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = "luvotest@cinevault.com";
+  const email = "luvotest@cinryvan.com";
   const password = "Test12345!";
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,7 +22,7 @@ async function main() {
     },
   });
 
-  console.log("✅ CineVault test account ready");
+  console.log("✅ CINRYVAN test account ready");
   console.log("Email:", email);
   console.log("Password:", password);
 }

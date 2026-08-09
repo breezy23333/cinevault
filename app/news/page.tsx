@@ -12,24 +12,24 @@ import Link from "next/link";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Entertainment, Gaming & Sports News | CineVault",
+  title: "Entertainment, Gaming & Sports News | CINRYVAN",
   description:
-    "Read live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news on CineVault.",
+    "Read live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news on CINRYVAN.",
   alternates: {
     canonical: "/news",
   },
   openGraph: {
-    title: "Entertainment, Gaming & Sports News | CineVault",
+    title: "Entertainment, Gaming & Sports News | CINRYVAN",
     description:
       "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
     url: "/news",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Entertainment, Gaming & Sports News | CineVault",
+    title: "Entertainment, Gaming & Sports News | CINRYVAN",
     description:
       "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
     images: ["/og-image.png"],
@@ -86,13 +86,13 @@ const breadcrumbJsonLd = {
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://cinevault-tau-drab.vercel.app",
+      item: "https://cinryvan.vercel.app",
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "News",
-      item: "https://cinevault-tau-drab.vercel.app/news",
+      item: "https://cinryvan.vercel.app/news",
     },
   ],
 };
@@ -103,11 +103,11 @@ const newsJsonLd = {
   name: "Entertainment, Gaming & Sports News",
   description:
     "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
-  url: "https://cinevault-tau-drab.vercel.app/news",
+  url: "https://cinryvan.vercel.app/news",
   isPartOf: {
     "@type": "WebSite",
-    name: "CineVault",
-    url: "https://cinevault-tau-drab.vercel.app",
+    name: "CINRYVAN",
+    url: "https://cinryvan.vercel.app",
   },
 };
 
@@ -168,7 +168,7 @@ const newsJsonLd = {
 
               <div className="absolute bottom-8 left-8">
                 <p className="text-xs font-black uppercase tracking-[0.4em] text-yellow-400">
-                  CineVault Signal
+                  CINRYVAN Signal
                 </p>
 
                 <h3 className="mt-3 max-w-xl text-4xl font-black">

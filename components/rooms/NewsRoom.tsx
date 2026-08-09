@@ -79,7 +79,7 @@ export default function NewsRoom({
     newsChannels.find((channel) => channel.slug === activeChannel) ||
     newsChannels[0];
 
-  const roomKey = `cinevault:news:${selectedChannel.slug}`;
+  const roomKey = `cinryvan:news:${selectedChannel.slug}`;
 
   return (
     <main className="min-h-screen bg-[#050b12] pt-20 text-white">
@@ -91,7 +91,7 @@ export default function NewsRoom({
               <div className="flex items-center gap-3">
                 <div className="border-r-4 border-red-600 pr-4">
                   <p className="text-xs font-black uppercase tracking-[0.35em] text-red-400">
-                    CineVault
+                    CINRYVAN
                   </p>
                   <h1 className="text-2xl font-black uppercase tracking-tight">
                     Newsroom
@@ -100,7 +100,7 @@ export default function NewsRoom({
 
                 <p className="hidden max-w-xs text-xs leading-5 text-white/35 md:block">
                   Live entertainment, gaming and sports conversations from the
-                  CineVault community.
+                  CINRYVAN community.
                 </p>
               </div>
 
@@ -128,7 +128,7 @@ export default function NewsRoom({
               </span>
 
               <p className="animate-pulse whitespace-nowrap px-5 py-2 text-xs font-bold">
-                CineVault community discussions are live • Share verified sources
+                CINRYVAN community discussions are live • Share verified sources
                 • React to new trailers, casting updates and release announcements
               </p>
             </div>
@@ -150,7 +150,7 @@ export default function NewsRoom({
                   return (
                     <Link
                       key={channel.slug}
-                      href={`/rooms/cinevault/news?channel=${channel.slug}`}
+                      href={`/rooms/cinryvan/news?channel=${channel.slug}`}
                       className={`flex items-center gap-3 border-l-2 px-3 py-3 transition ${
                         active
                           ? "border-red-500 bg-white/[0.07] text-white"
@@ -204,7 +204,7 @@ export default function NewsRoom({
                     href="/news"
                     className="shrink-0 bg-white px-4 py-2 text-xs font-black uppercase tracking-wide text-black hover:bg-red-500 hover:text-white"
                   >
-                    Read CineVault News
+                    Read CINRYVAN News
                   </Link>
                 </div>
               </div>
@@ -225,7 +225,7 @@ export default function NewsRoom({
                 {newsChannels.map((channel) => (
                   <Link
                     key={channel.slug}
-                    href={`/rooms/cinevault/news?channel=${channel.slug}`}
+                    href={`/rooms/cinryvan/news?channel=${channel.slug}`}
                     className={`shrink-0 px-3 py-2 text-xs font-black uppercase ${
                       channel.slug === selectedChannel.slug
                         ? "bg-red-600 text-white"

@@ -6,8 +6,8 @@ export async function GET() {
   const cookieStore = await cookies();
 
   const userId =
-    cookieStore.get("cinevault_user")?.value ||
-    cookieStore.get("cinevault_user_id")?.value;
+    cookieStore.get("cinryvan_user")?.value ||
+    cookieStore.get("cinryvan_user_id")?.value;
 
   if (!userId) {
     return NextResponse.json({ user: null });

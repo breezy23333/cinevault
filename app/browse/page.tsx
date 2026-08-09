@@ -13,7 +13,7 @@ const links = [
   { title: "Drama", href: "/search?genre=18", desc: "Emotional and powerful stories." },
   { title: "Sci-Fi", href: "/search?genre=878", desc: "Future worlds and big ideas." },
   { title: "Romance", href: "/search?genre=10749", desc: "Love stories and relationship drama." },
-  { title: "Top Rated", href: "/top", desc: "The best-rated titles on CineVault." },
+  { title: "Top Rated", href: "/top", desc: "The best-rated titles on CINRYVAN." },
   { title: "Trending", href: "/trending", desc: "See what people are watching now." },
   { title: "Upcoming", href: "/upcoming", desc: "Movies and shows coming soon." },
   { title: "News", href: "/news", desc: "Entertainment, gaming, and sports news." },
@@ -22,9 +22,9 @@ const links = [
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Browse Movies, TV Shows, Anime & Cartoons | CineVault",
+  title: "Browse Movies, TV Shows, Anime & Cartoons | CINRYVAN",
   description:
-    "Browse movies, TV shows, anime, cartoons, top-rated titles, and categories on CineVault.",
+    "Browse movies, TV shows, anime, cartoons, top-rated titles, and categories on CINRYVAN.",
   keywords: [
     "browse movies",
     "browse tv shows",
@@ -32,30 +32,30 @@ export const metadata: Metadata = {
     "cartoons",
     "top rated movies",
     "movie categories",
-    "CineVault",
+    "CINRYVAN",
   ],
   alternates: {
     canonical: "/browse",
   },
   openGraph: {
-    title: "Browse Movies, TV Shows, Anime & Cartoons | CineVault",
+    title: "Browse Movies, TV Shows, Anime & Cartoons | CINRYVAN",
     description:
-      "Explore movies, TV shows, anime, cartoons, categories, and top-rated content on CineVault.",
+      "Explore movies, TV shows, anime, cartoons, categories, and top-rated content on CINRYVAN.",
     url: "/browse",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Browse CineVault",
+        alt: "Browse CINRYVAN",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Browse Movies, TV Shows, Anime & Cartoons | CineVault",
+    title: "Browse Movies, TV Shows, Anime & Cartoons | CINRYVAN",
     description:
       "Discover movies, TV shows, anime, cartoons, and top-rated content.",
     images: ["/og-image.png"],
@@ -65,10 +65,10 @@ export const metadata: Metadata = {
 const collectionJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Browse CineVault",
+  name: "Browse CINRYVAN",
   description:
     "Browse movies, TV shows, anime, cartoons, categories, and top-rated content.",
-  url: "https://cinevault-tau-drab.vercel.app/browse",
+  url: "https://cinryvan.vercel.app/browse",
 };
 
 export default function BrowsePage() {
@@ -81,7 +81,7 @@ export default function BrowsePage() {
         }}
       />
 
-      <h1 className="text-4xl md:text-6xl font-black mb-4">Browse CineVault</h1>
+      <h1 className="text-4xl md:text-6xl font-black mb-4">Browse CINRYVAN</h1>
       <p className="text-white/60 mb-10 max-w-2xl">
         Explore movies, TV shows, anime, cartoons, categories, and top-rated titles.
       </p>

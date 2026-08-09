@@ -8,8 +8,8 @@ import YouTube from "@/components/YouTube"; // client component; safe to import 
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Title Details | CineVault",
-  description: "CineVault title details page.",
+  title: "Title Details | CINRYVAN",
+  description: "CINRYVAN title details page.",
   robots: {
     index: false,
     follow: true,

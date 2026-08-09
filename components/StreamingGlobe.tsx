@@ -74,7 +74,7 @@ export default function StreamingGlobe() {
       </div>
 
       <p className="mt-5 text-center text-[11px] text-white/35">
-        Streaming platforms orbit CineVault
+        Streaming platforms orbit CINRYVAN
       </p>
     </div>
   );

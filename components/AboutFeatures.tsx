@@ -27,7 +27,7 @@ const FEATURES = [
     panel: {
       heading: "Speed that feels invisible",
       body:
-        "Steam-style rows, instant search, clever caching. Browsing CineVault feels like gliding.",
+        "Steam-style rows, instant search, clever caching. Browsing CINRYVAN feels like gliding.",
       bullets: ["Optimized fetch & cache", "Row virtualization", "Smart prefetch"],
     },
   },

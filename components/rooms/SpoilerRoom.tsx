@@ -79,7 +79,7 @@ export default function SpoilerRoom({
     spoilerChannels.find((channel) => channel.slug === activeChannel) ||
     spoilerChannels[0];
 
-  const roomKey = `cinevault:spoilers:${selectedChannel.slug}`;
+  const roomKey = `cinryvan:spoilers:${selectedChannel.slug}`;
 
   return (
     <main className="min-h-screen bg-[#050505] pt-20 text-white">
@@ -132,7 +132,7 @@ export default function SpoilerRoom({
                   return (
                     <Link
                       key={channel.slug}
-                      href={`/rooms/cinevault/spoilers?channel=${channel.slug}`}
+                      href={`/rooms/cinryvan/spoilers?channel=${channel.slug}`}
                       className={`flex items-center gap-3 rounded-xl px-3 py-3 transition ${
                         active
                           ? "bg-orange-500/15 text-orange-200 ring-1 ring-orange-400/20"
@@ -214,7 +214,7 @@ export default function SpoilerRoom({
                 {spoilerChannels.map((channel) => (
                   <Link
                     key={channel.slug}
-                    href={`/rooms/cinevault/spoilers?channel=${channel.slug}`}
+                    href={`/rooms/cinryvan/spoilers?channel=${channel.slug}`}
                     className={`shrink-0 rounded-full px-3 py-2 text-xs font-bold ${
                       channel.slug === selectedChannel.slug
                         ? "bg-orange-500 text-black"
@@ -272,7 +272,7 @@ export default function SpoilerRoom({
                 <ul className="mt-3 space-y-2 text-xs leading-5 text-white/40">
                   <li>• Name the movie, series, anime or game first.</li>
                   <li>• No personal attacks over different theories.</li>
-                  <li>• Don’t post spoilers in other CineVault rooms.</li>
+                  <li>• Don’t post spoilers in other CINRYVAN rooms.</li>
                 </ul>
               </div>
 

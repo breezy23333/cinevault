@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Trending TV Shows | CineVault",
+  title: "Trending TV Shows | CINRYVAN",
   description: "Discover trending TV shows people are watching right now.",
 };
 

@@ -24,23 +24,23 @@ export async function generateMetadata({
   const title = topics[topic] || "Entertainment News";
 
   return {
-    title: `${title} | CineVault`,
-    description: `Read the latest ${title.toLowerCase()} including movies, TV, streaming, celebrities, anime, and entertainment updates on CineVault.`,
+    title: `${title} | CINRYVAN`,
+    description: `Read the latest ${title.toLowerCase()} including movies, TV, streaming, celebrities, anime, and entertainment updates on CINRYVAN.`,
     alternates: {
       canonical: `/news/entertainment/${topic}`,
     },
     openGraph: {
-      title: `${title} | CineVault`,
+      title: `${title} | CINRYVAN`,
       description: `Latest ${title.toLowerCase()} and entertainment updates.`,
       url: `/news/entertainment/${topic}`,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       images: ["/og-image.png"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | CineVault`,
-      description: `Read the latest ${title.toLowerCase()} on CineVault.`,
+      title: `${title} | CINRYVAN`,
+      description: `Read the latest ${title.toLowerCase()} on CINRYVAN.`,
       images: ["/og-image.png"],
     },
   };
@@ -61,7 +61,7 @@ export default async function EntertainmentTopicPage({
   "@type": "CollectionPage",
   name: title,
   description: `Latest ${title.toLowerCase()} and entertainment updates.`,
-  url: `https://cinevault-tau-drab.vercel.app/news/entertainment/${topic}`,
+  url: `https://cinryvan.vercel.app/news/entertainment/${topic}`,
 };
 
   return (

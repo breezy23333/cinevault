@@ -2,24 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Library | CineVault",
+  title: "Library | CINRYVAN",
   description:
-    "Explore your CineVault library, saved movies, TV shows, anime, cartoons, watchlist, and entertainment collections.",
+    "Explore your CINRYVAN library, saved movies, TV shows, anime, cartoons, watchlist, and entertainment collections.",
   alternates: {
     canonical: "/library",
   },
   openGraph: {
-    title: "Library | CineVault",
+    title: "Library | CINRYVAN",
     description:
-      "Manage and explore your personal entertainment library on CineVault.",
+      "Manage and explore your personal entertainment library on CINRYVAN.",
     url: "/library",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Library | CineVault",
+    title: "Library | CINRYVAN",
     description: "Explore saved movies, TV shows, anime, and cartoons.",
     images: ["/og-image.png"],
   },
@@ -38,7 +38,7 @@ const collections = [
   },
   {
     title: "Top Rated",
-    text: "Explore the highest rated movies and shows on CineVault.",
+    text: "Explore the highest rated movies and shows on CINRYVAN.",
     href: "/top",
   },
   {
@@ -62,10 +62,10 @@ export default function LibraryPage() {
   const libraryJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "CineVault Library",
+    name: "CINRYVAN Library",
     description:
       "Explore saved movies, TV shows, anime, cartoons, and entertainment collections.",
-    url: "https://cinevault-tau-drab.vercel.app/library",
+    url: "https://cinryvan.vercel.app/library",
   };
 
   return (
@@ -80,7 +80,7 @@ export default function LibraryPage() {
       <section className="mx-auto max-w-6xl">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-yellow-400/[0.08] p-8 md:p-12">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-            CineVault Collection
+            CINRYVAN Collection
           </p>
 
           <h1 className="mt-4 max-w-4xl text-5xl font-black md:text-7xl">

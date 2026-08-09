@@ -12,8 +12,8 @@ import NewsRoom from "@/components/rooms/NewsRoom";
 import GamingRoom from "@/components/rooms/GamingRoom";
 
 export const metadata: Metadata = {
-  title: "CineVault Room | Chat",
-  description: "Private live CineVault community room.",
+  title: "CINRYVAN Room | Chat",
+  description: "Private live CINRYVAN community room.",
   robots: {
     index: false,
     follow: false,
@@ -48,15 +48,15 @@ export default async function RoomPage({
   const { platform, room } = await params;
   const { channel } = await searchParams;
 
-  if (platform !== "cinevault" || !validRooms.has(room)) {
+  if (platform !== "cinryvan" || !validRooms.has(room)) {
     notFound();
   }
 
   const cookieStore = await cookies();
 
   const userId =
-    cookieStore.get("cinevault_user_id")?.value ||
-    cookieStore.get("cinevault_user")?.value;
+    cookieStore.get("cinryvan_user_id")?.value ||
+    cookieStore.get("cinryvan_user")?.value;
 
   if (!userId) {
     redirect("/login");
@@ -80,7 +80,7 @@ export default async function RoomPage({
   const username = (
     user.name ||
     user.email?.split("@")[0] ||
-    "CineVault Member"
+    "CINRYVAN Member"
   )
     .trim()
     .slice(0, 40);

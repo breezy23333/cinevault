@@ -88,7 +88,7 @@ export default function SignupPage() {
       <section className="relative z-10 mx-auto grid min-h-screen max-w-7xl items-center gap-10 px-4 py-28 md:px-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.55em] text-yellow-300">
-            Join CineVault
+            Join CINRYVAN
           </p>
 
           <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.95] md:text-7xl">
@@ -139,7 +139,7 @@ export default function SignupPage() {
           <h2 className="text-4xl font-black">Create account</h2>
 
           <p className="mt-3 text-white/60">
-            Start your free CineVault account and build your watchlist.
+            Start your free CINRYVAN account and build your watchlist.
           </p>
 
           {error && (

@@ -5,26 +5,26 @@ import ContactForm from "../../components/support/ContactForm";
 import FAQ from "../../components/support/FAQ";
 
 export const metadata: Metadata = {
-  title: "Support | CineVault",
+  title: "Support | CINRYVAN",
   description:
-    "Get CineVault support for account issues, search problems, watch providers, technical bugs, FAQs, and platform help.",
+    "Get CINRYVAN support for account issues, search problems, watch providers, technical bugs, FAQs, and platform help.",
   alternates: {
     canonical: "/support",
   },
   openGraph: {
-    title: "Support | CineVault",
+    title: "Support | CINRYVAN",
     description:
-      "Browse CineVault FAQs, support topics, account help, provider guidance, and technical troubleshooting.",
+      "Browse CINRYVAN FAQs, support topics, account help, provider guidance, and technical troubleshooting.",
     url: "/support",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Support | CineVault",
+    title: "Support | CINRYVAN",
     description:
-      "Get help with CineVault account, search, providers, and technical issues.",
+      "Get help with CINRYVAN account, search, providers, and technical issues.",
     images: ["/og-image.png"],
   },
 };
@@ -41,8 +41,8 @@ const supportJsonLd = {
   "@type": "WebPage",
   name: "Support",
   description:
-    "Get CineVault support for account issues, search problems, watch providers, technical bugs, FAQs, and platform help.",
-  url: "https://cinevault-tau-drab.vercel.app/support",
+    "Get CINRYVAN support for account issues, search problems, watch providers, technical bugs, FAQs, and platform help.",
+  url: "https://cinryvan.vercel.app/support",
 };
 
 export default function SupportPage() {
@@ -83,7 +83,7 @@ export default function SupportPage() {
       {/* ABOUT + WHAT'S INCLUDED */}
       <section className="mt-10 grid gap-8 lg:grid-cols-2">
         <div>
-          <h2 className="text-2xl font-bold">About CineVault Support</h2>
+          <h2 className="text-2xl font-bold">About CINRYVAN Support</h2>
           <p className="mt-3 text-zinc-600">
             We help you find where to watch — and fix issues quickly. Our team
             monitors provider feeds and resolves account or region problems fast.

@@ -8,24 +8,24 @@ export const runtime = "nodejs";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Search Movies & TV Shows | CineVault",
+  title: "Search Movies & TV Shows | CINRYVAN",
   description:
-    "Search movies, TV shows, anime, cartoons, and entertainment titles on CineVault.",
+    "Search movies, TV shows, anime, cartoons, and entertainment titles on CINRYVAN.",
   alternates: {
     canonical: "/search",
   },
   openGraph: {
-    title: "Search Movies & TV Shows | CineVault",
+    title: "Search Movies & TV Shows | CINRYVAN",
     description:
       "Find movies, TV shows, anime, cartoons, and entertainment titles.",
     url: "/search",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Search Movies & TV Shows | CineVault",
+    title: "Search Movies & TV Shows | CINRYVAN",
     description:
       "Search movies, TV shows, anime, cartoons, and entertainment titles.",
     images: ["/og-image.png"],

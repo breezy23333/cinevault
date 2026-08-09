@@ -6,9 +6,9 @@ export const revalidate = 120;
 const MAX_SHELF = 60;
 
 export const metadata: Metadata = {
-  title: "Best Anime Series & Movies | CineVault",
+  title: "Best Anime Series & Movies | CINRYVAN",
   description:
-    "Discover trending anime series, classic anime films, top-rated adventures, fantasy worlds, action anime, and Japanese animation on CineVault.",
+    "Discover trending anime series, classic anime films, top-rated adventures, fantasy worlds, action anime, and Japanese animation on CINRYVAN.",
   keywords: [
     "anime",
     "best anime",
@@ -18,32 +18,32 @@ export const metadata: Metadata = {
     "Japanese animation",
     "action anime",
     "fantasy anime",
-    "CineVault anime",
+    "CINRYVAN anime",
   ],
   alternates: {
     canonical: "/anime",
   },
   openGraph: {
-    title: "Best Anime Series & Movies | CineVault",
+    title: "Best Anime Series & Movies | CINRYVAN",
     description:
-      "Explore trending anime series, top-rated anime movies, fantasy worlds, action anime, and Japanese animation on CineVault.",
+      "Explore trending anime series, top-rated anime movies, fantasy worlds, action anime, and Japanese animation on CINRYVAN.",
     url: "/anime",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CineVault Anime",
+        alt: "CINRYVAN Anime",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Anime Series & Movies | CineVault",
+    title: "Best Anime Series & Movies | CINRYVAN",
     description:
-      "Discover trending anime series, anime movies, fantasy anime, and Japanese animation on CineVault.",
+      "Discover trending anime series, anime movies, fantasy anime, and Japanese animation on CINRYVAN.",
     images: ["/og-image.png"],
   },
 };
@@ -90,13 +90,13 @@ export default async function AnimePage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://cinevault-tau-drab.vercel.app",
+        item: "https://cinryvan.vercel.app",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Anime",
-        item: "https://cinevault-tau-drab.vercel.app/anime",
+        item: "https://cinryvan.vercel.app/anime",
       },
     ],
   };
@@ -106,12 +106,12 @@ export default async function AnimePage({
     "@type": "CollectionPage",
     name: "Best Anime Series & Movies",
     description:
-      "Discover trending anime series, classic anime films, fantasy worlds, action anime, and Japanese animation on CineVault.",
-    url: "https://cinevault-tau-drab.vercel.app/anime",
+      "Discover trending anime series, classic anime films, fantasy worlds, action anime, and Japanese animation on CINRYVAN.",
+    url: "https://cinryvan.vercel.app/anime",
     isPartOf: {
       "@type": "WebSite",
-      name: "CineVault",
-      url: "https://cinevault-tau-drab.vercel.app",
+      name: "CINRYVAN",
+      url: "https://cinryvan.vercel.app",
     },
   };
 
@@ -140,7 +140,7 @@ export default async function AnimePage({
       >
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e131f] via-black/70 to-black/20" />
         <div className="relative z-10 max-w-2xl pb-12">
-          <p className="text-yellow-400 font-bold mb-2">CineVault Anime</p>
+          <p className="text-yellow-400 font-bold mb-2">CINRYVAN Anime</p>
           <h1 className="text-5xl md:text-7xl font-black mb-4">Anime</h1>
           <p className="text-white/70 text-lg">
             Dive into Japanese animation, epic battles, emotional stories, and legendary characters.

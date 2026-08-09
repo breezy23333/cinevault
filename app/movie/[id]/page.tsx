@@ -116,7 +116,7 @@ const providersData: any =
     description: details.overview,
     image: poster,
     datePublished: details.release_date,
-    url: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+    url: `https://cinryvan.vercel.app/movie/${id}`,
     genre: details.genres?.map((g: any) => g.name),
     aggregateRating:
     rating && details.vote_count > 0
@@ -138,19 +138,19 @@ const breadcrumbJsonLd = {
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://cinevault-tau-drab.vercel.app",
+      item: "https://cinryvan.vercel.app",
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "Movies",
-      item: "https://cinevault-tau-drab.vercel.app/movie",
+      item: "https://cinryvan.vercel.app/movie",
     },
     {
       "@type": "ListItem",
       position: 3,
       name: details.title,
-      item: `https://cinevault-tau-drab.vercel.app/movie/${id}`,
+      item: `https://cinryvan.vercel.app/movie/${id}`,
     },
   ],
 };
@@ -271,15 +271,15 @@ const breadcrumbJsonLd = {
           ) : (
             <p className="mt-4 leading-8 text-white/70">
               Explore the cast, trailers, ratings, movie details and where to watch
-              this title on CineVault.
+              this title on CINRYVAN.
             </p>
           )}
         </section>
 
-      {/* CineVault Database */}
+      {/* CINRYVAN Database */}
         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-            CineVault Database
+            CINRYVAN Database
           </p>
 
           <h2 className="mt-2 text-3xl font-black text-white">
@@ -353,11 +353,11 @@ const breadcrumbJsonLd = {
             mediaType="movie"
         />
 
-        {/* CineVault Extras */}
+        {/* CINRYVAN Extras */}
           {videos.length > 0 && (
             <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
               <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                CineVault Extras
+                CINRYVAN Extras
               </p>
 
               <h2 className="mt-2 text-3xl font-black text-white">
@@ -511,7 +511,7 @@ const breadcrumbJsonLd = {
           </Link>
 
           <h2 className="mt-2 text-3xl font-black">
-            Continue Exploring CineVault
+            Continue Exploring CINRYVAN
           </h2>
 
           <p className="mt-3 max-w-2xl text-white/60">
@@ -602,7 +602,7 @@ export async function generateMetadata({
 
     const seoIntro =
       `Explore ${displayTitle}: cast, trailer, ratings, runtime, ` +
-      `similar movies and where to watch on CineVault.`;
+      `similar movies and where to watch on CINRYVAN.`;
 
     const fullDescription = movie.overview?.trim()
       ? `${seoIntro} ${movie.overview.trim()}`
@@ -619,10 +619,10 @@ export async function generateMetadata({
       ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
       : movie.poster_path
         ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
-        : "https://cinevault-tau-drab.vercel.app/og-image.png";
+        : "https://cinryvan.vercel.app/og-image.png";
 
     const canonical =
-      `https://cinevault-tau-drab.vercel.app/movie/${id}`;
+      `https://cinryvan.vercel.app/movie/${id}`;
 
     return {
       title: pageTitle,
@@ -638,10 +638,10 @@ export async function generateMetadata({
       },
 
       openGraph: {
-        title: `${pageTitle} | CineVault`,
+        title: `${pageTitle} | CINRYVAN`,
         description,
         url: canonical,
-        siteName: "CineVault",
+        siteName: "CINRYVAN",
         images: [
           {
             url: image,
@@ -654,7 +654,7 @@ export async function generateMetadata({
 
       twitter: {
         card: "summary_large_image",
-        title: `${pageTitle} | CineVault`,
+        title: `${pageTitle} | CINRYVAN`,
         description,
         images: [image],
       },
@@ -663,7 +663,7 @@ export async function generateMetadata({
     return {
       title: "Discover Movies",
       description:
-        "Explore movie details, casts, trailers, ratings and where to watch on CineVault.",
+        "Explore movie details, casts, trailers, ratings and where to watch on CINRYVAN.",
     };
   }
 }

@@ -6,9 +6,9 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Trending Movies & TV Shows | CineVault",
+  title: "Trending Movies & TV Shows | CINRYVAN",
   description:
-    "See what the world is watching right now. Discover trending movies, popular TV series, anime, cartoons, and entertainment on CineVault.",
+    "See what the world is watching right now. Discover trending movies, popular TV series, anime, cartoons, and entertainment on CINRYVAN.",
   keywords: [
     "trending movies",
     "trending tv shows",
@@ -17,23 +17,23 @@ export const metadata: Metadata = {
     "trending anime",
     "what to watch",
     "popular entertainment",
-    "CineVault trending",
+    "CINRYVAN trending",
   ],
   alternates: {
     canonical: "/trending",
   },
   openGraph: {
-    title: "Trending Movies & TV Shows | CineVault",
+    title: "Trending Movies & TV Shows | CINRYVAN",
     description:
       "Explore trending movies, TV shows, anime, cartoons, and popular entertainment worldwide.",
     url: "/trending",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trending Movies & TV Shows | CineVault",
+    title: "Trending Movies & TV Shows | CINRYVAN",
     description:
       "See trending movies, shows, anime, cartoons, and entertainment now.",
     images: ["/og-image.png"],
@@ -63,13 +63,13 @@ export default async function TrendingPage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://cinevault-tau-drab.vercel.app",
+        item: "https://cinryvan.vercel.app",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Trending",
-        item: "https://cinevault-tau-drab.vercel.app/trending",
+        item: "https://cinryvan.vercel.app/trending",
       },
     ],
   };
@@ -79,12 +79,12 @@ export default async function TrendingPage({
     "@type": "CollectionPage",
     name: "Trending Movies & TV Shows",
     description:
-      "Discover trending movies, popular TV series, anime, cartoons, and entertainment on CineVault.",
-    url: "https://cinevault-tau-drab.vercel.app/trending",
+      "Discover trending movies, popular TV series, anime, cartoons, and entertainment on CINRYVAN.",
+    url: "https://cinryvan.vercel.app/trending",
     isPartOf: {
       "@type": "WebSite",
-      name: "CineVault",
-      url: "https://cinevault-tau-drab.vercel.app",
+      name: "CINRYVAN",
+      url: "https://cinryvan.vercel.app",
     },
   };
 
@@ -107,7 +107,7 @@ export default async function TrendingPage({
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-yellow-400">
-            CineVault Trending
+            CINRYVAN Trending
           </p>
           <h1 className="mt-2 text-3xl font-black md:text-5xl">
             Trending Movies

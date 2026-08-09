@@ -21,9 +21,9 @@ const posters = [
   "https://image.tmdb.org/t/p/w342/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
 ];
 
-const cineVaultLetters = "CINEVAULT".split("");
+const cineVaultLetters = "CINRYVAN".split("");
 
-export default function CineVaultIntro() {
+export default function CinryvanIntro() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function CineVaultIntro() {
 
       <div className="absolute inset-0 flex items-center justify-center p-3 md:p-8">
         <div className="intro-frame relative h-[78vh] min-h-[520px] w-full max-w-7xl overflow-hidden rounded-[2rem] border border-yellow-400/20 bg-black shadow-[0_0_120px_rgba(250,204,21,0.18)]">
-          {/* Existing CineVault images */}
+          {/* Existing CINRYVAN images */}
           <div className="absolute inset-0 grid grid-cols-3 gap-2 bg-[#05070d] p-3 sm:grid-cols-4 md:grid-cols-6 md:gap-4 md:p-7">
             {posters.map((poster, index) => (
               <div
@@ -58,7 +58,7 @@ export default function CineVaultIntro() {
               >
                 <Image
                   src={poster}
-                  alt="CineVault movie poster"
+                  alt="CINRYVAN movie poster"
                   fill
                   sizes="(max-width: 768px) 33vw, 180px"
                   priority={index < 6}
@@ -95,7 +95,7 @@ export default function CineVaultIntro() {
             </div>
           </div>
 
-          {/* Letter-by-letter CineVault reveal */}
+          {/* Letter-by-letter CINRYVAN reveal */}
           <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-4 text-center">
             <div>
               <p className="intro-kicker text-xs font-black uppercase tracking-[0.5em] text-yellow-300 md:text-sm">
@@ -103,7 +103,7 @@ export default function CineVaultIntro() {
               </p>
 
               <h1
-                aria-label="CineVault"
+                aria-label="CINRYVAN"
                 className="mt-5 whitespace-nowrap text-4xl font-black tracking-[0.06em] sm:text-6xl md:text-8xl lg:text-9xl"
               >
                 {cineVaultLetters.map((letter, index) => (

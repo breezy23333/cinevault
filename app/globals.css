@@ -34,7 +34,7 @@ a:hover { text-decoration: underline; }
 .hide-scrollbar { scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 
-/* CineVault CTA button hover + press animation */
+/* CINRYVAN CTA button hover + press animation */
 .btn-cta {
   position: relative;
   transition: transform 180ms ease, box-shadow 200ms ease, background-color 200ms ease;

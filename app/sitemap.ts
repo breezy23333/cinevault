@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { GAME_CATEGORY_SLUGS } from "@/lib/games";
 export const revalidate = 86400;
 
-const baseUrl = "https://cinevault-tau-drab.vercel.app";
+const baseUrl = "https://cinryvan.vercel.app";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const RAWG_BASE = "https://api.rawg.io/api";
 

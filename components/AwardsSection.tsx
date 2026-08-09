@@ -21,7 +21,7 @@ export default function AwardsSection({
   return (
     <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
       <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-        CineVault Critics & Awards
+        CINRYVAN Critics & Awards
       </p>
 
       <h2 className="mt-2 text-3xl font-black text-white">

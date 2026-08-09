@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "No Ads Plan Checkout | CineVault",
+  title: "No Ads Plan Checkout | CINRYVAN",
   description:
-    "Checkout page for the CineVault No Ads plan.",
+    "Checkout page for the CINRYVAN No Ads plan.",
   robots: {
     index: false,
     follow: false,
@@ -24,7 +24,7 @@ export default function NoAdsCheckoutPage() {
         <h2 className="text-2xl font-bold text-yellow-400">$20 / month</h2>
 
         <p className="mt-2 text-white/70">
-          Remove ads and enjoy a cleaner CineVault experience.
+          Remove ads and enjoy a cleaner CINRYVAN experience.
         </p>
 
         <button className="mt-6 w-full rounded-xl bg-yellow-400 px-5 py-3 font-bold text-black">

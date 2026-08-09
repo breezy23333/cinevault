@@ -59,13 +59,13 @@ const tvChannels = [
 ];
 
 const roomNavigation = [
-  { label: "Movies", icon: "🎬", href: "/rooms/cinevault/movie" },
-  { label: "TV", icon: "📺", href: "/rooms/cinevault/tv" },
-  { label: "Anime", icon: "⚡", href: "/rooms/cinevault/anime" },
-  { label: "Cartoons", icon: "🎨", href: "/rooms/cinevault/cartoons" },
-  { label: "Spoilers", icon: "🔥", href: "/rooms/cinevault/spoilers" },
-  { label: "News", icon: "📰", href: "/rooms/cinevault/news" },
-  { label: "Gaming", icon: "🎮", href: "/rooms/cinevault/gaming" },
+  { label: "Movies", icon: "🎬", href: "/rooms/cinryvan/movie" },
+  { label: "TV", icon: "📺", href: "/rooms/cinryvan/tv" },
+  { label: "Anime", icon: "⚡", href: "/rooms/cinryvan/anime" },
+  { label: "Cartoons", icon: "🎨", href: "/rooms/cinryvan/cartoons" },
+  { label: "Spoilers", icon: "🔥", href: "/rooms/cinryvan/spoilers" },
+  { label: "News", icon: "📰", href: "/rooms/cinryvan/news" },
+  { label: "Gaming", icon: "🎮", href: "/rooms/cinryvan/gaming" },
 ];
 
 export default function TVRoom({
@@ -77,7 +77,7 @@ export default function TVRoom({
     tvChannels.find((channel) => channel.slug === activeChannel) ||
     tvChannels[0];
 
-  const roomKey = `cinevault:tv:${selectedChannel.slug}`;
+  const roomKey = `cinryvan:tv:${selectedChannel.slug}`;
 
   return (
     <main className="min-h-screen bg-[#070812] pt-20 text-white">
@@ -94,7 +94,7 @@ export default function TVRoom({
 
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.3em] text-indigo-200">
-                      CineVault Television
+                      CINRYVAN Television
                     </p>
                     <h1 className="text-2xl font-black">
                       TV Room
@@ -147,7 +147,7 @@ export default function TVRoom({
                   return (
                     <Link
                       key={channel.slug}
-                      href={`/rooms/cinevault/tv?channel=${channel.slug}`}
+                      href={`/rooms/cinryvan/tv?channel=${channel.slug}`}
                       className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition ${
                         active
                           ? "bg-indigo-500/20 text-indigo-100 ring-1 ring-indigo-400/30"
@@ -202,7 +202,7 @@ export default function TVRoom({
                 {tvChannels.map((channel) => (
                   <Link
                     key={channel.slug}
-                    href={`/rooms/cinevault/tv?channel=${channel.slug}`}
+                    href={`/rooms/cinryvan/tv?channel=${channel.slug}`}
                     className={`shrink-0 rounded-full px-3 py-2 text-xs font-bold ${
                       channel.slug === selectedChannel.slug
                         ? "bg-indigo-400 text-indigo-950"
@@ -225,7 +225,7 @@ export default function TVRoom({
             {/* TV guide sidebar */}
             <aside className="hidden border-l border-white/10 bg-[#0e1020] p-4 lg:block">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-indigo-300">
-                Tonight on CineVault
+                Tonight on CINRYVAN
               </p>
 
               <div className="mt-4 space-y-3">

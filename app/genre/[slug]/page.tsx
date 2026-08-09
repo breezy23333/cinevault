@@ -20,22 +20,22 @@ export async function generateMetadata({
   const name = formatGenre(slug);
 
   return {
-    title: `${name} Movies & Shows | CineVault`,
-    description: `Browse ${name} movies, TV shows, anime, cartoons, trending titles, and entertainment picks on CineVault.`,
+    title: `${name} Movies & Shows | CINRYVAN`,
+    description: `Browse ${name} movies, TV shows, anime, cartoons, trending titles, and entertainment picks on CINRYVAN.`,
     alternates: {
       canonical: `/genre/${slug}`,
     },
     openGraph: {
-      title: `${name} Movies & Shows | CineVault`,
+      title: `${name} Movies & Shows | CINRYVAN`,
       description: `Discover ${name} movies, shows, anime, cartoons, and entertainment content.`,
       url: `/genre/${slug}`,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       images: ["/og-image.png"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${name} Movies & Shows | CineVault`,
+      title: `${name} Movies & Shows | CINRYVAN`,
       description: `Explore ${name} movies, TV shows, anime, cartoons, and entertainment.`,
       images: ["/og-image.png"],
     },
@@ -61,12 +61,12 @@ export default async function GenrePage({ params }: PageProps) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${genreName} Movies & Shows`,
-    description: `Browse ${genreName} movies, TV shows, anime, cartoons, trending titles, and entertainment content on CineVault.`,
-    url: `https://cinevault-tau-drab.vercel.app/genre/${slug}`,
+    description: `Browse ${genreName} movies, TV shows, anime, cartoons, trending titles, and entertainment content on CINRYVAN.`,
+    url: `https://cinryvan.vercel.app/genre/${slug}`,
     isPartOf: {
       "@type": "WebSite",
-      name: "CineVault",
-      url: "https://cinevault-tau-drab.vercel.app",
+      name: "CINRYVAN",
+      url: "https://cinryvan.vercel.app",
     },
   };
 
@@ -82,7 +82,7 @@ export default async function GenrePage({ params }: PageProps) {
       <section className="mx-auto max-w-6xl">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-yellow-400/[0.08] p-8 md:p-12">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-            CineVault Genres
+            CINRYVAN Genres
           </p>
 
           <h1 className="mt-4 max-w-4xl text-5xl font-black md:text-7xl">
@@ -92,7 +92,7 @@ export default async function GenrePage({ params }: PageProps) {
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/65">
             Explore {genreName} movies, TV shows, anime, cartoons, trending
             titles, top rated picks, upcoming releases, and entertainment
-            recommendations on CineVault.
+            recommendations on CINRYVAN.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

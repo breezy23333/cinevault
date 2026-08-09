@@ -59,7 +59,7 @@ export default function GameHero({ games }: { games: RawgGame[] }) {
     <section>
       <div className="mb-5">
         <p className="text-xs font-bold uppercase tracking-[0.25em] text-yellow-400">
-          CineVault Gaming
+          CINRYVAN Gaming
         </p>
 
         <h1 className="mt-2 text-3xl font-black text-white md:text-5xl">
@@ -96,7 +96,7 @@ export default function GameHero({ games }: { games: RawgGame[] }) {
           <div className="flex min-h-[420px] flex-col p-6 md:p-8">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
-                Now on CineVault
+                Now on CINRYVAN
               </p>
 
               <h2 className="mt-3 hidden text-3xl font-black leading-tight text-white lg:block">

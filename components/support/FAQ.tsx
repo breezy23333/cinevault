@@ -5,10 +5,10 @@ const DEFAULTS = [
   { q: "Why doesn't a title have a streaming link?",
     a: "Some titles aren't available in your region yet or the provider data hasn't synced. Try again in a few hours and make sure your region is set correctly in Settings." },
   { q: "Search shows results from other countries.",
-    a: "CineVault uses your region setting to filter providers. Go to Settings → Region and pick your country, then refresh the page." },
+    a: "CINRYVAN uses your region setting to filter providers. Go to Settings → Region and pick your country, then refresh the page." },
   { q: "My page layout looks broken.",
     a: "Clear cache (Ctrl/Cmd+Shift+R) and ensure you're on the latest Chrome/Edge. If it persists, send us the page URL and a screenshot via the form." },
-  { q: "Is CineVault free?",
+  { q: "Is CINRYVAN free?",
     a: "Yes. We link you to official providers. Some providers require their own subscription." },
 ];
 

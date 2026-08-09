@@ -5,25 +5,25 @@ import RoomsCarousel from "@/components/rooms/RoomsCarousel";
 export const metadata: Metadata = {
   title: "Rooms | Movie, TV, Anime & Gaming Chat",
   description:
-    "Join real-time CineVault chat rooms for movies, TV shows, anime, cartoons, spoilers, gaming and entertainment news.",
+    "Join real-time CINRYVAN chat rooms for movies, TV shows, anime, cartoons, spoilers, gaming and entertainment news.",
 
   alternates: {
     canonical: "/rooms",
   },
 
   openGraph: {
-    title: "CineVault Rooms | Live Entertainment Communities",
+    title: "CINRYVAN Rooms | Live Entertainment Communities",
     description:
       "Join themed live rooms for movies, television, anime, cartoons, spoilers, gaming and entertainment news.",
     url: "/rooms",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "CineVault Rooms | Live Fan Communities",
+    title: "CINRYVAN Rooms | Live Fan Communities",
     description:
       "Real-time movie, TV, anime, cartoon, gaming, spoiler and news discussions.",
     images: ["/og-image.png"],
@@ -34,43 +34,43 @@ const roomLinks = [
   {
     icon: "🎬",
     title: "Movies",
-    href: "/rooms/cinevault/movie",
+    href: "/rooms/cinryvan/movie",
     colour: "hover:border-amber-400 hover:text-amber-300",
   },
   {
     icon: "📺",
     title: "Television",
-    href: "/rooms/cinevault/tv",
+    href: "/rooms/cinryvan/tv",
     colour: "hover:border-indigo-400 hover:text-indigo-300",
   },
   {
     icon: "⚡",
     title: "Anime",
-    href: "/rooms/cinevault/anime",
+    href: "/rooms/cinryvan/anime",
     colour: "hover:border-pink-400 hover:text-pink-300",
   },
   {
     icon: "🎨",
     title: "Cartoons",
-    href: "/rooms/cinevault/cartoons",
+    href: "/rooms/cinryvan/cartoons",
     colour: "hover:border-cyan-400 hover:text-cyan-300",
   },
   {
     icon: "🔥",
     title: "Spoilers",
-    href: "/rooms/cinevault/spoilers",
+    href: "/rooms/cinryvan/spoilers",
     colour: "hover:border-orange-400 hover:text-orange-300",
   },
   {
     icon: "📰",
     title: "News",
-    href: "/rooms/cinevault/news",
+    href: "/rooms/cinryvan/news",
     colour: "hover:border-red-400 hover:text-red-300",
   },
   {
     icon: "🎮",
     title: "Gaming",
-    href: "/rooms/cinevault/gaming",
+    href: "/rooms/cinryvan/gaming",
     colour: "hover:border-purple-400 hover:text-purple-300",
   },
 ];
@@ -84,7 +84,7 @@ const communityFeatures = [
   {
     icon: "🟢",
     title: "Online presence",
-    text: "See when other CineVault members are online inside the same room.",
+    text: "See when other CINRYVAN members are online inside the same room.",
   },
   {
     icon: "⌨️",
@@ -104,7 +104,7 @@ const communityFeatures = [
   {
     icon: "🛡️",
     title: "Member-only participation",
-    text: "Members sign in before joining and posting in live CineVault conversations.",
+    text: "Members sign in before joining and posting in live CINRYVAN conversations.",
   },
 ];
 
@@ -112,17 +112,17 @@ export default function RoomsPage() {
   const roomsJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "CineVault Rooms",
+    name: "CINRYVAN Rooms",
     description:
       "Real-time themed community rooms for movies, television, anime, cartoons, spoilers, gaming and entertainment news.",
-    url: "https://cinevault-tau-drab.vercel.app/rooms",
+    url: "https://cinryvan.vercel.app/rooms",
     mainEntity: {
       "@type": "ItemList",
       itemListElement: roomLinks.map((room, index) => ({
         "@type": "ListItem",
         position: index + 1,
         name: `${room.title} Room`,
-        url: `https://cinevault-tau-drab.vercel.app${room.href}`,
+        url: `https://cinryvan.vercel.app${room.href}`,
       })),
     },
   };
@@ -147,7 +147,7 @@ export default function RoomsPage() {
               <div className="inline-flex items-center gap-3 rounded-full border border-yellow-400/20 bg-yellow-400/[0.07] px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)]" />
                 <span className="text-xs font-black uppercase tracking-[0.3em] text-yellow-300">
-                  CineVault Rooms are live
+                  CINRYVAN Rooms are live
                 </span>
               </div>
 
@@ -262,7 +262,7 @@ export default function RoomsPage() {
             </h2>
 
             <p className="mt-5 text-base leading-8 text-white/50">
-              CineVault Rooms combine themed fan communities with real-time
+              CINRYVAN Rooms combine themed fan communities with real-time
               messaging, presence and focused discussion channels.
             </p>
           </div>
@@ -304,21 +304,21 @@ export default function RoomsPage() {
               </h2>
 
               <p className="mt-5 max-w-2xl text-base leading-8 text-white/50">
-                Sign in, choose a community and join CineVault members discussing
+                Sign in, choose a community and join CINRYVAN members discussing
                 what they watch, play and care about.
               </p>
             </div>
 
             <div className="flex shrink-0 flex-wrap gap-3">
               <Link
-                href="/rooms/cinevault/movie"
+                href="/rooms/cinryvan/movie"
                 className="rounded-full bg-yellow-400 px-6 py-3 font-black text-black hover:bg-yellow-300"
               >
                 Enter Movie Room
               </Link>
 
               <Link
-                href="/rooms/cinevault/gaming"
+                href="/rooms/cinryvan/gaming"
                 className="rounded-full bg-purple-500 px-6 py-3 font-black text-white hover:bg-purple-400"
               >
                 Enter Gaming Room

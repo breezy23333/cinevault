@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import LoginClient from "./LoginClient";
 
 export const metadata: Metadata = {
-  title: "Login | CineVault",
-  description: "Log in to your CineVault account.",
+  title: "Login | CINRYVAN",
+  description: "Log in to your CINRYVAN account.",
   robots: {
     index: false,
     follow: false,

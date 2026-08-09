@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | CineVault",
+  title: "Privacy Policy | CINRYVAN",
   description:
-    "Learn how CineVault collects, uses, protects, and manages personal information, cookies, analytics, and user data.",
+    "Learn how CINRYVAN collects, uses, protects, and manages personal information, cookies, analytics, and user data.",
   keywords: [
     "privacy policy",
-    "CineVault privacy",
+    "CINRYVAN privacy",
     "user data",
     "data protection",
     "cookies",
@@ -16,19 +16,19 @@ export const metadata: Metadata = {
     canonical: "/privacy",
   },
   openGraph: {
-    title: "Privacy Policy | CineVault",
+    title: "Privacy Policy | CINRYVAN",
     description:
-      "Learn how CineVault handles privacy, cookies, analytics, and user data.",
+      "Learn how CINRYVAN handles privacy, cookies, analytics, and user data.",
     url: "/privacy",
-    siteName: "CineVault",
+    siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Privacy Policy | CineVault",
+    title: "Privacy Policy | CINRYVAN",
     description:
-      "Learn how CineVault collects, uses, and protects user information.",
+      "Learn how CINRYVAN collects, uses, and protects user information.",
     images: ["/og-image.png"],
   },
 };
@@ -38,8 +38,8 @@ const privacyJsonLd = {
   "@type": "WebPage",
   name: "Privacy Policy",
   description:
-    "Learn how CineVault collects, uses, protects, and manages personal information and user data.",
-  url: "https://cinevault-tau-drab.vercel.app/privacy",
+    "Learn how CINRYVAN collects, uses, protects, and manages personal information and user data.",
+  url: "https://cinryvan.vercel.app/privacy",
 };
 
 export default function PrivacyPage() {
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
           </h1>
 
           <p className="mt-5 text-lg text-white/70 leading-relaxed max-w-3xl">
-            CineVault respects your privacy and is committed to protecting
+            CINRYVAN respects your privacy and is committed to protecting
             your personal information while delivering a cinematic discovery
             experience for movies, TV shows, anime, and entertainment news.
           </p>
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
             <ul className="mt-4 space-y-3 text-white/70 leading-7 list-disc pl-6">
               <li>Improve recommendations and discovery systems</li>
               <li>Enhance performance and platform stability</li>
-              <li>Personalize your CineVault experience</li>
+              <li>Personalize your CINRYVAN experience</li>
               <li>Monitor trending content and analytics</li>
               <li>Protect against abuse and unauthorized access</li>
             </ul>
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              CineVault may use cookies and analytics technologies to
+              CINRYVAN may use cookies and analytics technologies to
               understand engagement, improve features, and optimize content
               delivery. These tools help us understand how users interact
               with the platform.
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
             </h2>
 
             <p className="mt-4 text-white/70 leading-8">
-              We do not sell personal information. CineVault uses reasonable
+              We do not sell personal information. CINRYVAN uses reasonable
               security practices designed to protect user information and
               maintain platform integrity.
             </p>
@@ -140,7 +140,7 @@ export default function PrivacyPage() {
             <p className="mt-4 text-white/70 leading-8">
               If you have any questions regarding this Privacy Policy,
               platform practices, or your data, please contact the
-              CineVault team through the Support page.
+              CINRYVAN team through the Support page.
             </p>
           </section>
 

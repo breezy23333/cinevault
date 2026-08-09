@@ -16,26 +16,26 @@ export async function generateMetadata({
   const title = topics[topic] || "Sports News";
 
   return {
-    title: `${title} | CineVault`,
+    title: `${title} | CINRYVAN`,
     description:
-      `Read the latest ${title.toLowerCase()} headlines, results, analysis, transfers, schedules, and sports updates on CineVault.`,
+      `Read the latest ${title.toLowerCase()} headlines, results, analysis, transfers, schedules, and sports updates on CINRYVAN.`,
     alternates: {
       canonical: `/news/sports/${topic}`,
     },
     openGraph: {
-      title: `${title} | CineVault`,
+      title: `${title} | CINRYVAN`,
       description:
         `Latest ${title.toLowerCase()} headlines and sports updates.`,
       url: `/news/sports/${topic}`,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       images: ["/og-image.png"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | CineVault`,
+      title: `${title} | CINRYVAN`,
       description:
-        `Read the latest ${title.toLowerCase()} news on CineVault.`,
+        `Read the latest ${title.toLowerCase()} news on CINRYVAN.`,
       images: ["/og-image.png"],
     },
   };
@@ -63,7 +63,7 @@ export default async function SportsTopicPage({
   name: title,
   description:
     `Latest ${title.toLowerCase()} headlines and sports updates.`,
-  url: `https://cinevault-tau-drab.vercel.app/news/sports/${topic}`,
+  url: `https://cinryvan.vercel.app/news/sports/${topic}`,
 };
 
   return (

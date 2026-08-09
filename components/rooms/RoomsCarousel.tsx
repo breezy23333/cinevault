@@ -9,7 +9,7 @@ const rooms = [
     eyebrow: "Premium Cinema",
     title: "Movie Room",
     text: "Enter a premium screening lounge for new releases, classics, horror, reviews, trailers and community watch parties.",
-    href: "/rooms/cinevault/movie",
+    href: "/rooms/cinryvan/movie",
     background:
       "from-[#4a0d16] via-[#170b0e] to-[#050505]",
     accent: "bg-amber-400 text-black hover:bg-amber-300",
@@ -23,7 +23,7 @@ const rooms = [
     eyebrow: "Streaming Community",
     title: "TV Room",
     text: "Discuss episodes, season finales, fan theories, reality television and the shows everyone is binge-watching.",
-    href: "/rooms/cinevault/tv",
+    href: "/rooms/cinryvan/tv",
     background:
       "from-[#171958] via-[#201442] to-[#080913]",
     accent: "bg-indigo-300 text-indigo-950 hover:bg-white",
@@ -37,7 +37,7 @@ const rooms = [
     eyebrow: "Neon Anime District",
     title: "Anime Room",
     text: "Join anime fans discussing current series, manga, shonen battles, theories, openings, cosplay and recommendations.",
-    href: "/rooms/cinevault/anime",
+    href: "/rooms/cinryvan/anime",
     background:
       "from-[#43105e] via-[#180b36] to-[#06243b]",
     accent: "bg-pink-400 text-[#170522] hover:bg-cyan-300",
@@ -51,7 +51,7 @@ const rooms = [
     eyebrow: "Animated Toon Town",
     title: "Cartoon Room",
     text: "A colourful home for animated classics, modern cartoons, family favourites, comedy and creative animation.",
-    href: "/rooms/cinevault/cartoons",
+    href: "/rooms/cinryvan/cartoons",
     background:
       "from-[#0891b2] via-[#172554] to-[#db2777]",
     accent: "bg-yellow-300 text-[#07111d] hover:bg-white",
@@ -65,7 +65,7 @@ const rooms = [
     eyebrow: "Unfiltered Discussion",
     title: "Spoiler Room",
     text: "A warning-marked social feed for endings, plot twists, theories, hidden clues and unrestricted story discussions.",
-    href: "/rooms/cinevault/spoilers",
+    href: "/rooms/cinryvan/spoilers",
     background:
       "from-[#3c0b06] via-[#120706] to-[#030303]",
     accent: "bg-orange-500 text-black hover:bg-orange-300",
@@ -79,7 +79,7 @@ const rooms = [
     eyebrow: "Live News Desk",
     title: "News Room",
     text: "React to breaking entertainment stories, casting news, trailers, box-office results, gaming and sports updates.",
-    href: "/rooms/cinevault/news",
+    href: "/rooms/cinryvan/news",
     background:
       "from-[#0b3a5b] via-[#071827] to-[#140608]",
     accent: "bg-red-600 text-white hover:bg-white hover:text-black",
@@ -90,10 +90,10 @@ const rooms = [
   },
   {
     icon: "🎮",
-    eyebrow: "CineVault Live",
+    eyebrow: "CINRYVAN Live",
     title: "Gaming Room",
     text: "A livestream-inspired space for new games, esports, multiplayer, reviews, clips, hardware and finding teammates.",
-    href: "/rooms/cinevault/gaming",
+    href: "/rooms/cinryvan/gaming",
     background:
       "from-[#4c1d95] via-[#1c102c] to-[#09070d]",
     accent: "bg-purple-500 text-white hover:bg-purple-300 hover:text-black",
@@ -234,7 +234,7 @@ export default function RoomsCarousel() {
               Live messages, online presence and typing indicators
             </p>
             <p className="mt-2 text-xs leading-5 text-white/40">
-              Sign in to join conversations and meet other CineVault members.
+              Sign in to join conversations and meet other CINRYVAN members.
             </p>
           </div>
         </div>

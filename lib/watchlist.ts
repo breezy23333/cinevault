@@ -7,7 +7,7 @@ export type WatchlistItem = {
   vote_average?: number;
 };
 
-const KEY = "cinevault_watchlist";
+const KEY = "cinryvan_watchlist";
 
 export function getWatchlist(): WatchlistItem[] {
   if (typeof window === "undefined") return [];

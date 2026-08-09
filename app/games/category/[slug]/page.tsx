@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 export const revalidate = 86400;
 export const dynamicParams = true;
 
-const SITE_URL = "https://cinevault-tau-drab.vercel.app";
+const SITE_URL = "https://cinryvan.vercel.app";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 type PageProps = {
@@ -81,7 +81,7 @@ export async function generateMetadata({
 
   if (!category) {
     return {
-      title: "Game Category Not Found | CineVault",
+      title: "Game Category Not Found | CINRYVAN",
       description: "The requested game category could not be found.",
       robots: {
         index: false,
@@ -94,12 +94,12 @@ export async function generateMetadata({
 
   const title =
     page > 1
-      ? `${category.title} – Page ${page} | CineVault`
-      : `${category.title} | CineVault`;
+      ? `${category.title} – Page ${page} | CINRYVAN`
+      : `${category.title} | CINRYVAN`;
 
   const description =
     page > 1
-      ? `${category.description} Browse page ${page} of this gaming collection on CineVault.`
+      ? `${category.description} Browse page ${page} of this gaming collection on CINRYVAN.`
       : category.description;
 
   const canonicalPath = categoryPageHref(slug, page);
@@ -116,7 +116,7 @@ export async function generateMetadata({
       "game ratings",
       "gaming platforms",
       "where to play games",
-      "CineVault Gaming",
+      "CINRYVAN Gaming",
     ],
 
     alternates: {
@@ -127,14 +127,14 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "CineVault",
+      siteName: "CINRYVAN",
       type: "website",
       images: [
         {
           url: DEFAULT_OG_IMAGE,
           width: 1200,
           height: 630,
-          alt: `${category.title} on CineVault`,
+          alt: `${category.title} on CINRYVAN`,
         },
       ],
     },
@@ -224,7 +224,7 @@ export default async function GameCategoryPage({
             </Link>
 
             <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-              CineVault Gaming
+              CINRYVAN Gaming
             </p>
 
             <h1 className="mt-3 text-4xl font-black leading-tight md:text-6xl">

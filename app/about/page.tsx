@@ -3,27 +3,27 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "About — CineVault",
+  title: "About — CINRYVAN",
   description: "Who we are and how we help you find where to watch.",
   alternates: {
   canonical: "/about",
 },
 
 openGraph: {
-  title: "About CineVault",
+  title: "About CINRYVAN",
   description:
-    "Learn about CineVault and our mission to help users discover movies, TV shows, anime, cartoons, and streaming platforms.",
+    "Learn about CINRYVAN and our mission to help users discover movies, TV shows, anime, cartoons, and streaming platforms.",
   url: "/about",
-  siteName: "CineVault",
+  siteName: "CINRYVAN",
   images: ["/og-image.png"],
   type: "website",
 },
 
 twitter: {
   card: "summary_large_image",
-  title: "About CineVault",
+  title: "About CINRYVAN",
   description:
-    "Learn about CineVault and our mission to help users discover entertainment.",
+    "Learn about CINRYVAN and our mission to help users discover entertainment.",
   images: ["/og-image.png"],
 },
 };
@@ -31,10 +31,10 @@ twitter: {
 const aboutJsonLd = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
-  name: "About CineVault",
+  name: "About CINRYVAN",
   description:
-    "Learn about CineVault and our mission to help users discover movies, TV shows, anime, cartoons, and entertainment.",
-  url: "https://cinevault-tau-drab.vercel.app/about",
+    "Learn about CINRYVAN and our mission to help users discover movies, TV shows, anime, cartoons, and entertainment.",
+  url: "https://cinryvan.vercel.app/about",
 };
 
 export default function AboutPage() {
@@ -56,7 +56,7 @@ export default function AboutPage() {
         </h1>
 
         <p className="mt-4 max-w-3xl text-zinc-300">
-          CineVault helps you discover movies and shows and jump straight to
+          CINRYVAN helps you discover movies and shows and jump straight to
           official streaming sources. No noise, no dead links — just clean,
           verified results.
         </p>
@@ -80,7 +80,7 @@ export default function AboutPage() {
 
       <section className="mx-auto mt-12 max-w-6xl px-4">
         <h2 className="text-xl font-semibold text-zinc-100">
-          Why choose CineVault
+          Why choose CINRYVAN
         </h2>
 
         <p className="mt-2 max-w-2xl text-zinc-400">
@@ -97,7 +97,7 @@ export default function AboutPage() {
             <h3 className="text-lg font-semibold text-zinc-100">Our story</h3>
 
             <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-              We started CineVault after getting tired of bouncing between
+              We started CINRYVAN after getting tired of bouncing between
               search engines, apps, and sketchy sites just to watch one film.
               So we built a fast indexer, clean UI, and a direct line to
               support.
@@ -122,7 +122,7 @@ export default function AboutPage() {
 
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/10">
             <Image
-              alt="CineVault preview"
+              alt="CINRYVAN preview"
               fill
               src="https://images.unsplash.com/photo-1608178398319-48f814d0750c?q=80&w=1974&auto=format&fit=crop"
               className="object-cover"
