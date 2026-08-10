@@ -9,7 +9,8 @@ import {
   RAWG_ATTRIBUTION_URL,
 } from "@/lib/games";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const SITE_URL = "https://cinryvan.vercel.app";
 
