@@ -13,7 +13,7 @@ model ContactMessage {
   name      String
   email     String
   subject   String
-  message   String 
+  message   String
   phone     String?
   ip        String?
   ua        String?
@@ -25,21 +25,22 @@ model Comment {
   name      String   @default("Guest")
   body      String
   createdAt DateTime @default(now())
+
   @@index([movieId])
 }
 
 model User {
-  id              String             @id @default(cuid())
-  name            String?
-  email           String             @unique
-  password        String?
-  image           String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  accounts        Account[]
-  sessions        Session[]
-  watchlist       WatchlistItem[]
-  notifications   Notification[]
+  id               String             @id @default(cuid())
+  name             String?
+  email            String             @unique
+  password         String?
+  image            String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  accounts         Account[]
+  sessions         Session[]
+  watchlist        WatchlistItem[]
+  notifications    Notification[]
   continueWatching ContinueWatching[]
 }
 
@@ -110,18 +111,51 @@ model Notification {
 }
 
 model ContinueWatching {
-  id          String   @id @default(cuid())
-  userId      String
-  tmdbId      Int
-  mediaType   String
-  title       String
-  posterPath  String?
-  progress    Int      @default(0)
-  duration    Int      @default(0)
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  tmdbId     Int
+  mediaType  String
+  title      String
+  posterPath String?
+  progress   Int      @default(0)
+  duration   Int      @default(0)
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, tmdbId, mediaType])
+}
+
+model CachedGame {
+  rawgId          Int       @id
+  slug            String    @unique
+  name            String
+  released        DateTime?
+  backgroundImage String?
+  rating          Float     @default(0)
+  ratingTop       Int       @default(5)
+  ratingsCount    Int       @default(0)
+  metacritic      Int?
+  playtime        Int       @default(0)
+
+  platformSlugs String[] @default([])
+  genreSlugs    String[] @default([])
+  tagSlugs      String[] @default([])
+
+  platforms       Json
+  parentPlatforms Json?
+  genres          Json
+  stores          Json?
+  screenshots     Json?
+  esrbRating      Json?
+
+  syncedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([released])
+  @@index([rating])
+  @@index([metacritic])
+  @@index([syncedAt])
 }
