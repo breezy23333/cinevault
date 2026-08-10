@@ -358,38 +358,34 @@ export function getNintendoGames(limit = 20) {
 }
 
 export async function getGamingBrowseData() {
-  const [
-    popular,
-    newReleases,
-    topRated,
-    upcoming,
-    pc,
-    playStation,
-    xbox,
-    nintendo,
-    firstPersonShooters,
-    thirdPersonShooters,
-    esports,
-    racing,
-    storyRpg,
-    horrorSurvival,
-  ] = await Promise.all([
+  const [popular, newReleases, topRated] = await Promise.all([
     getPopularGames(20),
     getNewReleaseGames(20),
     getTopRatedGames(20),
+  ]);
+
+  const [upcoming, pc, playStation] = await Promise.all([
     getUpcomingGames(20),
     getPcGames(20),
     getPlayStationGames(20),
+  ]);
+
+  const [xbox, nintendo, firstPersonShooters] = await Promise.all([
     getXboxGames(20),
     getNintendoGames(20),
     getFirstPersonShooters(20),
+  ]);
+
+  const [thirdPersonShooters, esports, racing] = await Promise.all([
     getThirdPersonShooters(20),
     getEsportsGames(20),
     getRacingGames(20),
+  ]);
+
+  const [storyRpg, horrorSurvival] = await Promise.all([
     getStoryRpgGames(20),
     getHorrorSurvivalGames(20),
   ]);
-
   return {
     popular,
     newReleases,
