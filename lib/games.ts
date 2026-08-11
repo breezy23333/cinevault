@@ -1,4 +1,11 @@
 import "server-only";
+import {
+  getIgdbGameCount,
+  getIgdbGameDetails,
+  getIgdbGameScreenshots,
+  getIgdbGames,
+  getIgdbSimilarGames,
+} from "@/lib/igdbGames";
 
 const RAWG_BASE_URL = "https://api.rawg.io/api";
 const CACHE_TIME = 60 * 60 * 24; // 24 hours
@@ -118,13 +125,7 @@ async function rawgFetch<T>(
 export async function getGames(
   query: RawgQuery = {},
 ): Promise<RawgGame[]> {
-  const response = await rawgFetch<RawgGamesResponse>("/games", {
-    page_size: 24,
-    exclude_additions: true,
-    ...query,
-  });
-
-  return response?.results ?? [];
+  return getIgdbGames(query);
 }
 
 function cleanGameCollection(
@@ -906,16 +907,19 @@ export async function getGameCategoryPage(
       ? requestedPage
       : 1;
 
-  const response = await rawgFetch<RawgGamesResponse>("/games", {
-    ...category.query,
-    page,
-    page_size: GAME_CATEGORY_PAGE_SIZE,
-    exclude_additions: true,
-  });
+  const [categoryGames, totalResults] =
+  await Promise.all([
+    getIgdbGames({
+      ...category.query,
+      page,
+      page_size: GAME_CATEGORY_PAGE_SIZE,
+    }),
+    getIgdbGameCount(category.query),
+  ]);
 
   const usedIds = new Set<number>();
 
-  const games = (response?.results ?? []).filter((game) => {
+  const games = categoryGames.filter((game) => {
     if (!game?.id || !game.name || usedIds.has(game.id)) {
       return false;
     }
@@ -923,8 +927,6 @@ export async function getGameCategoryPage(
     usedIds.add(game.id);
     return true;
   });
-
-  const totalResults = response?.count ?? games.length;
 
   const totalPages = Math.max(
     1,
@@ -968,14 +970,13 @@ export type GameDetails = RawgGame & {
   tags: GameTag[];
   added: number;
   updated: string;
+  trailer_video_id?: string | null;
 };
 
 export async function getGameDetails(
-  id: string | number
+  id: string | number,
 ): Promise<GameDetails | null> {
-  const safeId = encodeURIComponent(String(id));
-
-  return rawgFetch<GameDetails>(`/games/${safeId}`);
+  return getIgdbGameDetails(id);
 }
 
 type RawgScreenshotsResponse = {
@@ -988,31 +989,13 @@ type RawgScreenshotsResponse = {
 export async function getGameScreenshots(
   id: string | number,
 ): Promise<GameScreenshot[]> {
-  const safeId = encodeURIComponent(String(id));
-
-  const response = await rawgFetch<RawgScreenshotsResponse>(
-    `/games/${safeId}/screenshots`,
-    {
-      page_size: 12,
-    },
-  );
-
-  return response?.results ?? [];
+  return getIgdbGameScreenshots(id); 
 }
 
 export async function getGameSeries(
   id: string | number,
 ): Promise<RawgGame[]> {
-  const safeId = encodeURIComponent(String(id));
-
-  const response = await rawgFetch<RawgGamesResponse>(
-    `/games/${safeId}/game-series`,
-    {
-      page_size: 12,
-    },
-  );
-
-  return response?.results ?? [];
+  return getIgdbSimilarGames(id);
 }
 
 export async function getRelatedGames(

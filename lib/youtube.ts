@@ -64,7 +64,20 @@ function scoreTrailer(
 
 export async function getGameTrailer(
   gameName: string,
+  igdbVideoId?: string | null,
 ): Promise<GameTrailer | null> {
+  if (
+    igdbVideoId &&
+    /^[A-Za-z0-9_-]{11}$/.test(igdbVideoId)
+  ) {
+    return {
+      videoId: igdbVideoId,
+      title: `${gameName} official trailer`,
+      channelTitle: "YouTube",
+      thumbnail: `https://i.ytimg.com/vi/${igdbVideoId}/hqdefault.jpg`,
+    };
+  }
+
   const apiKey = process.env.YOUTUBE_API_KEY;
 
   if (!gameName.trim()) {

@@ -43,6 +43,16 @@ export default function GameTrailer({
             <p className="mt-1 text-sm text-white/50">
               Uploaded by {trailer.channelTitle}
             </p>
+
+            <a
+              href={`https://www.youtube.com/watch?v=${trailer.videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex rounded-xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500"
+            >
+              Watch on YouTube ↗
+            </a>
+
           </div>
         </div>
       ) : (

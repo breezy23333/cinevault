@@ -29,7 +29,14 @@ function cleanRequirement(value?: string) {
 
   return value
     .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "• ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<\/?(ul|ol)[^>]*>/gi, "\n")
     .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
@@ -185,7 +192,10 @@ export default async function GameDetailsPage({ params }: PageProps) {
   }
 
   const { game, screenshots, seriesGames, moreGames } = pageData;
-  const trailer = await getGameTrailer(game.name);
+  const trailer = await getGameTrailer(
+    game.name,
+    game.trailer_video_id,
+  );
 
   const platforms = game.platforms || [];
   const stores = game.stores || [];
@@ -352,7 +362,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <nav className="fixed left-1/2 top-[72px] z-40 w-[calc(100%-2rem)] max-w-7xl -translate-x-1/2 overflow-x-auto rounded-2xl border border-white/10 bg-[#101722]/95 p-2 shadow-2xl backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="relative z-20 w-full overflow-x-auto rounded-2xl border border-white/10 bg-[#101722]/95 p-2 shadow-2xl backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex min-w-max gap-1">
             <a
               href="#trailer"
