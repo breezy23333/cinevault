@@ -123,11 +123,11 @@ export default function HeroCarousel({
           className="object-cover object-center"
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/75 to-[#05070d]/15" />
+        {/* Light horizontal shading—stronger only behind the text */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#05070d]/80 via-[#05070d]/25 to-transparent" />
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#05070d] via-transparent to-[#05070d]/45" />
-
-        <div className="pointer-events-none absolute inset-0 bg-black/10" />
+      {/* Soft shading at the top and bottom */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#05070d]/75 via-transparent to-black/10" />
 
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-72px)] w-full max-w-[1600px] items-end px-5 pb-24 pt-32 md:px-10 md:pb-28 lg:px-16">
           <div className="max-w-4xl">
@@ -221,7 +221,7 @@ export default function HeroCarousel({
           </>
         )}
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-[#05070d]/55 to-[#05070d]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-[#05070d]/20 to-[#05070d]/75" />
       </div>
     </section>
   );
