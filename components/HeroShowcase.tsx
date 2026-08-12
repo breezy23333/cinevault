@@ -23,9 +23,9 @@ export default function HeroShowcase({
 
   return (
     <section className="relative mb-8 overflow-hidden rounded-3xl min-h-[420px] ring-1 ring-white/10 bg-black">
-      <Image src={bg} alt={featured.title} fill priority className="object-cover opacity-90" />
+      <Image src={bg} alt={featured.title} fill priority className="object-cover opacity-60" />
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
 
       <div className="relative z-10 max-w-2xl p-6 md:p-10">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-red-400">

@@ -15,7 +15,7 @@ import {
 import { getEntertainmentNews } from "@/lib/news";
 import { OSCAR_BEST_PICTURE } from "@/lib/oscars";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
-import AnimationUniverseCarousel from "@/components/AnimationUniverseCarousel";
+import ExpandableHeroCarousel from "@/components/ExpandableHeroCarousel";
 import ContinueWatchingRow from "@/components/ContinueWatchingRow";
 import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
@@ -569,8 +569,12 @@ const oscarShelf = await Promise.all(
             text="Anime and cartoons separated into their own cinematic stream."
           />
 
-          <AnimationUniverseCarousel items={animationHeroes} />
-          
+          <ExpandableHeroCarousel
+              eyebrow="Animation Universe"
+              title="Animated Worlds"
+              items={animationHeroes}
+            />
+
           <Panel
             eyebrow="Japan signal"
             title={
