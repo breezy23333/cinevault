@@ -11,6 +11,8 @@ import {
   getHighestGrossingMovies,
   getMoviesByGenre,
   getMovie,
+  getMovieVideos,
+  getSimilarMovies,
 } from "@/lib/fetchers";
 import { getEntertainmentNews } from "@/lib/news";
 import { OSCAR_BEST_PICTURE } from "@/lib/oscars";
@@ -83,6 +85,7 @@ type Norm = {
   backdrop: string | null;
   year: string;
   rating?: number;
+  trailerKey?: string | null;
 };
 
 // images: shelves small, hero larger
@@ -248,9 +251,67 @@ export default async function Home() {
   
 
   // heroes (dedupe + ensure backdrop)
-  const heroes = uniqueById([...norm(trendingRaw), ...norm(popularRaw)])
-    .filter((x) => x.backdrop)
+  // Movie hero only—no TV series.
+const movieHeroes = uniqueById([
+    ...norm(trendingRaw),
+    ...norm(popularRaw),
+  ])
+    .filter(
+      (item) =>
+        item.media === "movie" &&
+        Boolean(item.backdrop),
+    )
     .slice(0, MAX_HEROES);
+
+  const featuredMovie = movieHeroes[0] ?? null;
+
+  let heroMovie: Norm | null = featuredMovie;
+  let similarHeroMovies: Norm[] = [];
+
+  if (featuredMovie) {
+    const [videosData, similarData] =
+      await Promise.all([
+        getMovieVideos(featuredMovie.id),
+        getSimilarMovies(featuredMovie.id),
+      ]);
+
+    const videos = Array.isArray(videosData?.results)
+      ? videosData.results
+      : [];
+
+    const trailer =
+      videos.find(
+        (video: any) =>
+          video.site === "YouTube" &&
+          video.type === "Trailer" &&
+          video.official === true,
+      ) ??
+      videos.find(
+        (video: any) =>
+          video.site === "YouTube" &&
+          video.type === "Trailer",
+      );
+
+    heroMovie = {
+      ...featuredMovie,
+      trailerKey: trailer?.key ?? null,
+    };
+
+    similarHeroMovies = norm(
+      Array.isArray(similarData?.results)
+        ? similarData.results.map((movie: any) => ({
+            ...movie,
+            media_type: "movie",
+          }))
+        : [],
+    )
+      .filter(
+        (movie) =>
+          movie.media === "movie" &&
+          Boolean(movie.backdrop),
+      )
+      .slice(0, 10);
+  }
 
   const seriesHeroes = uniqueById(norm(trendingRaw))
   .filter((x) => x.media === "tv" && x.backdrop)
@@ -412,7 +473,12 @@ const oscarShelf = await Promise.all(
     </div>
 
     <div className="relative z-10">
-      <HeroCarousel items={heroes} />
+      {heroMovie && (
+        <HeroCarousel
+          featured={heroMovie}
+          similarMovies={similarHeroMovies}
+        />
+      )}
 
       <Surface>
         <div className="space-y-8">
