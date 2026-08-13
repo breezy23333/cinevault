@@ -8,7 +8,11 @@ import {
   ExternalLink,
   Play,
 } from "lucide-react";
-import { useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type Movie = {
   id: number;
@@ -22,19 +26,54 @@ type Movie = {
   trailerKey?: string | null;
 };
 
-type HeroCarouselProps = {
-  featured: Movie;
+type HeroMovie = Movie & {
   similarMovies: Movie[];
 };
 
+type HeroCarouselProps = {
+  items: HeroMovie[];
+};
+
 export default function HeroCarousel({
-  featured,
-  similarMovies,
+  items,
 }: HeroCarouselProps) {
+  const [currentIndex, setCurrentIndex] =
+    useState(0);
+
   const similarRowRef =
     useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    similarRowRef.current?.scrollTo({
+      left: 0,
+      behavior: "smooth",
+    });
+  }, [currentIndex]);
+
+  if (!items.length) {
+    return null;
+  }
+
+  const featured = items[currentIndex];
+  const similarMovies =
+    featured?.similarMovies ?? [];
+
   const href = `/movie/${featured.id}`;
+
+  function showPreviousMovie() {
+    setCurrentIndex(
+      (previous) =>
+        (previous - 1 + items.length) %
+        items.length,
+    );
+  }
+
+  function showNextMovie() {
+    setCurrentIndex(
+      (previous) =>
+        (previous + 1) % items.length,
+    );
+  }
 
   function scrollSimilar(direction: number) {
     similarRowRef.current?.scrollBy({
@@ -60,6 +99,28 @@ export default function HeroCarousel({
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#05070d]/90 via-[#05070d]/45 to-transparent" />
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#05070d]/95 via-transparent to-black/10" />
+
+         {items.length > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous featured movie"
+              onClick={showPreviousMovie}
+              className="absolute left-3 top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/60 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black md:left-6"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+
+            <button
+              type="button"
+              aria-label="Next featured movie"
+              onClick={showNextMovie}
+              className="absolute right-3 top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/60 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black md:right-6"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </>
+        )} 
 
           <div className="relative z-10 grid min-h-[620px] items-center gap-10 px-5 py-16 md:px-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.72fr)] lg:px-14 xl:px-20">
             {/* Movie information */}
@@ -129,6 +190,32 @@ export default function HeroCarousel({
                   </Link>
                 )}
               </div>
+
+              {items.length > 1 && (
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <span className="text-sm font-bold text-white/70">
+                    {String(currentIndex + 1).padStart(2, "0")}
+                    {" / "}
+                    {String(items.length).padStart(2, "0")}
+                  </span>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {items.map((movie, index) => (
+                      <button
+                        key={movie.id}
+                        type="button"
+                        aria-label={`Show ${movie.title}`}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`h-1.5 rounded-full transition-all ${
+                          index === currentIndex
+                            ? "w-8 bg-yellow-400"
+                            : "w-3 bg-white/35 hover:bg-white/60"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Trailer panel */}
@@ -137,6 +224,7 @@ export default function HeroCarousel({
                 <div className="relative aspect-video overflow-hidden rounded-[18px] bg-black">
                   {featured.trailerKey ? (
                     <iframe
+                      key={`${featured.id}-${featured.trailerKey}`}
                       src={`https://www.youtube-nocookie.com/embed/${featured.trailerKey}?rel=0&modestbranding=1`}
                       title={`${featured.title} official trailer`}
                       className="absolute inset-0 h-full w-full"

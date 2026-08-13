@@ -11,8 +11,7 @@ import {
   getHighestGrossingMovies,
   getMoviesByGenre,
   getMovie,
-  getMovieVideos,
-  getSimilarMovies,
+  fetchTmdbTitle,
 } from "@/lib/fetchers";
 import { getEntertainmentNews } from "@/lib/news";
 import { OSCAR_BEST_PICTURE } from "@/lib/oscars";
@@ -22,7 +21,7 @@ import ContinueWatchingRow from "@/components/ContinueWatchingRow";
 import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
@@ -37,6 +36,7 @@ import MovieEras from "@/components/MovieEras";
 
 // runtime/perf
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 const homeDescription =
@@ -159,6 +159,11 @@ function norm(list: unknown[]): Norm[] {
     }));
 }
 
+type HeroMovie = Norm & {
+  trailerKey: string | null;
+  similarMovies: Norm[];
+};
+
 // temporary TMDB -> news card
 const toNews = (x: any): NewsItem => ({
   title: x.title || x.name || "Untitled",
@@ -171,17 +176,17 @@ const toNews = (x: any): NewsItem => ({
     : null,
 });
 
-const MAX_HEROES = 6;
+const MAX_HEROES = 10;
 const MAX_SHELF = 14;
 const MAX_NEWS = 8;
 
 
 // ✅ dynamic imports (no duplicate identifiers)
-const ShelfRow = dynamic(() => import("@/components/ShelfRow"), {
+const ShelfRow = nextDynamic(() => import("@/components/ShelfRow"), {
   ssr: true,
   loading: () => <RowSkeleton />,
 });
-const NewsStrip = dynamic(() => import("@/components/NewsStrip"), {
+const NewsStrip = nextDynamic(() => import("@/components/NewsStrip"), {
   ssr: true,
   loading: () => <RowSkeleton />,
 });
@@ -250,68 +255,93 @@ export default async function Home() {
   const gamingData = await gamingDataPromise;
   
 
-  // heroes (dedupe + ensure backdrop)
-  // Movie hero only—no TV series.
-const movieHeroes = uniqueById([
+  // Ten movie heroes with trailers and closely related movies.
+  const movieCandidates = uniqueById([
     ...norm(trendingRaw),
     ...norm(popularRaw),
   ])
     .filter(
-      (item) =>
-        item.media === "movie" &&
-        Boolean(item.backdrop),
+      (movie) =>
+        movie.media === "movie" && Boolean(movie.backdrop),
     )
     .slice(0, MAX_HEROES);
 
-  const featuredMovie = movieHeroes[0] ?? null;
+  const heroMovies: HeroMovie[] = await Promise.all(
+    movieCandidates.map(async (movie) => {
+      try {
+        const details = await fetchTmdbTitle(movie.id, "movie");
+        const videos = Array.isArray(details?.videos?.results)
+          ? details.videos.results
+          : [];
+        const trailer =
+          videos.find(
+            (video: any) =>
+              video.site === "YouTube" &&
+              video.type === "Trailer" &&
+              video.official === true,
+          ) ??
+          videos.find(
+            (video: any) =>
+              video.site === "YouTube" && video.type === "Trailer",
+          ) ??
+          videos.find(
+            (video: any) =>
+              video.site === "YouTube" && video.type === "Teaser",
+          );
 
-  let heroMovie: Norm | null = featuredMovie;
-  let similarHeroMovies: Norm[] = [];
+        const recommendations = Array.isArray(
+          details?.recommendations?.results,
+        )
+          ? details.recommendations.results
+          : [];
+        const similar = Array.isArray(details?.similar?.results)
+          ? details.similar.results
+          : [];
+        const relatedRaw = uniqueById([...recommendations, ...similar]);
+        const featuredGenres = Array.isArray(details?.genres)
+          ? details.genres.map((genre: any) => genre.id)
+          : [];
+        const isAnimation = featuredGenres.includes(16);
+        const closelyRelated = relatedRaw.filter((related: any) => {
+          const relatedGenres = Array.isArray(related.genre_ids)
+            ? related.genre_ids
+            : [];
+          return isAnimation
+            ? relatedGenres.includes(16)
+            : relatedGenres.some((genreId: number) =>
+                featuredGenres.includes(genreId),
+              );
+        });
+        const finalRelated = uniqueById([
+          ...closelyRelated,
+          ...relatedRaw,
+        ])
+          .filter(
+            (related: any) =>
+              related.id !== movie.id &&
+              Boolean(related.backdrop_path || related.poster_path),
+          )
+          .slice(0, 12);
 
-  if (featuredMovie) {
-    const [videosData, similarData] =
-      await Promise.all([
-        getMovieVideos(featuredMovie.id),
-        getSimilarMovies(featuredMovie.id),
-      ]);
-
-    const videos = Array.isArray(videosData?.results)
-      ? videosData.results
-      : [];
-
-    const trailer =
-      videos.find(
-        (video: any) =>
-          video.site === "YouTube" &&
-          video.type === "Trailer" &&
-          video.official === true,
-      ) ??
-      videos.find(
-        (video: any) =>
-          video.site === "YouTube" &&
-          video.type === "Trailer",
-      );
-
-    heroMovie = {
-      ...featuredMovie,
-      trailerKey: trailer?.key ?? null,
-    };
-
-    similarHeroMovies = norm(
-      Array.isArray(similarData?.results)
-        ? similarData.results.map((movie: any) => ({
-            ...movie,
-            media_type: "movie",
-          }))
-        : [],
-    )
-      .filter(
-        (movie) =>
-          movie.media === "movie" &&
-          Boolean(movie.backdrop),
-      )
-      .slice(0, 10);
-  }
+        return {
+          ...movie,
+          trailerKey: trailer?.key ?? null,
+          similarMovies: norm(
+            finalRelated.map((related: any) => ({
+              ...related,
+              media_type: "movie",
+            })),
+          ),
+        };
+      } catch {
+        return {
+          ...movie,
+          trailerKey: null,
+          similarMovies: [],
+        };
+      }
+    }),
+  );
 
   const seriesHeroes = uniqueById(norm(trendingRaw))
   .filter((x) => x.media === "tv" && x.backdrop)
@@ -473,12 +503,7 @@ const oscarShelf = await Promise.all(
     </div>
 
     <div className="relative z-10">
-      {heroMovie && (
-        <HeroCarousel
-          featured={heroMovie}
-          similarMovies={similarHeroMovies}
-        />
-      )}
+      {heroMovies.length > 0 && <HeroCarousel items={heroMovies} />}
 
       <Surface>
         <div className="space-y-8">
