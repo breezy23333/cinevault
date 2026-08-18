@@ -4,6 +4,7 @@ import {
   getIgdbGameDetails,
   getIgdbGameScreenshots,
   getIgdbGames,
+  getIgdbGamesByNames,
   getIgdbSimilarGames,
 } from "@/lib/igdbGames";
 
@@ -64,6 +65,11 @@ export type RawgGame = {
   platforms: GamePlatform[];
   parent_platforms?: GamePlatform[];
   genres: GameGenre[];
+  tags?: Array<{
+    id: number;
+    name: string;
+    slug: string;
+  }>;
   stores?: GameStore[];
   short_screenshots?: GameScreenshot[];
   esrb_rating?: {
@@ -154,10 +160,11 @@ function cleanGameCollection(
 async function getGameCollection(
   query: RawgQuery,
   limit = 20,
+  matches?: (game: RawgGame) => boolean,
 ): Promise<RawgGame[]> {
   const pageSize = Math.min(
     40,
-    Math.max(limit + 8, 24),
+    Math.max(limit + 12, 30),
   );
 
   const games = await getGames({
@@ -165,7 +172,46 @@ async function getGameCollection(
     page_size: pageSize,
   });
 
-  return cleanGameCollection(games, limit);
+  const accurateGames = matches
+    ? games.filter(matches)
+    : games;
+
+  return cleanGameCollection(accurateGames, limit);
+}
+
+function hasGenre(game: RawgGame, slug: string): boolean {
+  return Boolean(
+    game.genres?.some((genre) => genre.slug === slug),
+  );
+}
+
+function hasTag(game: RawgGame, slug: string): boolean {
+  return Boolean(
+    game.tags?.some((tag) => tag.slug === slug),
+  );
+}
+
+function isOpenWorldCrimeGame(game: RawgGame) {
+  return /grand theft auto|red dead redemption|mafia|watch dogs/i.test(
+    game.name,
+  );
+}
+
+function removeUsedGames(
+  games: RawgGame[],
+  usedIds: Set<number>,
+  limit = 20,
+) {
+  const unique: RawgGame[] = [];
+
+  for (const game of games) {
+    if (usedIds.has(game.id)) continue;
+    usedIds.add(game.id);
+    unique.push(game);
+    if (unique.length === limit) break;
+  }
+
+  return unique;
 }
 
 function dateWithYearOffset(offset: number) {
@@ -200,6 +246,9 @@ export function getFirstPersonShooters(limit = 20) {
       ordering: "-added",
     },
     limit,
+    (game) =>
+      hasGenre(game, "shooter") &&
+      !isOpenWorldCrimeGame(game),
   );
 }
 
@@ -211,17 +260,31 @@ export function getThirdPersonShooters(limit = 20) {
       ordering: "-added",
     },
     limit,
+    (game) =>
+      hasGenre(game, "shooter") &&
+      !isOpenWorldCrimeGame(game),
   );
 }
 
-export function getEsportsGames(limit = 20) {
-  return getGameCollection(
-    {
-      tags: "esports",
-      ordering: "-added",
-    },
-    limit,
-  );
+export async function getEsportsGames(limit = 20) {
+  const games = await getIgdbGamesByNames([
+    "Counter-Strike 2",
+    "Valorant",
+    "League of Legends",
+    "Dota 2",
+    "Rocket League",
+    "Overwatch 2",
+    "Tom Clancy's Rainbow Six Siege",
+    "Fortnite",
+    "Apex Legends",
+    "PUBG: Battlegrounds",
+    "Street Fighter 6",
+    "StarCraft II",
+    "Call of Duty: Warzone",
+    "EA Sports FC 26",
+  ]);
+
+  return cleanGameCollection(games, limit);
 }
 
 export function getRacingGames(limit = 20) {
@@ -231,6 +294,9 @@ export function getRacingGames(limit = 20) {
       ordering: "-added",
     },
     limit,
+    (game) =>
+      hasGenre(game, "racing") &&
+      !isOpenWorldCrimeGame(game),
   );
 }
 
@@ -241,6 +307,8 @@ export function getStoryRpgGames(limit = 20) {
       ordering: "-added",
     },
     limit,
+    (game) =>
+      hasGenre(game, "role-playing-games-rpg"),
   );
 }
 
@@ -251,6 +319,7 @@ export function getHorrorSurvivalGames(limit = 20) {
       ordering: "-added",
     },
     limit,
+    (game) => hasTag(game, "horror"),
   );
 }
 
@@ -265,22 +334,24 @@ export async function getGamingHomeData() {
     horrorSurvival,
   ] = await Promise.all([
     getFeaturedGames(8),
-    getFirstPersonShooters(20),
-    getThirdPersonShooters(20),
-    getEsportsGames(20),
-    getRacingGames(20),
-    getStoryRpgGames(20),
-    getHorrorSurvivalGames(20),
+    getFirstPersonShooters(32),
+    getThirdPersonShooters(32),
+    getEsportsGames(32),
+    getRacingGames(32),
+    getStoryRpgGames(32),
+    getHorrorSurvivalGames(32),
   ]);
+
+  const usedIds = new Set(featured.map((game) => game.id));
 
   return {
     featured,
-    firstPersonShooters,
-    thirdPersonShooters,
-    esports,
-    racing,
-    storyRpg,
-    horrorSurvival,
+    firstPersonShooters: removeUsedGames(firstPersonShooters, usedIds),
+    thirdPersonShooters: removeUsedGames(thirdPersonShooters, usedIds),
+    esports: removeUsedGames(esports, usedIds),
+    racing: removeUsedGames(racing, usedIds),
+    storyRpg: removeUsedGames(storyRpg, usedIds),
+    horrorSurvival: removeUsedGames(horrorSurvival, usedIds),
   };
 }
 
@@ -907,8 +978,31 @@ export async function getGameCategoryPage(
       ? requestedPage
       : 1;
 
-  const [categoryGames, totalResults] =
-  await Promise.all([
+  if (category.slug === "esports") {
+    const esportsGames = await getEsportsGames(50);
+    const start = (page - 1) * GAME_CATEGORY_PAGE_SIZE;
+    const games = esportsGames.slice(
+      start,
+      start + GAME_CATEGORY_PAGE_SIZE,
+    );
+
+    return {
+      slug: category.slug,
+      label: category.label,
+      title: category.title,
+      description: category.description,
+      games,
+      page,
+      pageSize: GAME_CATEGORY_PAGE_SIZE,
+      totalPages: Math.max(
+        1,
+        Math.ceil(esportsGames.length / GAME_CATEGORY_PAGE_SIZE),
+      ),
+      totalResults: esportsGames.length,
+    };
+  }
+
+  const [categoryGames, totalResults] = await Promise.all([
     getIgdbGames({
       ...category.query,
       page,
@@ -921,6 +1015,29 @@ export async function getGameCategoryPage(
 
   const games = categoryGames.filter((game) => {
     if (!game?.id || !game.name || usedIds.has(game.id)) {
+      return false;
+    }
+
+    if (
+      ["first-person", "third-person", "racing"].includes(
+        category.slug,
+      ) &&
+      isOpenWorldCrimeGame(game)
+    ) {
+      return false;
+    }
+
+    if (
+      category.slug === "racing" &&
+      !hasGenre(game, "racing")
+    ) {
+      return false;
+    }
+
+    if (
+      category.slug === "horror" &&
+      !hasTag(game, "horror")
+    ) {
       return false;
     }
 
