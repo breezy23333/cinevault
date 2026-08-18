@@ -25,13 +25,9 @@ import nextDynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
-import GameHero from "@/components/GameHero";
-import GameShelf from "@/components/GameShelf";
+import HomeGamingSection from "@/components/HomeGamingSection";
 import type { Metadata } from "next";
-import {
-  getGamingHomeData,
-  RAWG_ATTRIBUTION_URL,
-} from "@/lib/games";
+import { getGamingHomeData } from "@/lib/games";
 import MovieEras from "@/components/MovieEras";
 
 // runtime/perf
@@ -715,82 +711,7 @@ const oscarShelf = await Promise.all(
             />
           </Panel>
 
-          <FeatureBreak
-            title="Gaming Universe"
-            text="Discover the biggest games, competitive worlds, racing experiences and story-driven adventures."
-          />
-
-          <GameHero games={gamingData.featured} />
-
-          <section className="rounded-[30px] border border-white/10 bg-white/[0.035] p-4 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl md:p-6">
-            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-                  Game Categories
-                </p>
-
-                <h2 className="mt-2 text-2xl font-black md:text-4xl">
-                  Enter the gaming vault
-                </h2>
-              </div>
-
-              <Link
-                href="/games"
-                className="w-fit rounded-xl bg-yellow-400 px-5 py-2.5 text-sm font-black text-black transition hover:bg-yellow-300"
-              >
-                Explore all games →
-              </Link>
-            </div>
-
-            <GameShelf
-              title="First-Person Shooters"
-              subtitle="Experience the action directly through the eyes of the hero."
-              games={gamingData.firstPersonShooters}
-            />
-
-            <GameShelf
-              title="Third-Person Shooters"
-              subtitle="Cinematic action, exploration and combat."
-              games={gamingData.thirdPersonShooters}
-            />
-
-            <GameShelf
-              title="Esports & Competitive"
-              subtitle="Skill, teamwork, rankings and competitive play."
-              games={gamingData.esports}
-            />
-
-            <GameShelf
-              title="Racing & Motorsport"
-              subtitle="Street racing, track battles and motorsport simulations."
-              games={gamingData.racing}
-            />
-
-            <GameShelf
-              title="RPG & Story-Rich"
-              subtitle="Deep worlds, memorable characters and powerful stories."
-              games={gamingData.storyRpg}
-            />
-
-            <GameShelf
-              title="Horror & Survival"
-              subtitle="Survive terrifying worlds where every decision matters."
-              games={gamingData.horrorSurvival}
-            />
-
-            <p className="mt-6 border-t border-white/10 pt-5 text-center text-xs text-white/40">
-              Game information and images provided by{" "}
-              <a
-                href={RAWG_ATTRIBUTION_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="font-semibold text-yellow-400 hover:text-yellow-300"
-              >
-                RAWG
-              </a>
-              .
-            </p>
-          </section>
+          <HomeGamingSection gamingData={gamingData} />
 
           <section className="rounded-[30px] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
             <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">

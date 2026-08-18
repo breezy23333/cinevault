@@ -3,6 +3,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  Clock3,
+  ExternalLink,
+  Monitor,
+  Play,
+  Star,
+} from "lucide-react";
 import GameShelf from "@/components/GameShelf";
 import GameTrailer from "@/components/GameTrailer";
 import {
@@ -18,15 +26,10 @@ export const dynamicParams = true;
 const SITE_URL = "https://cinryvan.vercel.app";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
-type PageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+type PageProps = { params: Promise<{ id: string }> };
 
 function cleanRequirement(value?: string) {
   if (!value) return "";
-
   return value
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<li[^>]*>/gi, "• ")
@@ -43,7 +46,6 @@ function cleanRequirement(value?: string) {
 
 function formatReleaseDate(date?: string | null) {
   if (!date) return "Release date unavailable";
-
   return new Date(date).toLocaleDateString("en", {
     year: "numeric",
     month: "long",
@@ -54,52 +56,19 @@ function formatReleaseDate(date?: string | null) {
 function getStoreSearchUrl(storeName: string, gameName: string) {
   const store = storeName.toLowerCase();
   const query = encodeURIComponent(gameName);
-
-  if (store.includes("steam")) {
-    return `https://store.steampowered.com/search/?term=${query}`;
-  }
-
-  if (store.includes("playstation")) {
-    return `https://store.playstation.com/en-za/search/${query}`;
-  }
-
-  if (store.includes("xbox")) {
-    return `https://www.xbox.com/en-ZA/search/results?q=${query}`;
-  }
-
-  if (store.includes("epic")) {
-    return `https://store.epicgames.com/en-US/browse?q=${query}&sortBy=relevancy&sortDir=DESC&count=40`;
-  }
-
-  if (store.includes("gog")) {
-    return `https://www.gog.com/en/games?query=${query}`;
-  }
-
-  if (store.includes("nintendo")) {
-    return `https://www.nintendo.com/us/search/#q=${query}&p=1&cat=gme`;
-  }
-
-  if (store.includes("google play")) {
-    return `https://play.google.com/store/search?q=${query}&c=apps`;
-  }
-
-  if (store.includes("apple")) {
-    return `https://www.apple.com/za/search/${query}?src=globalnav`;
-  }
-
-  if (store.includes("itch")) {
-    return `https://itch.io/search?q=${query}`;
-  }
-
-  return `https://www.google.com/search?q=${encodeURIComponent(
-    `${gameName} buy on ${storeName}`,
-  )}`;
+  if (store.includes("steam")) return `https://store.steampowered.com/search/?term=${query}`;
+  if (store.includes("playstation")) return `https://store.playstation.com/en-za/search/${query}`;
+  if (store.includes("xbox")) return `https://www.xbox.com/en-ZA/search/results?q=${query}`;
+  if (store.includes("epic")) return `https://store.epicgames.com/en-US/browse?q=${query}&sortBy=relevancy&sortDir=DESC&count=40`;
+  if (store.includes("gog")) return `https://www.gog.com/en/games?query=${query}`;
+  if (store.includes("nintendo")) return `https://www.nintendo.com/us/search/#q=${query}&p=1&cat=gme`;
+  if (store.includes("google play")) return `https://play.google.com/store/search?q=${query}&c=apps`;
+  if (store.includes("apple")) return `https://www.apple.com/za/search/${query}?src=globalnav`;
+  if (store.includes("itch")) return `https://itch.io/search?q=${query}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(`${gameName} buy on ${storeName}`)}`;
 }
 
-
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const game = await getGameDetails(id);
 
@@ -107,33 +76,21 @@ export async function generateMetadata({
     return {
       title: "Game Not Found | CINRYVAN",
       description: "The requested game could not be found.",
-      robots: {
-        index: false,
-        follow: false,
-      },
+      robots: { index: false, follow: false },
     };
   }
 
-  const plainDescription = game.description_raw
-    ?.replace(/\s+/g, " ")
-    .trim();
-
+  const plainDescription = game.description_raw?.replace(/\s+/g, " ").trim();
   const description =
     plainDescription?.slice(0, 155) ||
     `Discover ${game.name}, trailers, screenshots, platforms, ratings and where to play on CINRYVAN.`;
-
-  const title =
-    `${game.name} | Trailers, Ratings & Where to Play | CINRYVAN`;
-
+  const title = `${game.name} | Trailers, Ratings & Where to Play | CINRYVAN`;
   const canonicalUrl = `${SITE_URL}/games/${game.id}`;
-
-  const socialImage =
-    game.background_image || DEFAULT_OG_IMAGE;
+  const socialImage = game.background_image || DEFAULT_OG_IMAGE;
 
   return {
     title,
     description,
-
     keywords: [
       game.name,
       `${game.name} game`,
@@ -142,88 +99,42 @@ export async function generateMetadata({
       "game ratings",
       "game screenshots",
       "where to play games",
-      ...(game.genres?.map(
-        (genre) => `${genre.name} games`,
-      ) || []),
-      ...(game.platforms?.map(
-        (item) => `${item.platform.name} games`,
-      ) || []),
+      ...(game.genres?.map((genre) => `${genre.name} games`) || []),
+      ...(game.platforms?.map((item) => `${item.platform.name} games`) || []),
       "CINRYVAN Gaming",
     ],
-
-    alternates: {
-      canonical: canonicalUrl,
-    },
-
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
       description,
       url: canonicalUrl,
       siteName: "CINRYVAN",
       type: "website",
-      images: [
-        {
-          url: socialImage,
-          alt: `${game.name} game artwork`,
-        },
-      ],
+      images: [{ url: socialImage, alt: `${game.name} game artwork` }],
     },
-
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [socialImage],
-    },
-
-    robots: {
-      index: true,
-      follow: true,
-    },
+    twitter: { card: "summary_large_image", title, description, images: [socialImage] },
+    robots: { index: true, follow: true },
   };
 }
 
 export default async function GameDetailsPage({ params }: PageProps) {
   const { id } = await params;
   const pageData = await getGamePageData(id);
-
-  if (!pageData) {
-    notFound();
-  }
+  if (!pageData) notFound();
 
   const { game, screenshots, seriesGames, moreGames } = pageData;
-  const trailer = await getGameTrailer(
-    game.name,
-    game.trailer_video_id,
-  );
-
+  const trailer = await getGameTrailer(game.name, game.trailer_video_id);
   const platforms = game.platforms || [];
   const stores = game.stores || [];
-
-  const pcPlatform = platforms.find(
-    (item) => item.platform.slug === "pc",
-  );
-
-  const minimumRequirements = cleanRequirement(
-    pcPlatform?.requirements?.minimum,
-  );
-
-  const recommendedRequirements = cleanRequirement(
-    pcPlatform?.requirements?.recommended,
-  );
-
+  const pcPlatform = platforms.find((item) => item.platform.slug === "pc");
+  const minimumRequirements = cleanRequirement(pcPlatform?.requirements?.minimum);
+  const recommendedRequirements = cleanRequirement(pcPlatform?.requirements?.recommended);
   const seriesIds = new Set(seriesGames.map((item) => item.id));
-
-  const relatedGames = moreGames.filter(
-    (item) => !seriesIds.has(item.id),
-  );
-
+  const relatedGames = moreGames.filter((item) => !seriesIds.has(item.id));
   const description =
-    game.description_raw ||
-    "A complete description is not currently available.";
+    game.description_raw || "A complete description is not currently available.";
+  const pageUrl = `${SITE_URL}/games/${game.id}`;
 
-  const pageUrl = `${SITE_URL}/game/${game.id}`;
-  
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
@@ -258,7 +169,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-[#05070d] pb-24 text-white">
+    <main className="min-h-screen bg-[#080b12] pb-24 text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -266,462 +177,298 @@ export default async function GameDetailsPage({ params }: PageProps) {
         }}
       />
 
-      <section className="relative min-h-[720px] overflow-hidden pt-24">
+      <section className="relative min-h-[590px] overflow-hidden pt-24">
         {game.background_image ? (
           <img
             src={game.background_image}
             alt={`${game.name} background`}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
         ) : (
           <div className="absolute inset-0 bg-[#101722]" />
         )}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080b12] via-[#080b12]/78 to-[#080b12]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/10 to-black/45" />
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/80 to-[#05070d]/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#05070d] via-transparent to-[#05070d]/50" />
+        <div className="relative z-10 mx-auto flex min-h-[500px] max-w-7xl items-end px-4 pb-12 md:px-6 md:pb-16">
+          <div className="grid w-full items-end gap-8 lg:grid-cols-[minmax(0,1.55fr)_380px]">
+            <div className="max-w-4xl">
+              <Link
+                href="/games"
+                className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-yellow-400 transition hover:text-yellow-300"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back to Gaming
+              </Link>
 
-        <div className="relative z-10 mx-auto flex min-h-[620px] max-w-7xl items-end px-4 pb-16 md:px-6">
-          <div className="max-w-5xl">
-            <Link
-              href="/games"
-              className="inline-flex items-center gap-2 text-sm font-bold text-yellow-400 transition hover:text-yellow-300"
-            >
-              ← Back to Gaming
-            </Link>
+              <div className="mt-5 flex flex-wrap gap-1.5">
+                {game.genres?.slice(0, 5).map((genre) => (
+                  <span
+                    key={genre.id}
+                    className="border border-white/15 bg-black/45 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/70 backdrop-blur"
+                  >
+                    {genre.name}
+                  </span>
+                ))}
+              </div>
 
-            <div className="mt-7 flex flex-wrap gap-2">
-              {game.genres?.map((genre) => (
-                <span
-                  key={genre.id}
-                  className="rounded-full border border-white/15 bg-black/50 px-3 py-1.5 text-xs font-semibold text-white/75 backdrop-blur"
-                >
-                  {genre.name}
-                </span>
-              ))}
-            </div>
+              <h1 className="mt-4 max-w-5xl text-4xl font-black leading-[.95] tracking-tight md:text-6xl lg:text-7xl">
+                {game.name}
+              </h1>
 
-            <h1 className="mt-5 max-w-5xl text-4xl font-black leading-[1.05] md:text-6xl lg:text-7xl">
-              {game.name}
-            </h1>
-
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-white/70">
-              <span>{formatReleaseDate(game.released)}</span>
-
-              <span className="font-black text-yellow-400">
-                ★ {game.rating ? game.rating.toFixed(1) : "Not rated"}
-              </span>
-
-              {game.metacritic !== null &&
-                game.metacritic !== undefined && (
-                  <span className="rounded-md bg-green-500 px-2.5 py-1 font-black text-black">
-                    Metacritic {game.metacritic}
+              <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold text-white/65">
+                <span>{formatReleaseDate(game.released)}</span>
+                {game.rating > 0 && (
+                  <span className="inline-flex items-center gap-1 bg-yellow-400 px-2.5 py-1.5 font-black text-black">
+                    <Star className="h-3.5 w-3.5" fill="currentColor" />
+                    {game.rating.toFixed(1)}
                   </span>
                 )}
+                {typeof game.metacritic === "number" && (
+                  <span className="border border-emerald-400/50 bg-[#173e2b]/90 px-2.5 py-1.5 font-black text-emerald-200">
+                    {game.metacritic} Metascore
+                  </span>
+                )}
+                {game.esrb_rating?.name && (
+                  <span className="border border-white/15 bg-black/40 px-2.5 py-1.5">
+                    {game.esrb_rating.name}
+                  </span>
+                )}
+              </div>
 
-              {game.esrb_rating?.name && (
-                <span className="rounded-md border border-white/15 bg-black/40 px-2.5 py-1">
-                  {game.esrb_rating.name}
-                </span>
-              )}
-
-              {game.playtime > 0 && (
-                <span>{game.playtime} hours average playtime</span>
-              )}
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#trailer"
-                className="inline-flex items-center justify-center rounded-xl bg-yellow-400 px-6 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
-              >
-                ▶ Watch trailer
-              </a>
-
-              {game.website && (
+              <div className="mt-6 flex flex-wrap gap-2">
                 <a
-                  href={game.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-white/15 bg-black/50 px-6 py-3 text-sm font-black text-white backdrop-blur transition hover:border-yellow-400 hover:text-yellow-400"
+                  href="#trailer"
+                  className="inline-flex items-center gap-2 bg-yellow-400 px-5 py-2.5 text-sm font-black text-black transition hover:bg-yellow-300"
                 >
-                  Official website ↗
+                  <Play className="h-4 w-4" fill="currentColor" /> Watch trailer
                 </a>
-              )}
-
-              <a
-                href={`https://rawg.io/games/${game.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl border border-white/15 bg-black/50 px-6 py-3 text-sm font-black text-white backdrop-blur transition hover:border-yellow-400 hover:text-yellow-400"
-              >
-                Buying options ↗
-              </a>
+                {game.website && (
+                  <a
+                    href={game.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 border border-white/20 bg-black/45 px-5 py-2.5 text-sm font-black text-white transition hover:border-yellow-400 hover:text-yellow-400"
+                  >
+                    Official website <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
             </div>
+
+            <aside className="hidden border border-white/15 bg-[#0c121d]/90 p-5 shadow-[0_24px_70px_rgba(0,0,0,.5)] backdrop-blur-xl lg:block">
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-yellow-400">
+                Game overview
+              </p>
+              <div className="mt-4 space-y-3">
+                <QuickFact label="Platforms" value={platforms.slice(0, 4).map((item) => item.platform.name).join(", ") || "Unavailable"} />
+                <QuickFact label="Developer" value={game.developers?.map((item) => item.name).join(", ") || "Unknown"} />
+                <QuickFact label="Publisher" value={game.publishers?.map((item) => item.name).join(", ") || "Unknown"} />
+              </div>
+              {game.playtime > 0 && (
+                <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-4 text-xs font-bold text-white/55">
+                  <Clock3 className="h-4 w-4 text-yellow-400" />
+                  {game.playtime} hours average playtime
+                </div>
+              )}
+            </aside>
           </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <nav className="relative z-20 w-full overflow-x-auto rounded-2xl border border-white/10 bg-[#101722]/95 p-2 shadow-2xl backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="flex min-w-max gap-1">
+      <div className="sticky top-20 z-30 border-y border-white/10 bg-[#101722]/95 shadow-[0_10px_30px_rgba(0,0,0,.35)] backdrop-blur-xl">
+        <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 py-2 [scrollbar-width:none] md:px-6 [&::-webkit-scrollbar]:hidden">
+          {[
+            ["Trailer", "#trailer"],
+            ["About", "#about"],
+            ...(screenshots.length ? [["Screenshots", "#screenshots"]] : []),
+            ...(pcPlatform ? [["PC Requirements", "#requirements"]] : []),
+            ...(moreGames.length ? [["More Games", "#more-games"]] : []),
+          ].map(([label, href]) => (
             <a
-              href="#trailer"
-              className="rounded-xl px-4 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
+              key={href}
+              href={href}
+              className="shrink-0 px-3 py-2 text-xs font-bold text-white/55 transition hover:bg-white/5 hover:text-yellow-400"
             >
-              Trailer
+              {label}
             </a>
-
-            <a
-              href="#about"
-              className="rounded-xl px-4 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
-            >
-              About
-            </a>
-
-            {screenshots.length > 0 && (
-              <a
-                href="#screenshots"
-                className="rounded-xl px-4 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
-              >
-                Screenshots
-              </a>
-            )}
-
-            {(minimumRequirements || recommendedRequirements) && (
-              <a
-                href="#requirements"
-                className="rounded-xl px-4 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
-              >
-                PC Requirements
-              </a>
-            )}
-
-            {moreGames.length > 0 && (
-              <a
-                href="#more-games"
-                className="rounded-xl px-4 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
-              >
-                More Games
-              </a>
-            )}
-          </div>
+          ))}
         </nav>
+      </div>
 
-        <GameTrailer gameTitle={game.name} trailer={trailer} />
+      <div className="mx-auto max-w-7xl px-4 md:px-6">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.55fr)_360px]">
+          <div className="min-w-0">
+            <GameTrailer gameTitle={game.name} trailer={trailer} />
 
-        <div
-          id="about"
-          className="mt-16 scroll-mt-40 grid gap-8 lg:grid-cols-[1.6fr_0.7fr]"
-        >
-          <div className="space-y-8">
-            <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl md:p-8">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+            <section id="about" className="mt-12 scroll-mt-40 border-t border-white/10 pt-8">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">
                 About the game
               </p>
-
-              <h2 className="mt-3 text-3xl font-black md:text-4xl">
+              <h2 className="mt-1 text-2xl font-black md:text-3xl">
                 What is {game.name} about?
               </h2>
-
-              <p className="mt-6 whitespace-pre-line text-base leading-8 text-white/70">
+              <p className="mt-5 whitespace-pre-line text-[15px] leading-8 text-white/65">
                 {description}
               </p>
-            </section>
-
-            {game.background_image_additional && (
-              <section className="overflow-hidden rounded-3xl border border-white/10 bg-black/30">
+              {game.background_image_additional && (
                 <img
                   src={game.background_image_additional}
                   alt={`${game.name} gameplay artwork`}
                   loading="lazy"
                   decoding="async"
-                  className="aspect-video w-full object-cover"
+                  className="mt-7 aspect-video w-full border border-white/10 object-cover"
                 />
+              )}
+            </section>
+
+            {screenshots.length > 0 && (
+              <section id="screenshots" className="mt-12 scroll-mt-40 border-t border-white/10 pt-8">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">
+                  Inside the game
+                </p>
+                <h2 className="mt-1 text-2xl font-black md:text-3xl">Screenshots</h2>
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  {screenshots.slice(0, 6).map((screenshot, index) => (
+                    <a
+                      key={screenshot.id}
+                      href={screenshot.image}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`group relative overflow-hidden border border-white/10 bg-black ${
+                        index === 0 ? "col-span-2" : ""
+                      }`}
+                    >
+                      <img
+                        src={screenshot.image}
+                        alt={`${game.name} screenshot ${index + 1}`}
+                        loading="lazy"
+                        decoding="async"
+                        className="aspect-video h-full w-full object-cover transition duration-500 group-hover:scale-[1.03] group-hover:brightness-110"
+                      />
+                      <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center bg-black/65 text-white opacity-0 transition group-hover:bg-yellow-400 group-hover:text-black group-hover:opacity-100">
+                        <ExternalLink className="h-4 w-4" />
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {pcPlatform && (
+              <section id="requirements" className="mt-12 scroll-mt-40 border-t border-white/10 pt-8">
+                <div className="flex items-center gap-2 text-yellow-400">
+                  <Monitor className="h-4 w-4" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em]">PC specifications</p>
+                </div>
+                <h2 className="mt-1 text-2xl font-black md:text-3xl">System Requirements</h2>
+                <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  <RequirementCard title="Minimum" value={minimumRequirements} />
+                  <RequirementCard title="Recommended" value={recommendedRequirements} />
+                </div>
+                {(!minimumRequirements || !recommendedRequirements) && (
+                  <div className="mt-3 border border-yellow-400/20 bg-yellow-400/[.05] p-4">
+                    <p className="text-sm leading-6 text-white/55">
+                      Complete verified requirements are unavailable. Check the official store listing before purchasing or installing.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <a
+                        href={getStoreSearchUrl("Steam", game.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-yellow-400 px-4 py-2 text-xs font-black text-black hover:bg-yellow-300"
+                      >
+                        Check Steam requirements
+                      </a>
+                      {game.website && (
+                        <a
+                          href={game.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="border border-white/15 px-4 py-2 text-xs font-black text-white hover:border-yellow-400 hover:text-yellow-400"
+                        >
+                          Official website
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
               </section>
             )}
           </div>
 
-          <aside className="space-y-6">
-            <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                Where to play
-              </p>
-
-              <h2 className="mt-2 text-xl font-black">
-                Available platforms
-              </h2>
-
-              <div className="mt-5 space-y-2">
-                {platforms.length > 0 ? (
+          <aside className="space-y-4 pt-12 lg:sticky lg:top-36">
+            <section className="border border-white/10 bg-[#101722] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Where to play</p>
+              <h2 className="mt-1 text-xl font-black">Available Platforms</h2>
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {platforms.length ? (
                   platforms.map((item) => (
-                    <div
-                      key={item.platform.id}
-                      className="rounded-xl bg-black/30 px-4 py-3 text-sm font-semibold text-white/75 ring-1 ring-white/10"
-                    >
+                    <span key={item.platform.id} className="border border-white/10 bg-black/25 px-2.5 py-2 text-[11px] font-bold text-white/65">
                       {item.platform.name}
-                    </div>
+                    </span>
                   ))
                 ) : (
-                  <p className="text-sm text-white/50">
-                    Platform information is unavailable.
-                  </p>
+                  <p className="text-sm text-white/45">Platform information is unavailable.</p>
                 )}
               </div>
             </section>
 
             {stores.length > 0 && (
-              <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl">
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                  Store availability
-                </p>
-
-                <h2 className="mt-2 text-xl font-black">
-                  Where to buy
-                </h2>
-
-                <div className="mt-5 space-y-2">
+              <section className="border border-white/10 bg-[#101722] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Store availability</p>
+                <h2 className="mt-1 text-xl font-black">Where to Buy</h2>
+                <div className="mt-4 space-y-1.5">
                   {stores.map((item) => (
                     <a
                       key={item.id}
-                      href={getStoreSearchUrl(
-                        item.store.name,
-                        game.name,
-                      )}
+                      href={getStoreSearchUrl(item.store.name, game.name)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white/75 transition hover:border-yellow-400/60 hover:bg-white/10 hover:text-yellow-400"
+                      className="flex items-center justify-between border border-white/10 bg-black/25 px-3 py-2.5 text-xs font-bold text-white/65 transition hover:border-yellow-400/60 hover:text-yellow-400"
                     >
                       <span>{item.store.name}</span>
-                      <span>↗</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   ))}
                 </div>
-
-                <p className="mt-4 text-xs leading-5 text-white/40">
-                  Store buttons open a search for this game. Availability
-                  and pricing can differ by country.
+                <p className="mt-3 text-[10px] leading-4 text-white/30">
+                  Buttons open a store search. Availability and prices differ by country.
                 </p>
               </section>
             )}
 
-            <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                Game information
-              </p>
-
-              <InfoRow
-                label="Developer"
-                value={
-                  game.developers?.map((item) => item.name).join(", ") ||
-                  "Unknown"
-                }
-              />
-
-              <InfoRow
-                label="Publisher"
-                value={
-                  game.publishers?.map((item) => item.name).join(", ") ||
-                  "Unknown"
-                }
-              />
-
-              <InfoRow
-                label="Released"
-                value={formatReleaseDate(game.released)}
-              />
-
-              <InfoRow
-                label="Age rating"
-                value={game.esrb_rating?.name || "Not rated"}
-              />
-
-              <InfoRow
-                label="Genres"
-                value={
-                  game.genres?.map((genre) => genre.name).join(", ") ||
-                  "Unknown"
-                }
-              />
+            <section className="border border-white/10 bg-[#101722] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Game information</p>
+              <InfoRow label="Developer" value={game.developers?.map((item) => item.name).join(", ") || "Unknown"} />
+              <InfoRow label="Publisher" value={game.publishers?.map((item) => item.name).join(", ") || "Unknown"} />
+              <InfoRow label="Released" value={formatReleaseDate(game.released)} />
+              <InfoRow label="Age rating" value={game.esrb_rating?.name || "Not rated"} />
+              <InfoRow label="Genres" value={game.genres?.map((genre) => genre.name).join(", ") || "Unknown"} />
             </section>
 
             {game.tags?.length > 0 && (
-              <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl">
-                <h2 className="text-xl font-black">Tags</h2>
-
-                <div className="mt-4 flex flex-wrap gap-2">
+              <section className="border border-white/10 bg-[#101722] p-5">
+                <h2 className="text-lg font-black">Popular Tags</h2>
+                <div className="mt-3 flex flex-wrap gap-1.5">
                   {game.tags.slice(0, 16).map((tag) => (
-                      <Link
-                        key={tag.id}
-                        href={`/games/category/${tag.slug}`}
-                        prefetch={false}
-                        rel="nofollow"
-                        className="rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold text-white/65 transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
-                      >
-                        {tag.name}
-                      </Link>
-                    ))}
+                    <Link
+                      key={tag.id}
+                      href={`/games/category/${tag.slug}`}
+                      prefetch={false}
+                      rel="nofollow"
+                      className="border border-white/10 bg-black/25 px-2 py-1.5 text-[10px] font-bold text-white/50 transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+                    >
+                      {tag.name}
+                    </Link>
+                  ))}
                 </div>
               </section>
             )}
           </aside>
         </div>
 
-        {screenshots.length > 0 && (
-          <section
-            id="screenshots"
-            className="mt-16 scroll-mt-40"
-          >
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-              Inside the game
-            </p>
-
-            <h2 className="mt-2 text-3xl font-black md:text-5xl">
-              Screenshots
-            </h2>
-
-            <div className="mt-7 grid gap-3 lg:grid-cols-[1.5fr_1fr]">
-              <a
-                href={screenshots[0].image}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group overflow-hidden rounded-3xl bg-black ring-1 ring-white/10"
-              >
-                <img
-                  src={screenshots[0].image}
-                  alt={`${game.name} screenshot 1`}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-video h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                />
-              </a>
-
-              <div className="grid grid-cols-2 gap-3">
-                {screenshots.slice(1, 5).map((screenshot, index) => (
-                  <a
-                    key={screenshot.id}
-                    href={screenshot.image}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group overflow-hidden rounded-2xl bg-black ring-1 ring-white/10"
-                  >
-                    <img
-                      src={screenshot.image}
-                      alt={`${game.name} screenshot ${index + 2}`}
-                      loading="lazy"
-                      decoding="async"
-                      className="aspect-video h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {pcPlatform && (
-          <section
-            id="requirements"
-            className="mt-16 scroll-mt-40 rounded-3xl border border-white/10 bg-white/[0.045] p-6 backdrop-blur-xl md:p-8"
-          >
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-              PC specifications
-            </p>
-
-            <h2 className="mt-2 text-3xl font-black">
-              System requirements
-            </h2>
-
-            <div className="mt-7 grid gap-5 md:grid-cols-2">
-              <div className="rounded-2xl bg-black/30 p-5 ring-1 ring-white/10 md:p-6">
-                <h3 className="font-black text-white">Minimum</h3>
-
-                {minimumRequirements ? (
-                  <p className="mt-4 whitespace-pre-line text-sm leading-7 text-white/60">
-                    {minimumRequirements}
-                  </p>
-                ) : (
-                  <div className="mt-4 space-y-3 text-sm text-white/50">
-                    <p>
-                      RAM: <span className="text-white/75">Not listed</span>
-                    </p>
-
-                    <p>
-                      Storage: <span className="text-white/75">Not listed</span>
-                    </p>
-
-                    <p>
-                      Minimum specifications have not been provided.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="rounded-2xl bg-black/30 p-5 ring-1 ring-white/10 md:p-6">
-                <h3 className="font-black text-white">
-                  Recommended
-                </h3>
-
-                {recommendedRequirements ? (
-                  <p className="mt-4 whitespace-pre-line text-sm leading-7 text-white/60">
-                    {recommendedRequirements}
-                  </p>
-                ) : (
-                  <div className="mt-4 space-y-3 text-sm text-white/50">
-                    <p>
-                      RAM: <span className="text-white/75">Not listed</span>
-                    </p>
-
-                    <p>
-                      Storage: <span className="text-white/75">Not listed</span>
-                    </p>
-
-                    <p>
-                      Recommended specifications have not been provided.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {(!minimumRequirements || !recommendedRequirements) && (
-              <div className="mt-6 rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.06] p-5">
-                <p className="text-sm leading-6 text-white/60">
-                  Complete verified requirements are not currently available
-                  for this game. Check the official store listing before
-                  purchasing or installing it.
-                </p>
-
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <a
-                    href={getStoreSearchUrl("Steam", game.name)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-xl bg-yellow-400 px-4 py-2.5 text-sm font-black text-black transition hover:bg-yellow-300"
-                  >
-                    Check Steam requirements ↗
-                  </a>
-
-                  {game.website && (
-                    <a
-                      href={game.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-black text-white transition hover:border-yellow-400 hover:text-yellow-400"
-                    >
-                      Official website ↗
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
         {moreGames.length > 0 && (
-          <section
-            id="more-games"
-            className="mt-20 scroll-mt-40"
-          >
+          <section id="more-games" className="mt-16 scroll-mt-40 border-t border-white/10 pt-4">
             {seriesGames.length > 0 && (
               <GameShelf
                 title={`More from the ${game.name} series`}
@@ -729,10 +476,9 @@ export default async function GameDetailsPage({ params }: PageProps) {
                 games={seriesGames}
               />
             )}
-
             {relatedGames.length > 0 && (
               <GameShelf
-                title="More games like this"
+                title="More Games Like This"
                 subtitle={`More popular ${game.genres?.[0]?.name || "gaming"} experiences to explore.`}
                 games={relatedGames}
               />
@@ -740,14 +486,9 @@ export default async function GameDetailsPage({ params }: PageProps) {
           </section>
         )}
 
-        <footer className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-white/40">
+        <footer className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-white/35">
           Game information and images provided by{" "}
-          <a
-            href={RAWG_ATTRIBUTION_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-yellow-400 transition hover:text-yellow-300"
-          >
+          <a href={RAWG_ATTRIBUTION_URL} target="_blank" rel="noopener noreferrer" className="font-bold text-yellow-400 hover:text-yellow-300">
             RAWG
           </a>
           .
@@ -757,22 +498,33 @@ export default async function GameDetailsPage({ params }: PageProps) {
   );
 }
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function QuickFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="mt-5 border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
-      <p className="text-xs font-bold uppercase tracking-wider text-white/40">
-        {label}
-      </p>
+    <div className="grid grid-cols-[86px_1fr] gap-3 border-t border-white/10 pt-3 first:border-0 first:pt-0">
+      <span className="text-[10px] font-black uppercase tracking-wider text-white/30">{label}</span>
+      <span className="text-xs font-semibold leading-5 text-white/65">{value}</span>
+    </div>
+  );
+}
 
-      <p className="mt-1 text-sm leading-6 text-white/75">
-        {value}
-      </p>
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="mt-4 border-t border-white/10 pt-3 first:border-0 first:pt-0">
+      <p className="text-[10px] font-black uppercase tracking-wider text-white/30">{label}</p>
+      <p className="mt-1 text-xs leading-5 text-white/65">{value}</p>
+    </div>
+  );
+}
+
+function RequirementCard({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="border border-white/10 bg-[#101722] p-5">
+      <h3 className="text-sm font-black uppercase tracking-wider text-white">{title}</h3>
+      {value ? (
+        <p className="mt-4 whitespace-pre-line text-xs leading-6 text-white/55">{value}</p>
+      ) : (
+        <p className="mt-4 text-xs leading-6 text-white/40">Specifications have not been provided.</p>
+      )}
     </div>
   );
 }

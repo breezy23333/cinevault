@@ -2,224 +2,212 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight, Gamepad2, Star } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import type { RawgGame } from "@/lib/games";
 
-function getPlatforms(game: RawgGame) {
-  const platforms =
-    game.parent_platforms?.length
-      ? game.parent_platforms
-      : game.platforms || [];
+type GameHeroProps = { games: RawgGame[] };
 
-  return [...new Set(platforms.map((item) => item.platform.name))].slice(0, 4);
-}
+export default function GameHero({ games }: GameHeroProps) {
+  const featuredGames = useMemo(
+    () =>
+      games
+        .filter((game) => game.id && game.name && game.background_image)
+        .slice(0, 8),
+    [games],
+  );
 
-export default function GameHero({ games }: { games: RawgGame[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (games.length <= 1) return;
-
-    const interval = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % games.length);
-    }, 8000);
-
-    return () => window.clearInterval(interval);
-  }, [games.length]);
+    if (activeIndex >= featuredGames.length) setActiveIndex(0);
+  }, [activeIndex, featuredGames.length]);
 
   useEffect(() => {
-    if (activeIndex >= games.length) {
-      setActiveIndex(0);
-    }
-  }, [activeIndex, games.length]);
-
-  if (!games.length) {
-    return (
-      <section className="grid min-h-[420px] place-items-center rounded-3xl bg-white/[0.04] text-white/50 ring-1 ring-white/10">
-        No featured games are available.
-      </section>
+    if (paused || featuredGames.length <= 1) return;
+    const timer = window.setInterval(
+      () => setActiveIndex((current) => (current + 1) % featuredGames.length),
+      7000,
     );
-  }
+    return () => window.clearInterval(timer);
+  }, [featuredGames.length, paused]);
 
-  const game = games[activeIndex];
-  const screenshots = (game.short_screenshots || [])
-    .filter((screenshot) => screenshot.image)
+  if (!featuredGames.length) return null;
+
+  const game = featuredGames[activeIndex];
+  const screenshots = (game.short_screenshots ?? [])
+    .filter((shot) => shot.image)
     .slice(0, 4);
 
-  const platforms = getPlatforms(game);
-
-  function changeSlide(direction: number) {
-    setActiveIndex((current) => {
-      return (current + direction + games.length) % games.length;
-    });
-  }
+  const previous = () =>
+    setActiveIndex(
+      (current) => (current - 1 + featuredGames.length) % featuredGames.length,
+    );
+  const next = () =>
+    setActiveIndex((current) => (current + 1) % featuredGames.length);
 
   return (
-    <section>
-      <div className="mb-5">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-yellow-400">
-          CINRYVAN Gaming
-        </p>
-
-        <h1 className="mt-2 text-3xl font-black text-white md:text-5xl">
-          Featured & Recommended
-        </h1>
+    <section aria-labelledby="featured-games-title">
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.32em] text-yellow-400">
+            Cinryvan Gaming
+          </p>
+          <h1
+            id="featured-games-title"
+            className="mt-1 text-2xl font-black tracking-tight text-white md:text-3xl"
+          >
+            Featured &amp; Recommended
+          </h1>
+        </div>
+        <Link
+          href="/games/category/popular"
+          className="hidden border border-white/20 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white/70 transition hover:border-yellow-400 hover:text-yellow-400 sm:block"
+        >
+          Browse all
+        </Link>
       </div>
 
-      <div className="relative overflow-hidden rounded-3xl bg-[#101722] shadow-2xl ring-1 ring-white/10">
-        <div className="grid lg:grid-cols-[1.8fr_0.8fr]">
-          <div className="relative min-h-[340px] overflow-hidden md:min-h-[520px]">
-            {game.background_image ? (
-              <img
-                key={game.background_image}
-                src={game.background_image}
-                alt={game.name}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 grid place-items-center bg-zinc-900 text-white/40">
-                No featured image
-              </div>
-            )}
-
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#101722]/60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-
-            <div className="absolute bottom-0 left-0 max-w-2xl p-6 md:p-10 lg:hidden">
-              <h2 className="text-3xl font-black text-white md:text-5xl">
-                {game.name}
-              </h2>
+      <div
+        className="group relative overflow-hidden border border-white/10 bg-[#0c111b] shadow-[0_22px_70px_rgba(0,0,0,.55)]"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <div className="grid lg:grid-cols-[minmax(0,1.8fr)_minmax(300px,.75fr)]">
+          <Link
+            href={`/games/${game.id}`}
+            className="relative block min-h-[310px] overflow-hidden sm:min-h-[430px] lg:min-h-[500px]"
+          >
+            <img
+              key={game.background_image}
+              src={game.background_image!}
+              alt={game.name}
+              className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.015]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-black/10 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#0c111b]/65" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 lg:hidden">
+              <GameSummary game={game} />
             </div>
-          </div>
+          </Link>
 
-          <div className="flex min-h-[420px] flex-col p-6 md:p-8">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
-                Now on CINRYVAN
-              </p>
+          <aside className="hidden min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:flex lg:flex-col">
+            <GameSummary game={game} />
 
-              <h2 className="mt-3 hidden text-3xl font-black leading-tight text-white lg:block">
-                {game.name}
-              </h2>
-
-              <div className="mt-5 grid grid-cols-2 gap-2">
-                {screenshots.map((screenshot) => (
-                  <div
-                    key={screenshot.id}
-                    className="aspect-video overflow-hidden rounded-lg bg-black/30"
+            <div className="mt-auto grid grid-cols-2 gap-1.5 pt-5">
+              {screenshots.length ? (
+                screenshots.map((shot, index) => (
+                  <Link
+                    key={shot.id}
+                    href={`/games/${game.id}`}
+                    className="group/shot relative aspect-video overflow-hidden bg-white/5"
                   >
                     <img
-                      src={screenshot.image}
-                      alt={`${game.name} screenshot`}
+                      src={shot.image}
+                      alt={`${game.name} screenshot ${index + 1}`}
                       loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition duration-300 group-hover/shot:scale-105 group-hover/shot:brightness-110"
                     />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-auto pt-6">
-              <div className="flex flex-wrap gap-2">
-                {game.genres?.slice(0, 4).map((genre) => (
-                  <span
-                    key={genre.id}
-                    className="rounded-md bg-white/10 px-2.5 py-1 text-xs text-white/70"
-                  >
-                    {genre.name}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-white/65">
-                <span className="font-bold text-yellow-400">
-                  ★ {game.rating ? game.rating.toFixed(1) : "Not rated"}
-                </span>
-
-                {game.metacritic !== null &&
-                  game.metacritic !== undefined && (
-                    <span className="rounded bg-green-500 px-2 py-1 text-xs font-black text-black">
-                      {game.metacritic}
-                    </span>
-                  )}
-
-                {game.released && (
-                  <span>
-                    {new Date(game.released).toLocaleDateString("en", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                )}
-              </div>
-
-              {platforms.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {platforms.map((platform) => (
-                    <span
-                      key={platform}
-                      className="text-xs font-semibold uppercase tracking-wide text-white/45"
-                    >
-                      {platform}
-                    </span>
-                  ))}
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-2 flex aspect-video items-center justify-center bg-white/5 text-xs text-white/35">
+                  Screenshots coming soon
                 </div>
               )}
-
-             <Link
-                href={`/games/${game.id}`}
-                className="mt-6 inline-flex items-center justify-center rounded-xl bg-yellow-400 px-6 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
-                >
-                View game →
-            </Link> 
             </div>
-          </div>
+          </aside>
         </div>
 
-        {games.length > 1 && (
+        {featuredGames.length > 1 && (
           <>
             <button
               type="button"
-              onClick={() => changeSlide(-1)}
+              onClick={previous}
               aria-label="Previous featured game"
-              className="absolute left-4 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-3xl text-white ring-1 ring-white/20 transition hover:bg-yellow-400 hover:text-black"
+              className="absolute left-0 top-1/2 z-20 grid h-20 w-11 -translate-y-1/2 place-items-center bg-gradient-to-r from-black/85 to-transparent text-white opacity-90 transition hover:text-yellow-400 lg:-left-11 lg:group-hover:left-0"
             >
-              ‹
+              <ChevronLeft className="h-8 w-8" />
             </button>
-
             <button
               type="button"
-              onClick={() => changeSlide(1)}
+              onClick={next}
               aria-label="Next featured game"
-              className="absolute right-4 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-3xl text-white ring-1 ring-white/20 transition hover:bg-yellow-400 hover:text-black"
+              className="absolute right-0 top-1/2 z-20 grid h-20 w-11 -translate-y-1/2 place-items-center bg-gradient-to-l from-black/85 to-transparent text-white opacity-90 transition hover:text-yellow-400 lg:-right-11 lg:group-hover:right-0"
             >
-              ›
+              <ChevronRight className="h-8 w-8" />
             </button>
           </>
         )}
       </div>
 
-      {games.length > 1 && (
-        <div className="mt-4 flex justify-center gap-2">
-          {games.map((item, index) => (
+      {featuredGames.length > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-1.5">
+          {featuredGames.map((item, index) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setActiveIndex(index)}
               aria-label={`Show ${item.name}`}
               aria-pressed={index === activeIndex}
-              className={`h-2 rounded-full transition-all ${
+              className={`h-2 transition-all ${
                 index === activeIndex
-                  ? "w-8 bg-yellow-400"
-                  : "w-2 bg-white/25 hover:bg-white/50"
+                  ? "w-7 bg-yellow-400"
+                  : "w-4 bg-white/20 hover:bg-white/45"
               }`}
             />
           ))}
         </div>
       )}
     </section>
+  );
+}
+
+function GameSummary({ game }: { game: RawgGame }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-[10px] font-black uppercase tracking-[0.28em] text-yellow-400">
+        Featured now
+      </p>
+      <h2 className="mt-2 line-clamp-2 text-3xl font-black leading-tight text-white lg:text-4xl">
+        {game.name}
+      </h2>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+        {game.released && (
+          <span className="bg-white/10 px-2 py-1 font-bold text-white/75">
+            {new Date(game.released).getFullYear()}
+          </span>
+        )}
+        {game.rating > 0 && (
+          <span className="inline-flex items-center gap-1 bg-yellow-400 px-2 py-1 font-black text-black">
+            <Star className="h-3 w-3" fill="currentColor" />
+            {game.rating.toFixed(1)}
+          </span>
+        )}
+        {typeof game.metacritic === "number" && (
+          <span className="border border-emerald-400/50 px-2 py-1 font-black text-emerald-300">
+            {game.metacritic} Metascore
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {game.genres?.slice(0, 4).map((genre) => (
+          <span key={genre.id} className="bg-black/45 px-2 py-1 text-[11px] text-white/65">
+            {genre.name}
+          </span>
+        ))}
+      </div>
+
+      <Link
+        href={`/games/${game.id}`}
+        className="mt-5 inline-flex items-center gap-2 bg-yellow-400 px-5 py-2.5 text-sm font-black text-black transition hover:bg-yellow-300"
+      >
+        <Gamepad2 className="h-4 w-4" />
+        View game
+      </Link>
+    </div>
   );
 }
