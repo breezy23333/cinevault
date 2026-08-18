@@ -36,8 +36,7 @@ export default function GameHero({ games }: GameHeroProps) {
 
   if (!featuredGames.length) return null;
 
-  const game =
-  featuredGames[activeIndex] ?? featuredGames[0];
+  const game = featuredGames[activeIndex];
   const screenshots = (game.short_screenshots ?? [])
     .filter((shot) => shot.image)
     .slice(0, 4);
@@ -76,8 +75,8 @@ export default function GameHero({ games }: GameHeroProps) {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        <div className="grid lg:grid-cols-[minmax(0,1.8fr)_minmax(300px,.75fr)]">
-          <div className="relative block min-h-[310px] overflow-hidden sm:min-h-[430px] lg:min-h-[500px]"></div>
+        <div className="grid lg:grid-cols-3">
+          <div className="relative block h-[300px] overflow-hidden sm:h-[340px] lg:col-span-2 lg:h-[400px]">
             <img
               key={game.background_image}
               src={game.background_image!}
@@ -90,7 +89,7 @@ export default function GameHero({ games }: GameHeroProps) {
             </div>
           </div>
 
-          <aside className="hidden min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:flex lg:flex-col">
+          <aside className="hidden h-[400px] min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:col-span-1 lg:flex lg:flex-col">
             <GameSummary game={game} />
 
             <div className="mt-auto grid grid-cols-2 gap-1.5 pt-5">
@@ -138,6 +137,7 @@ export default function GameHero({ games }: GameHeroProps) {
             </button>
           </>
         )}
+      </div>
 
       {featuredGames.length > 1 && (
         <div className="mt-4 flex items-center justify-center gap-1.5">
@@ -167,7 +167,7 @@ function GameSummary({ game }: { game: RawgGame }) {
       <p className="text-[10px] font-black uppercase tracking-[0.28em] text-yellow-400">
         Featured now
       </p>
-      <h2 className="mt-2 line-clamp-2 text-3xl font-black leading-tight text-white lg:text-4xl">
+      <h2 className="mt-2 line-clamp-2 text-2xl font-black leading-tight text-white lg:text-3xl">
         {game.name}
       </h2>
 

@@ -275,26 +275,6 @@ export default async function GameDetailsPage({ params }: PageProps) {
         </div>
       </section>
 
-      <div className="sticky top-20 z-30 border-y border-white/10 bg-[#101722]/95 shadow-[0_10px_30px_rgba(0,0,0,.35)] backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 py-2 [scrollbar-width:none] md:px-6 [&::-webkit-scrollbar]:hidden">
-          {[
-            ["Trailer", "#trailer"],
-            ["About", "#about"],
-            ...(screenshots.length ? [["Screenshots", "#screenshots"]] : []),
-            ...(pcPlatform ? [["PC Requirements", "#requirements"]] : []),
-            ...(moreGames.length ? [["More Games", "#more-games"]] : []),
-          ].map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
-              className="shrink-0 px-3 py-2 text-xs font-bold text-white/55 transition hover:bg-white/5 hover:text-yellow-400"
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-      </div>
-
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.55fr)_360px]">
           <div className="min-w-0">
