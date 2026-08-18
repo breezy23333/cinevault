@@ -4,7 +4,6 @@ import {
   getIgdbGameDetails,
   getIgdbGameScreenshots,
   getIgdbGames,
-  getIgdbGamesByNames,
   getIgdbSimilarGames,
 } from "@/lib/igdbGames";
 
@@ -197,6 +196,12 @@ function isOpenWorldCrimeGame(game: RawgGame) {
   );
 }
 
+function isKnownEsportsGame(game: RawgGame) {
+  return /counter-strike|valorant|league of legends|dota|rocket league|overwatch|rainbow six siege|fortnite|apex legends|pubg|battlegrounds|street fighter|starcraft|warzone|ea sports fc|tekken|smite|hearthstone/i.test(
+    game.name,
+  );
+}
+
 function removeUsedGames(
   games: RawgGame[],
   usedIds: Set<number>,
@@ -267,24 +272,16 @@ export function getThirdPersonShooters(limit = 20) {
 }
 
 export async function getEsportsGames(limit = 20) {
-  const games = await getIgdbGamesByNames([
-    "Counter-Strike 2",
-    "Valorant",
-    "League of Legends",
-    "Dota 2",
-    "Rocket League",
-    "Overwatch 2",
-    "Tom Clancy's Rainbow Six Siege",
-    "Fortnite",
-    "Apex Legends",
-    "PUBG: Battlegrounds",
-    "Street Fighter 6",
-    "StarCraft II",
-    "Call of Duty: Warzone",
-    "EA Sports FC 26",
-  ]);
+  const games = await getGameCollection(
+    {
+      tags: "esports",
+      ordering: "-added",
+    },
+    40,
+    isKnownEsportsGame,
+  );
 
-  return cleanGameCollection(games, limit);
+  return games.slice(0, limit);
 }
 
 export function getRacingGames(limit = 20) {

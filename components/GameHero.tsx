@@ -36,7 +36,8 @@ export default function GameHero({ games }: GameHeroProps) {
 
   if (!featuredGames.length) return null;
 
-  const game = featuredGames[activeIndex];
+  const game =
+  featuredGames[activeIndex] ?? featuredGames[0];
   const screenshots = (game.short_screenshots ?? [])
     .filter((shot) => shot.image)
     .slice(0, 4);
@@ -76,10 +77,7 @@ export default function GameHero({ games }: GameHeroProps) {
         onMouseLeave={() => setPaused(false)}
       >
         <div className="grid lg:grid-cols-[minmax(0,1.8fr)_minmax(300px,.75fr)]">
-          <Link
-            href={`/games/${game.id}`}
-            className="relative block min-h-[310px] overflow-hidden sm:min-h-[430px] lg:min-h-[500px]"
-          >
+          <div className="relative block min-h-[310px] overflow-hidden sm:min-h-[430px] lg:min-h-[500px]"></div>
             <img
               key={game.background_image}
               src={game.background_image!}
@@ -90,7 +88,7 @@ export default function GameHero({ games }: GameHeroProps) {
             <div className="absolute bottom-0 left-0 right-0 p-5 lg:hidden">
               <GameSummary game={game} />
             </div>
-          </Link>
+          </div>
 
           <aside className="hidden min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:flex lg:flex-col">
             <GameSummary game={game} />
@@ -140,7 +138,6 @@ export default function GameHero({ games }: GameHeroProps) {
             </button>
           </>
         )}
-      </div>
 
       {featuredGames.length > 1 && (
         <div className="mt-4 flex items-center justify-center gap-1.5">

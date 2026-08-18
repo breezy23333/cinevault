@@ -239,6 +239,12 @@ function mapGame(game: IgdbGame): RawgGame {
         name: genre.name,
         slug: genre.slug || slugify(genre.name),
       })) ?? [],
+    tags:
+      game.themes?.map((theme) => ({
+        id: theme.id,
+        name: theme.name,
+        slug: theme.slug || slugify(theme.name),
+      })) ?? [],
     stores: [],
     short_screenshots: screenshots,
     esrb_rating: null,
@@ -599,4 +605,50 @@ export async function getIgdbSimilarGames(
     );
     return [];
   }
+}
+
+export async function getIgdbGamesByNames(
+  names: string[],
+): Promise<RawgGame[]> {
+  const uniqueNames = [...new Set(names.map((name) => name.trim()))]
+    .filter(Boolean)
+    .slice(0, 20);
+
+  const results = await Promise.all(
+    uniqueNames.map(async (name) => {
+      try {
+        const safeName = name.replace(/["\\]/g, "");
+        const games = await igdbRequest<IgdbGame[]>(
+          "games",
+          [
+            `fields ${LIST_FIELDS};`,
+            `search "${safeName}";`,
+            "where version_parent = null;",
+            "limit 5;",
+          ].join(" "),
+        );
+
+        const normalizedTarget = slugify(name);
+        const exact = games.find(
+          (game) => slugify(game.name) === normalizedTarget,
+        );
+
+        return exact ?? games[0] ?? null;
+      } catch (error) {
+        console.error(`IGDB search failed for ${name}:`, error);
+        return null;
+      }
+    }),
+  );
+
+  const usedIds = new Set<number>();
+
+  return results
+    .filter((game): game is IgdbGame => Boolean(game))
+    .filter((game) => {
+      if (usedIds.has(game.id)) return false;
+      usedIds.add(game.id);
+      return true;
+    })
+    .map(mapGame);
 }
