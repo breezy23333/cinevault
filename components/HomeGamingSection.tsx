@@ -53,12 +53,10 @@ export default function HomeGamingSection({
 
   return (
     <section
-      id="gaming-universe"
-      className="relative overflow-hidden border-y border-white/10 bg-[#080b12] py-8 shadow-[0_28px_90px_rgba(0,0,0,.45)] md:py-10"
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(250,204,21,.09),transparent_32%)]" />
-
-      <div className="relative">
+        id="gaming-universe"
+        className="relative py-8"
+        >
+        <div>
         <header className="mb-7 flex flex-wrap items-end justify-between gap-5 border-b border-white/10 pb-5">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-yellow-400">
