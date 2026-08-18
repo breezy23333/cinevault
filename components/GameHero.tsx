@@ -38,8 +38,8 @@ export default function GameHero({ games }: GameHeroProps) {
 
   const game = featuredGames[activeIndex];
   const screenshots = (game.short_screenshots ?? [])
-    .filter((shot) => shot.image)
-    .slice(0, 4);
+  .filter((shot) => shot.image)
+  .slice(0, 2);
 
   const previous = () =>
     setActiveIndex(
