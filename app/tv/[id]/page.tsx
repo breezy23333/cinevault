@@ -1,7 +1,10 @@
+// app/tv/[id]/page.tsx
 import type { Metadata } from "next";
-import CineImage from "@/components/CineImage";
+import type { ReactNode } from "react";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import CineImage from "@/components/CineImage";
 import UserRating from "@/components/UserRating";
 import Comments from "@/components/Comments";
 import TrailerModal from "@/components/TrailerModal";
@@ -11,7 +14,6 @@ import WatchOptions from "@/components/WatchOptions";
 import TVSeasons from "@/components/TVSeasons";
 import AwardsSection from "@/components/AwardsSection";
 import { fetchAwardsByImdbId } from "@/lib/awards";
-import { headers } from "next/headers";
 import {
   getTVDetails,
   getTVVideos,
@@ -23,12 +25,13 @@ import {
 export const runtime = "nodejs";
 export const revalidate = 300;
 
-type PageProps = {
-  params: Promise<{ id: string }>;
-};
+const SITE_URL = "https://cinryvan.vercel.app";
+
+type PageProps = { params: Promise<{ id: string }> };
 
 type TMDBVideo = {
   key?: string;
+  name?: string;
   site?: string;
   type?: string;
   official?: boolean;
@@ -46,564 +49,653 @@ type SimilarTV = {
   name?: string;
   poster_path?: string | null;
   first_air_date?: string | null;
+  vote_average?: number | null;
 };
 
-const img = (p?: string | null, size: string = "w780") =>
-  p ? `https://image.tmdb.org/t/p/${size}${p}` : null;
+const imageUrl = (path?: string | null, size = "w780") =>
+  path ? `https://image.tmdb.org/t/p/${size}${path}` : null;
 
-const withTimeout = <T,>(p: Promise<T>, ms = 8000, label = "fetch") =>
+const withTimeout = <T,>(promise: Promise<T>, milliseconds = 8000, label = "fetch") =>
   Promise.race<T>([
-    p,
-    new Promise<T>((_, rej) =>
-      setTimeout(() => rej(new Error(`${label} timeout`)), ms)
-    ) as any,
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timeout`)), milliseconds),
+    ),
   ]);
+
+function pickTrailer(videos: TMDBVideo[]) {
+  return (
+    videos.find(
+      (video) =>
+        video.type === "Trailer" &&
+        video.site === "YouTube" &&
+        video.official &&
+        video.key,
+    )?.key ?? videos.find((video) => video.site === "YouTube" && video.key)?.key
+  );
+}
+
+function formatEpisodeRuntime(values?: number[]) {
+  const minutes = Array.isArray(values) ? values.find((value) => value > 0) : null;
+  return minutes ? `${minutes} min episodes` : null;
+}
 
 export default async function TvPage({ params }: PageProps) {
-  const { id: idStr } = await params;
+  const { id: idString } = await params;
+  if (!/^\d+$/.test(idString)) notFound();
+  const id = Number(idString);
+  if (!Number.isSafeInteger(id) || id < 1) notFound();
 
-  if (!idStr) return notFound();
-
-  const id = Number(idStr);
-  if (!Number.isFinite(id)) return notFound();
-
-  const [detailsRes, videosRes, creditsRes, similarRes, providersRes] =
-  await Promise.allSettled([
-    withTimeout(getTVDetails(id), 8000, "details"),
-    withTimeout(getTVVideos(id), 8000, "videos"),
-    withTimeout(getTVCredits(id), 8000, "credits"),
-    withTimeout(getSimilarTV(id), 8000, "similar"),
-    withTimeout(fetchTmdbProviders(id, "tv"), 8000, "providers"),
-  ]);
+  const [detailsResult, videosResult, creditsResult, similarResult, providersResult] =
+    await Promise.allSettled([
+      withTimeout(getTVDetails(id), 9000, "details"),
+      withTimeout(getTVVideos(id), 8000, "videos"),
+      withTimeout(getTVCredits(id), 8000, "credits"),
+      withTimeout(getSimilarTV(id), 8000, "similar"),
+      withTimeout(fetchTmdbProviders(id, "tv"), 8000, "providers"),
+    ]);
 
   const details: any =
-  detailsRes.status === "fulfilled" ? detailsRes.value : null;
-
-  if (!details) return notFound();
+    detailsResult.status === "fulfilled" ? detailsResult.value : null;
+  if (!details) notFound();
 
   const awards = await fetchAwardsByImdbId(
-    details.external_ids?.imdb_id
-  );
-
+    details.external_ids?.imdb_id,
+  ).catch(() => null);
   const videos: TMDBVideo[] =
-    videosRes.status === "fulfilled" &&
-    Array.isArray((videosRes.value as any)?.results)
-      ? (videosRes.value as any).results
+    videosResult.status === "fulfilled" &&
+    Array.isArray((videosResult.value as any)?.results)
+      ? (videosResult.value as any).results
       : [];
-
   const cast: Cast[] =
-    creditsRes.status === "fulfilled" &&
-    Array.isArray((creditsRes.value as any)?.cast)
-      ? (creditsRes.value as any).cast.slice(0, 12)
+    creditsResult.status === "fulfilled" &&
+    Array.isArray((creditsResult.value as any)?.cast)
+      ? (creditsResult.value as any).cast.slice(0, 12)
       : [];
-
   const similar: SimilarTV[] =
-    similarRes.status === "fulfilled" &&
-    Array.isArray((similarRes.value as any)?.results)
-      ? (similarRes.value as any).results.slice(0, 12)
+    similarResult.status === "fulfilled" &&
+    Array.isArray((similarResult.value as any)?.results)
+      ? (similarResult.value as any).results.slice(0, 14)
       : [];
-
   const providersData: any =
-  providersRes.status === "fulfilled" ? providersRes.value : null;
+    providersResult.status === "fulfilled" ? providersResult.value : null;
 
   const requestHeaders = await headers();
   const detectedCountry = requestHeaders
     .get("x-vercel-ip-country")
     ?.trim()
     .toUpperCase();
-
   const country =
     detectedCountry && /^[A-Z]{2}$/.test(detectedCountry)
       ? detectedCountry
       : "US";
-
-  const watchData = providersData?.results?.[country] ?? null; 
+  const watchData = providersData?.results?.[country] ?? null;
 
   const title = details.name || details.original_name || "Untitled";
-  const backdrop = img(details.backdrop_path, "w1280") || img(details.poster_path, "w780");
-  const poster = img(details.poster_path, "w500");
+  const backdrop =
+    imageUrl(details.backdrop_path, "original") ||
+    imageUrl(details.poster_path, "w1280");
+  const poster = imageUrl(details.poster_path, "w500");
   const year = (details.first_air_date || "").slice(0, 4);
-
   const rating =
-    typeof details.vote_average === "number"
+    typeof details.vote_average === "number" && details.vote_average > 0
       ? Math.round(details.vote_average * 10) / 10
-      : undefined;
+      : null;
+  const ratingPercent = rating ? Math.min(Math.max(rating * 10, 0), 100) : 0;
+  const trailerKey = pickTrailer(videos);
+  const genres = Array.isArray(details.genres) ? details.genres : [];
+  const seasons = Array.isArray(details.seasons) ? details.seasons : [];
+  const networks = Array.isArray(details.networks) ? details.networks.slice(0, 6) : [];
+  const studios = Array.isArray(details.production_companies)
+    ? details.production_companies.slice(0, 6)
+    : [];
+  const creators = Array.isArray(details.created_by) ? details.created_by.slice(0, 5) : [];
+  const episodeRuntime = formatEpisodeRuntime(details.episode_run_time);
+  const extras = videos
+    .filter((video) => video.site === "YouTube" && video.key)
+    .filter((video) =>
+      ["Trailer", "Teaser", "Featurette", "Behind the Scenes", "Clip"].includes(
+        video.type || "",
+      ),
+    )
+    .slice(0, 6);
 
-  const meta = [
-    details.number_of_seasons ? `${details.number_of_seasons} season(s)` : "",
-    details.number_of_episodes ? `${details.number_of_episodes} episodes` : "",
-  ]
-    .filter(Boolean)
-    .join(" • ");
+  const tvJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TVSeries",
+    name: title,
+    description: details.overview,
+    image: poster,
+    url: `${SITE_URL}/tv/${id}`,
+    genre: genres.map((genre: any) => genre.name),
+    datePublished: details.first_air_date,
+    numberOfSeasons: details.number_of_seasons,
+    numberOfEpisodes: details.number_of_episodes,
+    aggregateRating:
+      rating && details.vote_count > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: rating,
+            ratingCount: details.vote_count,
+            bestRating: 10,
+            worstRating: 0,
+          }
+        : undefined,
+  };
 
-  const ytKey =
-    videos.find(
-      (v) =>
-        v.type === "Trailer" &&
-        v.site === "YouTube" &&
-        v.official
-    )?.key ?? videos.find((v) => v.site === "YouTube")?.key;
-
-    const tvJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "TVSeries",
-  name: title,
-  description: details.overview,
-  image: poster,
-  url: `https://cinryvan.vercel.app/tv/${id}`,
-  genre: details.genres?.map((g: any) => g.name),
-  datePublished: details.first_air_date,
-  aggregateRating:
-  rating && details.vote_count > 0
-    ? {
-        "@type": "AggregateRating",
-        ratingValue: rating,
-        ratingCount: details.vote_count,
-        bestRating: 10,
-        worstRating: 0,
-      }
-    : undefined,
-};
-
-const breadcrumbJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: "https://cinryvan.vercel.app",
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: "TV Shows",
-      item: "https://cinryvan.vercel.app/tv",
-    },
-    {
-      "@type": "ListItem",
-      position: 3,
-      name: title,
-      item: `https://cinryvan.vercel.app/tv/${id}`,
-    },
-  ],
-};
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "TV Shows",
+        item: `${SITE_URL}/tv`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: title,
+        item: `${SITE_URL}/tv/${id}`,
+      },
+    ],
+  };
 
   return (
-    <main className="pb-12">
+    <main className="min-h-screen overflow-hidden bg-[#080b12] pb-24 text-white">
       <ContinueWatchingTracker
         id={details.id}
         media_type="tv"
-        title={details.name}
+        title={title}
         poster_path={details.poster_path}
         release_date={details.first_air_date}
         vote_average={details.vote_average}
       />
-      <section className="relative left-1/2 w-[100svw] -translate-x-1/2 overflow-hidden">
-        <div className="relative h-[54vh] md:h-[64vh]">
-          <CineImage
-              src={backdrop}
-              alt={title}
-              fallback="No backdrop"
-              className="object-cover"
-            />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#0e131f]" />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(tvJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
-          <div className="relative z-10 mx-auto flex h-full max-w-[1200px] items-end px-4 md:items-center md:px-6">
-            <div className="hidden shrink-0 md:mb-0 md:mr-6 md:block">
-              <div className="relative h-[320px] w-[220px] overflow-hidden rounded-xl bg-black/30 ring-1 ring-white/15">
-                <CineImage
-                    src={backdrop}
-                    alt={title}
-                    fallback="No backdrop"
-                    priority
-                    className="object-cover"
-                  />
-              </div>
+      {/* BROADCAST 01 — HERO */}
+      <section className="relative min-h-[760px] overflow-hidden border-b border-red-500/20 bg-black pt-24">
+        <CineImage
+          src={backdrop}
+          alt={`${title} backdrop`}
+          fallback="Backdrop unavailable"
+          className="object-cover object-center opacity-72"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080b12] via-[#080b12]/76 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-black/50" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_36%,rgba(239,68,68,.18),transparent_26%)]" />
+        <div className="absolute left-0 top-1/3 h-px w-36 bg-red-500/80" />
+
+        <div className="relative z-10 mx-auto flex min-h-[660px] max-w-7xl items-end px-4 pb-14 md:px-6 lg:pb-20">
+          <div className="max-w-4xl">
+            <div className="flex items-center gap-3">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500 shadow-[0_0_20px_5px_rgba(239,68,68,.45)]" />
+              <p className="text-xs font-black uppercase tracking-[0.42em] text-red-400">
+                CINRYVAN Broadcast
+              </p>
+            </div>
+            <h1 className="mt-5 text-5xl font-black leading-[.9] tracking-[-0.06em] sm:text-7xl lg:text-[92px]">
+              {title}
+            </h1>
+            {details.tagline && (
+              <p className="mt-4 text-lg font-semibold italic text-white/55 sm:text-xl">
+                “{details.tagline}”
+              </p>
+            )}
+
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
+              <span className="bg-red-500 px-3 py-2 text-white">TV Series</span>
+              {year && <MetaChip>{year}</MetaChip>}
+              {details.number_of_seasons && (
+                <MetaChip>
+                  {details.number_of_seasons} season{details.number_of_seasons === 1 ? "" : "s"}
+                </MetaChip>
+              )}
+              {details.number_of_episodes && (
+                <MetaChip>{details.number_of_episodes} episodes</MetaChip>
+              )}
+              {episodeRuntime && <MetaChip>{episodeRuntime}</MetaChip>}
+              {genres.slice(0, 3).map((genre: any) => (
+                <MetaChip key={genre.id ?? genre.name}>{genre.name}</MetaChip>
+              ))}
             </div>
 
-            <div className="pb-6 md:pb-0">
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-white/85">
-                <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/15">
-                  TV SHOW
-                </span>
+            <p className="mt-6 line-clamp-3 max-w-3xl text-base leading-8 text-white/68 sm:text-lg">
+              {details.overview ||
+                `Explore ${title}, its seasons, episodes, cast, videos and official watch options on CINRYVAN.`}
+            </p>
 
-                {!!year && (
-                  <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/15">
-                    {year}
-                  </span>
-                )}
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              {trailerKey && <TrailerModal videoKey={trailerKey} />}
+              <Link
+                href="#seasons"
+                className="inline-flex items-center border border-red-400/45 bg-red-500/10 px-5 py-3 text-sm font-black text-red-200 backdrop-blur transition hover:bg-red-500 hover:text-white"
+              >
+                Explore seasons ↓
+              </Link>
+              <Link
+                href="#watch"
+                className="inline-flex items-center border border-white/20 bg-black/30 px-5 py-3 text-sm font-black backdrop-blur transition hover:border-yellow-400/70 hover:text-yellow-300"
+              >
+                Where to watch
+              </Link>
+              <WatchlistButton
+                id={details.id}
+                media_type="tv"
+                title={title}
+                poster_path={details.poster_path}
+                release_date={details.first_air_date}
+                vote_average={details.vote_average}
+              />
+            </div>
+          </div>
+        </div>
 
-                {rating && (
-                  <span className="rounded-md bg-yellow-400 px-2.5 py-1 font-semibold text-black">
-                    ★ {rating}
-                  </span>
-                )}
-              </div>
+        <div className="absolute bottom-7 right-6 z-10 hidden items-center gap-3 text-[10px] font-black uppercase tracking-[0.24em] text-white/30 lg:flex">
+          <span>Transmission active</span>
+          <span className="h-px w-16 bg-red-500/70" />
+        </div>
+      </section>
 
-              <h1 className="text-3xl font-bold leading-tight md:text-5xl">
-                {title}
-              </h1>
+      {/* BROADCAST 02 — SERIES DOSSIER */}
+      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
+        <BroadcastHeading
+          number="02"
+          eyebrow="Series dossier"
+          title={`The world of ${title}`}
+          text="Story, broadcast history, creators, networks and audience response in one connected record."
+        />
 
-              {!!meta && (
-                <p className="mt-2 text-sm text-white/70">{meta}</p>
-              )}
+        <div className="mt-9 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_250px] lg:items-start">
+          <div className="mx-auto w-full max-w-[320px] lg:mx-0">
+            <div className="relative aspect-[2/3] overflow-hidden border border-red-400/25 bg-[#111925] shadow-[0_35px_90px_rgba(0,0,0,.5)]">
+              <CineImage
+                src={poster}
+                alt={`${title} poster`}
+                fallback="Poster unavailable"
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 h-1 w-2/5 bg-red-500" />
+            </div>
+            <div className="mt-4">
+              <WatchlistButton
+                id={details.id}
+                media_type="tv"
+                title={title}
+                poster_path={details.poster_path}
+                release_date={details.first_air_date}
+                vote_average={details.vote_average}
+              />
+            </div>
+          </div>
 
-              {!!details.overview && (
-                <p className="mt-3 max-w-2xl text-white/85">
-                  {details.overview}
-                </p>
-              )}
+          <div className="border-y border-white/10 py-6 lg:border-y-0 lg:border-l lg:border-r lg:px-7 lg:py-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-400">
+              Synopsis
+            </p>
+            <p className="mt-4 text-base leading-8 text-white/62 sm:text-lg">
+              {details.overview ||
+                "A series synopsis is not available yet. Explore its seasons, cast and videos below."}
+            </p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                {ytKey && <TrailerModal videoKey={ytKey} />}
+            <div className="mt-8 grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2">
+              <Fact label="Original title" value={details.original_name || title} />
+              <Fact label="Status" value={details.status || "Unknown"} />
+              <Fact label="First aired" value={details.first_air_date || "Unknown"} />
+              <Fact label="Last aired" value={details.last_air_date || "Unknown"} />
+              <Fact label="Seasons" value={String(details.number_of_seasons || "Unknown")} />
+              <Fact label="Episodes" value={String(details.number_of_episodes || "Unknown")} />
+              <Fact label="Episode length" value={episodeRuntime || "Unknown"} />
+              <Fact label="Language" value={details.original_language?.toUpperCase() || "Unknown"} />
+            </div>
 
-                <a
-                  href="#watch-section"
-                  className="inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 ring-1 ring-white/20 backdrop-blur hover:bg-white/15"
-                >
-                  Watch options
-                </a>
+            {creators.length > 0 && (
+              <TagGroup title="Created by" items={creators} />
+            )}
+            {networks.length > 0 && <TagGroup title="Networks" items={networks} />}
+            {studios.length > 0 && <TagGroup title="Studios" items={studios} />}
+          </div>
 
-                <WatchlistButton
-                  id={details.id}
-                  media_type="tv"
-                  title={title}
-                  poster_path={details.poster_path}
-                  release_date={details.first_air_date}
-                  vote_average={details.vote_average}
-                />
-              </div>
-
-              <div className="mt-4">
-                <UserRating movieId={id} tmdb={rating} />
+          <aside className="border border-red-400/20 bg-[#101722] p-6 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/35">
+              Audience signal
+            </p>
+            <div
+              className="relative mx-auto mt-6 grid h-40 w-40 place-items-center rounded-full"
+              style={{
+                background: `conic-gradient(#ef4444 ${ratingPercent}%, rgba(255,255,255,.08) ${ratingPercent}% 100%)`,
+              }}
+            >
+              <div className="grid h-[126px] w-[126px] place-items-center rounded-full bg-[#101722]">
+                <div>
+                  <p className="text-4xl font-black text-red-300">{rating ?? "—"}</p>
+                  <p className="mt-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
+                    TMDB / 10
+                  </p>
+                </div>
               </div>
             </div>
+            <p className="mt-4 text-xs leading-5 text-white/35">
+              {details.vote_count
+                ? `${details.vote_count.toLocaleString()} recorded votes`
+                : "No rating data available"}
+            </p>
+            <div className="mt-6 border-t border-white/10 pt-5 text-left">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-yellow-400">
+                Your rating
+              </p>
+              <UserRating movieId={id} tmdb={rating ?? undefined} />
+            </div>
+          </aside>
+        </div>
+
+        <div className="mt-10">
+          <AwardsSection awards={awards} mediaType="tv" />
+        </div>
+      </section>
+
+      {/* BROADCAST 03 — SEASONS */}
+      <section id="seasons" className="scroll-mt-28 border-y border-red-500/20 bg-[#0c1018] py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <BroadcastHeading
+            number="03"
+            eyebrow="Season archive"
+            title="Every chapter of the series"
+            text={`${details.number_of_seasons || seasons.length || "All"} seasons and ${details.number_of_episodes || "every available"} episodes collected in broadcast order.`}
+          />
+
+          <div className="mt-9 border border-white/10 bg-[#101722] p-4 sm:p-6 lg:p-8">
+            <TVSeasons seasons={seasons} title={title} />
           </div>
         </div>
       </section>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(tvJsonLd),
-        }}
-      />
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd),
-        }}
-      />
-
-      <section className="mx-auto mt-8 w-full max-w-[1200px] space-y-10 px-4 md:px-6">
-
-        <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
-        <p className="mt-4 leading-8 text-white/70">
-            {details.overview}
-          </p>
-      </section> 
-
-      {/* TV Database */}
-        <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-            CINRYVAN Database
-          </p>
-
-          <h2 className="mt-2 text-3xl font-black text-white">
-            Series Details
-          </h2>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl bg-black/30 p-4">
-              <p className="text-xs uppercase text-white/40">Status</p>
-              <p className="mt-1 font-bold text-white">{details.status || "Unknown"}</p>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4">
-              <p className="text-xs uppercase text-white/40">First Air Date</p>
-              <p className="mt-1 font-bold text-white">{details.first_air_date || "Unknown"}</p>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4">
-              <p className="text-xs uppercase text-white/40">Last Air Date</p>
-              <p className="mt-1 font-bold text-white">{details.last_air_date || "Unknown"}</p>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4">
-              <p className="text-xs uppercase text-white/40">Seasons</p>
-              <p className="mt-1 font-bold text-white">{details.number_of_seasons || "Unknown"}</p>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4">
-              <p className="text-xs uppercase text-white/40">Episodes</p>
-              <p className="mt-1 font-bold text-white">{details.number_of_episodes || "Unknown"}</p>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4">
-              <p className="text-xs uppercase text-white/40">Original Language</p>
-              <p className="mt-1 font-bold text-white">
-                {details.original_language?.toUpperCase() || "Unknown"}
-              </p>
-            </div>
-          </div>
-
-          {details.networks?.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-xl font-black text-white">Networks</h3>
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                {details.networks.slice(0, 8).map((network: any) => (
-                  <span
-                    key={network.id}
-                    className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-bold text-white/80"
-                  >
-                    {network.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {details.production_companies?.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-xl font-black text-white">Studios</h3>
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                {details.production_companies.slice(0, 8).map((studio: any) => (
-                  <span
-                    key={studio.id}
-                    className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-bold text-white/80"
-                  >
-                    {studio.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
-
-         <AwardsSection
-            awards={awards}
-            mediaType="tv"
+      {/* BROADCAST 04 — OFFICIAL VIDEOS */}
+      {extras.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
+          <BroadcastHeading
+            number="04"
+            eyebrow="Transmission archive"
+            title="Trailers, clips and featurettes"
+            text="Official footage that expands the series beyond its episodes."
           />
 
-        {/* CINRYVAN Extras */}
-          {videos.length > 0 && (
-            <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                CINRYVAN Extras
-              </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {extras.map((video, index) => (
+              <a
+                key={`${video.key}-${index}`}
+                href={`https://www.youtube.com/watch?v=${video.key}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group overflow-hidden border border-white/10 bg-[#101722] transition hover:-translate-y-1 hover:border-red-400/65"
+              >
+                <div className="relative aspect-video overflow-hidden bg-black">
+                  <CineImage
+                    src={`https://i.ytimg.com/vi/${video.key}/hqdefault.jpg`}
+                    alt={video.name || video.type || "TV video"}
+                    fallback="Video unavailable"
+                    className="object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
+                  />
+                  <div className="absolute inset-0 grid place-items-center bg-black/15">
+                    <span className="grid h-12 w-12 place-items-center rounded-full bg-red-500 text-sm font-black text-white transition group-hover:scale-110">
+                      ▶
+                    </span>
+                  </div>
+                  <span className="absolute left-3 top-3 text-[9px] font-black tracking-[0.2em] text-white/60">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-red-400">
+                    {video.type || "Video"}
+                  </p>
+                  <h3 className="mt-2 line-clamp-2 font-black">
+                    {video.name || `${title} official extra`}
+                  </h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
-              <h2 className="mt-2 text-3xl font-black text-white">
-                Trailers, Clips & Featurettes
-              </h2>
+      {/* BROADCAST 05 — CAST */}
+      {cast.length > 0 && (
+        <section className="border-y border-white/10 bg-[#0c1018] py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 md:px-6">
+            <BroadcastHeading
+              number="05"
+              eyebrow="The ensemble"
+              title="Cast of the series"
+              text="The performers behind the characters, conflicts and stories across every season."
+            />
 
-              <p className="mt-3 max-w-2xl text-white/60">
-                Explore official trailers, teasers, clips, featurettes, and behind-the-scenes videos connected to this series.
-              </p>
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+              {cast.map((person, index) => (
+                <Link
+                  key={`${person.id}-${index}`}
+                  href={`/person/${person.id}`}
+                  prefetch={false}
+                  className="group relative overflow-hidden border border-white/10 bg-[#101722] transition hover:-translate-y-1 hover:border-red-400/65"
+                >
+                  <div className="relative aspect-[2/3] overflow-hidden bg-white/5">
+                    <CineImage
+                      src={imageUrl(person.profile_path, "w342")}
+                      alt={person.name}
+                      fallback="Actor photo unavailable"
+                      className="object-cover object-top transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent opacity-70" />
+                    <span className="absolute left-2 top-2 text-[9px] font-black tracking-[0.2em] text-white/45">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="line-clamp-1 text-sm font-black transition group-hover:text-red-300">
+                      {person.name}
+                    </h3>
+                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-white/40">
+                      {person.character || "Cast"}
+                    </p>
+                  </div>
+                  <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 group-hover:w-full" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {videos
-                  .filter((v) => v.site === "YouTube" && v.key)
-                  .filter((v) =>
-                    ["Trailer", "Teaser", "Featurette", "Behind the Scenes", "Clip"].includes(v.type || "")
-                  )
-                  .slice(0, 6)
-                  .map((v, index) => (
-                    <a
-                      key={`${v.key}-${index}`}
-                      href={`https://www.youtube.com/watch?v=${v.key}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group overflow-hidden rounded-2xl border border-white/10 bg-black/30 transition hover:border-yellow-400/60 hover:bg-white/10"
-                    >
-                      <div className="relative aspect-video bg-black">
-                        <CineImage
-                            src={`https://i.ytimg.com/vi/${v.key}/hqdefault.jpg`}
-                            alt={v.type || "TV video"}
-                            fallback="Video unavailable"
-                            className="object-cover opacity-80 transition duration-300 group-hover:scale-105 group-hover:opacity-100"
-                          />
+      {/* BROADCAST 06 — WATCH */}
+      <section id="watch" className="scroll-mt-28 mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
+        <BroadcastHeading
+          number="06"
+          eyebrow="Now available"
+          title="Where to watch"
+          text={`Official streaming, rental and purchase information detected for ${country}.`}
+        />
+        <div className="mt-9 border border-white/10 bg-[#101722] p-5 sm:p-7">
+          <WatchOptions title={title} watchData={watchData} country={country} />
+        </div>
+      </section>
 
-                        <div className="absolute inset-0 grid place-items-center bg-black/20">
-                          <div className="rounded-full bg-yellow-400 px-4 py-3 font-black text-black">
-                            ▶
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-4">
-                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
-                          {v.type || "Video"}
-                        </p>
-
-                        <h3 className="mt-1 line-clamp-2 font-bold text-white">
-                          Official Series Extra
-                        </h3>
-                      </div>
-                    </a>
-                  ))}
-              </div>
-            </section>
-          )}
-
-         
-
-        {cast.length > 0 && (
-          <div>
-            <h2 className="mb-3 text-xl font-bold">Cast</h2>
-
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-              {cast.map((c) => {
-                const profile = img(c.profile_path, "w185");
-
+      {/* BROADCAST 07 — RELATED SERIES */}
+      {similar.length > 0 && (
+        <section className="border-y border-white/10 bg-[#0c1018] py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 md:px-6">
+            <BroadcastHeading
+              number="07"
+              eyebrow="Next transmission"
+              title="More series like this"
+              text="Continue from this world into another story with a similar signal."
+            />
+            <div className="hide-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 md:-mx-6 md:px-6">
+              {similar.map((series, index) => {
+                const seriesYear = (series.first_air_date || "").slice(0, 4) || "—";
+                const seriesRating =
+                  typeof series.vote_average === "number" && series.vote_average > 0
+                    ? series.vote_average.toFixed(1)
+                    : null;
                 return (
                   <Link
-                    key={c.id}
-                    href={`/person/${c.id}`}
-                    className="overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 transition hover:ring-yellow-400/60"
+                    key={series.id}
+                    href={`/tv/${series.id}`}
+                    prefetch={false}
+                    className="group relative w-[170px] shrink-0 snap-start overflow-hidden border border-white/10 bg-[#101722] transition hover:-translate-y-1 hover:border-red-400/65 sm:w-[205px]"
                   >
-                    <div className="relative aspect-[2/3] bg-black/20">
+                    <div className="relative aspect-[2/3] overflow-hidden bg-white/5">
                       <CineImage
-                        src={profile}
-                        alt={c.name}
-                        fallback="No photo"
-                        className="object-cover"
+                        src={imageUrl(series.poster_path, "w342")}
+                        alt={series.name || "TV poster"}
+                        fallback="Poster unavailable"
+                        className="object-cover transition duration-500 group-hover:scale-105"
                       />
-                    </div>
-
-                    <div className="p-2">
-                      <div className="line-clamp-1 font-medium">{c.name}</div>
-                      {!!c.character && (
-                        <div className="text-xs text-white/70">
-                          {c.character}
-                        </div>
+                      {seriesRating && (
+                        <span className="absolute right-2 top-2 bg-red-500 px-2 py-1 text-[10px] font-black text-white">
+                          ★ {seriesRating}
+                        </span>
                       )}
+                      <span className="absolute bottom-2 left-2 text-[9px] font-black tracking-[0.2em] text-white/55">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="line-clamp-2 text-sm font-black transition group-hover:text-red-300">
+                        {series.name || "Untitled"}
+                      </h3>
+                      <p className="mt-2 text-xs text-white/35">{seriesYear}</p>
                     </div>
                   </Link>
                 );
               })}
             </div>
           </div>
-        )}
+        </section>
+      )}
 
-        <TVSeasons seasons={details.seasons || []} title={title} />
-
-        {similar.length > 0 && (
-          <div>
-            <h2 className="mb-3 text-xl font-bold">More like this</h2>
-
-            <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-2 pb-2">
-              {similar.map((s) => {
-                const p = img(s.poster_path, "w342");
-                const y = (s.first_air_date || "").slice(0, 4) || "—";
-
-                return (
-                  <Link
-                    key={s.id}
-                    href={`/tv/${s.id}`}
-                    className="group relative w-[180px] shrink-0 snap-start overflow-hidden rounded-xl ring-1 ring-white/10 hover:ring-white/20"
-                  >
-                    <div className="relative aspect-[2/3] bg-white/5">
-                      <CineImage
-                        src={p}
-                        alt={s.name || "Untitled"}
-                        fallback="No poster"
-                        className="object-cover transition duration-300 group-hover:scale-105"
-                      />
-                    </div>
-
-                    <div className="p-2">
-                      <div className="line-clamp-1 font-medium">
-                        {s.name || "Untitled"}
-                      </div>
-                      <div className="text-xs text-white/70">{y}</div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <WatchOptions title={title} watchData={watchData} country={country} /> 
-
-         <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-              Explore More
-            </p>
-
-            <h2 className="mt-2 text-3xl font-black">
-              Continue Exploring CINRYVAN
-            </h2>
-
-            <p className="mt-3 max-w-2xl text-white/60">
-              Discover more trending movies, top-rated worlds, anime adventures,
-              cartoons, and cinematic universes.
-            </p>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Link
-                href="/trending"
-                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/50 hover:bg-white/10"
-              >
-                Trending TV Shows
-              </Link>
-
-              <Link
-                href="/top"
-                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/50 hover:bg-white/10"
-              >
-                Top Rated Shows
-              </Link>
-
-              <Link
-                href="/anime"
-                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-pink-400/50 hover:bg-white/10"
-              >
-                Anime Series
-              </Link>
-
-              <Link
-                href="/cartoons"
-                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-cyan-400/50 hover:bg-white/10"
-              >
-                Animated Shows
-              </Link>
-
-              <Link
-                href="/news"
-                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-green-400/50 hover:bg-white/10"
-              >
-                TV News
-              </Link>
-
-              <Link
-                href="/upcoming"
-                className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-orange-400/50 hover:bg-white/10"
-              >
-                Upcoming Series
-              </Link>
-            </div>
-            
-          </section>
-        <Comments movieId={id} title={title} />
+      {/* BROADCAST 08 — COMMUNITY */}
+      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
+        <BroadcastHeading
+          number="08"
+          eyebrow="After the episode"
+          title="Join the conversation"
+          text="Rate the series, share your perspective and continue exploring with the CINRYVAN community."
+        />
+        <div className="mt-9 border border-white/10 bg-[#101722] p-5 sm:p-7">
+          <Comments movieId={id} title={title} />
+        </div>
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            ["Trending TV Shows", "/trending"],
+            ["Top Rated Shows", "/top"],
+            ["Upcoming Series", "/upcoming"],
+            ["Anime Series", "/anime"],
+            ["Animated Shows", "/cartoons"],
+            ["TV News", "/news"],
+          ].map(([label, href], index) => (
+            <Link
+              key={href}
+              href={href}
+              className="group flex items-center justify-between border border-white/10 bg-white/[0.025] p-4 text-sm font-black transition hover:border-red-400/65 hover:text-red-300"
+            >
+              <span>
+                <span className="mr-3 text-[9px] text-red-400/65">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                {label}
+              </span>
+              <span className="transition group-hover:translate-x-1">→</span>
+            </Link>
+          ))}
+        </div>
       </section>
     </main>
   );
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+function MetaChip({ children }: { children: ReactNode }) {
+  return (
+    <span className="border border-white/15 bg-black/35 px-3 py-2 text-white/65">
+      {children}
+    </span>
+  );
+}
+
+function BroadcastHeading({
+  number,
+  eyebrow,
+  title,
+  text,
+}: {
+  number: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="grid gap-5 border-b border-white/10 pb-6 sm:grid-cols-[auto_1fr] sm:items-end">
+      <span className="text-5xl font-black leading-none text-red-500/[0.14] sm:text-7xl">
+        {number}
+      </span>
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-[0.32em] text-red-400">
+          {eyebrow}
+        </p>
+        <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <h2 className="text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+            {title}
+          </h2>
+          <p className="max-w-xl text-sm leading-6 text-white/42">{text}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-[#0c121c] p-4">
+      <p className="text-[9px] font-black uppercase tracking-[0.22em] text-white/28">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-black text-white/75">{value}</p>
+    </div>
+  );
+}
+
+function TagGroup({ title, items }: { title: string; items: any[] }) {
+  return (
+    <div className="mt-7">
+      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/30">
+        {title}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {items.map((item) => (
+          <span
+            key={item.id ?? item.name}
+            className="border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-bold text-white/55"
+          >
+            {item.name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { id } = await params;
-
     if (!/^\d+$/.test(id)) {
       return {
         title: "TV Show Not Found",
@@ -612,8 +704,7 @@ export async function generateMetadata({
     }
 
     const tvId = Number(id);
-
-    if (!Number.isSafeInteger(tvId) || tvId <= 0) {
+    if (!Number.isSafeInteger(tvId) || tvId < 1) {
       return {
         title: "TV Show Not Found",
         robots: { index: false, follow: false },
@@ -621,64 +712,39 @@ export async function generateMetadata({
     }
 
     const tv = await getTVDetails(tvId);
-
     const tvTitle = tv.name || tv.original_name || "TV Show";
     const year = tv.first_air_date?.slice(0, 4) || "";
     const displayTitle = `${tvTitle}${year ? ` (${year})` : ""}`;
     const pageTitle = `${displayTitle} — Cast, Seasons & Where to Watch`;
-
-    const seoIntro =
-      `Explore ${displayTitle}: cast, seasons, episodes, trailer, ratings ` +
-      `and where to watch on CINRYVAN.`;
-
+    const seoIntro = `Explore ${displayTitle}: cast, seasons, episodes, trailer, ratings and where to watch on CINRYVAN.`;
     const fullDescription = tv.overview?.trim()
       ? `${seoIntro} ${tv.overview.trim()}`
       : seoIntro;
-
     const description =
       fullDescription.length > 160
-        ? `${fullDescription
-            .slice(0, 157)
-            .replace(/\s+\S*$/, "")}...`
+        ? `${fullDescription.slice(0, 157).replace(/\s+\S*$/, "")}...`
         : fullDescription;
-
     const image = tv.backdrop_path
       ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}`
       : tv.poster_path
         ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
-        : "https://cinryvan.vercel.app/og-image.png";
-
-    const canonical =
-      `https://cinryvan.vercel.app/tv/${id}`;
+        : `${SITE_URL}/og-image.png`;
+    const canonical = `${SITE_URL}/tv/${id}`;
 
     return {
       title: pageTitle,
       description,
-
-      robots: {
-        index: true,
-        follow: true,
-      },
-
-      alternates: {
-        canonical,
-      },
-
+      robots: { index: true, follow: true },
+      alternates: { canonical },
       openGraph: {
         title: `${pageTitle} | CINRYVAN`,
         description,
         url: canonical,
         siteName: "CINRYVAN",
-        images: [
-          {
-            url: image,
-            alt: `${displayTitle} TV series`,
-          },
-        ],
+        images: [{ url: image, alt: `${displayTitle} TV series` }],
         locale: "en_US",
         type: "video.tv_show",
       },
-
       twitter: {
         card: "summary_large_image",
         title: `${pageTitle} | CINRYVAN`,
