@@ -1,9 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Film, MonitorPlay, Sparkles } from "lucide-react";
+import {
+  Bookmark,
+  ChevronLeft,
+  ChevronRight,
+  Film,
+  LoaderCircle,
+  MonitorPlay,
+  Plus,
+  RotateCcw,
+  Search,
+  Trash2,
+} from "lucide-react";
 
 type WatchlistItem = {
   id: string;
@@ -17,27 +35,39 @@ type WatchlistItem = {
 
 function posterUrl(path?: string | null) {
   if (!path) return null;
-  return path.startsWith("http") ? path : `https://image.tmdb.org/t/p/w500${path}`;
+  return path.startsWith("http")
+    ? path
+    : `https://image.tmdb.org/t/p/w500${path}`;
+}
+
+function releaseYear(date?: string | null) {
+  const year = date?.slice(0, 4);
+  return year && /^\d{4}$/.test(year) ? year : "Year unknown";
 }
 
 function WatchRow({
+  number,
   title,
   subtitle,
   items,
   icon,
+  removingIds,
   onRemove,
 }: {
+  number: string;
   title: string;
   subtitle: string;
   items: WatchlistItem[];
-  icon: React.ReactNode;
+  icon: ReactNode;
+  removingIds: Set<string>;
   onRemove: (item: WatchlistItem) => void;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
 
-  function scroll(dir: "left" | "right") {
+  function scroll(direction: "left" | "right") {
+    const distance = Math.max((rowRef.current?.clientWidth || 800) * 0.82, 560);
     rowRef.current?.scrollBy({
-      left: dir === "left" ? -700 : 700,
+      left: direction === "left" ? -distance : distance,
       behavior: "smooth",
     });
   }
@@ -45,28 +75,35 @@ function WatchRow({
   if (items.length === 0) return null;
 
   return (
-    <section className="mt-12">
-      <div className="mb-5 flex items-end justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <span className="rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-2 text-yellow-300">
-              {icon}
-            </span>
-            <h2 className="text-2xl font-black">{title}</h2>
+    <section className="mt-16">
+      <div className="mb-6 flex items-end justify-between gap-4 border-b border-white/10 pb-5">
+        <div className="flex min-w-0 items-start gap-4">
+          <span className="hidden pt-1 text-[10px] font-black tracking-[0.25em] text-yellow-400/60 sm:block">
+            {number}
+          </span>
+          <span className="grid h-10 w-10 shrink-0 place-items-center border border-yellow-400/25 bg-yellow-400/[0.07] text-yellow-300">
+            {icon}
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-2xl font-black sm:text-3xl">{title}</h2>
+            <p className="mt-1 text-sm text-white/40">{subtitle}</p>
           </div>
-          <p className="mt-2 text-sm text-white/50">{subtitle}</p>
         </div>
 
-        <div className="hidden gap-2 md:flex">
+        <div className="hidden shrink-0 gap-2 md:flex">
           <button
+            type="button"
             onClick={() => scroll("left")}
-            className="rounded-full border border-white/10 bg-white/5 p-3 hover:border-yellow-400/50 hover:bg-yellow-400/10"
+            aria-label={`Scroll ${title} left`}
+            className="grid h-10 w-10 place-items-center border border-white/10 bg-white/[0.03] text-white/60 transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
           >
             <ChevronLeft size={18} />
           </button>
           <button
+            type="button"
             onClick={() => scroll("right")}
-            className="rounded-full border border-white/10 bg-white/5 p-3 hover:border-yellow-400/50 hover:bg-yellow-400/10"
+            aria-label={`Scroll ${title} right`}
+            className="grid h-10 w-10 place-items-center border border-white/10 bg-white/[0.03] text-white/60 transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
           >
             <ChevronRight size={18} />
           </button>
@@ -75,75 +112,94 @@ function WatchRow({
 
       <div
         ref={rowRef}
-        className="hide-scrollbar flex gap-6 overflow-x-auto scroll-smooth pb-8 pt-4"
+        className="hide-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 scroll-smooth md:-mx-6 md:px-6"
       >
-        {[...items, ...Array(Math.max(0, 5 - items.length)).fill(null)].map((item, index) => {
-          if (!item) {
-            return (
-              <div
-                key={`empty-${index}`}
-                className="w-[230px] shrink-0 rounded-[2rem] border border-white/10 bg-black/40 shadow-2xl"
-              >
-                <div className="aspect-[2/3] rounded-t-[2rem] bg-white/[0.03]" />
-                <div className="p-3">
-                  <div className="h-5 rounded bg-white/[0.05]" />
-                  <div className="mt-3 h-4 w-2/3 rounded bg-white/[0.04]" />
-                  <div className="mt-4 h-10 rounded-xl bg-white/[0.04]" />
-                </div>
-              </div>
-            );
-          }
-
-          const img = posterUrl(item.posterPath);
+        {items.map((item, index) => {
+          const image = posterUrl(item.posterPath);
+          const isRemoving = removingIds.has(item.id);
+          const rating =
+            typeof item.voteAverage === "number" && item.voteAverage > 0
+              ? item.voteAverage.toFixed(1)
+              : null;
 
           return (
-            <Link
+            <article
               key={item.id}
-              href={`/${item.mediaType}/${item.tmdbId}`}
-              className="group w-[230px] shrink-0 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl transition duration-300 hover:z-10 hover:-translate-y-3 hover:border-yellow-400/60 hover:bg-white/[0.08]"
+              className="group relative w-[180px] shrink-0 snap-start overflow-hidden border border-white/10 bg-[#101722] transition duration-300 hover:-translate-y-1 hover:border-yellow-400/60 sm:w-[215px]"
             >
-              <div className="relative aspect-[2/3] bg-zinc-900">
-                {img ? (
-                  <Image
-                    src={img}
-                    alt={item.title}
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="220px"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-white/30">
-                    No Poster
-                  </div>
-                )}
+              <Link
+                href={`/${item.mediaType}/${item.tmdbId}`}
+                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-400"
+              >
+                <div className="relative aspect-[2/3] overflow-hidden bg-[#151c27]">
+                  {image ? (
+                    <Image
+                      src={image}
+                      alt={`${item.title} poster`}
+                      fill
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 180px, 215px"
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center p-4 text-center text-xs font-bold uppercase tracking-wider text-white/25">
+                      Poster unavailable
+                    </div>
+                  )}
 
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/40 to-transparent p-3">
-                  <span className="rounded-full bg-black/70 px-2 py-1 text-xs font-bold text-yellow-300">
-                    ⭐ {item.voteAverage?.toFixed(1) || "—"}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-black/15 opacity-70" />
+                  <span className="absolute left-2 top-2 bg-[#080b12]/90 px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white/65 backdrop-blur">
+                    {item.mediaType === "movie" ? "Movie" : "TV"}
+                  </span>
+                  {rating && (
+                    <span className="absolute right-2 top-2 bg-yellow-400 px-2 py-1 text-[10px] font-black text-black">
+                      ★ {rating}
+                    </span>
+                  )}
+                  <span className="absolute bottom-3 left-3 text-[10px] font-black tracking-[0.2em] text-white/50">
+                    {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
-              </div>
 
-              <div className="p-3">
-                <p className="line-clamp-1 font-bold">{item.title}</p>
-                <p className="mt-1 text-sm text-white/45">
-                  {item.mediaType.toUpperCase()} · {item.releaseDate || "—"}
-                </p>
+                <div className="min-h-[92px] p-3.5">
+                  <h3 className="line-clamp-2 text-sm font-black leading-5 transition group-hover:text-yellow-300 sm:text-base">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-xs font-semibold text-white/35">
+                    {releaseYear(item.releaseDate)}
+                  </p>
+                </div>
+              </Link>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onRemove(item);
-                  }}
-                  className="mt-3 w-full rounded-xl bg-red-500/10 px-3 py-2 text-sm font-bold text-red-300 hover:bg-red-500/20"
-                >
-                  Remove
-                </button>
-              </div>
-            </Link>
+              <button
+                type="button"
+                onClick={() => onRemove(item)}
+                disabled={isRemoving}
+                aria-label={`Remove ${item.title} from watchlist`}
+                className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center border border-white/10 bg-[#080b12] text-white/35 transition hover:border-red-400/60 hover:bg-red-500 hover:text-white disabled:cursor-wait disabled:opacity-60"
+              >
+                {isRemoving ? (
+                  <LoaderCircle size={15} className="animate-spin" />
+                ) : (
+                  <Trash2 size={15} />
+                )}
+              </button>
+              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-yellow-400 transition-all duration-300 group-hover:w-full" />
+            </article>
           );
         })}
+
+        <Link
+          href="/search"
+          className="group grid min-h-[380px] w-[180px] shrink-0 snap-start place-items-center border border-dashed border-white/15 bg-white/[0.018] p-5 text-center transition hover:border-yellow-400/60 hover:bg-yellow-400/[0.04] sm:min-h-[446px] sm:w-[215px]"
+        >
+          <span>
+            <span className="mx-auto grid h-12 w-12 place-items-center border border-white/10 text-white/40 transition group-hover:border-yellow-400 group-hover:bg-yellow-400 group-hover:text-black">
+              <Plus size={20} />
+            </span>
+            <span className="mt-4 block text-sm font-black">Add another title</span>
+            <span className="mt-2 block text-xs leading-5 text-white/35">Search the CINRYVAN universe</span>
+          </span>
+        </Link>
       </div>
     </section>
   );
@@ -151,137 +207,292 @@ function WatchRow({
 
 export default function WatchlistPage() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
 
-  async function loadWatchlist() {
-    const res = await fetch("/api/watchlist", {
-      credentials: "include",
-    });
+  const loadWatchlist = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    setNeedsLogin(false);
 
-    if (!res.ok) {
-      console.error("Watchlist API failed:", res.status);
-      setItems([]);
-      return;
+    try {
+      const response = await fetch("/api/watchlist", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        setItems([]);
+        setNeedsLogin(true);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Watchlist request failed with ${response.status}`);
+      }
+
+      const data = await response.json();
+      setItems(Array.isArray(data.items) ? data.items : []);
+    } catch (watchlistError) {
+      console.error("WATCHLIST LOAD FAILED:", watchlistError);
+      setError("Your watchlist could not be loaded. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    const data = await res.json();
-    setItems(data.items || []);
-  }
-
-  useEffect(() => {
-    loadWatchlist();
   }, []);
 
-  async function removeItem(item: WatchlistItem) {
-    await fetch("/api/watchlist", {
-      method: "DELETE",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tmdbId: item.tmdbId,
-        mediaType: item.mediaType,
-      }),
-    });
+  useEffect(() => {
+    void loadWatchlist();
+  }, [loadWatchlist]);
 
-    setItems((prev) => prev.filter((x) => x.id !== item.id));
+  async function removeItem(item: WatchlistItem) {
+    if (removingIds.has(item.id)) return;
+
+    const previousItems = items;
+    setError("");
+    setRemovingIds((current) => new Set(current).add(item.id));
+    setItems((current) => current.filter((savedItem) => savedItem.id !== item.id));
+
+    try {
+      const response = await fetch("/api/watchlist", {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tmdbId: item.tmdbId,
+          mediaType: item.mediaType,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Watchlist delete failed with ${response.status}`);
+      }
+    } catch (removeError) {
+      console.error("WATCHLIST REMOVE FAILED:", removeError);
+      setItems(previousItems);
+      setError(`“${item.title}” could not be removed. Your watchlist was restored.`);
+    } finally {
+      setRemovingIds((current) => {
+        const next = new Set(current);
+        next.delete(item.id);
+        return next;
+      });
+    }
   }
 
   const movies = useMemo(
     () => items.filter((item) => item.mediaType === "movie"),
-    [items]
+    [items],
   );
-
-
-  function isAnimation(item: WatchlistItem) {
-  const title = item.title.toLowerCase();
+  const tvShows = useMemo(
+    () => items.filter((item) => item.mediaType === "tv"),
+    [items],
+  );
+  const featuredPosters = items
+    .filter((item) => posterUrl(item.posterPath))
+    .slice(0, 4);
 
   return (
-    title.includes("anime") ||
-    title.includes("animation") ||
-    title.includes("cartoon") ||
-    title.includes("dragon ball") ||
-    title.includes("naruto") ||
-    title.includes("one piece") ||
-    title.includes("shin chan") ||
-    title.includes("invincible") ||
-    title.includes("solo leveling") ||
-    title.includes("demon slayer") ||
-    title.includes("jujutsu kaisen") ||
-    title.includes("attack on titan")
-  );
-}
+    <main className="min-h-screen overflow-hidden bg-[#080b12] pb-24 pt-28 text-white">
+      <div className="mx-auto max-w-7xl px-4 md:px-6">
+        <section className="relative min-h-[520px] overflow-hidden border border-white/10 bg-[#101722] shadow-[0_30px_100px_rgba(0,0,0,.45)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,rgba(250,204,21,.17),transparent_24%),radial-gradient(circle_at_92%_90%,rgba(37,99,235,.16),transparent_28%),linear-gradient(115deg,#101722_5%,#0c121c_62%,#080b12_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#080b12] to-transparent" />
 
-const animation = useMemo(
-  () => items.filter((item) => isAnimation(item)),
-  [items]
-);
+          <div className="relative z-10 grid min-h-[520px] items-center gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_.82fr] lg:p-14">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-3">
+                <span className="grid h-9 w-9 place-items-center bg-yellow-400 text-black">
+                  <Bookmark size={17} fill="currentColor" />
+                </span>
+                <p className="text-xs font-black uppercase tracking-[0.4em] text-yellow-400">
+                  Your CINRYVAN
+                </p>
+              </div>
 
-const tvShows = useMemo(
-  () =>
-    items.filter(
-      (item) => item.mediaType === "tv" && !isAnimation(item)
-    ),
-  [items]
-);
+              <h1 className="mt-6 text-6xl font-black leading-[.88] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
+                Watch
+                <span className="text-white/24"> / </span>
+                List
+              </h1>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-white/55 sm:text-lg">
+                The stories you chose not to lose—kept together and ready for
+                the moment you return.
+              </p>
 
-  return (
-    <main className="min-h-screen overflow-hidden bg-[#05070d] px-6 py-28 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-8 shadow-2xl">
-          <p className="text-sm font-bold uppercase tracking-[0.35em] text-yellow-300">
-            Your Library
-          </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/search"
+                  className="inline-flex items-center bg-yellow-400 px-5 py-3.5 text-sm font-black text-black transition hover:bg-yellow-300"
+                >
+                  <Search size={16} className="mr-2" /> Find more titles
+                </Link>
+                <Link
+                  href="/browse"
+                  className="inline-flex items-center border border-white/15 bg-white/5 px-5 py-3.5 text-sm font-black transition hover:border-yellow-400/60 hover:text-yellow-300"
+                >
+                  Explore collections →
+                </Link>
+              </div>
 
-          <h1 className="mt-3 text-5xl font-black">Watchlist</h1>
+              <div className="mt-9 flex flex-wrap gap-px overflow-hidden border border-white/10 bg-white/10">
+                {[
+                  [items.length, "Saved titles"],
+                  [movies.length, "Movies"],
+                  [tvShows.length, "TV shows"],
+                ].map(([count, label]) => (
+                  <div key={label} className="min-w-[130px] flex-1 bg-[#0c121c] px-5 py-4">
+                    <p className="text-2xl font-black text-yellow-400">{loading ? "—" : count}</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/35">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <p className="mt-3 max-w-2xl text-white/60">
-            Your saved movies and shows are organized into cinematic rows.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">
-              🎬 {movies.length} Movies
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">
-              📺 {tvShows.length} TV Shows
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm">
-              ✨ {animation.length} Animation
-            </span>
+            <div className="relative hidden h-[380px] lg:block" aria-hidden="true">
+              {featuredPosters.length > 0 ? (
+                featuredPosters.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="absolute top-1/2 aspect-[2/3] w-[170px] overflow-hidden border border-white/15 bg-[#151c27] shadow-[0_35px_80px_rgba(0,0,0,.6)]"
+                    style={{
+                      left: `${index * 20}%`,
+                      transform: `translateY(-50%) rotate(${(index - 1.5) * 4}deg)`,
+                      zIndex: index + 1,
+                    }}
+                  >
+                    <img
+                      src={posterUrl(item.posterPath) || ""}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  </div>
+                ))
+              ) : (
+                <div className="absolute inset-0 grid place-items-center border border-white/10 bg-white/[0.025] p-8 text-center">
+                  <div>
+                    <Bookmark className="mx-auto text-yellow-400/50" size={42} />
+                    <p className="mt-5 text-xl font-black">Your collection starts here</p>
+                    <p className="mt-2 text-sm leading-6 text-white/35">Save a title and its poster will join your wall.</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </section>
 
-        {items.length === 0 ? (
-          <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
-            <p className="text-white/70">No saved titles yet.</p>
+        {error && (
+          <div role="alert" aria-live="polite" className="mt-7 flex flex-col gap-4 border-l-2 border-red-400 bg-red-500/[0.08] px-5 py-4 text-sm font-bold text-red-200 sm:flex-row sm:items-center sm:justify-between">
+            <span>{error}</span>
+            <button type="button" onClick={() => void loadWatchlist()} className="inline-flex w-fit items-center text-white transition hover:text-yellow-300">
+              <RotateCcw size={15} className="mr-2" /> Try again
+            </button>
           </div>
+        )}
+
+        {loading ? (
+          <WatchlistSkeleton />
+        ) : needsLogin ? (
+          <StatePanel
+            icon={<Bookmark size={30} />}
+            eyebrow="Identity required"
+            title="Your watchlist is waiting"
+            text="Log in to see saved titles and keep your collection connected across CINRYVAN."
+            primaryHref="/login"
+            primaryLabel="Enter CINRYVAN"
+            secondaryHref="/signup"
+            secondaryLabel="Create account"
+          />
+        ) : items.length === 0 && !error ? (
+          <StatePanel
+            icon={<Plus size={30} />}
+            eyebrow="Empty collection"
+            title="Save your first story"
+            text="Explore CINRYVAN and use the watchlist button on any movie or television page."
+            primaryHref="/browse"
+            primaryLabel="Start exploring"
+            secondaryHref="/trending"
+            secondaryLabel="See what is trending"
+          />
         ) : (
           <>
             <WatchRow
+              number="01"
               title="Movies"
-              subtitle="Your saved films."
+              subtitle={`${movies.length} saved film${movies.length === 1 ? "" : "s"}`}
               items={movies}
-              icon={<Film size={20} />}
+              icon={<Film size={19} />}
+              removingIds={removingIds}
               onRemove={removeItem}
             />
-
             <WatchRow
-              title="TV Shows"
-              subtitle="Series and shows you want to follow."
+              number="02"
+              title="Television"
+              subtitle={`${tvShows.length} saved show${tvShows.length === 1 ? "" : "s"}`}
               items={tvShows}
-              icon={<MonitorPlay size={20} />}
-              onRemove={removeItem}
-            />
-
-            <WatchRow
-              title="Animation & Anime"
-              subtitle="Animated titles, anime, and cartoons."
-              items={animation}
-              icon={<Sparkles size={20} />}
+              icon={<MonitorPlay size={19} />}
+              removingIds={removingIds}
               onRemove={removeItem}
             />
           </>
         )}
       </div>
     </main>
+  );
+}
+
+function StatePanel({
+  icon,
+  eyebrow,
+  title,
+  text,
+  primaryHref,
+  primaryLabel,
+  secondaryHref,
+  secondaryLabel,
+}: {
+  icon: ReactNode;
+  eyebrow: string;
+  title: string;
+  text: string;
+  primaryHref: string;
+  primaryLabel: string;
+  secondaryHref: string;
+  secondaryLabel: string;
+}) {
+  return (
+    <section className="mt-10 grid min-h-[360px] place-items-center border border-white/10 bg-white/[0.025] px-6 py-14 text-center">
+      <div className="max-w-xl">
+        <span className="mx-auto grid h-16 w-16 place-items-center border border-yellow-400/25 bg-yellow-400/[0.07] text-yellow-400">{icon}</span>
+        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.35em] text-yellow-400">{eyebrow}</p>
+        <h2 className="mt-3 text-3xl font-black sm:text-4xl">{title}</h2>
+        <p className="mt-4 leading-7 text-white/50">{text}</p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <Link href={primaryHref} className="bg-yellow-400 px-5 py-3 text-sm font-black text-black transition hover:bg-yellow-300">{primaryLabel}</Link>
+          <Link href={secondaryHref} className="border border-white/15 px-5 py-3 text-sm font-black transition hover:border-yellow-400/60 hover:text-yellow-300">{secondaryLabel}</Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WatchlistSkeleton() {
+  return (
+    <div aria-label="Loading watchlist" role="status" className="mt-14 animate-pulse">
+      <div className="h-8 w-52 bg-white/[0.06]" />
+      <div className="mt-3 h-4 w-72 max-w-full bg-white/[0.04]" />
+      <div className="mt-7 flex gap-4 overflow-hidden">
+        {Array.from({ length: 5 }, (_, index) => (
+          <div key={index} className="w-[180px] shrink-0 border border-white/[0.06] bg-white/[0.025] sm:w-[215px]">
+            <div className="aspect-[2/3] bg-white/[0.04]" />
+            <div className="space-y-3 p-4"><div className="h-4 bg-white/[0.05]" /><div className="h-3 w-1/2 bg-white/[0.04]" /></div>
+          </div>
+        ))}
+      </div>
+      <span className="sr-only">Loading your saved titles</span>
+    </div>
   );
 }

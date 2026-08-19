@@ -257,7 +257,7 @@ export default async function GameCategoryPage({
           </div>
 
           {category.games.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-4 sm:justify-start">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 [&>*]:w-full [&>*]:min-w-0 [&_img]:aspect-video [&_img]:h-auto [&_img]:w-full [&_img]:object-cover">
               {category.games.map((game) => (
                 <GameCard key={game.id} game={game} />
               ))}
