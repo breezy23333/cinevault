@@ -39,7 +39,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative mt-8 overflow-hidden border-t border-white/10 bg-[#0f1726] sm:mt-12 lg:mt-16">
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#0f1726]">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0f1726] to-[#0b1220]" />
 
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-3 py-8 sm:px-4 sm:py-10 md:px-8 lg:py-14 xl:max-w-[1600px] 2xl:max-w-[1800px]">

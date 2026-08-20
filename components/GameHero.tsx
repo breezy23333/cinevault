@@ -79,7 +79,9 @@ export default function GameHero({ games }: GameHeroProps) {
         onMouseLeave={() => setPaused(false)}
       >
         <div className="grid lg:grid-cols-3">
-          <div className="relative block h-[360px] overflow-hidden sm:h-[460px] lg:col-span-2 lg:h-[620px]">
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 lg:hidden">
+            <GameSummary game={game} />
+          
             <img
               key={heroImage}
               src={heroImage}
@@ -167,35 +169,54 @@ export default function GameHero({ games }: GameHeroProps) {
 function GameSummary({ game }: { game: RawgGame }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] font-black uppercase tracking-[0.28em] text-yellow-400">
+      <p className="text-[8px] font-black uppercase tracking-[0.24em] text-yellow-400 sm:text-[10px] sm:tracking-[0.28em]">
         Featured now
       </p>
-      <h2 className="mt-2 line-clamp-2 text-2xl font-black leading-tight text-white lg:text-3xl">
+
+      <h2 className="mt-1 line-clamp-2 text-lg font-black leading-tight text-white sm:mt-2 sm:text-2xl lg:text-3xl">
         {game.name}
       </h2>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+      <div className="mt-2 flex flex-wrap items-center gap-1 text-[9px] sm:mt-3 sm:gap-2 sm:text-xs">
         {game.released && (
-          <span className="bg-white/10 px-2 py-1 font-bold text-white/75">
+          <span className="bg-white/10 px-1.5 py-0.5 font-bold text-white/75 sm:px-2 sm:py-1">
             {new Date(game.released).getFullYear()}
           </span>
         )}
+
         {game.rating > 0 && (
-          <span className="inline-flex items-center gap-1 bg-yellow-400 px-2 py-1 font-black text-black">
-            <Star className="h-3 w-3" fill="currentColor" />
+          <span className="inline-flex items-center gap-1 bg-yellow-400 px-1.5 py-0.5 font-black text-black sm:px-2 sm:py-1">
+            <Star
+              className="h-2.5 w-2.5 sm:h-3 sm:w-3"
+              fill="currentColor"
+            />
             {game.rating.toFixed(1)}
           </span>
         )}
+
         {typeof game.metacritic === "number" && (
-          <span className="border border-emerald-400/50 px-2 py-1 font-black text-emerald-300">
-            {game.metacritic} Metascore
+          <span className="border border-emerald-400/50 px-1.5 py-0.5 font-black text-emerald-300 sm:px-2 sm:py-1">
+            {game.metacritic}
+            <span className="hidden sm:inline"> Metascore</span>
           </span>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {game.genres?.slice(0, 4).map((genre) => (
-          <span key={genre.id} className="bg-black/45 px-2 py-1 text-[11px] text-white/65">
+      <div className="mt-2 flex flex-wrap gap-1 sm:mt-3 sm:gap-1.5">
+        {game.genres?.slice(0, 2).map((genre) => (
+          <span
+            key={genre.id}
+            className="bg-black/45 px-1.5 py-0.5 text-[8px] text-white/65 sm:px-2 sm:py-1 sm:text-[11px]"
+          >
+            {genre.name}
+          </span>
+        ))}
+
+        {game.genres?.slice(2, 4).map((genre) => (
+          <span
+            key={genre.id}
+            className="hidden bg-black/45 px-2 py-1 text-[11px] text-white/65 sm:inline-block"
+          >
             {genre.name}
           </span>
         ))}
@@ -203,9 +224,9 @@ function GameSummary({ game }: { game: RawgGame }) {
 
       <Link
         href={`/games/${game.id}`}
-        className="mt-5 inline-flex items-center gap-2 bg-yellow-400 px-5 py-2.5 text-sm font-black text-black transition hover:bg-yellow-300"
+        className="mt-3 inline-flex h-8 items-center gap-1.5 bg-yellow-400 px-3 text-[10px] font-black text-black transition hover:bg-yellow-300 sm:mt-5 sm:h-auto sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
       >
-        <Gamepad2 className="h-4 w-4" />
+        <Gamepad2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         View game
       </Link>
     </div>

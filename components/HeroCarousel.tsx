@@ -83,10 +83,10 @@ export default function HeroCarousel({
   }
 
   return (
-    <section className="relative left-1/2 mb-10 w-[100svw] -translate-x-1/2 bg-[#05070d] px-3 py-4 md:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1800px] overflow-hidden rounded-[30px] border border-yellow-400/40 bg-[#070910] shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+    <section className="relative left-1/2 mb-6 w-[100svw] -translate-x-1/2 bg-[#05070d] px-2 py-2 sm:mb-8 sm:px-3 sm:py-4 md:px-6 lg:mb-10 lg:px-8">
+      <div className="mx-auto max-w-[1800px] overflow-hidden rounded-2xl border border-yellow-400/30 bg-[#070910] shadow-[0_20px_60px_rgba(0,0,0,0.5)] sm:rounded-[30px] sm:border-yellow-400/40 lg:shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
         {/* Main hero */}
-        <div className="relative min-h-[620px] overflow-hidden lg:min-h-[680px]">
+        <div className="relative min-h-[480px] overflow-hidden sm:min-h-[560px] lg:min-h-[680px]">
           <CineImage
             src={featured.backdrop}
             alt={featured.title}
@@ -106,62 +106,62 @@ export default function HeroCarousel({
               type="button"
               aria-label="Previous featured movie"
               onClick={showPreviousMovie}
-              className="absolute left-3 top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/60 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black md:left-6"
+              className="absolute left-2 top-[42%] z-30 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:left-3 sm:h-12 sm:w-12 md:left-6 md:top-1/2"
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
 
             <button
               type="button"
               aria-label="Next featured movie"
               onClick={showNextMovie}
-              className="absolute right-3 top-1/2 z-30 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/60 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black md:right-6"
+              className="absolute right-2 top-[42%] z-30 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:right-3 sm:h-12 sm:w-12 md:right-6 md:top-1/2"
             >
-              <ChevronRight className="h-6 w-6" />
+              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </>
         )} 
 
-          <div className="relative z-10 grid min-h-[620px] items-center gap-10 px-5 py-16 md:px-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.72fr)] lg:px-14 xl:px-20">
+          <div className="relative z-10 grid min-h-[480px] items-end gap-6 px-4 pb-6 pt-16 sm:min-h-[560px] sm:px-8 sm:pb-10 sm:pt-20 md:px-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.72fr)] lg:items-center lg:gap-10 lg:px-14 lg:py-16 xl:px-20">
             {/* Movie information */}
             <div className="max-w-4xl">
-              <p className="mb-5 text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+              <p className="mb-2 text-[9px] font-black uppercase tracking-[0.26em] text-yellow-400 sm:mb-5 sm:text-xs sm:tracking-[0.3em]">
                 Featured movie
               </p>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-white/25 bg-black/35 px-3 py-1.5 text-sm font-bold text-white backdrop-blur-md">
+                <span className="rounded-full border border-white/25 bg-black/35 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-md sm:px-3 sm:py-1.5 sm:text-sm">
                   Movie
                 </span>
 
                 {featured.year && (
-                  <span className="rounded-full border border-white/25 bg-black/35 px-3 py-1.5 text-sm font-bold text-white backdrop-blur-md">
+                  <span className="rounded-full border border-white/25 bg-black/35 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-md sm:px-3 sm:py-1.5 sm:text-sm">
                     {featured.year}
                   </span>
                 )}
 
                 {typeof featured.rating ===
                   "number" && (
-                  <span className="rounded-lg bg-yellow-400 px-3 py-1.5 text-sm font-black text-black">
+                  <span className="rounded-md bg-yellow-400 px-2 py-1 text-[10px] font-black text-black sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-sm">
                     ★ {featured.rating.toFixed(1)}
                   </span>
                 )}
               </div>
 
-              <h1 className="mt-6 text-4xl font-black leading-[0.98] text-white drop-shadow-2xl sm:text-5xl md:text-7xl xl:text-8xl">
+              <h1 className="mt-3 line-clamp-2 text-3xl font-black leading-[0.98] text-white drop-shadow-2xl sm:mt-6 sm:text-5xl md:text-7xl xl:text-8xl">
                 {featured.title}
               </h1>
 
               {featured.overview && (
-                <p className="mt-6 max-w-3xl text-base leading-7 text-white/90 line-clamp-4 md:text-lg md:leading-8">
+                <p className="mt-3 line-clamp-2 max-w-3xl text-xs leading-5 text-white/80 sm:mt-5 sm:line-clamp-3 sm:text-base sm:leading-7 md:mt-6 md:line-clamp-4 md:text-lg md:leading-8">
                   {featured.overview}
                 </p>
               )}
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-4 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
                 <Link
                   href={href}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-7 py-3.5 text-sm font-black text-black shadow-[0_15px_40px_rgba(250,204,21,0.22)] transition hover:bg-yellow-300"
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-yellow-400 px-3 text-[10px] font-black text-black shadow-[0_10px_30px_rgba(250,204,21,0.18)] transition hover:bg-yellow-300 sm:h-auto sm:gap-2 sm:rounded-xl sm:px-7 sm:py-3.5 sm:text-sm"
                 >
                   <Play
                     className="h-4 w-4"
@@ -175,7 +175,7 @@ export default function HeroCarousel({
                     href={`https://www.youtube.com/watch?v=${featured.trailerKey}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-black/35 px-7 py-3.5 text-sm font-black text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-400"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-white/30 bg-black/35 px-3 text-[10px] font-black text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-400 sm:h-auto sm:gap-2 sm:rounded-xl sm:px-7 sm:py-3.5 sm:text-sm"
                   >
                     Watch trailer
                     <ExternalLink className="h-4 w-4" />
@@ -183,7 +183,7 @@ export default function HeroCarousel({
                 ) : (
                   <Link
                     href={`${href}?tab=trailer`}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-black/35 px-7 py-3.5 text-sm font-black text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-400"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-white/30 bg-black/35 px-3 text-[10px] font-black text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-400 sm:h-auto sm:gap-2 sm:rounded-xl sm:px-7 sm:py-3.5 sm:text-sm"
                   >
                     <Play className="h-4 w-4" />
                     Find trailer
@@ -192,8 +192,8 @@ export default function HeroCarousel({
               </div>
 
               {items.length > 1 && (
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <span className="text-sm font-bold text-white/70">
+                <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-3">
+                  <span className="text-[10px] font-bold text-white/60 sm:text-sm sm:text-white/70">
                     {String(currentIndex + 1).padStart(2, "0")}
                     {" / "}
                     {String(items.length).padStart(2, "0")}
@@ -219,7 +219,7 @@ export default function HeroCarousel({
             </div>
 
             {/* Trailer panel */}
-            <div className="w-full lg:justify-self-end">
+            <div className="hidden w-full lg:block lg:justify-self-end">
               <div className="overflow-hidden rounded-3xl border border-yellow-400/35 bg-black/40 p-2 shadow-[0_25px_70px_rgba(0,0,0,0.6)] backdrop-blur-md">
                 <div className="relative aspect-video overflow-hidden rounded-[18px] bg-black">
                   {featured.trailerKey ? (
@@ -288,14 +288,14 @@ export default function HeroCarousel({
 
         {/* Similar movies */}
         {similarMovies.length > 0 && (
-          <div className="border-t border-yellow-400/30 bg-[#070910] px-5 py-7 md:px-10 lg:px-14">
-            <div className="mb-5 flex items-end justify-between gap-4">
+          <div className="border-t border-yellow-400/20 bg-[#070910] px-3 py-4 sm:px-5 sm:py-6 md:px-10 md:py-7 lg:px-14">
+            <div className="mb-3 flex items-end justify-between gap-3 sm:mb-5 sm:gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-yellow-400">
+                <p className="text-[9px] font-black uppercase tracking-[0.24em] text-yellow-400 sm:text-xs sm:tracking-[0.25em]">
                   More like this
                 </p>
 
-                <h2 className="mt-1 text-xl font-black text-white md:text-2xl">
+                <h2 className="mt-1 text-base font-black text-white sm:text-xl md:text-2xl">
                   Similar movies
                 </h2>
               </div>
@@ -324,13 +324,13 @@ export default function HeroCarousel({
 
             <div
               ref={similarRowRef}
-              className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex snap-x snap-proximity gap-2 overflow-x-auto pb-1.5 [scrollbar-width:none] sm:gap-4 sm:pb-2 [&::-webkit-scrollbar]:hidden"
             >
               {similarMovies.map((movie) => (
                 <Link
                   key={movie.id}
                   href={`/movie/${movie.id}`}
-                  className="group w-[210px] shrink-0 snap-start sm:w-[245px]"
+                  className="group w-[150px] shrink-0 snap-start sm:w-[210px] md:w-[245px]"
                 >
                   <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition duration-300 group-hover:-translate-y-1 group-hover:border-yellow-400/70">
                     <CineImage
@@ -353,11 +353,11 @@ export default function HeroCarousel({
                     )}
                   </div>
 
-                  <h3 className="mt-3 truncate font-bold text-white transition group-hover:text-yellow-400">
+                  <h3 className="mt-1.5 truncate text-[11px] font-bold text-white transition group-hover:text-yellow-400 sm:mt-3 sm:text-base">
                     {movie.title}
                   </h3>
 
-                  <p className="mt-1 text-sm text-white/50">
+                  <p className="mt-0.5 text-[9px] text-white/45 sm:mt-1 sm:text-sm sm:text-white/50">
                     {movie.year || "Movie"}
                   </p>
                 </Link>
