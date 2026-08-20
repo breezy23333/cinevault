@@ -124,6 +124,28 @@ export default function Navbar() {
   setIsLoggedIn(!!user);
   }, []);
 
+  useEffect(() => {
+    setOpen(false);
+    setMobileSearchOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
   function submit(e: FormEvent) {
     e.preventDefault();
     const query = q.trim();
@@ -198,18 +220,20 @@ export default function Navbar() {
               : "bg-[#05070d]/80 backdrop-blur-md"
           }`}
         >
-       <nav className="mx-auto w-full max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] h-12 md:h-14 px-4 md:px-8 flex items-center gap-3">
+       <nav className="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-2 px-3 sm:px-4 md:gap-3 md:px-8 xl:max-w-[1600px] 2xl:max-w-[1800px]">
           {/* Burger */}
           <button
             aria-label="Open menu"
             onClick={() => setOpen(true)}
-            className="p-2 rounded-full hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+            aria-expanded={open}
+            aria-controls="cinryvan-navigation-drawer"
+            className="shrink-0 rounded-full p-1.5 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 md:p-2"
           >
             <Menu className="h-5 w-5" />
           </button>
 
           {/* Brand */}
-          <Link href="/" className="text-lg font-semibold tracking-tight">
+          <Link href="/" className="shrink-0 text-base font-black tracking-tight sm:text-lg">
             CINRYVAN
           </Link>
 
@@ -245,7 +269,7 @@ export default function Navbar() {
             })}
           </ul>
 
-          <div className="flex-1" />
+          <div className="min-w-0 flex-1" />
 
           {/* Search (desktop) */}
           <form onSubmit={submit} className="hidden md:block">
@@ -260,9 +284,8 @@ export default function Navbar() {
             </div>
           </form>
 
-          {/* Right actions */}
-                  {/* Right actions */}
-          <div className="flex items-center gap-2">
+          {/* Desktop actions */}
+          <div className="hidden items-center gap-2 md:flex">
 
             <Link
               href="/watchlist"
@@ -328,16 +351,18 @@ export default function Navbar() {
               </Link>
             )}
 
-            <button
-              type="button"
-              onClick={() => setMobileSearchOpen((v) => !v)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white md:hidden"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-
           </div>
+
+          {/* Only the essential action remains in the mobile top bar. */}
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen((value) => !value)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white md:hidden"
+            aria-label={mobileSearchOpen ? "Close search" : "Open search"}
+            aria-expanded={mobileSearchOpen}
+          >
+            {mobileSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+          </button>
         </nav>
       </header>
 
@@ -347,7 +372,7 @@ export default function Navbar() {
             submit(e);
             setMobileSearchOpen(false);
           }}
-          className="fixed left-3 right-3 top-16 z-[55] md:hidden"
+          className="fixed left-3 right-3 top-[3.75rem] z-[55] md:hidden"
         >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
@@ -357,7 +382,7 @@ export default function Navbar() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search movies, shows..."
-              className="w-full rounded-2xl border border-yellow-400/30 bg-[#070a12] py-3 pl-10 pr-4 text-sm text-white outline-none shadow-2xl"
+              className="h-11 w-full rounded-xl border border-yellow-400/30 bg-[#070a12] pl-10 pr-4 text-sm text-white outline-none shadow-2xl focus:border-yellow-400/70"
             />
           </div>
         </form>
@@ -377,7 +402,11 @@ export default function Navbar() {
         />
         {/* panel */}
         <aside
-          className={`absolute left-0 top-0 h-full w-72 bg-[#0c111b] ring-1 ring-white/10 shadow-2xl
+          id="cinryvan-navigation-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="CINRYVAN navigation"
+          className={`absolute left-0 top-0 h-[100dvh] w-[min(86vw,320px)] bg-[#0c111b] ring-1 ring-white/10 shadow-2xl
                       transition-transform ${open ? "translate-x-0" : "-translate-x-full"}`}
         >
           <div className="flex items-center justify-between px-4 h-14">
@@ -390,26 +419,26 @@ export default function Navbar() {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <nav className="h-[calc(100vh-56px)] overflow-y-auto px-3 py-2 space-y-2 hide-scrollbar">
+          <nav className="hide-scrollbar h-[calc(100dvh-56px)] space-y-1 overflow-y-auto px-3 py-2">
 
             {NAV_GROUPS.map((item) => (
               <div key={item.href}>
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg px-3 py-2 font-bold hover:bg-white/10"
+                  className="block rounded-lg px-3 py-1.5 text-sm font-bold hover:bg-white/10"
                 >
                   {item.label}
                 </Link>
 
                 {"dropdown" in item && item.dropdown && (
-                  <div className="ml-3 space-y-1 border-l border-white/10 pl-3">
+                  <div className="ml-3 grid grid-cols-2 gap-1 border-l border-white/10 pl-3">
                     {item.dropdown.map((drop) => (
                       <Link
                         key={drop.href}
                         href={drop.href}
                         onClick={() => setOpen(false)}
-                        className="block rounded-lg px-3 py-2 text-sm text-white/65 hover:bg-white/10 hover:text-white"
+                        className="block rounded-lg px-2 py-1.5 text-xs text-white/65 hover:bg-white/10 hover:text-white"
                       >
                         {drop.label}
                       </Link>
@@ -418,79 +447,37 @@ export default function Navbar() {
                 )}
               </div>
             ))}
-            <div className="mt-4 border-t border-white/10 pt-4">
-
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg bg-white/10 px-3 py-2 text-center"
-              >
-                Login
+            {!isLoggedIn ? (
+              <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
+                <Link href="/login" onClick={() => setOpen(false)} className="block rounded-lg bg-white/10 px-3 py-2 text-center text-sm">
+                  Login
+                </Link>
+                <Link href="/signup" onClick={() => setOpen(false)} className="block rounded-lg bg-yellow-400 px-3 py-2 text-center text-sm font-bold text-black">
+                  Sign Up
+                </Link>
+              </div>
+            ) : (
+              <Link href="/profile" onClick={() => setOpen(false)} className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-yellow-400/30 bg-yellow-400/10 px-3 py-2 text-sm font-bold text-yellow-300">
+                <User2 className="h-4 w-4" /> Profile
               </Link>
+            )}
 
-             <Link
-                href="/signup"
-                onClick={() => setOpen(false)}
-                className="mt-2 block rounded-lg bg-yellow-400 px-3 py-2 text-center font-bold text-black"
-              > 
-                Sign Up
+            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
+              <Link href="/watchlist" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-xs hover:bg-white/10">
+                <Bookmark className="h-4 w-4 text-yellow-400" /> Watchlist
               </Link>
-
+              <Link href="/notifications" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-xs hover:bg-white/10">
+                <Bell className="h-4 w-4 text-yellow-400" /> Alerts
+              </Link>
+              <button type="button" onClick={() => { setOpen(false); setShowSettings(true); }} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-left text-xs hover:bg-white/10">
+                <Sparkles className="h-4 w-4 text-yellow-400" /> Settings
+              </button>
+              <button type="button" onClick={() => { setOpen(false); startVoiceSearch(); }} className="flex items-center gap-2 rounded-lg bg-yellow-400 px-3 py-2 text-left text-xs font-bold text-black hover:bg-yellow-300">
+                <Mic className="h-4 w-4" /> Voice search
+              </button>
             </div>
 
-            <div className="mt-4 border-t border-white/10 pt-4 space-y-2">
-
-              <Link
-                href="/watchlist"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                Watchlist
-              </Link>
-
-              <Link
-                href="/notifications"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                Notifications
-              </Link>
-
-              <Link
-                href="/anime"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                Anime
-              </Link>
-
-              <Link
-                href="/cartoons"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                Cartoons
-              </Link>
-
-              <Link
-                href="/trending"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                Trending
-              </Link>
-
-              <Link
-                href="/top"
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 hover:bg-white/10"
-              >
-                Top Rated
-              </Link>
-
-            </div>
-
-            <div className="mt-6 rounded-2xl border border-yellow-400/25 bg-gradient-to-br from-white/[0.08] to-white/[0.03] p-3 shadow-[0_0_30px_rgba(250,204,21,0.08)]">
+            <div className="mt-3 rounded-xl border border-yellow-400/25 bg-gradient-to-br from-white/[0.08] to-white/[0.03] p-2.5 shadow-[0_0_30px_rgba(250,204,21,0.08)]">
               <div className="mb-3 flex items-center justify-between">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-yellow-400">
                   Where to watch
@@ -499,7 +486,7 @@ export default function Navbar() {
                 <Sparkles className="h-4 w-4 text-yellow-400" />
               </div>
 
-            <div className="mt-6">
+            <div className="mt-2 scale-75">
               <StreamingGlobe />
             </div>
 
@@ -515,4 +502,3 @@ export default function Navbar() {
     </>
   );
 }
-

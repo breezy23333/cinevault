@@ -490,7 +490,7 @@ const oscarShelf = await Promise.all(
 );
 
  return (
-  <div className="relative overflow-x-hidden bg-[#05070d] text-white">
+  <main className="relative overflow-x-hidden bg-[#05070d] text-white">
     {/* cosmic background */}
     <div className="pointer-events-none fixed inset-0 z-0">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,190,0,0.16),transparent_35%),radial-gradient(circle_at_75%_30%,rgba(100,80,255,0.2),transparent_35%)]" />
@@ -502,10 +502,10 @@ const oscarShelf = await Promise.all(
       {heroMovies.length > 0 && <HeroCarousel items={heroMovies} />}
 
       <Surface>
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <ContinueWatchingRow />
-          <section className="rounded-[28px] border border-yellow-400/20 bg-white/[0.035] p-4 shadow-[0_0_80px_rgba(255,184,0,0.08)] backdrop-blur-xl">
-            <div className="mb-4 flex items-center justify-between px-2">
+          <section className="border-b border-white/[0.08] pb-6 sm:pb-8">
+            <div className="mb-4 flex items-center justify-between border-l-2 border-yellow-400/70 pl-3 sm:pl-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.35em] text-yellow-400">
                   CINRYVAN System
@@ -514,7 +514,7 @@ const oscarShelf = await Promise.all(
                   Explore worlds beyond cinema
                 </h1>
               </div>
-              <div className="hidden rounded-full border border-white/10 bg-black/30 px-4 py-2 text-xs text-white/60 md:block">
+              <div className="hidden text-xs font-bold uppercase tracking-[0.18em] text-white/35 md:block">
                 Live TMDB universe
               </div>
             </div>
@@ -713,7 +713,7 @@ const oscarShelf = await Promise.all(
 
           <HomeGamingSection gamingData={gamingData} />
 
-          <section className="rounded-[30px] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <section className="border-b border-white/[0.08] pb-6 sm:pb-8">
             <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
               News Channels
             </p>
@@ -722,33 +722,33 @@ const oscarShelf = await Promise.all(
               Explore News Categories
             </h2>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-4">
               <Link
                 href="/news/entertainment"
-                className="rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black"
+                className="border-l-2 border-yellow-400/70 bg-white/[0.025] p-3 transition hover:bg-yellow-400 hover:text-black sm:p-6"
               >
-                <h3 className="text-xl font-black">Entertainment</h3>
-                <p className="mt-2 text-sm opacity-70">
+                <h3 className="text-sm font-black sm:text-xl">Entertainment</h3>
+                <p className="mt-2 hidden text-sm opacity-70 sm:block">
                   Movies, celebrities, streaming and culture.
                 </p>
               </Link>
 
               <Link
                 href="/news/gaming"
-                className="rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:border-cyan-400/60 hover:bg-cyan-400 hover:text-black"
+                className="border-l-2 border-cyan-400/70 bg-white/[0.025] p-3 transition hover:bg-cyan-400 hover:text-black sm:p-6"
               >
-                <h3 className="text-xl font-black">Gaming</h3>
-                <p className="mt-2 text-sm opacity-70">
+                <h3 className="text-sm font-black sm:text-xl">Gaming</h3>
+                <p className="mt-2 hidden text-sm opacity-70 sm:block">
                   Games, consoles, esports and industry updates.
                 </p>
               </Link>
 
               <Link
                 href="/news/sports"
-                className="rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:border-green-400/60 hover:bg-green-400 hover:text-black"
+                className="border-l-2 border-green-400/70 bg-white/[0.025] p-3 transition hover:bg-green-400 hover:text-black sm:p-6"
               >
-                <h3 className="text-xl font-black">Sports</h3>
-                <p className="mt-2 text-sm opacity-70">
+                <h3 className="text-sm font-black sm:text-xl">Sports</h3>
+                <p className="mt-2 hidden text-sm opacity-70 sm:block">
                   Live headlines, major games and sports stories.
                 </p>
               </Link>
@@ -826,7 +826,7 @@ const oscarShelf = await Promise.all(
         </div>
       </Surface>
     </div>
-  </div>
+  </main>
 );
 }
 
@@ -842,30 +842,28 @@ function Panel({
   children: ReactNode;
 }) {
   return (
-    <section className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.045] shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl transition duration-300 hover:border-yellow-400/30 hover:bg-white/[0.06]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,184,0,0.13),transparent_35%)] opacity-0 transition duration-500 group-hover:opacity-100" />
-
-      <div className="relative px-4 py-4 md:px-6">
+    <section className="relative border-b border-white/[0.08] pb-6 sm:pb-8">
+      <div className="mb-3 border-l-2 border-yellow-400/70 pl-3 sm:mb-4 sm:pl-4">
         {eyebrow && (
-          <p className="mb-1 text-[10px] font-black uppercase tracking-[0.32em] text-yellow-400/80">
+          <p className="mb-1 text-[9px] font-black uppercase tracking-[0.28em] text-yellow-400/75 sm:text-[10px] sm:tracking-[0.32em]">
             {eyebrow}
           </p>
         )}
-        <h2 className="text-xl font-black md:text-2xl">{title}</h2>
+        <h2 className="text-lg font-black sm:text-xl md:text-2xl">{title}</h2>
       </div>
 
-      <div className="relative px-2 pb-5 md:px-4">{children}</div>
+      <div>{children}</div>
     </section>
   );
 }
 
 function Surface({ children }: { children: ReactNode }) {
   return (
-    <section className="relative z-10 w-full -mt-10 md:-mt-14">
-      <div className="relative rounded-t-[36px] border-t border-white/10 bg-[#070a12]/90 backdrop-blur-2xl">
+    <section className="relative z-10 -mt-6 w-full md:-mt-10">
+      <div className="relative bg-gradient-to-b from-[#070a12]/95 via-[#05070d] to-[#05070d]">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-400/70 to-transparent" />
 
-        <div className="mx-auto w-full max-w-[1500px] px-4 pb-0 pt-6 md:px-8 md:pt-8">
+        <div className="mx-auto w-full max-w-[1500px] px-3 pb-0 pt-5 sm:px-4 sm:pt-6 md:px-8 md:pt-8">
           {children}
         </div>
       </div>
@@ -875,7 +873,7 @@ function Surface({ children }: { children: ReactNode }) {
 
 function FeatureBreak({ title, text }: { title: string; text: string }) {
   return (
-    <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-r from-yellow-400/10 via-white/[0.04] to-blue-500/10 p-6 backdrop-blur-xl md:p-8">
+    <section className="relative overflow-hidden border-y border-white/[0.08] bg-gradient-to-r from-yellow-400/[0.07] via-transparent to-blue-500/[0.07] px-3 py-5 sm:px-5 sm:py-6 md:p-8">
       <div className="absolute right-8 top-1/2 hidden h-28 w-28 -translate-y-1/2 rounded-full border border-yellow-400/20 shadow-[0_0_60px_rgba(255,184,0,0.25)] md:block" />
       <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
         CINRYVAN Layer

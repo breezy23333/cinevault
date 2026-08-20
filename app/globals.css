@@ -550,70 +550,197 @@ html[data-theme="Neon Blue"] header {
   box-shadow: 0 0 35px rgba(59, 130, 246, 0.22);
 }
 
-/* GLOBAL MOBILE OPTIMIZER */
-@media (max-width: 640px) {
+/* ================================================================
+   CINRYVAN MOBILE DENSITY SYSTEM
+   Compresses the base Tailwind layout below 640px. Responsive
+   sm:/md:/lg: desktop rules remain untouched.
+================================================================ */
+:root {
+  --cin-mobile-gutter: 0.75rem;
+  --cin-mobile-section-space: 2rem;
+  --cin-mobile-gap: 0.75rem;
+  --cin-mobile-radius: 1rem;
+}
+
+html {
+  overflow-x: clip;
+}
+
+body {
+  min-width: 320px;
+  overflow-x: clip;
+}
+
+/* Reusable classes for new and gradually updated components. */
+.cin-container {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 3vw, 2rem);
+}
+
+.cin-section {
+  padding-block: clamp(2rem, 5vw, 5rem);
+}
+
+.cin-heading {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.cin-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cin-mobile-gap);
+}
+
+.cin-horizontal-mobile {
+  display: flex;
+  gap: var(--cin-mobile-gap);
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.cin-horizontal-mobile::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .cin-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .cin-card-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
   html {
     font-size: 14px;
   }
 
-  body {
-    overflow-x: hidden;
+  /* Keep headings cinematic without letting them dominate the screen. */
+  main h1 {
+    font-size: clamp(1.85rem, 8vw, 2.6rem) !important;
+    line-height: 1.02 !important;
   }
 
-  h1 {
-    font-size: clamp(1.8rem, 8vw, 2.6rem) !important;
-    line-height: 1.05 !important;
+  main h2 {
+    font-size: clamp(1.35rem, 6vw, 1.9rem) !important;
+    line-height: 1.08 !important;
   }
 
-  h2 {
-    font-size: clamp(1.4rem, 6vw, 2rem) !important;
-    line-height: 1.1 !important;
+  main h3 {
+    line-height: 1.15;
   }
 
-  p {
-    font-size: 0.9rem;
-    line-height: 1.5;
+  /* Compress common Tailwind section spacing used across Cinryvan. */
+  main :where(.py-24, .py-20, .py-16, .py-14, .py-12) {
+    padding-block: var(--cin-mobile-section-space) !important;
   }
 
-  section,
-    main {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-
-    @media (max-width: 640px) {
-    .max-w-\[1500px\],
-    .max-w-\[1400px\],
-    .max-w-7xl {
-      max-width: 100% !important;
-    }
-
-    [class*="rounded-[30px]"],
-    [class*="rounded-[36px]"] {
-      border-radius: 1.25rem !important;
-    }
+  main :where(.pt-24, .pt-20, .pt-16, .pt-14, .pt-12) {
+    padding-top: var(--cin-mobile-section-space) !important;
   }
 
-  button,
-  a {
+  main :where(.pb-24, .pb-20, .pb-16, .pb-14, .pb-12) {
+    padding-bottom: var(--cin-mobile-section-space) !important;
+  }
+
+  main :where(.mt-24, .mt-20, .mt-16, .mt-14, .mt-12) {
+    margin-top: var(--cin-mobile-section-space) !important;
+  }
+
+  main :where(.mb-24, .mb-20, .mb-16, .mb-14, .mb-12) {
+    margin-bottom: var(--cin-mobile-section-space) !important;
+  }
+
+  main :where(.space-y-24, .space-y-20, .space-y-16, .space-y-14, .space-y-12) > :not(:last-child) {
+    margin-bottom: var(--cin-mobile-section-space) !important;
+  }
+
+  main :where(.gap-12, .gap-10, .gap-8, .gap-7, .gap-6) {
+    gap: var(--cin-mobile-gap) !important;
+  }
+
+  /* Reduce oversized page gutters without adding padding to every section. */
+  main :where(.px-8, .px-7, .px-6, .px-5, .px-4) {
+    padding-inline: var(--cin-mobile-gutter) !important;
+  }
+
+  main :where(.p-10, .p-8, .p-7, .p-6) {
+    padding: 1rem !important;
+  }
+
+  /* Large desktop curves become cleaner compact mobile curves. */
+  main :where(.rounded-\[40px\], .rounded-\[36px\], .rounded-\[32px\], .rounded-\[30px\], .rounded-3xl) {
+    border-radius: var(--cin-mobile-radius) !important;
+  }
+
+  /* Fixed cinematic hero heights commonly used in current components. */
+  main :where(
+    [class~="h-[800px]"],
+    [class~="h-[720px]"],
+    [class~="h-[700px]"],
+    [class~="h-[680px]"],
+    [class~="h-[650px]"],
+    [class~="h-[620px]"],
+    [class~="h-[600px]"],
+    [class~="min-h-[800px]"],
+    [class~="min-h-[720px]"],
+    [class~="min-h-[700px]"],
+    [class~="min-h-[680px]"],
+    [class~="min-h-[650px]"],
+    [class~="min-h-[620px]"],
+    [class~="min-h-[600px]"],
+    [class~="min-h-screen"]
+  ) {
+    height: min(410px, 68svh) !important;
+    min-height: 350px !important;
+  }
+
+  /* Avoid long one-card-per-row media lists on phones. */
+  main :where(.grid-cols-1).cin-mobile-two,
+  main .cin-mobile-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Compact repeated controls while preserving comfortable touch targets. */
+  main :where(button, [role="button"], a).cin-compact-action {
+    min-height: 40px;
+    padding: 0.65rem 0.9rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  main img,
+  main video,
+  main iframe {
     max-width: 100%;
   }
 
-  img,
-  video {
-    max-width: 100%;
+  /* Mobile devices do not need desktop hover lift effects. */
+  @media (hover: none) {
+    .spot-card:hover,
+    .btn-cta:hover {
+      transform: none;
+    }
   }
+}
 
-  .hero,
-  [class*="hero"],
-  [class*="Hero"] {
-    min-height: 430px !important;
-    height: 430px !important;
-  }
-
-  [class*="Hero"] > div,
-  [class*="hero"] > div {
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

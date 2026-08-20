@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -7,22 +8,26 @@ import Footer from "./Footer";
 export default function AppShell({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const pathname = usePathname();
 
   const isAuthPage =
     pathname === "/login" || pathname === "/signup";
 
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
+
   return (
-    <>
-      {!isAuthPage && <Navbar />}
+    <div className="min-w-0 overflow-x-clip bg-[#05070d] text-white">
+      <Navbar />
 
-      <main className={!isAuthPage ? "min-h-screen bg-[#05070d] pt-20 text-white" : ""}>
+      <div className="min-h-screen min-w-0 pt-16 sm:pt-20">
         {children}
-        </main>
+      </div>
 
-      {!isAuthPage && <Footer />}
-    </>
+      <Footer />
+    </div>
   );
 }

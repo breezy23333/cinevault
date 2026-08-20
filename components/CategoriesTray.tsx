@@ -1,74 +1,97 @@
+// components/CategoriesTray.tsx
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-import { Grid2X2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Grid2X2,
+} from "lucide-react";
 
-type Genre = { id: number; name: string };
+type Genre = {
+  id: number;
+  name: string;
+};
 
-export default function CategoriesTray({ genres }: { genres: Genre[] }) {
+export default function CategoriesTray({
+  genres,
+}: {
+  genres: Genre[];
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  // show a nice count on first row; rest in additional rows
-  const all = useMemo(() => (Array.isArray(genres) ? genres : []), [genres]);
+  const categories = Array.isArray(genres)
+    ? genres.filter(
+        (genre) =>
+          genre &&
+          typeof genre.id === "number" &&
+          Boolean(genre.name),
+      )
+    : [];
 
-  const chip =
-  "rounded-full px-3 py-1 text-xs md:px-4 md:py-1.5 md:text-sm ring-1 ring-amber-400/70 text-amber-200 " +
-  "hover:bg-amber-400 hover:text-black transition-colors duration-150 " +
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300";
+  const chipClass =
+    "inline-flex h-8 shrink-0 items-center justify-center rounded-full " +
+    "border border-yellow-400/35 px-3 text-[10px] font-bold " +
+    "text-yellow-200 transition " +
+    "hover:border-yellow-400 hover:bg-yellow-400 hover:text-black " +
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300 " +
+    "sm:h-9 sm:px-4 sm:text-xs md:text-sm";
 
-  const go = (g: Genre) => router.push(`/search?genre=${g.id}`);
+  if (categories.length === 0) return null;
 
   return (
-    <div className="rounded-xl bg-[#0c111b] ring-1 ring-white/10 px-4 py-5">
-      {/* Centered toggle that collapses away when open */}
-      <div
-        className={[
-          "flex justify-center transition-all duration-300 ease-out",
-          open
-            ? "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
-            : "max-h-10 opacity-100 translate-y-0",
-        ].join(" ")}
-      >
+    <div className="min-w-0">
+      {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-expanded={open}
-          className={`inline-flex items-center gap-2 ${chip}`}
+          aria-expanded={false}
+          className={`${chipClass} gap-2`}
         >
-          <Grid2X2 className="h-4 w-4" />
+          <Grid2X2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           Categories
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </button>
-      </div>
-
-      {/* Expanded chips */}
-      <div
-        data-open={open ? "true" : undefined}
-        className="overflow-hidden transition-[max-height,opacity,margin-top] duration-300 ease-out
-           max-h-0 opacity-0 data-[open=true]:max-h-[520px] data-[open=true]:opacity-100 data-[open=true]:mt-1
-           md:data-[open=true]:max-h-64"
-      >
-        <div className="mt-2 flex flex-wrap justify-center gap-2">
-          {all.map((g) => (
-            <button key={g.id} onClick={() => go(g)} className={chip}>
-              {g.name}
-            </button>
-          ))}
-
-          {/* Collapse control at the end */}
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className={`${chip} inline-flex items-center gap-2`}
-            aria-label="Collapse categories"
+      ) : (
+        <div className="relative min-w-0">
+          <div
+            className="
+              hide-scrollbar
+              flex min-w-0 gap-2 overflow-x-auto
+              overscroll-x-contain pb-1
+              md:flex-wrap md:overflow-visible md:pb-0
+            "
           >
-            Less
-            <ChevronUp className="h-4 w-4" />
-          </button>
+            {categories.map((genre) => (
+              <button
+                key={genre.id}
+                type="button"
+                onClick={() =>
+                  router.push(`/search?genre=${genre.id}`)
+                }
+                className={chipClass}
+              >
+                {genre.name}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className={`${chipClass} gap-1.5 border-white/20 text-white/65 hover:border-white/40 hover:bg-white/10 hover:text-white`}
+              aria-label="Collapse categories"
+            >
+              Less
+              <ChevronUp className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {/* Mobile fade showing that the row scrolls horizontally */}
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#05070d] to-transparent md:hidden" />
         </div>
-      </div>
+      )}
     </div>
   );
 }

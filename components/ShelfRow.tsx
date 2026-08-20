@@ -1,70 +1,123 @@
 // components/ShelfRow.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import ShelfCard, { ShelfMedia } from "./ShelfCard";
+import ShelfCard, { type ShelfMedia } from "./ShelfCard";
 
-type Item = ShelfMedia & { href: string };
+type Item = ShelfMedia & {
+  href: string;
+};
 
 export default function ShelfRow({ items }: { items: Item[] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [canL, setCanL] = useState(false);
-  const [canR, setCanR] = useState(false);
+  const shelfRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const update = () => {
-    const el = ref.current;
-    if (!el) return;
-    setCanL(el.scrollLeft > 0);
-    setCanR(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  };
+  const updateScrollState = useCallback(() => {
+    const shelf = shelfRef.current;
+    if (!shelf) return;
 
-  useEffect(() => {
-    update();
-    const el = ref.current;
-    if (!el) return;
-    const onScroll = () => update();
-    el.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", update);
-    };
+    setCanScrollLeft(shelf.scrollLeft > 4);
+    setCanScrollRight(
+      shelf.scrollLeft + shelf.clientWidth < shelf.scrollWidth - 4,
+    );
   }, []);
 
-  const nudge = (dir: "left" | "right") => {
-    const el = ref.current;
-    if (!el) return;
-    const by = Math.round(el.clientWidth * 0.9) * (dir === "left" ? -1 : 1);
-    el.scrollBy({ left: by, behavior: "smooth" });
-  };
+  useEffect(() => {
+    const shelf = shelfRef.current;
+    if (!shelf) return;
+
+    updateScrollState();
+
+    const resizeObserver = new ResizeObserver(updateScrollState);
+
+    resizeObserver.observe(shelf);
+    shelf.addEventListener("scroll", updateScrollState, {
+      passive: true,
+    });
+
+    return () => {
+      resizeObserver.disconnect();
+      shelf.removeEventListener("scroll", updateScrollState);
+    };
+  }, [items.length, updateScrollState]);
+
+  function scrollShelf(direction: "left" | "right") {
+    const shelf = shelfRef.current;
+    if (!shelf) return;
+
+    const distance =
+      shelf.clientWidth * 0.78 * (direction === "left" ? -1 : 1);
+
+    shelf.scrollBy({
+      left: distance,
+      behavior: "smooth",
+    });
+  }
+
+  if (!items.length) return null;
 
   return (
-    <div className="relative w-full max-w-full min-w-0 overflow-hidden">
+    <div className="group/shelf relative min-w-0 max-w-full">
       <div
-        ref={ref}
-        className="w-full max-w-full min-w-0 flex gap-3 overflow-x-auto overflow-y-hidden pb-2 snap-x snap-mandatory hide-scrollbar"
+        ref={shelfRef}
+        className="
+          hide-scrollbar
+          flex w-full min-w-0 snap-x snap-proximity
+          gap-2 overflow-x-auto overflow-y-hidden
+          px-0.5 pb-1.5
+          overscroll-x-contain
+          scroll-smooth
+          sm:gap-3 sm:pb-2
+          md:gap-4
+        "
       >
-        {items.map((m) => (
-          <ShelfCard key={`${m.media}-${m.id}`} item={m} href={m.href} />
+        {items.map((item) => (
+          <ShelfCard
+            key={`${item.media}-${item.id}`}
+            item={item}
+            href={item.href}
+          />
         ))}
       </div>
 
       <button
-        aria-label="Scroll left"
-        onClick={() => nudge("left")}
-        disabled={!canL}
-        className="hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 h-9 w-9 items-center justify-center rounded-full
-                   bg-black/60 ring-1 ring-white/20 hover:bg-black/70 transition disabled:opacity-30 disabled:cursor-not-allowed"
+        type="button"
+        aria-label="Scroll shelf left"
+        onClick={() => scrollShelf("left")}
+        disabled={!canScrollLeft}
+        className="
+          absolute left-1 top-1/2 z-20 hidden
+          h-10 w-10 -translate-y-1/2
+          items-center justify-center rounded-full
+          border border-white/15 bg-black/75
+          text-white shadow-xl backdrop-blur-md
+          transition
+          hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black
+          disabled:pointer-events-none disabled:opacity-0
+          md:flex
+        "
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
+
       <button
-        aria-label="Scroll right"
-        onClick={() => nudge("right")}
-        disabled={!canR}
-        className="hidden md:flex absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 items-center justify-center rounded-full
-                   bg-black/60 ring-1 ring-white/20 hover:bg-black/70 transition disabled:opacity-30 disabled:cursor-not-allowed"
+        type="button"
+        aria-label="Scroll shelf right"
+        onClick={() => scrollShelf("right")}
+        disabled={!canScrollRight}
+        className="
+          absolute right-1 top-1/2 z-20 hidden
+          h-10 w-10 -translate-y-1/2
+          items-center justify-center rounded-full
+          border border-white/15 bg-black/75
+          text-white shadow-xl backdrop-blur-md
+          transition
+          hover:border-yellow-400/60 hover:bg-yellow-400 hover:text-black
+          disabled:pointer-events-none disabled:opacity-0
+          md:flex
+        "
       >
         <ChevronRight className="h-5 w-5" />
       </button>
