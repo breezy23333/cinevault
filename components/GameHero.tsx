@@ -79,21 +79,20 @@ export default function GameHero({ games }: GameHeroProps) {
         onMouseLeave={() => setPaused(false)}
       >
         <div className="grid lg:grid-cols-3">
-          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 lg:hidden">
-            <GameSummary game={game} />
-          
+          <div className="relative block h-[320px] overflow-hidden sm:h-[460px] lg:col-span-2 lg:h-[620px]">
             <img
               key={heroImage}
               src={heroImage}
               alt={game.name}
               className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.015]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-black/10 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#0c111b]/65" />
-            <div className="absolute bottom-0 left-0 right-0 p-5 lg:hidden">
+
+            <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/15 to-black/10 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#0c111b]/65" />
+
+            <div className="absolute bottom-0 left-0 right-0 z-10 p-3 sm:p-5 lg:hidden">
               <GameSummary game={game} />
             </div>
           </div>
-
           <aside className="hidden h-[620px] min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:col-span-1 lg:flex lg:flex-col">
             <GameSummary game={game} />
 
@@ -128,17 +127,17 @@ export default function GameHero({ games }: GameHeroProps) {
               type="button"
               onClick={previous}
               aria-label="Previous featured game"
-              className="absolute left-0 top-1/2 z-20 grid h-20 w-11 -translate-y-1/2 place-items-center bg-gradient-to-r from-black/85 to-transparent text-white opacity-90 transition hover:text-yellow-400 lg:-left-11 lg:group-hover:left-0"
+              className="absolute left-0 top-1/2 z-20 grid h-14 w-8 -translate-y-1/2 place-items-center bg-gradient-to-r from-black/85 to-transparent text-white transition hover:text-yellow-400 sm:h-20 sm:w-11 lg:-left-11 lg:group-hover:left-0"
             >
-              <ChevronLeft className="h-8 w-8" />
+              <ChevronLeft className="h-5 w-5 sm:h-8 sm:w-8" />
             </button>
             <button
               type="button"
               onClick={next}
               aria-label="Next featured game"
-              className="absolute right-0 top-1/2 z-20 grid h-20 w-11 -translate-y-1/2 place-items-center bg-gradient-to-l from-black/85 to-transparent text-white opacity-90 transition hover:text-yellow-400 lg:-right-11 lg:group-hover:right-0"
+              className="absolute right-0 top-1/2 z-20 grid h-14 w-8 -translate-y-1/2 place-items-center bg-gradient-to-l from-black/85 to-transparent text-white transition hover:text-yellow-400 sm:h-20 sm:w-11 lg:-right-11 lg:group-hover:right-0"
             >
-              <ChevronRight className="h-8 w-8" />
+              <ChevronRight className="h-5 w-5 sm:h-8 sm:w-8" />
             </button>
           </>
         )}

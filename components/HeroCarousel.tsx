@@ -218,10 +218,10 @@ export default function HeroCarousel({
               )}
             </div>
 
-            {/* Trailer panel */}
-            <div className="hidden w-full lg:block lg:justify-self-end">
-              <div className="overflow-hidden rounded-3xl border border-yellow-400/35 bg-black/40 p-2 shadow-[0_25px_70px_rgba(0,0,0,0.6)] backdrop-blur-md">
-                <div className="relative aspect-video overflow-hidden rounded-[18px] bg-black">
+            {/* Floating mobile trailer; full desktop trailer panel */}
+            <div className="absolute right-3 top-3 z-20 w-[150px] sm:right-6 sm:top-6 sm:w-[230px] lg:static lg:z-auto lg:block lg:w-full lg:justify-self-end">
+              <div className="overflow-hidden rounded-lg border border-yellow-400/45 bg-black/55 p-1 shadow-[0_15px_45px_rgba(0,0,0,0.65)] backdrop-blur-md sm:rounded-xl lg:rounded-3xl lg:border-yellow-400/35 lg:bg-black/40 lg:p-2 lg:shadow-[0_25px_70px_rgba(0,0,0,0.6)]">
+                <div className="relative aspect-video overflow-hidden rounded-md bg-black sm:rounded-lg lg:rounded-[18px]">
                   {featured.trailerKey ? (
                     <iframe
                       key={`${featured.id}-${featured.trailerKey}`}
@@ -258,7 +258,7 @@ export default function HeroCarousel({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between gap-4 px-3 py-3">
+                <div className="hidden items-center justify-between gap-4 px-3 py-3 lg:flex">
                   <div className="min-w-0">
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
                       Official trailer
