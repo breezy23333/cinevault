@@ -124,18 +124,27 @@ const DETAIL_FIELDS = [
 ].join(",");
 
 const GENRE_IDS: Record<string, number> = {
-  shooter: 5,
-  racing: 10,
-  "role-playing-games-rpg": 12,
-  adventure: 31,
-  strategy: 15,
-  sport: 14,
   fighting: 4,
-  puzzle: 9,
+  shooter: 5,
+  music: 7,
   platformer: 8,
+  puzzle: 9,
+  racing: 10,
+  "real-time-strategy-rts": 11,
+  "role-playing-games-rpg": 12,
   simulation: 13,
-  arcade: 33,
+  sport: 14,
+  strategy: 15,
+  "turn-based-strategy-tbs": 16,
+  tactical: 24,
+  "hack-and-slash-beat-em-up": 25,
+  "quiz-trivia": 26,
+  "pinball": 30,
+  adventure: 31,
   indie: 32,
+  arcade: 33,
+  "visual-novel": 34,
+  roguelike: 35,
 };
 
 const PLATFORM_IDS: Record<number, number[]> = {
@@ -287,29 +296,91 @@ function buildGameQuery(query: GameQuery) {
     }
   }
 
-  const genre = String(query.genres || "");
+  const genre = String(query.genres || "").trim();
 
   if (genre && GENRE_IDS[genre]) {
     where.push(`genres = (${GENRE_IDS[genre]})`);
   }
 
-  const tag = String(query.tags || "");
-
-  if (tag === "first-person") {
-    where.push("player_perspectives = (1)");
+  /*
+  * IGDB does not use RAWG-style tags.
+  * Each CINRYVAN category is translated into native IGDB fields here.
+  */
+  if (genre === "action") {
+    where.push("themes = (1)");
   }
 
-  if (tag === "third-person") {
-    where.push("player_perspectives = (2)");
+  if (genre === "casual") {
+    where.push("genres = (33)");
   }
 
-  if (tag === "horror") {
-    where.push("themes = (19)");
-  }
+  const tag = String(query.tags || "")
+    .trim()
+    .toLowerCase();
 
-  if (tag === "esports") {
-    where.push("game_modes = (2,3,4,5)");
-    where.push("total_rating_count > 25");
+  switch (tag) {
+    case "first-person":
+      where.push("player_perspectives = (1)");
+      break;
+
+    case "third-person":
+      where.push("player_perspectives = (2)");
+      break;
+
+    case "horror":
+      where.push("themes = (19)");
+      break;
+
+    case "survival":
+      where.push("themes = (21)");
+      break;
+
+    case "sci-fi,cyberpunk":
+    case "sci-fi":
+    case "science-fiction":
+    case "cyberpunk":
+      where.push("themes = (18)");
+      break;
+
+    case "open-world":
+      where.push("themes = (38)");
+      break;
+
+    case "city-builder":
+      where.push("genres = (13)");
+      where.push("themes = (33)");
+      break;
+
+    case "visual-novel":
+      where.push("genres = (34)");
+      break;
+
+    case "story-rich":
+      where.push("themes = (31)");
+      where.push("total_rating_count > 10");
+      break;
+
+    case "co-op":
+      where.push("game_modes = (3)");
+      break;
+
+    case "roguelike":
+      where.push("genres = (35)");
+      break;
+
+    case "anime":
+      where.push("genres = (12)");
+      where.push("themes = (17)");
+      break;
+
+    case "vr":
+      where.push("player_perspectives = (7)");
+      break;
+
+    case "esports":
+      where.push("game_modes = (2,3,4,5)");
+      where.push("total_rating_count > 25");
+      break;
   }
 
   const parentPlatform = Number(

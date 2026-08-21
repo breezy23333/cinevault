@@ -415,13 +415,13 @@ export default async function GameCategoryPage({
   return (
     <Link
       href={`/games/${game.id}`}
-      className="group relative block min-h-[480px] overflow-hidden bg-black lg:min-h-[600px]"
+      className="group relative block min-h-[300px] overflow-hidden bg-black lg:min-h-[420px]"
     >
       {game.background_image ? (
         <img
           src={game.background_image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.02]"
         />
       ) : null}
 
@@ -680,7 +680,7 @@ const isFeatureGrid = [
       <div className="absolute inset-0 bg-gradient-to-r from-[#080f18] via-[#080f18]/90 to-[#080f18]/25" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#080f18] via-transparent to-black/30" />
 
-      <div className="relative mx-auto flex min-h-[500px] max-w-[1500px] items-end px-4 pb-12 pt-24 md:px-6 md:pb-16">
+      <div className="relative mx-auto flex min-h-[360px] max-w-[1500px] items-end px-4 pb-10 pt-16 md:px-6 md:pb-12">
         <div className="max-w-4xl">
           <Link
             href="/games"
@@ -697,7 +697,7 @@ const isFeatureGrid = [
             {theme.eyebrow}
           </p>
 
-          <h1 className="mt-4 text-5xl font-black uppercase leading-[0.86] tracking-[-0.055em] sm:text-7xl lg:text-8xl">
+          <h1 className="mt-4 max-w-5xl text-4xl font-black uppercase leading-[0.92] tracking-[-0.045em] sm:text-5xl lg:text-6xl">
             {category.label}
           </h1>
 
@@ -762,7 +762,7 @@ const isFeatureGrid = [
 
       {/* Tactical/list categories */}
       {featuredGame && !isFeatureGrid ? (
-        <section className="py-14">
+        <section className="py-10">
           <div className="grid gap-4 lg:grid-cols-[.72fr_1.28fr]">
             <div
               className="border border-white/10 p-6 md:p-8"

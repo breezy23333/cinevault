@@ -114,14 +114,14 @@ function StoreGameCard({
     <Link
       href={`/games/${game.id}`}
       className={`group relative block overflow-hidden bg-[#142233] shadow-[0_18px_45px_rgba(0,0,0,.3)] ${
-        large ? "min-h-[420px] lg:min-h-[560px]" : "min-h-[230px]"
+        large ? "min-h-[300px] lg:min-h-[420px]" : "min-h-[190px]"
       }`}
     >
       {game.background_image ? (
         <img
           src={game.background_image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.025]"
         />
       ) : (
         <div className="absolute inset-0 bg-[#17283b]" />
@@ -147,7 +147,7 @@ function StoreGameCard({
 
         <h3
           className={`font-black leading-tight text-white ${
-            large ? "text-3xl md:text-5xl" : "text-lg"
+            large ? "text-2xl md:text-4xl" : "text-base md:text-lg"
           }`}
         >
           {game.name}
@@ -273,7 +273,7 @@ function GenreSpotlight({
   return (
     <section
       id={id}
-      className="relative my-16 scroll-mt-32 overflow-hidden border border-white/10 bg-[#101b29]"
+      className="relative my-10 scroll-mt-32 overflow-hidden border border-white/10 bg-[#101b29]"
     >
       <div
         className={`absolute -top-32 h-96 w-96 rounded-full blur-[110px] ${colors.glow} ${
@@ -282,7 +282,7 @@ function GenreSpotlight({
       />
 
       <div
-        className={`relative grid min-h-[620px] ${
+        className={`relative grid min-h-[480px] ${
           reverse
             ? "lg:grid-cols-[.72fr_1.28fr]"
             : "lg:grid-cols-[1.28fr_.72fr]"
@@ -361,6 +361,25 @@ function GenreSpotlight({
   );
 }
 
+function pickUniquePlatformGame(
+  games: RawgGame[],
+  usedIds: Set<number>,
+) {
+  const game = games.find(
+    (item) =>
+      item.id &&
+      item.background_image &&
+      !usedIds.has(item.id) &&
+      !/grand theft auto/i.test(item.name),
+  );
+
+  if (game) {
+    usedIds.add(game.id);
+  }
+
+  return game;
+}
+
 export default async function GamesPage() {
   const [browseData, gamesOnSale] = await Promise.all([
     getGamingBrowseData(),
@@ -372,6 +391,10 @@ export default async function GamesPage() {
     newReleases,
     topRated,
     upcoming,
+    pc,
+    playStation,
+    xbox,
+    nintendo,
     firstPersonShooters,
     thirdPersonShooters,
     esports,
@@ -458,6 +481,63 @@ export default async function GamesPage() {
     },
   ];
 
+  const usedPlatformGameIds = new Set<number>();
+
+  const pcPlatformGame = pickUniquePlatformGame(  
+      pc,
+      usedPlatformGameIds,
+    );
+
+    const playStationPlatformGame = pickUniquePlatformGame(
+      playStation,
+      usedPlatformGameIds,
+    );
+
+    const xboxPlatformGame = pickUniquePlatformGame(
+      xbox,
+      usedPlatformGameIds,
+    );
+
+    const nintendoPlatformGame = pickUniquePlatformGame(
+      nintendo,
+      usedPlatformGameIds,
+    );
+
+    const platformCollections = [
+      {
+        label: "PC Gaming",
+        description:
+          "Discover strategy, simulation, shooters, indie games and expansive PC worlds.",
+        href: "/games/category/pc",
+        image: pcPlatformGame?.background_image,
+        accent: "#22d3ee",
+      },
+      {
+        label: "PlayStation",
+        description:
+          "Explore cinematic adventures, action games and PlayStation experiences.",
+        href: "/games/category/playstation",
+        image: playStationPlatformGame?.background_image,
+        accent: "#3b82f6",
+      },
+      {
+        label: "Xbox",
+        description:
+          "Enter competitive games, racing worlds and Xbox adventures.",
+        href: "/games/category/xbox",
+        image: xboxPlatformGame?.background_image,
+        accent: "#22c55e",
+      },
+      {
+        label: "Nintendo",
+        description:
+          "Discover colourful adventures, family games and Nintendo worlds.",
+        href: "/games/category/nintendo",
+        image: nintendoPlatformGame?.background_image,
+        accent: "#ef4444",
+      },
+    ];
+
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -473,7 +553,7 @@ export default async function GamesPage() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#08111c] pb-24 pt-24 text-white">
+    <main className="min-h-screen bg-[#08111c] pb-24 text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -482,7 +562,7 @@ export default async function GamesPage() {
       />
 
       {/* Gaming storefront navigation */}
-      <div className="sticky top-20 z-30 border-y border-white/10 bg-[#162536]/95 shadow-xl backdrop-blur-xl">
+      <div className="relative z-20 border-y border-white/10 bg-[#162536] shadow-xl">
         <div className="mx-auto flex max-w-[1500px] items-center gap-2 px-4 py-2 md:px-6">
           <Link
             href="/games"
@@ -517,7 +597,7 @@ export default async function GamesPage() {
       {/* Featured storefront */}
       <section
         id="featured"
-        className="relative scroll-mt-36 border-b border-white/10 bg-[#0b1623] pb-12 pt-8"
+        className="relative scroll-mt-36 border-b border-white/10 bg-[#0b1623] pb-10 pt-6"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(34,211,238,.10),transparent_28%),linear-gradient(180deg,transparent,#08111c)]" />
 
@@ -538,7 +618,6 @@ export default async function GamesPage() {
               Updated discoveries
             </div>
           </div>
-
           <GameHero games={heroGames} />
         </div>
       </section>
@@ -692,6 +771,140 @@ export default async function GamesPage() {
             viewAllHref="/games/category/upcoming"
           />
         </div>
+
+        {/* Platform destinations */}
+          <section className="border-t border-white/10 py-14">
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.34em] text-cyan-300">
+                  Choose your platform
+                </p>
+
+                <h2 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">
+                  More ways to play
+                </h2>
+
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
+                  Explore games built for your preferred console or gaming setup.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {platformCollections.map((platform, index) => (
+                <Link
+                  key={platform.label}
+                  href={platform.href}
+                  className={`group relative overflow-hidden border border-white/10 bg-[#101a27] ${
+                    index === 0 ? "md:row-span-2" : ""
+                  }`}
+                >
+                  <div
+                    className={
+                      index === 0
+                        ? "relative h-[300px] md:h-full md:min-h-[500px]"
+                        : "relative h-[240px]"
+                    }
+                  >
+                    {platform.image ? (
+                      <img
+                        src={platform.image}
+                        alt=""
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.025]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-[#142233]" />
+                    )}
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#07101a] via-[#07101a]/25 to-transparent" />
+
+                    <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+                      <div
+                        className="mb-4 h-1 w-12 transition-all duration-300 group-hover:w-24"
+                        style={{ backgroundColor: platform.accent }}
+                      />
+
+                      <h3 className="text-2xl font-black md:text-3xl">
+                        {platform.label}
+                      </h3>
+
+                      <p className="mt-3 max-w-lg text-sm leading-6 text-white/55">
+                        {platform.description}
+                      </p>
+
+                      <span
+                        className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest"
+                        style={{ color: platform.accent }}
+                      >
+                        Explore games
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* Full store directory */}
+          <section className="border-y border-white/10 bg-[#0e1824] px-5 py-12 md:px-8">
+            <div className="grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.34em] text-yellow-400">
+                  CINRYVAN Games
+                </p>
+
+                <h2 className="mt-3 text-3xl font-black md:text-4xl">
+                  Keep exploring
+                </h2>
+
+                <p className="mt-4 max-w-md text-sm leading-7 text-white/50">
+                  Move between genres, platforms and different styles of play without
+                  returning to the beginning.
+                </p>
+
+                <Link
+                  href="/games/category/popular"
+                  className="mt-7 inline-flex items-center gap-2 bg-yellow-400 px-5 py-3 text-xs font-black uppercase tracking-widest text-black transition hover:bg-yellow-300"
+                >
+                  Browse all games
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {[
+                  ["Action", "/games/category/action"],
+                  ["RPG", "/games/category/rpg"],
+                  ["Racing", "/games/category/racing"],
+                  ["Horror", "/games/category/horror"],
+                  ["Sci-Fi", "/games/category/sci-fi-cyberpunk"],
+                  ["Strategy", "/games/category/strategy"],
+                  ["Simulation", "/games/category/simulation"],
+                  ["Fighting", "/games/category/fighting"],
+                  ["Co-Operative", "/games/category/co-op"],
+                  ["Open World", "/games/category/open-world"],
+                  ["Puzzle", "/games/category/puzzle"],
+                  ["Virtual Reality", "/games/category/vr"],
+                ].map(([label, href], index) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="group flex min-h-24 flex-col justify-between border border-white/10 bg-black/20 p-4 transition hover:border-cyan-400/50 hover:bg-white/[0.06]"
+                  >
+                    <span className="text-[10px] font-black text-white/25">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <span className="mt-4 text-sm font-black text-white/70 transition group-hover:text-cyan-300">
+                      {label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
 
         <footer className="mt-20 border-t border-white/10 pt-8 text-center text-xs text-white/35">
           Game information and images provided by{" "}

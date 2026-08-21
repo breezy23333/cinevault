@@ -202,6 +202,109 @@ function isKnownEsportsGame(game: RawgGame) {
   );
 }
 
+function matchesGameCategory(
+  game: RawgGame,
+  categorySlug: string,
+): boolean {
+  switch (categorySlug) {
+    case "first-person":
+      return (
+        hasGenre(game, "shooter") &&
+        !isOpenWorldCrimeGame(game)
+      );
+
+    case "third-person":
+      return !isOpenWorldCrimeGame(game);
+
+    case "racing":
+      return (
+        hasGenre(game, "racing") &&
+        !isOpenWorldCrimeGame(game)
+      );
+
+    case "rpg":
+      return hasGenre(game, "role-playing-games-rpg");
+
+    case "horror":
+      return hasTag(game, "horror");
+
+    case "puzzle":
+      return hasGenre(game, "puzzle");
+
+    case "survival":
+      return hasTag(game, "survival");
+
+    case "sci-fi-cyberpunk":
+      return hasTag(game, "science-fiction");
+
+    case "city-settlement":
+      return (
+        hasGenre(game, "simulation") &&
+        hasTag(game, "sandbox")
+      );
+
+    case "open-world":
+      return hasTag(game, "open-world");
+
+    case "strategy":
+      return (
+        hasGenre(game, "strategy") ||
+        hasGenre(game, "real-time-strategy-rts") ||
+        hasGenre(game, "turn-based-strategy-tbs") ||
+        hasGenre(game, "tactical")
+      );
+
+    case "adventure":
+      return hasGenre(game, "adventure");
+
+    case "visual-novel":
+      return hasGenre(game, "visual-novel");
+
+    case "story-rich":
+      return hasTag(game, "drama");
+
+    case "simulation":
+      return hasGenre(game, "simulation");
+
+    case "fighting":
+      return hasGenre(game, "fighting");
+
+    case "roguelike":
+      return hasGenre(game, "roguelike");
+
+    case "action":
+      return hasTag(game, "action");
+
+    case "casual":
+      return hasGenre(game, "arcade");
+
+    case "anime":
+      return (
+        hasGenre(game, "role-playing-games-rpg") &&
+        hasTag(game, "fantasy")
+      );
+
+    /*
+     * These categories are already filtered by native IGDB fields
+     * that are not included in RawgGame after conversion.
+     */
+    case "co-op":
+    case "vr":
+    case "pc":
+    case "playstation":
+    case "xbox":
+    case "nintendo":
+    case "popular":
+    case "new-releases":
+    case "top-rated":
+    case "upcoming":
+      return true;
+
+    default:
+      return true;
+  }
+}
+
 function removeUsedGames(
   games: RawgGame[],
   usedIds: Set<number>,
@@ -1011,30 +1114,16 @@ export async function getGameCategoryPage(
   const usedIds = new Set<number>();
 
   const games = categoryGames.filter((game) => {
-    if (!game?.id || !game.name || usedIds.has(game.id)) {
-      return false;
-    }
-
     if (
-      ["first-person", "third-person", "racing"].includes(
-        category.slug,
-      ) &&
-      isOpenWorldCrimeGame(game)
+      !game?.id ||
+      !game.name ||
+      !game.background_image ||
+      usedIds.has(game.id)
     ) {
       return false;
     }
 
-    if (
-      category.slug === "racing" &&
-      !hasGenre(game, "racing")
-    ) {
-      return false;
-    }
-
-    if (
-      category.slug === "horror" &&
-      !hasTag(game, "horror")
-    ) {
+    if (!matchesGameCategory(game, category.slug)) {
       return false;
     }
 

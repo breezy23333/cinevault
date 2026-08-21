@@ -41,8 +41,7 @@ export default function GameHero({ games }: GameHeroProps) {
     .filter((shot) => shot.image)
     .slice(0, 4);
 
-  const heroImage =
-    screenshots[0]?.image ?? game.background_image!;
+  const heroImage = game.background_image!;
 
   const previous = () =>
     setActiveIndex(
@@ -79,12 +78,12 @@ export default function GameHero({ games }: GameHeroProps) {
         onMouseLeave={() => setPaused(false)}
       >
         <div className="grid lg:grid-cols-3">
-          <div className="relative block h-[320px] overflow-hidden sm:h-[460px] lg:col-span-2 lg:h-[620px]">
+          <div className="relative block h-[280px] overflow-hidden sm:h-[360px] lg:col-span-2 lg:h-[460px]">
             <img
               key={heroImage}
               src={heroImage}
               alt={game.name}
-              className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.015]"
+              className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.01]"
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/15 to-black/10 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#0c111b]/65" />
@@ -93,10 +92,10 @@ export default function GameHero({ games }: GameHeroProps) {
               <GameSummary game={game} />
             </div>
           </div>
-          <aside className="hidden h-[620px] min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:col-span-1 lg:flex lg:flex-col">
+          <aside className="hidden h-[460px] min-w-0 bg-gradient-to-b from-[#151d2b] to-[#0b1019] p-5 lg:col-span-1 lg:flex lg:flex-col">
             <GameSummary game={game} />
 
-            <div className="mt-auto grid grid-cols-2 gap-1.5 pt-5">
+            <div className="mt-auto grid grid-cols-2 gap-1.5 pt-3">
               {screenshots.length ? (
                 screenshots.map((shot, index) => (
                   <Link
