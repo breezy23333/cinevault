@@ -30,6 +30,7 @@ export const metadata: Metadata = {
 type PageProps = {
   searchParams: Promise<{
     q?: string;
+    page?: string;
   }>;
 };
 
@@ -114,18 +115,30 @@ function SearchGameCard({ game }: { game: RawgGame }) {
 export default async function GameSearchPage({
   searchParams,
 }: PageProps) {
-  const { q = "" } = await searchParams;
-  const query = q.trim();
+  const { q = "", page: pageValue = "1" } =
+  await searchParams;
 
-  let games: RawgGame[] = [];
+    const query = q.trim();
+
+    const parsedPage = Number(pageValue);
+
+    const page =
+    Number.isInteger(parsedPage) && parsedPage > 0
+        ? parsedPage
+        : 1;
+
+    const pageSize = 24;
+
+    let games: RawgGame[] = [];
 
   try {
     games = query
-      ? await getGames({
-          search: query,
-          page_size: 32,
-        })
-      : await getPopularGames(24);
+  ? await getGames({
+      search: query,
+      page,
+      page_size: pageSize,
+    })
+  : await getPopularGames(pageSize);
   } catch (error) {
     console.error("Game search failed:", error);
   }
@@ -137,6 +150,16 @@ export default async function GameSearchPage({
         items.findIndex((item) => item.id === game.id) === index,
     )
     .slice(0, 24);
+
+   const hasPreviousPage = page > 1;
+
+    const hasNextPage =
+    Boolean(query) && visibleGames.length === pageSize;
+
+    const searchUrl = (targetPage: number) =>
+    `/games/search?q=${encodeURIComponent(
+        query,
+    )}&page=${targetPage}`; 
 
   return (
     <main className="min-h-screen bg-[#08111c] pb-24 text-white">
@@ -222,12 +245,51 @@ export default async function GameSearchPage({
         </div>
 
         {visibleGames.length ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleGames.map((game) => (
-              <SearchGameCard key={game.id} game={game} />
-            ))}
-          </div>
-        ) : (
+            <>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {visibleGames.map((game) => (
+                    <SearchGameCard key={game.id} game={game} />
+                ))}
+                </div>
+
+                {(hasPreviousPage || hasNextPage) && (
+                <nav
+                    aria-label="Game search pages"
+                    className="mt-10 flex items-center justify-center gap-3 border-t border-white/10 pt-8"
+                >
+                    {hasPreviousPage ? (
+                    <Link
+                        href={searchUrl(page - 1)}
+                        className="border border-white/15 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:border-cyan-400 hover:text-cyan-300"
+                    >
+                        ← Previous
+                    </Link>
+                    ) : (
+                    <span className="cursor-not-allowed border border-white/5 px-5 py-3 text-xs font-black uppercase tracking-wider text-white/20">
+                        ← Previous
+                    </span>
+                    )}
+
+                    <span className="px-4 text-xs font-black uppercase tracking-wider text-white/45">
+                    Page {page}
+                    </span>
+
+                    {hasNextPage ? (
+                    <Link
+                        href={searchUrl(page + 1)}
+                        className="bg-cyan-400 px-5 py-3 text-xs font-black uppercase tracking-wider text-[#07111d] transition hover:bg-cyan-300"
+                    >
+                        Next →
+                    </Link>
+                    ) : (
+                    <span className="cursor-not-allowed bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-wider text-white/20">
+                        Next →
+                    </span>
+                    )}
+                </nav>
+                )}
+            </>
+            ) : (
           <div className="border border-white/10 bg-white/[0.025] px-6 py-20 text-center">
             <Gamepad2 className="mx-auto h-10 w-10 text-white/20" />
 
