@@ -701,7 +701,7 @@ export default async function GamesPage() {
           </div>
 
           <Link
-            href="/search"
+            href="/games/search"
             aria-label="Search games"
             className="hidden h-9 w-10 shrink-0 items-center justify-center bg-white/10 text-white/70 transition hover:bg-cyan-400 hover:text-black sm:flex"
           >
