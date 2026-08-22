@@ -430,13 +430,13 @@ function buildGameQuery(query: GameQuery) {
     .trim();
 
   return [
-    `fields ${LIST_FIELDS};`,
-    search ? `search "${search}";` : "",
-    `where ${where.join(" & ")};`,
-    `sort ${sort};`,
-    `limit ${pageSize};`,
-    `offset ${offset};`,
-  ]
+  `fields ${LIST_FIELDS};`,
+  search ? `search "${search}";` : "",
+  `where ${where.join(" & ")};`,
+  search ? "" : `sort ${sort};`,
+  `limit ${pageSize};`,
+  `offset ${offset};`,
+]
     .filter(Boolean)
     .join(" ");
 }
