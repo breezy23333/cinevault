@@ -185,25 +185,37 @@ export default function RoomChatClient({
     channelRef.current = channel;
 
     async function loadMessages() {
-      const { data, error: loadError } = await supabase
-        .from("room_messages")
-        .select(
-          "id, room, user_id, username, avatar_url, message, created_at"
-        )
-        .eq("room", roomKey)
-        .order("created_at", { ascending: false })
-        .limit(100);
+      let loadedMessages: RoomMessage[] = [];
 
-      if (cancelled) return;
+      try {
+        const response = await fetch(
+          `/api/rooms/messages?room=${encodeURIComponent(roomKey)}`,
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          },
+        );
 
-      if (loadError) {
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.error || "Messages could not be loaded.",
+          );
+        }
+
+        loadedMessages = Array.isArray(result.messages)
+          ? (result.messages as RoomMessage[])
+          : [];
+      } catch (loadError) {
+        if (cancelled) return;
+
         console.error("LOAD CHAT ERROR:", loadError);
         setError("Messages could not be loaded.");
         setLoading(false);
         return;
       }
-
-      const loadedMessages = [...(data || [])].reverse() as RoomMessage[];
 
       setMessages((current) => {
         const combined = new Map<number, RoomMessage>();

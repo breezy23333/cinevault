@@ -80,7 +80,7 @@ export default function TVRoom({
   const roomKey = `cinryvan:tv:${selectedChannel.slug}`;
 
   return (
-    <main className="min-h-screen bg-[#070812] pt-20 text-white">
+    <main className="min-h-screen bg-[#070812] text-white">
       <section className="mx-auto max-w-[1700px] px-3 py-4">
         <div className="overflow-hidden rounded-[2rem] border border-indigo-300/15 bg-[#0b0d1a] shadow-[0_35px_140px_rgba(40,30,130,0.3)]">
           {/* Streaming header */}
@@ -128,9 +128,9 @@ export default function TVRoom({
             </div>
           </header>
 
-          <div className="grid h-[calc(100vh-10.5rem)] min-h-[680px] grid-cols-1 lg:grid-cols-[260px_1fr_280px]">
+          <div className="grid min-h-[560px] grid-cols-1 lg:h-[680px] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)_280px]">
             {/* Series channels */}
-            <aside className="hidden border-r border-white/10 bg-[#101326] lg:block">
+            <aside className="hidden overflow-y-auto border-r border-white/10 bg-[#101326] lg:block">
               <div className="border-b border-white/10 p-5">
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-fuchsia-300">
                   Browse discussions
