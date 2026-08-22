@@ -173,8 +173,9 @@ function imageUrl(
 
 function selectBackground(game: IgdbGame) {
   return (
-    imageUrl(game.artworks?.[0]?.image_id) ??
-    imageUrl(game.screenshots?.[0]?.image_id) ??
+    imageUrl(game.screenshots?.[0]?.image_id, "t_screenshot_big") ??
+    imageUrl(game.screenshots?.[1]?.image_id, "t_screenshot_big") ??
+    imageUrl(game.artworks?.[0]?.image_id, "t_1080p") ??
     imageUrl(game.cover?.image_id, "t_cover_big")
   );
 }

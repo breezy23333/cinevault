@@ -109,25 +109,38 @@ function StoreGameCard({
   large?: boolean;
 }) {
   const genres = game.genres?.slice(0, 3) ?? [];
+  const image = game.background_image;
 
   return (
     <Link
       href={`/games/${game.id}`}
-      className={`group relative block overflow-hidden bg-[#142233] shadow-[0_18px_45px_rgba(0,0,0,.3)] ${
-        large ? "min-h-[300px] lg:min-h-[420px]" : "min-h-[190px]"
+      className={`group relative block overflow-hidden border border-white/10 bg-[#17283b] shadow-[0_18px_45px_rgba(0,0,0,.3)] transition hover:border-cyan-400/50 ${
+        large ? "min-h-[300px] lg:min-h-[420px]" : "min-h-[210px]"
       }`}
     >
-      {game.background_image ? (
-        <img
-          src={game.background_image}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.025]"
-        />
+      {image ? (
+        <>
+          {/* Blurred image fills the empty background. */}
+          <div
+            aria-hidden="true"
+            style={{ backgroundImage: `url("${image}")` }}
+            className="absolute inset-0 scale-110 bg-cover bg-center opacity-50 blur-xl"
+          />
+
+          {/* Full image without severe cropping. */}
+          <div
+            role="img"
+            aria-label={`${game.name} game artwork`}
+            style={{ backgroundImage: `url("${image}")` }}
+            className="absolute inset-0 bg-contain bg-center bg-no-repeat transition duration-700 group-hover:scale-[1.025] group-hover:brightness-110"
+          />
+        </>
       ) : (
-        <div className="absolute inset-0 bg-[#17283b]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_25%,rgba(34,211,238,.20),transparent_35%),linear-gradient(135deg,#263b51,#101b29_55%,#08111c)]" />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#07101b] via-[#07101b]/15 to-transparent" />
+      {/* Lighter overlay. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#050a11]/95 via-transparent to-black/5" />
 
       <div
         className={`absolute inset-x-0 bottom-0 ${
@@ -146,14 +159,14 @@ function StoreGameCard({
         </div>
 
         <h3
-          className={`font-black leading-tight text-white ${
+          className={`font-black leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,.95)] ${
             large ? "text-2xl md:text-4xl" : "text-base md:text-lg"
           }`}
         >
           {game.name}
         </h3>
 
-        <div className="mt-3 flex items-center gap-4 text-xs font-bold text-white/65">
+        <div className="mt-3 flex items-center gap-4 text-xs font-bold text-white/75">
           <span>{getYear(game.released)}</span>
 
           {game.rating ? (
@@ -418,66 +431,169 @@ export default async function GamesPage() {
     )
     .slice(0, 16);
 
+    const categoryGamePool = [
+    ...storyRpg,
+    ...horrorSurvival,
+    ...firstPersonShooters,
+    ...thirdPersonShooters,
+    ...racing,
+    ...esports,
+    ...topRated,
+    ...popular,
+  ].filter(
+    (game, index, games) =>
+      Boolean(game.id && game.background_image) &&
+      games.findIndex((item) => item.id === game.id) === index,
+  );
+
+  const usedCategoryGameIds = new Set<number>();
+
+  function gameMatchesTerms(
+    game: RawgGame,
+    terms: string[],
+  ) {
+    const searchableText = [
+      game.name,
+      ...(game.genres ?? []).flatMap((genre) => [
+        genre.name,
+        genre.slug,
+      ]),
+      ...(game.tags ?? []).flatMap((tag) => [
+        tag.name,
+        tag.slug,
+      ]),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return terms.some((term) =>
+      searchableText.includes(term.toLowerCase()),
+    );
+  }
+
+  function pickCategoryImage(
+    terms: string[],
+    preferredGames: RawgGame[] = [],
+  ) {
+    const matchingGames = categoryGamePool.filter((game) =>
+      gameMatchesTerms(game, terms),
+    );
+
+    const candidates = [
+      ...matchingGames,
+      ...preferredGames,
+      ...categoryGamePool,
+    ];
+
+    const selectedGame = candidates.find(
+      (game) =>
+        game.id &&
+        game.background_image &&
+        !usedCategoryGameIds.has(game.id),
+    );
+
+    if (!selectedGame) return null;
+
+    usedCategoryGameIds.add(selectedGame.id);
+    return selectedGame.background_image;
+  }
+
   const browseCategories: GameCategory[] = [
     {
       label: "Role-Playing",
       href: "/games/category/rpg",
-      image: storyRpg[0]?.background_image,
+      image: pickCategoryImage(
+        ["role-playing", "role playing", "rpg"],
+        storyRpg,
+      ),
     },
     {
       label: "Horror",
       href: "/games/category/horror",
-      image: horrorSurvival[0]?.background_image,
+      image: pickCategoryImage(
+        ["horror"],
+        horrorSurvival,
+      ),
     },
     {
       label: "Survival",
       href: "/games/category/survival",
-      image: horrorSurvival[2]?.background_image,
+      image: pickCategoryImage(
+        ["survival"],
+        horrorSurvival,
+      ),
     },
     {
       label: "Sci-Fi & Cyberpunk",
       href: "/games/category/sci-fi-cyberpunk",
-      image: firstPersonShooters[2]?.background_image,
+      image: pickCategoryImage(
+        ["science fiction", "sci-fi", "cyberpunk"],
+        firstPersonShooters,
+      ),
     },
     {
       label: "Racing",
       href: "/games/category/racing",
-      image: racing[0]?.background_image,
+      image: pickCategoryImage(
+        ["racing", "driving", "motorsport"],
+        racing,
+      ),
     },
     {
       label: "Open World",
       href: "/games/category/open-world",
-      image: thirdPersonShooters[1]?.background_image,
+      image: pickCategoryImage(
+        ["open world", "sandbox"],
+        thirdPersonShooters,
+      ),
     },
     {
       label: "Strategy",
       href: "/games/category/strategy",
-      image: esports[4]?.background_image,
+      image: pickCategoryImage(
+        ["strategy", "tactical"],
+        esports,
+      ),
     },
     {
       label: "Adventure",
       href: "/games/category/adventure",
-      image: topRated[1]?.background_image,
+      image: pickCategoryImage(
+        ["adventure"],
+        topRated,
+      ),
     },
     {
       label: "Story-Rich",
       href: "/games/category/story-rich",
-      image: storyRpg[1]?.background_image,
+      image: pickCategoryImage(
+        ["story rich", "narrative"],
+        storyRpg,
+      ),
     },
     {
       label: "Fighting",
       href: "/games/category/fighting",
-      image: esports[2]?.background_image,
+      image: pickCategoryImage(
+        ["fighting", "beat em up"],
+        esports,
+      ),
     },
     {
       label: "Co-Operative",
       href: "/games/category/co-op",
-      image: esports[1]?.background_image,
+      image: pickCategoryImage(
+        ["co-operative", "cooperative", "co-op"],
+        esports,
+      ),
     },
     {
       label: "Action",
       href: "/games/category/action",
-      image: thirdPersonShooters[0]?.background_image,
+      image: pickCategoryImage(
+        ["action", "shooter"],
+        thirdPersonShooters,
+      ),
     },
   ];
 
