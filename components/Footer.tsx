@@ -3,151 +3,203 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Clapperboard,
+  Gamepad2,
+  Mail,
+  MonitorPlay,
+  Sparkles,
+} from "lucide-react";
 
-const browseLinks = [
-  { label: "All titles", href: "/browse" },
-  { label: "Categories", href: "/categories" },
-  { label: "Trending", href: "/trending" },
-  { label: "Top rated", href: "/top" },
+const discoveryLinks = [
+  { label: "Movies", href: "/movie" },
   { label: "TV Shows", href: "/tv" },
-  { label: "Anime", href: "/anime" },
-  { label: "Cartoons", href: "/cartoons" },
-  { label: "News", href: "/news" },
-  { label: "Watchlist", href: "/watchlist" },
+  { label: "Trending", href: "/trending" },
+  { label: "Top Rated", href: "/top" },
+  { label: "Upcoming", href: "/upcoming" },
+  { label: "Categories", href: "/categories" },
 ];
 
-const supportLinks = [
-  { label: "Help center", href: "/support" },
+const worldsLinks = [
+  { label: "Anime", href: "/anime" },
+  { label: "Cartoons", href: "/cartoons" },
+  { label: "Animation", href: "/animation" },
+  { label: "Games", href: "/games" },
+  { label: "News", href: "/news" },
+  { label: "Community", href: "/community" },
+];
+
+const companyLinks = [
+  { label: "About CINRYVAN", href: "/about" },
+  { label: "Help & Support", href: "/support" },
   { label: "Contact", href: "/contact" },
-  { label: "About", href: "/about" },
-  { label: "Privacy", href: "/privacy" },
+  { label: "Store", href: "/store" },
+  { label: "Watchlist", href: "/watchlist" },
+  { label: "Library", href: "/library" },
 ];
 
 const legalLinks = [
   { label: "Terms", href: "/terms" },
   { label: "Privacy", href: "/privacy" },
   { label: "Cookies", href: "/cookies" },
+  { label: "DMCA", href: "/dmca" },
 ];
 
 export default function Footer() {
   const year = new Date().getFullYear();
   const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!email.trim()) return;
+    setSubscribed(true);
     setEmail("");
   }
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[#0f1726]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f1726] to-[#0b1220]" />
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#05070b] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_0%,rgba(250,204,21,.13),transparent_28%),radial-gradient(circle_at_88%_55%,rgba(37,99,235,.11),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-400/80 to-transparent" />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-3 py-8 sm:px-4 sm:py-10 md:px-8 lg:py-14 xl:max-w-[1600px] 2xl:max-w-[1800px]">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-7 md:grid-cols-4 md:gap-10">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <div className="text-xl font-black tracking-tight text-amber-400 sm:text-2xl">
-              CINRYVAN
-            </div>
-
-            <p className="mt-2 max-w-md text-xs leading-5 text-white/70 sm:mt-4 sm:text-sm sm:leading-relaxed">
-              Discover and track movies, shows, anime, cartoons and games
-              through one cinematic entertainment universe.
+      <div className="relative mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-14 lg:px-10 lg:py-16">
+        <section className="grid overflow-hidden border border-white/10 bg-[#090d14] lg:grid-cols-[1fr_340px]">
+          <div className="relative overflow-hidden p-6 sm:p-9 lg:p-12">
+            <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full border border-yellow-400/10" />
+            <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-yellow-400">
+              <Sparkles className="h-3.5 w-3.5" /> Your next story is waiting
             </p>
-          </div>
-
-          {/* Browse */}
-          <div className="col-span-2 md:col-span-1">
-            <h2 className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-white sm:mb-4 sm:text-sm">
-              Browse
+            <h2 className="mt-4 max-w-3xl text-4xl font-black leading-[0.92] tracking-[-0.05em] sm:text-5xl lg:text-6xl">
+              Don’t leave without finding your next world.
             </h2>
-
-            <ul className="grid grid-cols-3 gap-x-3 gap-y-2 text-xs text-white/70 md:grid-cols-1 md:gap-0 md:space-y-3 md:text-sm">
-              {browseLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="block py-0.5 transition hover:text-amber-300"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div className="col-span-2 md:col-span-1">
-            <h2 className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-white sm:mb-4 sm:text-sm">
-              Support
-            </h2>
-
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-white/70 md:grid-cols-1 md:gap-0 md:space-y-3 md:text-sm">
-              {supportLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="block py-0.5 transition hover:text-amber-300"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div className="col-span-2 md:col-span-1">
-            <h2 className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white sm:mb-4 sm:text-sm">
-              Stay updated
-            </h2>
-
-            <p className="text-xs text-white/65 sm:text-sm">
-              Get updates about releases and new Cinryvan features.
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
+              Move through cinema, television, anime, cartoons and games from one entertainment universe.
             </p>
-
-            <form
-              className="mt-3 flex gap-2 sm:mt-4"
-              onSubmit={handleSubmit}
-              aria-label="Newsletter subscription"
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                required
-                className="h-10 min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 text-xs text-white outline-none transition placeholder:text-white/35 focus:border-amber-300/60 sm:h-11 sm:rounded-xl sm:px-4 sm:text-sm"
-              />
-
-              <button
-                type="submit"
-                className="h-10 shrink-0 rounded-lg bg-amber-400 px-3 text-xs font-black text-black transition hover:bg-amber-300 sm:h-11 sm:rounded-xl sm:px-4 sm:text-sm"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
-
-        {/* Bottom */}
-        <div className="mt-7 flex flex-col gap-3 border-t border-white/10 pt-4 text-[11px] text-white/55 sm:mt-10 sm:pt-6 md:flex-row md:items-center md:justify-between md:text-xs">
-          <div>© {year} CINRYVAN. All rights reserved.</div>
-
-          <div className="flex items-center gap-4 sm:gap-5">
-            {legalLinks.map((item) => (
+            <div className="mt-7 flex flex-wrap gap-3">
               <Link
-                key={item.href}
-                href={item.href}
-                className="transition hover:text-amber-300"
+                href="/browse"
+                className="inline-flex items-center gap-2 bg-yellow-400 px-5 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
               >
+                Browse CINRYVAN <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/search"
+                className="inline-flex items-center gap-2 border border-white/15 bg-white/[0.03] px-5 py-3 text-sm font-black transition hover:border-yellow-400/60 hover:text-yellow-300"
+              >
+                Search titles <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 bg-yellow-400 p-6 text-black sm:p-8 lg:border-l lg:border-t-0">
+            <Mail className="h-7 w-7" />
+            <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-black/55">
+              CINRYVAN Signal
+            </p>
+            <h2 className="mt-2 text-2xl font-black">Stay ahead of every release.</h2>
+            <p className="mt-3 text-sm leading-6 text-black/65">
+              New movies, shows, animation, games and CINRYVAN features.
+            </p>
+
+            {subscribed ? (
+              <div className="mt-6 border border-black/20 bg-black px-4 py-4 text-sm font-black text-yellow-300">
+                You’re on the CINRYVAN signal ✓
+              </div>
+            ) : (
+              <form className="mt-6" onSubmit={handleSubmit} aria-label="Newsletter subscription">
+                <label htmlFor="footer-email" className="sr-only">Email address</label>
+                <input
+                  id="footer-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                  className="h-12 w-full border border-black/20 bg-white/70 px-4 text-sm font-semibold text-black outline-none placeholder:text-black/40 focus:border-black"
+                />
+                <button
+                  type="submit"
+                  className="mt-2 flex h-12 w-full items-center justify-between bg-black px-4 text-sm font-black text-white transition hover:bg-[#111827]"
+                >
+                  Join the signal <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+            )}
+          </div>
+        </section>
+
+        <section className="grid gap-9 border-b border-white/10 py-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1fr] lg:gap-12 lg:py-14">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center bg-yellow-400 text-black">
+                <Clapperboard className="h-5 w-5" />
+              </span>
+              <span className="text-2xl font-black tracking-[-0.04em]">CINRYVAN</span>
+            </Link>
+            <p className="mt-5 max-w-sm text-sm leading-7 text-white/45">
+              A cinematic discovery universe for movies, television, anime, cartoons, games and entertainment culture.
+            </p>
+            <div className="mt-6 flex gap-2">
+              <Link href="/movie" aria-label="Movies" className="grid h-10 w-10 place-items-center border border-white/10 text-white/45 hover:border-yellow-400/60 hover:text-yellow-300">
+                <Clapperboard className="h-4 w-4" />
+              </Link>
+              <Link href="/tv" aria-label="TV shows" className="grid h-10 w-10 place-items-center border border-white/10 text-white/45 hover:border-yellow-400/60 hover:text-yellow-300">
+                <MonitorPlay className="h-4 w-4" />
+              </Link>
+              <Link href="/games" aria-label="Games" className="grid h-10 w-10 place-items-center border border-white/10 text-white/45 hover:border-yellow-400/60 hover:text-yellow-300">
+                <Gamepad2 className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          <FooterColumn title="Discover" links={discoveryLinks} />
+          <FooterColumn title="Worlds" links={worldsLinks} />
+          <FooterColumn title="CINRYVAN" links={companyLinks} />
+        </section>
+
+        <section className="flex flex-col gap-5 py-6 text-[11px] font-semibold text-white/35 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} CINRYVAN. Built for people who love stories.</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {legalLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="transition hover:text-yellow-300">
                 {item.label}
               </Link>
             ))}
           </div>
+          <p className="text-[9px] uppercase tracking-[0.25em] text-white/20">Movies · TV · Animation · Games</p>
+        </section>
+
+        <div aria-hidden="true" className="select-none overflow-hidden border-t border-white/5 pt-4 text-center text-[17vw] font-black leading-[0.72] tracking-[-0.09em] text-white/[0.025] sm:text-[14vw] lg:text-[180px]">
+          CINRYVAN
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: Array<{ label: string; href: string }>;
+}) {
+  return (
+    <div>
+      <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">{title}</h2>
+      <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-sm text-white/50 sm:grid-cols-1">
+        {links.map((item) => (
+          <li key={item.href}>
+            <Link href={item.href} className="group inline-flex items-center gap-2 transition hover:translate-x-1 hover:text-white">
+              <span className="h-px w-0 bg-yellow-400 transition-all group-hover:w-3" />
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
