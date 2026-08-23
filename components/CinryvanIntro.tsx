@@ -27,14 +27,17 @@ export default function CinryvanIntro() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-  setShow(true);
+    setShow(true);
 
-  const timer = window.setTimeout(() => {
-    setShow(false);
-  }, 7000);
+    const isDesktop = window.matchMedia("(min-width: 769px)").matches;
+    const introDuration = isDesktop ? 10500 : 7000;
 
-  return () => window.clearTimeout(timer);
-}, []);
+    const timer = window.setTimeout(() => {
+      setShow(false);
+    }, introDuration);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   if (!show) {
     return null;
@@ -131,8 +134,14 @@ export default function CinryvanIntro() {
 
       <style jsx>{`
         .intro-root {
-            animation: introExit 7s ease forwards;
+          animation: introExit 7s ease forwards;
+        }
+
+        @media (min-width: 769px) {
+          .intro-root {
+            animation-duration: 10.5s;
           }
+        }
 
         .poster-card {
           transform: scale(1.06);
