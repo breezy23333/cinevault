@@ -104,6 +104,62 @@ const uniqueById = <T extends { id: number }>(arr: T[]) => {
   return arr.filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)));
 };
 
+type DiscoverAnimationOptions = {
+  genres?: string;
+  language?: string;
+  networks?: string;
+  sortBy?: string;
+  firstAirDateLte?: string;
+};
+
+async function discoverAnimation({
+  genres = "16",
+  language,
+  networks,
+  sortBy = "popularity.desc",
+  firstAirDateLte,
+}: DiscoverAnimationOptions = {}) {
+  const apiKey = process.env.TMDB_API_KEY;
+  const token = process.env.TMDB_BEARER;
+  const params = new URLSearchParams({
+    include_adult: "false",
+    include_null_first_air_dates: "false",
+    language: "en-US",
+    page: "1",
+    sort_by: sortBy,
+    with_genres: genres,
+  });
+
+  if (apiKey) params.set("api_key", apiKey);
+  if (language) params.set("with_original_language", language);
+  if (networks) params.set("with_networks", networks);
+  if (firstAirDateLte) params.set("first_air_date.lte", firstAirDateLte);
+
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/discover/tv?${params.toString()}`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        next: { revalidate: 3600 },
+      },
+    );
+
+    if (!response.ok) return { results: [] as any[] };
+    const data = await response.json();
+    return { results: Array.isArray(data?.results) ? data.results : [] };
+  } catch {
+    return { results: [] as any[] };
+  }
+}
+
+const blockedAnimationText =
+  /hentai|overflow|secret mission|caressing my hibernating bear|souryo to majiwaru|immoral guild|showtime!|fire in his fingertips/i;
+
+const isGeneralAudienceAnimation = (item: any) => {
+  const text = `${item?.title || item?.name || ""} ${item?.overview || ""}`;
+  return item?.adult !== true && !blockedAnimationText.test(text);
+};
+
 // TMDB -> compact shelf card
 type ShelfItem = {
   id: number;
@@ -243,11 +299,48 @@ export default async function Home() {
   getMoviesByGenre(28),
 ]);  
 
-  // ✅ TV categories
-  const dramaTv = await getTvByGenre(18);
-  const fantasyTv = await getTvByGenre(10765);
-  const crimeTv = await getTvByGenre(80);
-  const animationTv = await getTvByGenre(16);
+  // TV and animation categories
+  const [
+    dramaTv,
+    fantasyTv,
+    crimeTv,
+    animationTv,
+    japaneseAnime,
+    chineseAnimation,
+    actionAnime,
+    horrorAnime,
+    romanceAnime,
+    comedyAnime,
+    cartoonNetwork,
+    disneyAnimation,
+    nickelodeonAnimation,
+    adultSwimAnimation,
+    superheroAnimation,
+    familyAnimation,
+    classicAnimation,
+  ] = await Promise.all([
+    getTvByGenre(18),
+    getTvByGenre(10765),
+    getTvByGenre(80),
+    getTvByGenre(16),
+    discoverAnimation({ language: "ja" }),
+    discoverAnimation({ language: "zh" }),
+    discoverAnimation({ genres: "16,10759", language: "ja" }),
+    discoverAnimation({ genres: "16,9648", language: "ja" }),
+    discoverAnimation({ genres: "16,18", language: "ja" }),
+    discoverAnimation({ genres: "16,35", language: "ja" }),
+    discoverAnimation({ networks: "56" }),
+    discoverAnimation({ networks: "44|54|2739" }),
+    discoverAnimation({ networks: "13" }),
+    discoverAnimation({ networks: "80" }),
+    discoverAnimation({ genres: "16,10759", language: "en" }),
+    discoverAnimation({ genres: "16,10751" }),
+    discoverAnimation({
+      language: "en",
+      sortBy: "vote_average.desc",
+      firstAirDateLte: "2005-12-31",
+    }),
+  ]);
   const gamingData = await gamingDataPromise;
   
 
@@ -344,7 +437,11 @@ export default async function Home() {
   .slice(0, 10);
 
   const animationHeroes = uniqueById(
-    norm(animationTv.results.map((x: any) => ({ ...x, media_type: "tv" })))
+    norm(
+      animationTv.results
+        .filter(isGeneralAudienceAnimation)
+        .map((x: any) => ({ ...x, media_type: "tv" })),
+    )
   )
     .filter((x) => x.backdrop)
     .slice(0, MAX_HEROES);
@@ -447,35 +544,40 @@ const crimeShelf = await Promise.all(
   })
 );
 
-const animeShelf = await Promise.all(
-  animationTv.results
-    .filter((x: any) => x.original_language === "ja")
+const animationShelf = (
+  data: any,
+  options: { safe?: boolean; excludeJapanese?: boolean } = {},
+) =>
+  uniqueById(Array.isArray(data?.results) ? data.results : [])
+    .filter((item: any) => item.poster_path || item.backdrop_path)
+    .filter((item: any) => !options.safe || isGeneralAudienceAnimation(item))
+    .filter((item: any) => !options.excludeJapanese || item.original_language !== "ja")
     .slice(0, MAX_SHELF)
-    .map(async (x: any) => {
-      const m = toShelfMedia({ ...x, media_type: "tv" });
-      
-      return {
-        ...m,
-        
-        href: `/tv/${m.id}`,
-      };
-    })
-);
+    .map((item: any) => {
+      const media = toShelfMedia({ ...item, media_type: "tv" });
+      return { ...media, href: `/tv/${media.id}` };
+    });
 
-const cartoonShelf = await Promise.all(
-  animationTv.results
-    .filter((x: any) => x.original_language !== "ja")
-    .slice(0, MAX_SHELF)
-    .map(async (x: any) => {
-      const m = toShelfMedia({ ...x, media_type: "tv" });
-      
-      return {
-        ...m,
-        
-        href: `/tv/${m.id}`,
-      };
-    })
-);
+const japaneseAnimeShelf = animationShelf(japaneseAnime, { safe: true });
+const chineseAnimationShelf = animationShelf(chineseAnimation, { safe: true });
+const actionAnimeShelf = animationShelf(actionAnime, { safe: true });
+const horrorAnimeShelf = animationShelf(horrorAnime, { safe: true });
+const romanceAnimeShelf = animationShelf(romanceAnime, { safe: true });
+const comedyAnimeShelf = animationShelf(comedyAnime, { safe: true });
+
+const cartoonNetworkShelf = animationShelf(cartoonNetwork, { safe: true });
+const disneyAnimationShelf = animationShelf(disneyAnimation, { safe: true });
+const nickelodeonShelf = animationShelf(nickelodeonAnimation, { safe: true });
+const adultSwimShelf = animationShelf(adultSwimAnimation);
+const superheroAnimationShelf = animationShelf(superheroAnimation, { safe: true });
+const familyAnimationShelf = animationShelf(familyAnimation, {
+  safe: true,
+  excludeJapanese: true,
+});
+const classicAnimationShelf = animationShelf(classicAnimation, {
+  safe: true,
+  excludeJapanese: true,
+});
 
 const oscarShelf = await Promise.all(
   OSCAR_BEST_PICTURE.map(async (id) => {
@@ -666,28 +768,77 @@ const oscarShelf = await Promise.all(
             eyebrow="Japan signal"
             title={
               <div className="flex items-center justify-between">
-                <span>Anime</span>
+                <span>Japanese Anime</span>
                 <a href="/anime" className="text-sm text-yellow-400 hover:underline">
                   View all →
                 </a>
               </div>
             }
           >
-            <ShelfRow items={animeShelf} />
+            <ShelfRow items={japaneseAnimeShelf} />
           </Panel>
 
+          <Panel eyebrow="Eastern animation" title="Chinese Animation · Donghua">
+            <ShelfRow items={chineseAnimationShelf} />
+          </Panel>
+
+          <Panel eyebrow="Battle zone" title="Action Anime">
+            <ShelfRow items={actionAnimeShelf} />
+          </Panel>
+
+          <Panel eyebrow="Dark animation" title="Horror & Supernatural Anime">
+            <ShelfRow items={horrorAnimeShelf} />
+          </Panel>
+
+          <Panel eyebrow="Heart stories" title="Romance Anime">
+            <ShelfRow items={romanceAnimeShelf} />
+          </Panel>
+
+          <Panel eyebrow="Laugh signal" title="Comedy Anime">
+            <ShelfRow items={comedyAnimeShelf} />
+          </Panel>
+
+          <FeatureBreak
+            title="Cartoon Multiverse"
+            text="Classic channels, family worlds, superheroes, and animation for older audiences."
+          />
+
           <Panel
-            eyebrow="Animated worlds"
+            eyebrow="CN classics"
             title={
               <div className="flex items-center justify-between">
-                <span>Cartoons</span>
+                <span>Cartoon Network</span>
                 <a href="/cartoons" className="text-sm text-yellow-400 hover:underline">
                   View all →
                 </a>
               </div>
             }
           >
-            <ShelfRow items={cartoonShelf} />
+            <ShelfRow items={cartoonNetworkShelf} />
+          </Panel>
+
+          <Panel eyebrow="Magic kingdom" title="Disney Animation">
+            <ShelfRow items={disneyAnimationShelf} />
+          </Panel>
+
+          <Panel eyebrow="Orange universe" title="Nickelodeon Cartoons">
+            <ShelfRow items={nickelodeonShelf} />
+          </Panel>
+
+          <Panel eyebrow="After dark" title="Adult Swim Animation">
+            <ShelfRow items={adultSwimShelf} />
+          </Panel>
+
+          <Panel eyebrow="Hero animation" title="Superhero Cartoons">
+            <ShelfRow items={superheroAnimationShelf} />
+          </Panel>
+
+          <Panel eyebrow="All ages" title="Family Animation">
+            <ShelfRow items={familyAnimationShelf} />
+          </Panel>
+
+          <Panel eyebrow="Animation archive" title="Classic Cartoons">
+            <ShelfRow items={classicAnimationShelf} />
           </Panel>
 
           <Panel

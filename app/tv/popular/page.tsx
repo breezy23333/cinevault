@@ -1,15 +1,68 @@
-import CineImage from "@/components/CineImage";
-import Link from "next/link";
-import { getPopularTv } from "@/lib/fetchers";
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+  Flame,
+  Play,
+  Sparkles,
+  Star,
+  TrendingUp,
+  Tv,
+} from "lucide-react";
+import CineImage from "@/components/CineImage";
+import { getPopularTv } from "@/lib/fetchers";
 
 export const revalidate = 300;
 
+const TOTAL_VISIBLE_PAGES = 20;
+
 export const metadata: Metadata = {
-  title: "Popular TV Shows | CINRYVAN",
+  title: "Popular TV Shows Right Now | CINRYVAN",
   description:
-    "Discover the most popular TV shows streaming right now on CINRYVAN.",
+    "Discover the most popular, watched and talked-about TV shows right now on CINRYVAN.",
+  alternates: { canonical: "/tv/popular" },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: "Popular TV Shows Right Now | CINRYVAN",
+    description:
+      "Explore the television series audiences are discovering right now.",
+    url: "/tv/popular",
+    siteName: "CINRYVAN",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Popular TV Shows on CINRYVAN",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Popular TV Shows Right Now | CINRYVAN",
+    description: "See the most popular television series right now.",
+    images: ["/og-image.png"],
+  },
 };
+
+type Show = {
+  id: number;
+  name?: string;
+  overview?: string;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+  first_air_date?: string;
+  vote_average?: number;
+  vote_count?: number;
+};
+
+const tmdbImage = (path?: string | null, size = "w780") =>
+  path ? `https://image.tmdb.org/t/p/${size}${path}` : null;
 
 export default async function PopularTvPage({
   searchParams,
@@ -17,73 +70,282 @@ export default async function PopularTvPage({
   searchParams?: Promise<{ page?: string }>;
 }) {
   const params = await searchParams;
-  const page = Math.max(1, Number(params?.page || 1));
+  const requestedPage = Number(params?.page || 1);
+  const page = Number.isFinite(requestedPage)
+    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
+    : 1;
 
   const data = await getPopularTv(page);
-  const shows = data?.results || [];
+  const shows: Show[] = Array.isArray(data?.results) ? data.results : [];
+  const spotlight = shows.find((show) => show.backdrop_path) ?? shows[0];
+  const topThree = shows.slice(0, 3);
+  const rankedShows = shows.slice(3);
+  const pageOffset = (page - 1) * 20;
+
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Popular TV Shows",
+    description:
+      "The most popular and talked-about television shows right now.",
+    url: "https://cinryvan.vercel.app/tv/popular",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "CINRYVAN",
+      url: "https://cinryvan.vercel.app",
+    },
+  };
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-28">
-      <h1 className="mb-2 text-4xl font-bold text-white">Popular TV Shows</h1>
+    <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
 
-      <p className="mb-8 text-zinc-400">
-        The most watched and talked-about TV series right now.
-      </p>
+      <section className="relative min-h-[520px] overflow-hidden pt-24 md:pt-28 lg:min-h-[620px]">
+        {spotlight?.backdrop_path && (
+          <Image
+            src={tmdbImage(spotlight.backdrop_path, "original")!}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/78 to-[#05070d]/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#05070d] via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_30%,rgba(59,130,246,0.18),transparent_28%)]" />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
-        {shows.map((show: any) => (
-         <Link
-              key={show.id}
-              href={`/tv/${show.id}`}
-              className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5"
-            >
-              <div className="relative aspect-[2/3] bg-white/5">
-                <CineImage
-                  src={
-                    show.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-                      : null
-                  }
-                  alt={show.name || "TV Show"}
-                  fallback="No poster"
-                  className="object-cover transition duration-300 group-hover:scale-105"
-                />
+        <div className="relative z-10 mx-auto flex min-h-[430px] w-full max-w-[1500px] items-end px-4 pb-14 sm:min-h-[490px] sm:px-6 lg:min-h-[520px] lg:px-10 lg:pb-20">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 border-l-2 border-blue-400 pl-3">
+              <TrendingUp className="h-4 w-4 text-blue-300" />
+              <p className="text-[10px] font-black uppercase tracking-[0.36em] text-blue-300 sm:text-xs">
+                Popularity signal · Page {page}
+              </p>
+            </div>
+
+            <h1 className="mt-5 text-4xl font-black leading-[0.92] sm:text-6xl lg:text-7xl">
+              Popular TV Shows
+            </h1>
+            <p className="mt-5 max-w-2xl text-sm leading-6 text-white/65 sm:text-lg sm:leading-8">
+              The most watched, searched and talked-about television worlds right now.
+            </p>
+
+            {spotlight && (
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href={`/tv/${spotlight.id}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-400 px-6 py-3.5 text-sm font-black text-black transition hover:bg-blue-300"
+                >
+                  <Play className="h-4 w-4" fill="currentColor" />
+                  View #1 show
+                </Link>
+                <Link
+                  href="/tv"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-black/35 px-6 py-3.5 text-sm font-black backdrop-blur-md transition hover:border-blue-400 hover:text-blue-300"
+                >
+                  All TV shows
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
+            )}
+          </div>
+        </div>
+      </section>
 
-              <div className="p-3">
-                <h2 className="line-clamp-1 font-semibold text-white">
-                  {show.name}
-                </h2>
+      <div className="relative mx-auto -mt-5 w-full max-w-[1500px] px-4 sm:px-6 lg:px-10">
+        <section>
+          <div className="mb-6 flex items-end justify-between gap-5 border-l-2 border-blue-400 pl-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.32em] text-blue-300">
+                Popularity podium
+              </p>
+              <h2 className="mt-2 text-2xl font-black sm:text-4xl">
+                Top 3 Right Now
+              </h2>
+            </div>
+            <Flame className="hidden h-7 w-7 text-blue-300 sm:block" />
+          </div>
 
-                <p className="text-sm text-zinc-400">
-                  ⭐ {show.vote_average?.toFixed(1) || "N/A"}
-                </p>
-              </div>
-            </Link> 
+          <div className="grid gap-3 lg:grid-cols-3">
+            {topThree.map((show, index) => (
+              <Link
+                key={show.id}
+                href={`/tv/${show.id}`}
+                className="group relative min-h-[260px] overflow-hidden border border-white/10 bg-[#0a0e17] transition hover:-translate-y-1 hover:border-blue-400/60 sm:min-h-[320px]"
+              >
+                {(show.backdrop_path || show.poster_path) && (
+                  <Image
+                    src={tmdbImage(show.backdrop_path || show.poster_path, "w780")!}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="object-cover opacity-55 transition duration-700 group-hover:scale-105 group-hover:opacity-75"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-5xl font-black text-blue-300 sm:text-6xl">
+                      {String(pageOffset + index + 1).padStart(2, "0")}
+                    </span>
+                    {index === 0 && <Crown className="h-6 w-6 text-yellow-400" />}
+                  </div>
+                  <h3 className="mt-3 text-2xl font-black sm:text-3xl">
+                    {show.name || "Untitled"}
+                  </h3>
+                  <div className="mt-3 flex items-center gap-3 text-xs font-bold text-white/55">
+                    <span>{show.first_air_date?.slice(0, 4) || "TBA"}</span>
+                    {typeof show.vote_average === "number" && (
+                      <span className="inline-flex items-center gap-1 text-blue-300">
+                        <Star className="h-3.5 w-3.5" fill="currentColor" />
+                        {show.vote_average.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12 border-t border-white/10 pt-10 sm:mt-16 sm:pt-14">
+          <div className="flex flex-col gap-3 border-l-2 border-blue-400 pl-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.32em] text-blue-300">
+                Ranked discovery
+              </p>
+              <h2 className="mt-2 text-3xl font-black sm:text-5xl">
+                More Popular Shows
+              </h2>
+            </div>
+            <p className="text-sm font-bold text-white/40">Page {page}</p>
+          </div>
+
+          <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {rankedShows.map((show, index) => {
+              const rank = pageOffset + index + 4;
+              return (
+                <Link
+                  key={show.id}
+                  href={`/tv/${show.id}`}
+                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0e17] transition hover:-translate-y-1 hover:border-blue-400/60"
+                >
+                  <span className="absolute left-2 top-2 z-20 grid h-9 min-w-9 place-items-center rounded-full bg-blue-400 px-2 text-xs font-black text-black shadow-xl">
+                    {rank}
+                  </span>
+                  <div className="relative aspect-[2/3] overflow-hidden bg-white/5">
+                    <CineImage
+                      src={tmdbImage(show.poster_path, "w500")}
+                      alt={show.name || "TV Show"}
+                      fallback="No poster"
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-3 sm:p-4">
+                    <h3 className="line-clamp-2 text-sm font-black sm:text-base">
+                      {show.name || "Untitled"}
+                    </h3>
+                    <div className="mt-2 flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/40">
+                      <span>{show.first_air_date?.slice(0, 4) || "TBA"}</span>
+                      {typeof show.vote_average === "number" && (
+                        <span className="inline-flex items-center gap-1 text-blue-300">
+                          <Star className="h-3 w-3" fill="currentColor" />
+                          {show.vote_average.toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <Pagination currentPage={page} />
+        </section>
+
+        <section className="mt-16 border-t border-white/10 pt-10">
+          <div className="grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["All TV Shows", "/tv", Tv],
+              ["TV Categories", "/categories", Sparkles],
+              ["Top Rated", "/top", Star],
+              ["Trending Now", "/trending", TrendingUp],
+            ].map(([title, href, Icon]) => {
+              const IconComponent = Icon as typeof Tv;
+              return (
+                <Link
+                  key={title as string}
+                  href={href as string}
+                  className="group flex min-h-[120px] items-end justify-between bg-[#080b12] p-5 text-lg font-black transition hover:bg-blue-400 hover:text-black"
+                >
+                  {title as string}
+                  <IconComponent className="h-5 w-5 text-blue-300 group-hover:text-black" />
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Pagination({ currentPage }: { currentPage: number }) {
+  const start = Math.max(
+    1,
+    Math.min(currentPage - 2, TOTAL_VISIBLE_PAGES - 4),
+  );
+  const pages = Array.from({ length: 5 }, (_, index) => start + index);
+
+  return (
+    <nav className="mt-10 flex items-center justify-center gap-2" aria-label="Popular TV pages">
+      <Link
+        href={`/tv/popular?page=${Math.max(1, currentPage - 1)}`}
+        aria-disabled={currentPage === 1}
+        className={`grid h-11 w-11 place-items-center rounded-full border transition ${
+          currentPage === 1
+            ? "pointer-events-none border-white/10 text-white/20"
+            : "border-white/20 text-white hover:border-blue-400 hover:text-blue-300"
+        }`}
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Link>
+
+      <div className="hidden items-center gap-2 sm:flex">
+        {pages.map((number) => (
+          <Link
+            key={number}
+            href={`/tv/popular?page=${number}`}
+            className={`grid h-11 min-w-11 place-items-center rounded-full px-3 text-sm font-black transition ${
+              currentPage === number
+                ? "bg-blue-400 text-black"
+                : "border border-white/15 bg-[#0a0e17] text-white hover:border-blue-400"
+            }`}
+          >
+            {number}
+          </Link>
         ))}
       </div>
 
-      <div className="mt-10 flex items-center justify-center gap-4">
-        {page > 1 && (
-          <Link
-            href={`/tv/popular?page=${page - 1}`}
-            className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold text-white hover:bg-yellow-400 hover:text-black"
-          >
-            ← Previous
-          </Link>
-        )}
+      <span className="grid h-11 min-w-11 place-items-center rounded-full bg-blue-400 px-3 text-sm font-black text-black sm:hidden">
+        {currentPage}
+      </span>
 
-        <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-sm font-black text-yellow-300">
-          Page {page}
-        </span>
-
-        <Link
-          href={`/tv/popular?page=${page + 1}`}
-          className="rounded-full border border-white/10 bg-white/[0.06] px-6 py-3 font-bold text-white hover:bg-yellow-400 hover:text-black"
-        >
-          Next →
-        </Link>
-      </div>
-    </main>
+      <Link
+        href={`/tv/popular?page=${Math.min(TOTAL_VISIBLE_PAGES, currentPage + 1)}`}
+        aria-disabled={currentPage === TOTAL_VISIBLE_PAGES}
+        className={`grid h-11 w-11 place-items-center rounded-full border transition ${
+          currentPage === TOTAL_VISIBLE_PAGES
+            ? "pointer-events-none border-white/10 text-white/20"
+            : "border-blue-400 bg-blue-400 text-black hover:bg-blue-300"
+        }`}
+      >
+        <ChevronRight className="h-5 w-5" />
+      </Link>
+    </nav>
   );
 }

@@ -2,12 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  Play,
-  Star,
-} from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Play, Sparkles, Star } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 type Item = {
   id: number;
@@ -31,280 +27,236 @@ export default function ExpandableHeroCarousel({
   title,
   items,
 }: ExpandableHeroCarouselProps) {
-  const cards = items
-    .filter(
-      (item) => item.backdrop || item.poster,
-    )
-    .slice(0, 7);
+  const cards = useMemo(
+    () =>
+      items
+        .filter((item) => item.id && item.title && (item.backdrop || item.poster))
+        .slice(0, 6),
+    [items],
+  );
 
-  const [activeIndex, setActiveIndex] =
-    useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
 
-  if (!cards.length) {
-    return null;
-  }
+  useEffect(() => {
+    if (activeIndex >= cards.length) setActiveIndex(0);
+  }, [activeIndex, cards.length]);
 
-  const activeCard =
-    cards[activeIndex] ?? cards[0];
+  useEffect(() => {
+    if (paused || cards.length < 2) return;
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % cards.length);
+    }, 7000);
+
+    return () => window.clearInterval(timer);
+  }, [cards.length, paused]);
+
+  if (!cards.length) return null;
+
+  const activeCard = cards[activeIndex] ?? cards[0];
+  const href = `/${activeCard.media}/${activeCard.id}`;
+
+  const previous = () =>
+    setActiveIndex((current) => (current - 1 + cards.length) % cards.length);
+
+  const next = () =>
+    setActiveIndex((current) => (current + 1) % cards.length);
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-yellow-400/25 bg-[#05070d] shadow-[0_30px_100px_rgba(0,0,0,0.5)] md:rounded-[36px]">
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.13),transparent_35%),radial-gradient(circle_at_80%_30%,rgba(99,102,241,0.13),transparent_35%)]" />
-
-      {/* Heading */}
-      <div className="relative z-10 flex flex-col gap-3 px-5 pb-7 pt-8 md:flex-row md:items-end md:justify-between md:px-9 md:pb-9 md:pt-10">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-            {eyebrow}
-          </p>
-
-          <h2 className="mt-2 text-3xl font-black text-white md:text-5xl">
-            {title}
-          </h2>
-        </div>
-
-        <div className="hidden items-center gap-2 text-sm font-semibold text-white/50 md:flex">
-          <span className="h-px w-10 bg-yellow-400/60" />
-          Hover over a line to explore
-        </div>
-      </div>
-
-      {/* Mobile */}
-      <div className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
-        {cards.map((item) => (
-          <Link
+    <section
+      className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#070910] shadow-[0_30px_100px_rgba(0,0,0,0.45)] md:rounded-[34px]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="relative min-h-[470px] overflow-hidden sm:min-h-[520px] lg:min-h-[590px]">
+        {cards.map((item, index) => (
+          <div
             key={`${item.media}-${item.id}`}
-            href={`/${item.media}/${item.id}`}
-            className="group relative h-[390px] w-[280px] shrink-0 snap-center overflow-hidden rounded-[26px] border border-white/15 bg-white/5"
+            aria-hidden={index !== activeIndex}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              index === activeIndex ? "opacity-100" : "opacity-0"
+            }`}
           >
             <Image
               src={item.backdrop || item.poster!}
-              alt={item.title}
+              alt=""
               fill
-              className="object-cover transition duration-700 group-hover:scale-105"
-              sizes="280px"
+              priority={index === 0}
+              sizes="(max-width: 768px) 100vw, 1400px"
+              className="object-cover object-center"
             />
+          </div>
+        ))}
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070910] via-[#070910]/78 to-[#070910]/10 lg:via-[#070910]/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070910] via-transparent to-black/25" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_35%,rgba(250,204,21,0.13),transparent_26%)]" />
 
-            <div className="absolute inset-x-0 bottom-0 p-5">
+        <div className="relative z-10 flex min-h-[470px] flex-col p-5 sm:min-h-[520px] sm:p-7 lg:min-h-[590px] lg:p-10 xl:p-12">
+          <div className="flex items-start justify-between gap-5">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-black/35 px-3 py-1.5 backdrop-blur-md">
+                <Sparkles className="h-3.5 w-3.5 text-yellow-400" />
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-yellow-400 sm:text-xs">
+                  {eyebrow}
+                </p>
+              </div>
+
+              <h2 className="mt-3 text-2xl font-black text-white sm:text-4xl lg:text-5xl">
+                {title}
+              </h2>
+            </div>
+
+            <div className="hidden items-center gap-2 md:flex">
+              <button
+                type="button"
+                onClick={previous}
+                aria-label="Previous animated title"
+                className="grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={next}
+                aria-label="Next animated title"
+                className="grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-md transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-auto grid items-end gap-6 lg:grid-cols-[minmax(0,1fr)_210px] xl:grid-cols-[minmax(0,1fr)_235px]">
+            <div key={`${activeCard.media}-${activeCard.id}`}>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-white/20 bg-black/50 px-3 py-1 text-xs font-bold text-white backdrop-blur">
-                  {item.media === "tv"
-                    ? "TV Series"
-                    : "Movie"}
+                <span className="rounded-full border border-white/20 bg-black/45 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-md sm:text-xs">
+                  {activeCard.media === "tv" ? "TV Series" : "Movie"}
                 </span>
-
-                {item.year && (
-                  <span className="rounded-full border border-white/20 bg-black/50 px-3 py-1 text-xs font-bold text-white backdrop-blur">
-                    {item.year}
+                {activeCard.year && (
+                  <span className="rounded-full border border-white/20 bg-black/45 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-md sm:text-xs">
+                    {activeCard.year}
                   </span>
                 )}
-
-                {typeof item.rating ===
-                  "number" && (
-                  <span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-black text-black">
-                    ★ {item.rating}
+                {typeof activeCard.rating === "number" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-yellow-400 px-3 py-1.5 text-[11px] font-black text-black sm:text-xs">
+                    <Star className="h-3.5 w-3.5" fill="currentColor" />
+                    {activeCard.rating.toFixed(1)}
                   </span>
                 )}
               </div>
 
-              <h3 className="mt-4 line-clamp-2 text-2xl font-black leading-tight text-white">
-                {item.title}
+              <h3 className="mt-4 max-w-3xl text-4xl font-black leading-[0.95] text-white drop-shadow-2xl sm:text-5xl lg:text-6xl xl:text-7xl">
+                {activeCard.title}
               </h3>
+
+              {activeCard.overview && (
+                <p className="mt-4 max-w-2xl text-sm leading-6 text-white/75 line-clamp-2 sm:text-base sm:leading-7 lg:line-clamp-3">
+                  {activeCard.overview}
+                </p>
+              )}
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  href={href}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-5 py-3 text-sm font-black text-black shadow-[0_14px_40px_rgba(250,204,21,0.2)] transition hover:bg-yellow-300 sm:px-6"
+                >
+                  <Play className="h-4 w-4" fill="currentColor" />
+                  View details
+                </Link>
+                <Link
+                  href={href}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-black/35 px-5 py-3 text-sm font-black text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-400 sm:px-6"
+                >
+                  Explore world
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
-          </Link>
-        ))}
+
+            {activeCard.poster && (
+              <Link
+                href={href}
+                className="group relative hidden aspect-[2/3] overflow-hidden rounded-[22px] border border-white/20 bg-white/5 shadow-[0_24px_70px_rgba(0,0,0,0.55)] lg:block"
+              >
+                <Image
+                  src={activeCard.poster}
+                  alt={`${activeCard.title} poster`}
+                  fill
+                  sizes="235px"
+                  className="object-cover transition duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+                <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between bg-black/75 px-4 py-3 text-xs font-black text-white backdrop-blur-md transition group-hover:translate-y-0">
+                  Open title
+                  <ArrowUpRight className="h-4 w-4 text-yellow-400" />
+                </div>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <div className="absolute bottom-5 right-5 z-20 flex gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={previous}
+            aria-label="Previous animated title"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-black/55 text-white backdrop-blur-md"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Next animated title"
+            className="grid h-10 w-10 place-items-center rounded-full bg-yellow-400 text-black"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
-      {/* Desktop expanding panels */}
-      <div className="relative hidden h-[590px] overflow-hidden border-t border-white/10 md:flex">
-        {cards.map((item, index) => {
-          const isActive =
-            index === activeIndex;
-
-          return (
-            <div
+      <div className="relative z-20 border-t border-white/10 bg-[#080a10] p-3 sm:p-4">
+        <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {cards.map((item, index) => (
+            <button
               key={`${item.media}-${item.id}`}
-              onMouseEnter={() =>
-                setActiveIndex(index)
-              }
-              onFocusCapture={() =>
-                setActiveIndex(index)
-              }
-              className={`relative h-full min-w-0 overflow-hidden border-r transition-[flex-basis,flex-grow,opacity,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                isActive
-                  ? "z-20 flex-[1_1_100%] basis-full border-yellow-400/35 opacity-100"
-                  : "z-10 flex-[0_0_22px] basis-[22px] cursor-pointer border-white/20 opacity-65 grayscale-[35%] hover:border-yellow-400 hover:opacity-100 hover:grayscale-0"
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Show ${item.title}`}
+              aria-pressed={index === activeIndex}
+              className={`group relative h-[66px] min-w-[145px] flex-1 overflow-hidden rounded-xl border text-left transition sm:h-[78px] sm:min-w-[175px] ${
+                index === activeIndex
+                  ? "border-yellow-400 bg-yellow-400/10"
+                  : "border-white/10 bg-white/[0.03] hover:border-white/30"
               }`}
             >
               <Image
-                src={
-                  item.backdrop || item.poster!
-                }
-                alt={item.title}
+                src={item.backdrop || item.poster!}
+                alt=""
                 fill
-                priority={index === 0}
-                className={`object-cover transition duration-1000 ${
-                  isActive
-                    ? "scale-100"
-                    : "scale-110"
-                }`}
-                sizes={
-                  isActive
-                    ? "(max-width: 1800px) 90vw, 1600px"
-                    : "80px"
-                }
-              />
-
-              {/* Narrow yellow line */}
-              <div
-                className={`pointer-events-none absolute inset-y-0 left-0 z-20 w-[2px] transition ${
-                  isActive
-                    ? "bg-yellow-400/70"
-                    : "bg-white/20"
+                sizes="200px"
+                className={`object-cover transition duration-500 ${
+                  index === activeIndex
+                    ? "opacity-55"
+                    : "opacity-30 grayscale group-hover:opacity-50 group-hover:grayscale-0"
                 }`}
               />
-
-              {/* Inactive panel indicator */}
-              {!isActive && (
-                <div className="absolute inset-0 z-10 bg-black/45">
-                  <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-yellow-400/65 to-transparent" />
-                </div>
-              )}
-
-              {/* Active content */}
-              <div
-                className={`absolute inset-0 transition-opacity duration-500 ${
-                  isActive
-                    ? "opacity-100 delay-200"
-                    : "pointer-events-none opacity-0"
-                }`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#05070d]/95 via-[#05070d]/52 to-transparent" />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-[#05070d]/95 via-transparent to-black/15" />
-
-                <div className="relative z-10 flex h-full max-w-4xl flex-col justify-end px-10 pb-12 pt-20 lg:px-16 lg:pb-16 xl:px-20">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md">
-                      {item.media === "tv"
-                        ? "TV Series"
-                        : "Movie"}
-                    </span>
-
-                    {item.year && (
-                      <span className="rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md">
-                        {item.year}
-                      </span>
-                    )}
-
-                    {typeof item.rating ===
-                      "number" && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-yellow-400 px-3 py-1.5 text-xs font-black text-black">
-                        <Star
-                          className="h-3.5 w-3.5"
-                          fill="currentColor"
-                        />
-                        {item.rating}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="mt-5 max-w-4xl text-4xl font-black leading-[0.98] text-white drop-shadow-2xl lg:text-6xl xl:text-7xl">
-                    {item.title}
-                  </h3>
-
-                  {item.overview && (
-                    <p className="mt-5 max-w-2xl text-base leading-7 text-white/80 line-clamp-3 lg:text-lg lg:leading-8">
-                      {item.overview}
-                    </p>
-                  )}
-
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    <Link
-                      href={`/${item.media}/${item.id}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 py-3.5 text-sm font-black text-black shadow-[0_15px_40px_rgba(250,204,21,0.22)] transition hover:bg-yellow-300"
-                    >
-                      <Play
-                        className="h-4 w-4"
-                        fill="currentColor"
-                      />
-                      View details
-                    </Link>
-
-                    <Link
-                      href={`/${item.media}/${item.id}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-black/35 px-6 py-3.5 text-sm font-black text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-400"
-                    >
-                      Explore world
-                      <ArrowUpRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Active number */}
-                <div className="absolute right-8 top-8 z-20 text-right">
-                  <p className="text-5xl font-black text-white/15 lg:text-7xl">
-                    {String(index + 1).padStart(
-                      2,
-                      "0",
-                    )}
-                  </p>
-
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-                    Selected world
-                  </p>
-                </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
+              <div className="relative z-10 flex h-full flex-col justify-center px-3">
+                <span
+                  className={`text-[9px] font-black uppercase tracking-[0.2em] ${
+                    index === activeIndex ? "text-yellow-400" : "text-white/45"
+                  }`}
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="mt-1 line-clamp-1 text-xs font-black text-white sm:text-sm">
+                  {item.title}
+                </span>
               </div>
-
-              {/* Invisible accessible hover target */}
-              {!isActive && (
-                <button
-                  type="button"
-                  aria-label={`Open ${item.title}`}
-                  onClick={() =>
-                    setActiveIndex(index)
-                  }
-                  className="absolute inset-0 z-30 cursor-pointer"
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Selected-title navigation */}
-      <div className="relative hidden items-center justify-between border-t border-white/10 bg-black/30 px-9 py-4 md:flex">
-        <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-yellow-400">
-            Currently viewing
-          </p>
-
-          <p className="mt-1 truncate font-bold text-white">
-            {activeCard.title}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {cards.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-label={`Open ${item.title}`}
-              onMouseEnter={() =>
-                setActiveIndex(index)
-              }
-              onClick={() =>
-                setActiveIndex(index)
-              }
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === activeIndex
-                  ? "w-9 bg-yellow-400"
-                  : "w-2 bg-white/25 hover:bg-white/60"
-              }`}
-            />
+            </button>
           ))}
         </div>
       </div>
