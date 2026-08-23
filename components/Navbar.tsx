@@ -69,7 +69,7 @@ const NAV_GROUPS = [
 
   {
   label: "Browse",
-  href: "/search",
+  href: "/browse",
   dropdown: [
     { label: "Search", href: "/search" },
     { label: "Rooms", href: "/rooms" },
