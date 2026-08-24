@@ -24,43 +24,73 @@ export const revalidate = 300;
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TOTAL_VISIBLE_PAGES = 20;
 const MAX_SHELF = 16;
+const SITE_URL = "https://cinryvan.vercel.app";
+const TRENDING_URL = `${SITE_URL}/trending`;
 
-export const metadata: Metadata = {
-  title: "Trending Movies Right Now | CINRYVAN",
-  description:
-    "See which movies are gaining attention around the world right now, including daily breakouts, weekly momentum and popular cinema on CINRYVAN.",
-  keywords: [
-    "trending movies",
-    "popular movies today",
-    "movies trending now",
-    "what to watch",
-    "viral movies",
-    "CINRYVAN trending",
-  ],
-  alternates: { canonical: "/trending" },
-  openGraph: {
-    title: "Trending Movies Right Now | CINRYVAN",
-    description:
-      "Explore daily movie breakouts and worldwide cinema momentum.",
-    url: "/trending",
-    siteName: "CINRYVAN",
-    images: [
-      {
+type TrendingPageProps = {
+  searchParams?: Promise<{ page?: string }>;
+};
+
+function normalizePage(value?: string) {
+  const page = Number(value || 1);
+  return Number.isFinite(page)
+    ? Math.min(Math.max(Math.trunc(page), 1), TOTAL_VISIBLE_PAGES)
+    : 1;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: TrendingPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const page = normalizePage(params?.page);
+  const canonical =
+    page === 1 ? TRENDING_URL : `${TRENDING_URL}?page=${page}`;
+  const pageSuffix = page > 1 ? ` — Page ${page}` : "";
+  const title = `Trending Movies Right Now & What to Watch${pageSuffix}`;
+  const description =
+    page === 1
+      ? "See the movies trending worldwide right now, including daily breakouts, weekly momentum, ratings, trailers and popular cinema worth watching."
+      : `Browse page ${page} of movies trending worldwide, daily breakouts, audience favourites and popular cinema on CINRYVAN.`;
+
+  return {
+    title,
+    description,
+    category: "Trending Movies",
+    alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    openGraph: {
+      title: `${title} | CINRYVAN`,
+      description,
+      url: canonical,
+      siteName: "CINRYVAN",
+      locale: "en_US",
+      images: [{
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Trending Movies on CINRYVAN",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Trending Movies Right Now | CINRYVAN",
-    description: "See the movies gaining attention around the world.",
-    images: ["/og-image.png"],
-  },
-};
+        alt: "Trending movies on CINRYVAN",
+      }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | CINRYVAN`,
+      description,
+      images: ["/og-image.png"],
+    },
+  };
+}
 
 type Movie = {
   id: number;
@@ -140,19 +170,16 @@ const toShelf = (movies: Movie[]) =>
         typeof movie.vote_average === "number"
           ? Math.round(movie.vote_average * 10) / 10
           : undefined,
+      voteCount:
+        typeof movie.vote_count === "number" ? movie.vote_count : undefined,
       href: `/movie/${movie.id}`,
     }));
 
 export default async function TrendingPage({
   searchParams,
-}: {
-  searchParams?: Promise<{ page?: string }>;
-}) {
+}: TrendingPageProps) {
   const params = await searchParams;
-  const requestedPage = Number(params?.page || 1);
-  const page = Number.isFinite(requestedPage)
-    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
-    : 1;
+  const page = normalizePage(params?.page);
 
   const [daily, weekly, popular, upcoming, action] = await Promise.all([
     tmdb(`/trending/movie/day?language=en-US&page=${page}`),
@@ -174,6 +201,8 @@ export default async function TrendingPage({
   const breakouts = movies.slice(0, 5);
   const trendingGrid = movies.slice(5);
   const pageOffset = (page - 1) * 20;
+  const pageUrl =
+    page === 1 ? TRENDING_URL : `${TRENDING_URL}?page=${page}`;
 
   const shelves = [
     {
@@ -205,18 +234,19 @@ export default async function TrendingPage({
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    "@id": `${pageUrl}#breadcrumb`,
     itemListElement: [
       {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://cinryvan.vercel.app",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Trending Movies",
-        item: "https://cinryvan.vercel.app/trending",
+        item: pageUrl,
       },
     ],
   };
@@ -224,26 +254,77 @@ export default async function TrendingPage({
   const trendingJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Trending Movies",
+    "@id": `${pageUrl}#collection`,
+    name:
+      page === 1 ? "Trending Movies" : `Trending Movies — Page ${page}`,
     description:
       "Discover movies gaining global attention and audience momentum right now.",
-    url: "https://cinryvan.vercel.app/trending",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
-    },
+    url: pageUrl,
+    breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    mainEntity: { "@id": `${pageUrl}#movies` },
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+  };
+
+  const movieListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#movies`,
+    name: `Trending movies — page ${page}`,
+    numberOfItems: movies.length,
+    itemListElement: movies.map((movie, index) => {
+      const rating =
+        typeof movie.vote_average === "number"
+          ? Math.round(movie.vote_average * 10) / 10
+          : undefined;
+
+      return {
+        "@type": "ListItem",
+        position: pageOffset + index + 1,
+        item: {
+          "@type": "Movie",
+          name: movie.title || "Untitled",
+          url: `${SITE_URL}/movie/${movie.id}`,
+          image:
+            tmdbImage(movie.poster_path, "w780") ||
+            tmdbImage(movie.backdrop_path, "w1280") ||
+            undefined,
+          dateCreated: movie.release_date || undefined,
+          aggregateRating:
+            typeof rating === "number" &&
+            typeof movie.vote_count === "number" &&
+            movie.vote_count > 0
+              ? {
+                  "@type": "AggregateRating",
+                  ratingValue: rating,
+                  ratingCount: movie.vote_count,
+                  bestRating: 10,
+                  worstRating: 0,
+                }
+              : undefined,
+        },
+      };
+    }),
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(trendingJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(trendingJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(movieListJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[550px] overflow-hidden pt-24 md:pt-28 lg:min-h-[680px]">

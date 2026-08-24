@@ -23,7 +23,7 @@ import {
 } from "@/lib/fetchers";
 
 export const runtime = "nodejs";
-export const revalidate = 300;
+export const revalidate = 86400;
 
 const SITE_URL = "https://cinryvan.vercel.app";
 
@@ -78,6 +78,35 @@ function pickTrailer(videos: TMDBVideo[]) {
 function formatEpisodeRuntime(values?: number[]) {
   const minutes = Array.isArray(values) ? values.find((value) => value > 0) : null;
   return minutes ? `${minutes} min episodes` : null;
+}
+
+function cleanSeoText(value?: string | null) {
+  return (value || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function truncateSeoText(value: string, maximumLength = 158) {
+  if (value.length <= maximumLength) return value;
+
+  const shortened = value
+    .slice(0, maximumLength - 1)
+    .replace(/\s+\S*$/, "")
+    .replace(/[,:;.!?\s]+$/, "");
+
+  return `${shortened}…`;
+}
+
+function toIsoDuration(minutes?: number | null) {
+  if (!minutes || minutes < 1) return undefined;
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  return `PT${hours ? `${hours}H` : ""}${
+    remainingMinutes ? `${remainingMinutes}M` : ""
+  }`;
 }
 
 export default async function TvPage({ params }: PageProps) {
@@ -160,17 +189,149 @@ export default async function TvPage({ params }: PageProps) {
     )
     .slice(0, 6);
 
+    const tvImages = Array.from(
+    new Set(
+      [poster, backdrop]
+        .filter(Boolean) as string[],
+    ),
+  );
+
+  const imdbId =
+    details.external_ids?.imdb_id ||
+    null;
+
+  const episodeMinutes =
+    Array.isArray(details.episode_run_time)
+      ? details.episode_run_time.find(
+          (value: number) => value > 0,
+        )
+      : null;
+
+  const firstAirYear =
+    details.first_air_date?.slice(0, 4) || "";
+
+  const lastAirYear =
+    details.last_air_date?.slice(0, 4) || "";
+
   const tvJsonLd = {
     "@context": "https://schema.org",
     "@type": "TVSeries",
+    "@id": `${SITE_URL}/tv/${id}#series`,
+
     name: title,
-    description: details.overview,
-    image: poster,
+
+    alternateName:
+      details.original_name &&
+      details.original_name !== title
+        ? details.original_name
+        : undefined,
+
+    description:
+      cleanSeoText(details.overview) ||
+      `Discover ${title} on CINRYVAN.`,
+
     url: `${SITE_URL}/tv/${id}`,
-    genre: genres.map((genre: any) => genre.name),
-    datePublished: details.first_air_date,
-    numberOfSeasons: details.number_of_seasons,
-    numberOfEpisodes: details.number_of_episodes,
+    mainEntityOfPage: `${SITE_URL}/tv/${id}`,
+
+    image:
+      tvImages.length > 0
+        ? tvImages
+        : [`${SITE_URL}/og-image.png`],
+
+    thumbnailUrl:
+      poster ||
+      backdrop ||
+      `${SITE_URL}/og-image.png`,
+
+    datePublished:
+      details.first_air_date || undefined,
+
+    startDate:
+      details.first_air_date || undefined,
+
+    endDate:
+      details.status === "Ended"
+        ? details.last_air_date || undefined
+        : undefined,
+
+    duration:
+      toIsoDuration(episodeMinutes),
+
+    genre:
+      genres.map((genre: any) => genre.name),
+
+    inLanguage:
+      details.original_language || undefined,
+
+    numberOfSeasons:
+      details.number_of_seasons || undefined,
+
+    numberOfEpisodes:
+      details.number_of_episodes || undefined,
+
+    sameAs:
+      imdbId
+        ? `https://www.imdb.com/title/${imdbId}/`
+        : undefined,
+
+    creator:
+      creators.map((person: any) => ({
+        "@type": "Person",
+        name: person.name,
+      })),
+
+    actor:
+      cast.slice(0, 10).map((person) => ({
+        "@type": "Person",
+        name: person.name,
+        url: `${SITE_URL}/person/${person.id}`,
+        characterName:
+          person.character || undefined,
+      })),
+
+    productionCompany:
+      studios.map((studio: any) => ({
+        "@type": "Organization",
+        name: studio.name,
+      })),
+
+    containsSeason:
+      seasons
+        .filter(
+          (season: any) =>
+            typeof season.season_number === "number",
+        )
+        .slice(0, 30)
+        .map((season: any) => ({
+          "@type": "TVSeason",
+          name:
+            season.name ||
+            `Season ${season.season_number}`,
+          seasonNumber: season.season_number,
+          numberOfEpisodes:
+            season.episode_count || undefined,
+          datePublished:
+            season.air_date || undefined,
+          url:
+            `${SITE_URL}/tv/${id}#season-${season.season_number}`,
+        })),
+
+    trailer:
+      trailerKey
+        ? {
+            "@type": "VideoObject",
+            name: `${title} official trailer`,
+            description:
+              `Watch the official trailer for ${title}.`,
+            thumbnailUrl:
+              `https://i.ytimg.com/vi/${trailerKey}/hqdefault.jpg`,
+            embedUrl:
+              `https://www.youtube-nocookie.com/embed/${trailerKey}`,
+            contentUrl:
+              `https://www.youtube.com/watch?v=${trailerKey}`,
+          }
+        : undefined,
+
     aggregateRating:
       rating && details.vote_count > 0
         ? {
@@ -181,6 +342,21 @@ export default async function TvPage({ params }: PageProps) {
             worstRating: 0,
           }
         : undefined,
+
+    temporalCoverage:
+      firstAirYear
+        ? lastAirYear && lastAirYear !== firstAirYear
+          ? `${firstAirYear}/${lastAirYear}`
+          : firstAirYear
+        : undefined,
+
+    isPartOf: {
+      "@id": `${SITE_URL}/#website`,
+    },
+
+    publisher: {
+      "@id": `${SITE_URL}/#organization`,
+    },
   };
 
   const breadcrumbJsonLd = {
@@ -693,70 +869,173 @@ function TagGroup({ title, items }: { title: string; items: any[] }) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { id } = await params;
+
+  if (!/^\d+$/.test(id)) {
+    return {
+      title: "TV Show Not Found",
+      description: "The requested TV show could not be found on CINRYVAN.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const tvId = Number(id);
+
+  if (!Number.isSafeInteger(tvId) || tvId < 1) {
+    return {
+      title: "TV Show Not Found",
+      description: "The requested TV show could not be found on CINRYVAN.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const canonical = `${SITE_URL}/tv/${tvId}`;
+
   try {
-    const { id } = await params;
-    if (!/^\d+$/.test(id)) {
+    const tv = await withTimeout(
+      getTVDetails(tvId),
+      10000,
+      "TV metadata",
+    );
+
+    if (!tv) {
       return {
         title: "TV Show Not Found",
-        robots: { index: false, follow: false },
+        description: "The requested TV show could not be found on CINRYVAN.",
+        alternates: {
+          canonical,
+        },
+        robots: {
+          index: false,
+          follow: false,
+        },
       };
     }
 
-    const tvId = Number(id);
-    if (!Number.isSafeInteger(tvId) || tvId < 1) {
-      return {
-        title: "TV Show Not Found",
-        robots: { index: false, follow: false },
-      };
-    }
+    const tvTitle = cleanSeoText(
+      tv.name || tv.original_name || "TV Show",
+    );
 
-    const tv = await getTVDetails(tvId);
-    const tvTitle = tv.name || tv.original_name || "TV Show";
     const year = tv.first_air_date?.slice(0, 4) || "";
-    const displayTitle = `${tvTitle}${year ? ` (${year})` : ""}`;
-    const pageTitle = `${displayTitle} — Cast, Seasons & Where to Watch`;
-    const seoIntro = `Explore ${displayTitle}: cast, seasons, episodes, trailer, ratings and where to watch on CINRYVAN.`;
-    const fullDescription = tv.overview?.trim()
-      ? `${seoIntro} ${tv.overview.trim()}`
-      : seoIntro;
-    const description =
-      fullDescription.length > 160
-        ? `${fullDescription.slice(0, 157).replace(/\s+\S*$/, "")}...`
-        : fullDescription;
-    const image = tv.backdrop_path
-      ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}`
-      : tv.poster_path
-        ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
-        : `${SITE_URL}/og-image.png`;
-    const canonical = `${SITE_URL}/tv/${id}`;
+
+    const displayTitle = year
+      ? `${tvTitle} (${year})`
+      : tvTitle;
+
+    /*
+     * Root layout automatically adds: | CINRYVAN
+     */
+    const pageTitle = `${displayTitle}: Where to Watch`;
+
+    const overview = cleanSeoText(tv.overview);
+    const tagline = cleanSeoText(tv.tagline);
+
+    const seasonCount =
+      typeof tv.number_of_seasons === "number" &&
+      tv.number_of_seasons > 0
+        ? `${tv.number_of_seasons} ${
+            tv.number_of_seasons === 1 ? "season" : "seasons"
+          }`
+        : "seasons and episodes";
+
+    const discoveryText =
+      `See the cast, trailer, ratings, ${seasonCount} and where to watch ${displayTitle} on CINRYVAN.`;
+
+    const descriptionSource = overview
+      ? `${overview} ${discoveryText}`
+      : tagline
+        ? `${tagline}. ${discoveryText}`
+        : discoveryText;
+
+    const description = truncateSeoText(
+      descriptionSource,
+      158,
+    );
+
+    const backdropImage = tv.backdrop_path
+      ? `https://image.tmdb.org/t/p/w1280${tv.backdrop_path}`
+      : null;
+
+    const posterImage = tv.poster_path
+      ? `https://image.tmdb.org/t/p/w780${tv.poster_path}`
+      : null;
+
+    const socialImage =
+      backdropImage ||
+      posterImage ||
+      `${SITE_URL}/og-image.png`;
 
     return {
       title: pageTitle,
       description,
-      robots: { index: true, follow: true },
-      alternates: { canonical },
+
+      category: "Entertainment",
+
+      alternates: {
+        canonical,
+      },
+
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          noimageindex: false,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      },
+
       openGraph: {
         title: `${pageTitle} | CINRYVAN`,
         description,
         url: canonical,
         siteName: "CINRYVAN",
-        images: [{ url: image, alt: `${displayTitle} TV series` }],
-        locale: "en_US",
         type: "video.tv_show",
+        locale: "en_US",
+        images: [
+          {
+            url: socialImage,
+            alt: `${displayTitle} — TV series details on CINRYVAN`,
+          },
+        ],
       },
+
       twitter: {
         card: "summary_large_image",
         title: `${pageTitle} | CINRYVAN`,
         description,
-        images: [image],
+        images: [
+          {
+            url: socialImage,
+            alt: `${displayTitle} — TV series details on CINRYVAN`,
+          },
+        ],
       },
     };
   } catch {
     return {
-      title: "Discover TV Shows",
+      title: `TV Show ${tvId}: Details and Where to Watch`,
       description:
-        "Explore TV series, casts, seasons, episodes, trailers, ratings and where to watch on CINRYVAN.",
+        "Discover TV show trailers, casts, seasons, episodes, ratings and watch options on CINRYVAN.",
+      alternates: {
+        canonical,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
     };
   }
 }

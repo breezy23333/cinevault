@@ -53,6 +53,28 @@ function formatReleaseDate(date?: string | null) {
   });
 }
 
+function cleanSeoText(value?: string | null) {
+  return (value || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function truncateSeoText(value: string, maximumLength = 158) {
+  if (value.length <= maximumLength) return value;
+
+  const shortened = value
+    .slice(0, maximumLength - 1)
+    .replace(/\s+\S*$/, "")
+    .replace(/[,:;.!?\s]+$/, "");
+
+  return `${shortened}…`;
+}
+
 function getStoreSearchUrl(storeName: string, gameName: string) {
   const store = storeName.toLowerCase();
   const query = encodeURIComponent(gameName);
@@ -68,53 +90,162 @@ function getStoreSearchUrl(storeName: string, gameName: string) {
   return `https://www.google.com/search?q=${encodeURIComponent(`${gameName} buy on ${storeName}`)}`;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const game = await getGameDetails(id);
 
-  if (!game) {
+  if (!/^\d+$/.test(id)) {
     return {
-      title: "Game Not Found | CINRYVAN",
-      description: "The requested game could not be found.",
-      robots: { index: false, follow: false },
+      title: "Game Not Found",
+      description: "The requested game could not be found on CINRYVAN.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
-  const plainDescription = game.description_raw?.replace(/\s+/g, " ").trim();
-  const description =
-    plainDescription?.slice(0, 155) ||
-    `Discover ${game.name}, trailers, screenshots, platforms, ratings and where to play on CINRYVAN.`;
-  const title = `${game.name} | Trailers, Ratings & Where to Play | CINRYVAN`;
-  const canonicalUrl = `${SITE_URL}/games/${game.id}`;
-  const socialImage = game.background_image || DEFAULT_OG_IMAGE;
+  const gameId = Number(id);
 
-  return {
-    title,
-    description,
-    keywords: [
-      game.name,
-      `${game.name} game`,
-      "video games",
-      "game trailers",
-      "game ratings",
-      "game screenshots",
-      "where to play games",
-      ...(game.genres?.map((genre) => `${genre.name} games`) || []),
-      ...(game.platforms?.map((item) => `${item.platform.name} games`) || []),
-      "CINRYVAN Gaming",
-    ],
-    alternates: { canonical: canonicalUrl },
-    openGraph: {
-      title,
+  if (!Number.isSafeInteger(gameId) || gameId < 1) {
+    return {
+      title: "Game Not Found",
+      description: "The requested game could not be found on CINRYVAN.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const canonicalUrl = `${SITE_URL}/games/${gameId}`;
+
+  try {
+    const game = await getGameDetails(String(gameId));
+
+    if (!game) {
+      return {
+        title: "Game Not Found",
+        description: "The requested game could not be found on CINRYVAN.",
+        alternates: {
+          canonical: canonicalUrl,
+        },
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    const gameName = cleanSeoText(game.name || "Video Game");
+    const year = game.released?.slice(0, 4) || "";
+
+    const displayTitle = year
+      ? `${gameName} (${year})`
+      : gameName;
+
+    /*
+     * The root layout automatically adds:
+     * | CINRYVAN
+     */
+    const pageTitle =
+      `${displayTitle}: Platforms & Where to Play`;
+
+    const gameDescription = cleanSeoText(
+      game.description_raw,
+    );
+
+    const platformNames =
+      game.platforms
+        ?.map((item) => item.platform.name)
+        .filter(Boolean)
+        .slice(0, 4) || [];
+
+    const platformText =
+      platformNames.length > 0
+        ? ` Available for ${platformNames.join(", ")}.`
+        : "";
+
+    const discoveryText =
+      `See trailers, screenshots, ratings, release details and where to play ${displayTitle} on CINRYVAN.${platformText}`;
+
+    const description = truncateSeoText(
+      gameDescription
+        ? `${gameDescription} ${discoveryText}`
+        : discoveryText,
+      158,
+    );
+
+    const socialImage =
+      game.background_image ||
+      game.background_image_additional ||
+      DEFAULT_OG_IMAGE;
+
+    return {
+      title: pageTitle,
       description,
-      url: canonicalUrl,
-      siteName: "CINRYVAN",
-      type: "website",
-      images: [{ url: socialImage, alt: `${game.name} game artwork` }],
-    },
-    twitter: { card: "summary_large_image", title, description, images: [socialImage] },
-    robots: { index: true, follow: true },
-  };
+
+      category: "Video Games",
+
+      alternates: {
+        canonical: canonicalUrl,
+      },
+
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          noimageindex: false,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      },
+
+      openGraph: {
+        title: `${pageTitle} | CINRYVAN`,
+        description,
+        url: canonicalUrl,
+        siteName: "CINRYVAN",
+        type: "website",
+        locale: "en_US",
+        images: [
+          {
+            url: socialImage,
+            alt: `${displayTitle} game artwork`,
+          },
+        ],
+      },
+
+      twitter: {
+        card: "summary_large_image",
+        title: `${pageTitle} | CINRYVAN`,
+        description,
+        images: [
+          {
+            url: socialImage,
+            alt: `${displayTitle} game artwork`,
+          },
+        ],
+      },
+    };
+  } catch {
+    return {
+      title: `Game ${gameId}: Platforms and Details`,
+      description:
+        "Discover game trailers, screenshots, platforms, ratings, release information and where to play on CINRYVAN.",
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  }
 }
 
 export default async function GameDetailsPage({ params }: PageProps) {
@@ -135,37 +266,87 @@ export default async function GameDetailsPage({ params }: PageProps) {
     game.description_raw || "A complete description is not currently available.";
   const pageUrl = `${SITE_URL}/games/${game.id}`;
 
-  const jsonLd = {
+  const gameImages = Array.from(
+    new Set(
+      [
+        game.background_image,
+        game.background_image_additional,
+        ...screenshots.slice(0, 6).map((item) => item.image),
+      ].filter(Boolean) as string[],
+    ),
+  );
+
+  const developers = Array.isArray(game.developers) ? game.developers : [];
+  const publishers = Array.isArray(game.publishers) ? game.publishers : [];
+
+  const gameJsonLd = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
+    "@id": `${pageUrl}#game`,
     name: game.name,
+    description:
+      cleanSeoText(game.description_raw).slice(0, 500) ||
+      `Discover ${game.name} on CINRYVAN.`,
     url: pageUrl,
-    description: description.slice(0, 500),
-    image: [
-      game.background_image,
-      game.background_image_additional,
-      ...screenshots.slice(0, 4).map((item) => item.image),
-    ].filter(Boolean),
+    mainEntityOfPage: pageUrl,
+    image: gameImages.length > 0 ? gameImages : [DEFAULT_OG_IMAGE],
+    screenshot: screenshots
+      .slice(0, 6)
+      .map((item) => item.image)
+      .filter(Boolean),
     datePublished: game.released || undefined,
     genre: game.genres?.map((genre) => genre.name),
     gamePlatform: platforms.map((item) => item.platform.name),
-    author: game.developers?.map((developer) => ({
+    operatingSystem: platforms.map((item) => item.platform.name),
+    applicationCategory: "Game",
+    contentRating: game.esrb_rating?.name || undefined,
+    author: developers.map((developer) => ({
       "@type": "Organization",
       name: developer.name,
     })),
-    publisher: game.publishers?.map((publisher) => ({
+    publisher: publishers.map((publisher) => ({
       "@type": "Organization",
       name: publisher.name,
     })),
+    sameAs: game.website || undefined,
     aggregateRating:
       game.rating > 0 && game.ratings_count > 0
         ? {
             "@type": "AggregateRating",
             ratingValue: game.rating,
             bestRating: game.rating_top || 5,
+            worstRating: 0,
             ratingCount: game.ratings_count,
           }
         : undefined,
+    isPartOf: {
+      "@id": `${SITE_URL}/#website`,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Games",
+        item: `${SITE_URL}/games`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: game.name,
+        item: pageUrl,
+      },
+    ],
   };
 
   return (
@@ -173,7 +354,19 @@ export default async function GameDetailsPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(gameJsonLd).replace(
+            /</g,
+            "\\u003c",
+          ),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd,
+          ).replace(/</g, "\\u003c"),
         }}
       />
 

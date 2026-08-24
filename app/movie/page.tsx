@@ -23,47 +23,74 @@ export const revalidate = 3600;
 const TOTAL_VISIBLE_PAGES = 20;
 const MAX_SHELF = 16;
 const TMDB_BASE = "https://api.themoviedb.org/3";
+const SITE_URL = "https://cinryvan.vercel.app";
+const MOVIES_URL = `${SITE_URL}/movie`;
 
-export const metadata: Metadata = {
-  title: "Movies – Trending, Popular & Upcoming Films | CINRYVAN",
-  description:
-    "Browse popular movies, trending films, top-rated cinema, upcoming releases, action, horror, science fiction and movie recommendations on CINRYVAN.",
-  keywords: [
-    "movies",
-    "popular movies",
-    "trending movies",
-    "top rated movies",
-    "upcoming movies",
-    "action movies",
-    "horror movies",
-    "science fiction movies",
-    "CINRYVAN movies",
-  ],
-  alternates: { canonical: "/movie" },
-  openGraph: {
-    title: "Movies – Trending, Popular & Upcoming Films | CINRYVAN",
-    description:
-      "Explore trending, popular, top-rated and upcoming movies on CINRYVAN.",
-    url: "/movie",
-    siteName: "CINRYVAN",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CINRYVAN Movies",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Movies – Trending, Popular & Upcoming Films | CINRYVAN",
-    description:
-      "Discover popular movies, top-rated cinema and upcoming releases.",
-    images: ["/og-image.png"],
-  },
+type MoviesPageProps = {
+  searchParams?: Promise<{ page?: string }>;
 };
+
+function normalizePage(value?: string) {
+  const requestedPage = Number(value || 1);
+  return Number.isFinite(requestedPage)
+    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
+    : 1;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: MoviesPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const page = normalizePage(params?.page);
+  const canonical = page === 1 ? MOVIES_URL : `${MOVIES_URL}?page=${page}`;
+  const pageSuffix = page > 1 ? ` — Page ${page}` : "";
+  const pageTitle = `Popular Movies, New Releases & What to Watch${pageSuffix}`;
+  const description =
+    page === 1
+      ? "Discover popular and trending movies, new releases, top-rated films, upcoming cinema, action, horror and science-fiction picks on CINRYVAN."
+      : `Browse page ${page} of popular movies with ratings, release years and direct links to trailers, casts and watch options on CINRYVAN.`;
+
+  return {
+    title: pageTitle,
+    description,
+    category: "Movies",
+    alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    openGraph: {
+      title: `${pageTitle} | CINRYVAN`,
+      description,
+      url: canonical,
+      siteName: "CINRYVAN",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Popular and trending movies on CINRYVAN",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${pageTitle} | CINRYVAN`,
+      description,
+      images: ["/og-image.png"],
+    },
+  };
+}
 
 type Movie = {
   id: number;
@@ -159,14 +186,9 @@ const movieChannels = [
 
 export default async function MoviesPage({
   searchParams,
-}: {
-  searchParams?: Promise<{ page?: string }>;
-}) {
+}: MoviesPageProps) {
   const params = await searchParams;
-  const requestedPage = Number(params?.page || 1);
-  const page = Number.isFinite(requestedPage)
-    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
-    : 1;
+  const page = normalizePage(params?.page);
 
   const [
     popular,
@@ -211,25 +233,85 @@ export default async function MoviesPage({
     { id: "upcoming", eyebrow: "Coming soon", title: "Upcoming Movies", items: toShelf(upcoming.results) },
   ];
 
+  const pageUrl = page === 1 ? MOVIES_URL : `${MOVIES_URL}?page=${page}`;
+  const popularMovies = uniqueMovies(popular.results);
+
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Movies on CINRYVAN",
+    "@id": `${pageUrl}#collection`,
+    name: page === 1 ? "Popular Movies on CINRYVAN" : `Popular Movies — Page ${page}`,
     description:
       "Browse popular, trending, top-rated and upcoming movies on CINRYVAN.",
-    url: "https://cinryvan.vercel.app/movie",
+    url: pageUrl,
+    mainEntity: { "@id": `${pageUrl}#movies` },
     isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
+      "@id": `${SITE_URL}/#website`,
     },
+  };
+
+  const moviesJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#movies`,
+    name: `Popular movies — page ${page}`,
+    numberOfItems: popularMovies.length,
+    itemListElement: popularMovies.map((movie, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Movie",
+        name: movie.title,
+        url: `${SITE_URL}/movie/${movie.id}`,
+        image:
+          tmdbImage(movie.poster_path, "w500") ||
+          tmdbImage(movie.backdrop_path, "w780") ||
+          undefined,
+        datePublished: movie.release_date || undefined,
+        aggregateRating:
+          typeof movie.vote_average === "number" &&
+          movie.vote_average > 0 &&
+          (movie.vote_count || 0) > 0
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: movie.vote_average,
+                ratingCount: movie.vote_count,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+      },
+    })),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Movies", item: pageUrl },
+    ],
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(moviesJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[600px] overflow-hidden pt-24 md:pt-28 lg:min-h-[750px]">

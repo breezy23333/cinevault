@@ -17,47 +17,74 @@ export const revalidate = 3600;
 
 const MAX_SHELF = 16;
 const TOTAL_PAGES = 20;
+const SITE_URL = "https://cinryvan.vercel.app";
+const ANIME_URL = `${SITE_URL}/anime`;
 
-export const metadata: Metadata = {
-  title: "Best Anime Series & Movies | CINRYVAN",
-  description:
-    "Discover trending anime, Japanese series, anime movies, action, fantasy, romance, comedy, and supernatural worlds on CINRYVAN.",
-  keywords: [
-    "anime",
-    "best anime",
-    "anime movies",
-    "anime series",
-    "trending anime",
-    "Japanese animation",
-    "action anime",
-    "fantasy anime",
-    "CINRYVAN anime",
-  ],
-  alternates: { canonical: "/anime" },
-  openGraph: {
-    title: "Best Anime Series & Movies | CINRYVAN",
-    description:
-      "Explore trending anime, action, fantasy, romance, anime movies and Japanese animation on CINRYVAN.",
-    url: "/anime",
-    siteName: "CINRYVAN",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CINRYVAN Anime",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Best Anime Series & Movies | CINRYVAN",
-    description:
-      "Discover anime series, movies, action, fantasy and Japanese animation.",
-    images: ["/og-image.png"],
-  },
+type AnimePageProps = {
+  searchParams: Promise<{ page?: string }>;
 };
+
+function normalizePage(value?: string) {
+  const requestedPage = Number(value || 1);
+  return Number.isFinite(requestedPage)
+    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_PAGES)
+    : 1;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: AnimePageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const page = normalizePage(params.page);
+  const canonical = page === 1 ? ANIME_URL : `${ANIME_URL}?page=${page}`;
+  const pageSuffix = page > 1 ? ` — Page ${page}` : "";
+  const pageTitle = `Best Anime Series, Movies & What to Watch${pageSuffix}`;
+  const description =
+    page === 1
+      ? "Discover trending Japanese anime series and movies, action, fantasy, romance, comedy, supernatural stories and classic animation on CINRYVAN."
+      : `Browse page ${page} of Japanese anime series with posters, ratings, release years and links to trailers, casts, seasons and watch options on CINRYVAN.`;
+
+  return {
+    title: pageTitle,
+    description,
+    category: "Anime",
+    alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    openGraph: {
+      title: `${pageTitle} | CINRYVAN`,
+      description,
+      url: canonical,
+      siteName: "CINRYVAN",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Anime series and movies on CINRYVAN",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${pageTitle} | CINRYVAN`,
+      description,
+      images: ["/og-image.png"],
+    },
+  };
+}
 
 type MediaType = "movie" | "tv";
 
@@ -165,6 +192,8 @@ const toShelfItem = (item: TmdbItem, media: MediaType = "tv") => ({
     typeof item.vote_average === "number"
       ? Math.round(item.vote_average * 10) / 10
       : undefined,
+  voteCount:
+    typeof item.vote_count === "number" ? item.vote_count : undefined,
   href: `/${media}/${item.id}`,
 });
 
@@ -187,14 +216,9 @@ const animeCategories = [
 
 export default async function AnimePage({
   searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
+}: AnimePageProps) {
   const params = await searchParams;
-  const requestedPage = Number(params.page || 1);
-  const currentPage = Number.isFinite(requestedPage)
-    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_PAGES)
-    : 1;
+  const currentPage = normalizePage(params.page);
 
   const [
     trending,
@@ -246,6 +270,9 @@ export default async function AnimePage({
     .filter((item) => item.poster_path)
     .map((item) => toShelfItem(item));
 
+  const pageUrl =
+    currentPage === 1 ? ANIME_URL : `${ANIME_URL}?page=${currentPage}`;
+
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -254,13 +281,13 @@ export default async function AnimePage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://cinryvan.vercel.app",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Anime",
-        item: "https://cinryvan.vercel.app/anime",
+        item: pageUrl,
       },
     ],
   };
@@ -268,26 +295,70 @@ export default async function AnimePage({
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Best Anime Series & Movies",
+    "@id": `${pageUrl}#collection`,
+    name:
+      currentPage === 1
+        ? "Best Anime Series & Movies"
+        : `Japanese Anime Series — Page ${currentPage}`,
     description:
       "Discover Japanese anime series, anime movies, action, fantasy, romance, comedy and classic animation.",
-    url: "https://cinryvan.vercel.app/anime",
+    url: pageUrl,
+    mainEntity: { "@id": `${pageUrl}#anime` },
     isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
+      "@id": `${SITE_URL}/#website`,
     },
+  };
+
+  const animeJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#anime`,
+    name: `Japanese anime series — page ${currentPage}`,
+    numberOfItems: discoveryShelf.length,
+    itemListElement: discoveryShelf.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "TVSeries",
+        name: item.title,
+        url: `${SITE_URL}${item.href}`,
+        image: item.poster || undefined,
+        aggregateRating:
+          typeof item.rating === "number" &&
+          item.rating > 0 &&
+          typeof item.voteCount === "number" &&
+          item.voteCount > 0
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: item.rating,
+                ratingCount: item.voteCount,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+      },
+    })),
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(animeJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[580px] overflow-hidden pt-24 sm:min-h-[650px] md:pt-28 lg:min-h-[720px]">

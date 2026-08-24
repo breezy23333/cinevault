@@ -21,45 +21,72 @@ export const revalidate = 3600;
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TOTAL_VISIBLE_PAGES = 20;
 const MAX_SHELF = 16;
+const SITE_URL = "https://cinryvan.vercel.app";
+const TOP_URL = `${SITE_URL}/top`;
 
-export const metadata: Metadata = {
-  title: "Top Rated Movies of All Time | CINRYVAN",
-  description:
-    "Explore the highest-rated movies, acclaimed drama, horror masterpieces, science-fiction classics and award-worthy animation on CINRYVAN.",
-  keywords: [
-    "top movies",
-    "best movies",
-    "highest rated movies",
-    "best films of all time",
-    "top horror movies",
-    "top science fiction movies",
-    "award winning movies",
-    "CINRYVAN top movies",
-  ],
-  alternates: { canonical: "/top" },
-  openGraph: {
-    title: "Top Rated Movies of All Time | CINRYVAN",
-    description:
-      "Discover cinema with the strongest audience ratings and lasting acclaim.",
-    url: "/top",
-    siteName: "CINRYVAN",
-    images: [
-      {
+type TopPageProps = {
+  searchParams?: Promise<{ page?: string }>;
+};
+
+function normalizePage(value?: string) {
+  const page = Number(value || 1);
+  return Number.isFinite(page)
+    ? Math.min(Math.max(Math.trunc(page), 1), TOTAL_VISIBLE_PAGES)
+    : 1;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: TopPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const page = normalizePage(params?.page);
+  const canonical = page === 1 ? TOP_URL : `${TOP_URL}?page=${page}`;
+  const pageSuffix = page > 1 ? ` — Page ${page}` : "";
+  const title = `Top Rated Movies of All Time${pageSuffix}`;
+  const description =
+    page === 1
+      ? "Explore the highest-rated movies of all time, acclaimed drama, horror masterpieces, science-fiction classics and award-worthy animation."
+      : `Browse page ${page} of the highest-rated movies, acclaimed classics, audience favourites and award-winning cinema on CINRYVAN.`;
+
+  return {
+    title,
+    description,
+    category: "Top Rated Movies",
+    alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    openGraph: {
+      title: `${title} | CINRYVAN`,
+      description,
+      url: canonical,
+      siteName: "CINRYVAN",
+      locale: "en_US",
+      images: [{
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Top Rated Movies on CINRYVAN",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Top Rated Movies of All Time | CINRYVAN",
-    description: "Explore acclaimed and highly rated cinema.",
-    images: ["/og-image.png"],
-  },
-};
+        alt: "Top-rated movies on CINRYVAN",
+      }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | CINRYVAN`,
+      description,
+      images: ["/og-image.png"],
+    },
+  };
+}
 
 type Movie = {
   id: number;
@@ -139,19 +166,16 @@ const toShelf = (movies: Movie[]) =>
         typeof movie.vote_average === "number"
           ? Math.round(movie.vote_average * 10) / 10
           : undefined,
+      voteCount:
+        typeof movie.vote_count === "number" ? movie.vote_count : undefined,
       href: `/movie/${movie.id}`,
     }));
 
 export default async function TopPage({
   searchParams,
-}: {
-  searchParams?: Promise<{ page?: string }>;
-}) {
+}: TopPageProps) {
   const params = await searchParams;
-  const requestedPage = Number(params?.page || 1);
-  const page = Number.isFinite(requestedPage)
-    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
-    : 1;
+  const page = normalizePage(params?.page);
   const currentYear = new Date().getUTCFullYear();
 
   const [topRated, bestThisYear, drama, horror, scienceFiction, animation] =
@@ -180,6 +204,7 @@ export default async function TopPage({
   const leaders = movies.slice(0, 5);
   const rankedMovies = movies.slice(5);
   const pageOffset = (page - 1) * 20;
+  const pageUrl = page === 1 ? TOP_URL : `${TOP_URL}?page=${page}`;
 
   const genreRows = [
     { id: "this-year", eyebrow: `${currentYear} cinema`, title: "Best Movies This Year", items: toShelf(bestThisYear.results) },
@@ -192,18 +217,19 @@ export default async function TopPage({
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    "@id": `${pageUrl}#breadcrumb`,
     itemListElement: [
       {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://cinryvan.vercel.app",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Top Movies",
-        item: "https://cinryvan.vercel.app/top",
+        item: pageUrl,
       },
     ],
   };
@@ -211,26 +237,78 @@ export default async function TopPage({
   const topJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Top Rated Movies",
+    "@id": `${pageUrl}#collection`,
+    name:
+      page === 1 ? "Top Rated Movies" : `Top Rated Movies — Page ${page}`,
     description:
       "Explore the highest-rated movies and acclaimed cinema on CINRYVAN.",
-    url: "https://cinryvan.vercel.app/top",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
-    },
+    url: pageUrl,
+    breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    mainEntity: { "@id": `${pageUrl}#ranked-movies` },
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+  };
+
+  const rankedMoviesJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#ranked-movies`,
+    name: `Top-rated movies — page ${page}`,
+    numberOfItems: movies.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: movies.map((movie, index) => {
+      const rating =
+        typeof movie.vote_average === "number"
+          ? Math.round(movie.vote_average * 10) / 10
+          : undefined;
+
+      return {
+        "@type": "ListItem",
+        position: pageOffset + index + 1,
+        item: {
+          "@type": "Movie",
+          name: movie.title || "Untitled",
+          url: `${SITE_URL}/movie/${movie.id}`,
+          image:
+            tmdbImage(movie.poster_path, "w780") ||
+            tmdbImage(movie.backdrop_path, "w1280") ||
+            undefined,
+          dateCreated: movie.release_date || undefined,
+          aggregateRating:
+            typeof rating === "number" &&
+            typeof movie.vote_count === "number" &&
+            movie.vote_count > 0
+              ? {
+                  "@type": "AggregateRating",
+                  ratingValue: rating,
+                  ratingCount: movie.vote_count,
+                  bestRating: 10,
+                  worstRating: 0,
+                }
+              : undefined,
+        },
+      };
+    }),
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(topJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(topJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(rankedMoviesJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[560px] overflow-hidden pt-24 md:pt-28 lg:min-h-[680px]">

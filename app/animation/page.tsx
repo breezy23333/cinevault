@@ -20,44 +20,49 @@ import ShelfRow from "@/components/ShelfRow";
 export const revalidate = 3600;
 
 const MAX_SHELF = 16;
+const SITE_URL = "https://cinryvan.vercel.app";
+const ANIMATION_URL = `${SITE_URL}/animation`;
 
 export const metadata: Metadata = {
-  title: "Animation Movies, Anime & Cartoons | CINRYVAN",
+  title: "Animated Movies, TV Shows, Anime & Cartoons",
   description:
-    "Explore animated movies, anime, cartoons, family adventures, fantasy worlds, superhero animation, classics and upcoming releases on CINRYVAN.",
-  keywords: [
-    "animation",
-    "animated movies",
-    "animated shows",
-    "anime",
-    "cartoons",
-    "family animation",
-    "fantasy animation",
-    "classic cartoons",
-    "CINRYVAN animation",
-  ],
-  alternates: { canonical: "/animation" },
+    "Discover popular animated movies and TV shows, anime, cartoons, family adventures, fantasy worlds, superhero animation, classics and upcoming releases.",
+  category: "Animation",
+  alternates: { canonical: ANIMATION_URL },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "Animation Movies, Anime & Cartoons | CINRYVAN",
+    title: "Animated Movies, TV Shows, Anime & Cartoons | CINRYVAN",
     description:
-      "Discover animated movies, shows, anime, cartoons and fantasy worlds on CINRYVAN.",
-    url: "/animation",
+      "Discover animated movies, shows, anime, cartoons, family adventures and fantasy worlds on CINRYVAN.",
+    url: ANIMATION_URL,
     siteName: "CINRYVAN",
+    locale: "en_US",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CINRYVAN Animation Universe",
+        alt: "Animated movies, shows, anime and cartoons on CINRYVAN",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Animation Movies, Anime & Cartoons | CINRYVAN",
+    title: "Animated Movies, TV Shows, Anime & Cartoons | CINRYVAN",
     description:
-      "Explore animated movies, anime, cartoons, classics and upcoming animation.",
+      "Explore animated movies, TV shows, anime, cartoons, classics and upcoming animation.",
     images: ["/og-image.png"],
   },
 };
@@ -172,6 +177,8 @@ const toShelfItem = (item: TmdbItem, media: MediaType) => ({
     typeof item.vote_average === "number"
       ? Math.round(item.vote_average * 10) / 10
       : undefined,
+  voteCount:
+    typeof item.vote_count === "number" ? item.vote_count : undefined,
   href: `/${media}/${item.id}`,
 });
 
@@ -281,25 +288,97 @@ export default async function AnimationPage() {
     { id: "upcoming", eyebrow: "Coming soon", title: "Upcoming Animation", items: toShelf(upcomingMovies, "movie") },
   ];
 
+  const featuredItems = Array.from(
+    new Map(
+      rows
+        .flatMap((row) => row.items)
+        .map((item) => [item.href, item]),
+    ).values(),
+  ).slice(0, 30);
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${ANIMATION_URL}#breadcrumb`,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Animation",
+        item: ANIMATION_URL,
+      },
+    ],
+  };
+
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Animation Movies, Anime & Cartoons",
+    "@id": `${ANIMATION_URL}#collection`,
+    name: "Animated Movies, TV Shows, Anime & Cartoons",
     description:
       "Explore animated movies, series, anime, cartoons, family adventures, classics and upcoming animation.",
-    url: "https://cinryvan.vercel.app/animation",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
-    },
+    url: ANIMATION_URL,
+    breadcrumb: { "@id": `${ANIMATION_URL}#breadcrumb` },
+    mainEntity: { "@id": `${ANIMATION_URL}#featured-animation` },
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+  };
+
+  const animationListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${ANIMATION_URL}#featured-animation`,
+    name: "Featured animated movies and television shows",
+    numberOfItems: featuredItems.length,
+    itemListElement: featuredItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": item.media === "movie" ? "Movie" : "TVSeries",
+        name: item.title,
+        url: `${SITE_URL}${item.href}`,
+        image: item.poster || undefined,
+        dateCreated: item.year || undefined,
+        aggregateRating:
+          typeof item.rating === "number" &&
+          typeof item.voteCount === "number" &&
+          item.voteCount > 0
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: item.rating,
+                ratingCount: item.voteCount,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+      },
+    })),
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(animationListJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[590px] overflow-hidden pt-24 md:pt-28 lg:min-h-[720px]">

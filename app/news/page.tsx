@@ -8,11 +8,13 @@ import type { NewsItem } from "@/components/NewsStrip";
 import NewsCategoryGrid from "@/components/NewsCategoryGrid";
 import Link from "next/link";
 
+const SITE_URL = "https://cinryvan.vercel.app";
+const NEWS_URL = `${SITE_URL}/news`;
 
-export const revalidate = 300;
+export const revalidate = 900;
 
 export const metadata: Metadata = {
-  title: "Entertainment, Gaming & Sports News | CINRYVAN",
+  title: "Entertainment, Gaming & Sports News",
   description:
     "Read live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news on CINRYVAN.",
   alternates: {
@@ -37,9 +39,21 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  const entertainment: NewsItem[] = await getEntertainmentNews();
-  const sports: NewsItem[] = await getSportsNews();
-  const gaming: NewsItem[] = await getGamingNews();
+  const [entertainmentResult, sportsResult, gamingResult] =
+    await Promise.allSettled([
+      getEntertainmentNews(),
+      getSportsNews(),
+      getGamingNews(),
+    ]);
+
+  const entertainment: NewsItem[] =
+    entertainmentResult.status === "fulfilled"
+      ? entertainmentResult.value
+      : [];
+  const sports: NewsItem[] =
+    sportsResult.status === "fulfilled" ? sportsResult.value : [];
+  const gaming: NewsItem[] =
+    gamingResult.status === "fulfilled" ? gamingResult.value : [];
 
   const hero = entertainment[0];
 
@@ -86,13 +100,13 @@ const breadcrumbJsonLd = {
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://cinryvan.vercel.app",
+      item: SITE_URL,
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "News",
-      item: "https://cinryvan.vercel.app/news",
+      item: NEWS_URL,
     },
   ],
 };
@@ -103,12 +117,33 @@ const newsJsonLd = {
   name: "Entertainment, Gaming & Sports News",
   description:
     "Live entertainment, gaming, sports, movie, TV, celebrity, streaming, and industry news.",
-  url: "https://cinryvan.vercel.app/news",
-  isPartOf: {
-    "@type": "WebSite",
-    name: "CINRYVAN",
-    url: "https://cinryvan.vercel.app",
+  url: NEWS_URL,
+  mainEntity: {
+    "@id": `${NEWS_URL}#headlines`,
   },
+  isPartOf: {
+    "@id": `${SITE_URL}/#website`,
+  },
+};
+
+const visibleStories = [
+  ...entertainment.slice(0, 12),
+  ...sportsMain,
+  ...gamingMain,
+].filter((item) => item?.title && item?.url);
+
+const headlinesJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "@id": `${NEWS_URL}#headlines`,
+  name: "Latest entertainment, gaming and sports headlines",
+  numberOfItems: visibleStories.length,
+  itemListElement: visibleStories.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.title,
+    url: item.url,
+  })),
 };
 
   return (
@@ -117,14 +152,21 @@ const newsJsonLd = {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd),
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
         }}
       />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(newsJsonLd),
+          __html: JSON.stringify(newsJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(headlinesJsonLd).replace(/</g, "\\u003c"),
         }}
       />
 
@@ -151,6 +193,7 @@ const newsJsonLd = {
           <a
             href={hero.url}
             target="_blank"
+            rel="noopener noreferrer"
             className="group mt-10 grid overflow-hidden rounded-[36px] border border-yellow-400/20 bg-white/[0.04] shadow-[0_0_80px_rgba(255,184,0,0.08)] md:grid-cols-[1.4fr_1fr]"
           >
             <div className="relative hidden h-[360px] overflow-hidden bg-white/5 md:block md:h-[460px]">
@@ -201,6 +244,7 @@ const newsJsonLd = {
                 key={item.url + i}
                 href={item.url}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] transition hover:border-yellow-400/40 hover:bg-white/[0.06]"
               >
                 <div className="relative h-56 bg-white/5">
@@ -243,6 +287,7 @@ const newsJsonLd = {
                   key={item.url + i}
                   href={item.url}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="block rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-yellow-400/40"
                 >
                   <h4 className="line-clamp-2 font-bold">{item.title}</h4>
@@ -291,8 +336,8 @@ const newsJsonLd = {
                       <Link
                         key={item}
                         href={`/news/${category.toLowerCase()}/${item
-                          .toLowerCase()
-                          .replaceAll(" ", "-")}`}
+                        .toLowerCase()
+                        .replaceAll(" ", "-")}`}
                         className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-bold text-white/80 hover:border-yellow-400 hover:text-yellow-300"
                       >
                         {item}

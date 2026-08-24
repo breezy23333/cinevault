@@ -24,47 +24,74 @@ export const revalidate = 3600;
 const TOTAL_VISIBLE_PAGES = 20;
 const MAX_SHELF = 16;
 const TMDB_BASE = "https://api.themoviedb.org/3";
+const SITE_URL = "https://cinryvan.vercel.app";
+const TV_URL = `${SITE_URL}/tv`;
 
-export const metadata: Metadata = {
-  title: "TV Shows – Trending, Popular & Top Series | CINRYVAN",
-  description:
-    "Browse popular TV shows, trending series, top-rated shows, drama, fantasy, crime, reality television and entertainment recommendations on CINRYVAN.",
-  keywords: [
-    "TV shows",
-    "popular TV shows",
-    "trending series",
-    "top rated TV shows",
-    "drama series",
-    "crime shows",
-    "fantasy series",
-    "reality TV",
-    "CINRYVAN TV",
-  ],
-  alternates: { canonical: "/tv" },
-  openGraph: {
-    title: "TV Shows – Trending, Popular & Top Series | CINRYVAN",
-    description:
-      "Explore trending, popular and top-rated television series on CINRYVAN.",
-    url: "/tv",
-    siteName: "CINRYVAN",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CINRYVAN TV Shows",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "TV Shows – Trending, Popular & Top Series | CINRYVAN",
-    description:
-      "Discover trending series, drama, crime, fantasy and reality television.",
-    images: ["/og-image.png"],
-  },
+type TVPageProps = {
+  searchParams?: Promise<{ page?: string }>;
 };
+
+function normalizePage(value?: string) {
+  const requestedPage = Number(value || 1);
+  return Number.isFinite(requestedPage)
+    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
+    : 1;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: TVPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const page = normalizePage(params?.page);
+  const canonical = page === 1 ? TV_URL : `${TV_URL}?page=${page}`;
+  const pageSuffix = page > 1 ? ` — Page ${page}` : "";
+  const pageTitle = `Popular TV Shows, Trending Series & What to Watch${pageSuffix}`;
+  const description =
+    page === 1
+      ? "Discover popular and trending TV shows, top-rated series, shows airing today, drama, crime, science fiction, fantasy and reality TV on CINRYVAN."
+      : `Browse page ${page} of popular TV shows with ratings, first-air years and direct links to seasons, trailers, casts and watch options on CINRYVAN.`;
+
+  return {
+    title: pageTitle,
+    description,
+    category: "Television",
+    alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    openGraph: {
+      title: `${pageTitle} | CINRYVAN`,
+      description,
+      url: canonical,
+      siteName: "CINRYVAN",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Popular and trending TV shows on CINRYVAN",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${pageTitle} | CINRYVAN`,
+      description,
+      images: ["/og-image.png"],
+    },
+  };
+}
 
 type Show = {
   id: number;
@@ -160,14 +187,9 @@ const tvChannels = [
 
 export default async function TVPage({
   searchParams,
-}: {
-  searchParams?: Promise<{ page?: string }>;
-}) {
+}: TVPageProps) {
   const params = await searchParams;
-  const requestedPage = Number(params?.page || 1);
-  const page = Number.isFinite(requestedPage)
-    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
-    : 1;
+  const page = normalizePage(params?.page);
 
   const [
     popular,
@@ -213,25 +235,85 @@ export default async function TVPage({
     { id: "reality", eyebrow: "Unscripted television", title: "Reality TV", items: toShelf(reality.results) },
   ];
 
+  const pageUrl = page === 1 ? TV_URL : `${TV_URL}?page=${page}`;
+  const popularShows = uniqueShows(popular.results);
+
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "TV Shows on CINRYVAN",
+    "@id": `${pageUrl}#collection`,
+    name: page === 1 ? "Popular TV Shows on CINRYVAN" : `Popular TV Shows — Page ${page}`,
     description:
       "Browse popular, trending, top-rated, airing and on-the-air television series.",
-    url: "https://cinryvan.vercel.app/tv",
+    url: pageUrl,
+    mainEntity: { "@id": `${pageUrl}#shows` },
     isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
+      "@id": `${SITE_URL}/#website`,
     },
+  };
+
+  const showsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#shows`,
+    name: `Popular TV shows — page ${page}`,
+    numberOfItems: popularShows.length,
+    itemListElement: popularShows.map((show, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "TVSeries",
+        name: show.name,
+        url: `${SITE_URL}/tv/${show.id}`,
+        image:
+          tmdbImage(show.poster_path, "w500") ||
+          tmdbImage(show.backdrop_path, "w780") ||
+          undefined,
+        datePublished: show.first_air_date || undefined,
+        aggregateRating:
+          typeof show.vote_average === "number" &&
+          show.vote_average > 0 &&
+          (show.vote_count || 0) > 0
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: show.vote_average,
+                ratingCount: show.vote_count,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+      },
+    })),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "TV Shows", item: pageUrl },
+    ],
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(showsJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[600px] overflow-hidden pt-24 md:pt-28 lg:min-h-[750px]">

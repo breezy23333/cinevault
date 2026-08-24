@@ -75,6 +75,35 @@ function formatMoney(value?: number | null) {
   }).format(value);
 }
 
+function cleanSeoText(value?: string | null) {
+  return (value || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function truncateSeoText(value: string, maximumLength = 158) {
+  if (value.length <= maximumLength) return value;
+
+  const shortened = value
+    .slice(0, maximumLength - 1)
+    .replace(/\s+\S*$/, "")
+    .replace(/[,:;.!?\s]+$/, "");
+
+  return `${shortened}…`;
+}
+
+function toIsoDuration(minutes?: number | null) {
+  if (!minutes || minutes < 1) return undefined;
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  return `PT${hours ? `${hours}H` : ""}${
+    remainingMinutes ? `${remainingMinutes}M` : ""
+  }`;
+}
+
 function pickTrailer(videos: TMDBVideo[]) {
   return (
     videos.find(
@@ -174,15 +203,109 @@ export default async function MoviePage({ params }: PageProps) {
     )
     .slice(0, 6);
 
+    const directors = Array.isArray(details.credits?.crew)
+    ? details.credits.crew
+        .filter((person: any) => person.job === "Director")
+        .slice(0, 4)
+    : [];
+
+  const movieImages = Array.from(
+    new Set(
+      [poster, backdrop]
+        .filter(Boolean) as string[],
+    ),
+  );
+
+  const imdbId =
+    details.imdb_id ||
+    details.external_ids?.imdb_id ||
+    null;
+
   const movieJsonLd = {
     "@context": "https://schema.org",
     "@type": "Movie",
+    "@id": `${SITE_URL}/movie/${id}#movie`,
+
     name: details.title,
-    description: details.overview,
-    image: poster,
-    datePublished: details.release_date,
+    alternateName:
+      details.original_title &&
+      details.original_title !== details.title
+        ? details.original_title
+        : undefined,
+
+    description:
+      cleanSeoText(details.overview) ||
+      `Discover ${details.title} on CINRYVAN.`,
+
     url: `${SITE_URL}/movie/${id}`,
-    genre: genres.map((genre: any) => genre.name),
+    mainEntityOfPage: `${SITE_URL}/movie/${id}`,
+
+    image:
+      movieImages.length > 0
+        ? movieImages
+        : [`${SITE_URL}/og-image.png`],
+
+    thumbnailUrl:
+      poster ||
+      backdrop ||
+      `${SITE_URL}/og-image.png`,
+
+    datePublished:
+      details.release_date || undefined,
+
+    duration:
+      toIsoDuration(details.runtime),
+
+    genre:
+      genres.map((genre: any) => genre.name),
+
+    inLanguage:
+      details.original_language || undefined,
+
+    sameAs:
+      imdbId
+        ? `https://www.imdb.com/title/${imdbId}/`
+        : undefined,
+
+    actor:
+      cast.slice(0, 10).map((person) => ({
+        "@type": "Person",
+        name: person.name,
+        url: `${SITE_URL}/person/${person.id}`,
+        characterName:
+          person.character || undefined,
+      })),
+
+    director:
+      directors.map((person: any) => ({
+        "@type": "Person",
+        name: person.name,
+      })),
+
+    productionCompany:
+      studios.map((studio: any) => ({
+        "@type": "Organization",
+        name: studio.name,
+      })),
+
+    trailer:
+      trailerKey
+        ? {
+            "@type": "VideoObject",
+            name: `${details.title} official trailer`,
+            description:
+              `Watch the official trailer for ${details.title}.`,
+            thumbnailUrl:
+              `https://i.ytimg.com/vi/${trailerKey}/hqdefault.jpg`,
+            embedUrl:
+              `https://www.youtube-nocookie.com/embed/${trailerKey}`,
+            contentUrl:
+              `https://www.youtube.com/watch?v=${trailerKey}`,
+            uploadDate:
+              details.release_date || undefined,
+          }
+        : undefined,
+
     aggregateRating:
       rating && details.vote_count > 0
         ? {
@@ -193,6 +316,14 @@ export default async function MoviePage({ params }: PageProps) {
             worstRating: 0,
           }
         : undefined,
+
+    isPartOf: {
+      "@id": `${SITE_URL}/#website`,
+    },
+
+    publisher: {
+      "@id": `${SITE_URL}/#organization`,
+    },
   };
 
   const breadcrumbJsonLd = {
@@ -204,7 +335,7 @@ export default async function MoviePage({ params }: PageProps) {
         "@type": "ListItem",
         position: 2,
         name: "Movies",
-        item: `${SITE_URL}/movies`,
+        item: `${SITE_URL}/movie`,
       },
       {
         "@type": "ListItem",
@@ -747,71 +878,163 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { id } = await params;
+
+  if (!/^\d+$/.test(id)) {
+    return {
+      title: "Movie Not Found",
+      description: "The requested movie could not be found on CINRYVAN.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const movieId = Number(id);
+
+  if (!Number.isSafeInteger(movieId) || movieId < 1) {
+    return {
+      title: "Movie Not Found",
+      description: "The requested movie could not be found on CINRYVAN.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const canonical = `${SITE_URL}/movie/${movieId}`;
+
   try {
-    const { id } = await params;
+    const movie = await withTimeout(
+      fetchTmdbTitle(movieId, "movie"),
+      10000,
+      "movie metadata",
+    );
 
-    if (!/^\d+$/.test(id)) {
+    if (!movie) {
       return {
         title: "Movie Not Found",
-        robots: { index: false, follow: false },
+        description: "The requested movie could not be found on CINRYVAN.",
+        alternates: {
+          canonical,
+        },
+        robots: {
+          index: false,
+          follow: false,
+        },
       };
     }
 
-    const movieId = Number(id);
-    if (!Number.isSafeInteger(movieId) || movieId < 1) {
-      return {
-        title: "Movie Not Found",
-        robots: { index: false, follow: false },
-      };
-    }
+    const movieTitle = cleanSeoText(
+      movie.title || movie.name || "Movie",
+    );
 
-    const movie = await fetchTmdbTitle(movieId, "movie");
-    const movieTitle = movie.title || movie.name || "Movie";
     const year = movie.release_date?.slice(0, 4) || "";
-    const displayTitle = `${movieTitle}${year ? ` (${year})` : ""}`;
-    const pageTitle = `${displayTitle} — Cast, Trailer & Where to Watch`;
-    const seoIntro = `Explore ${displayTitle}: cast, trailer, ratings, runtime, similar movies and where to watch on CINRYVAN.`;
-    const fullDescription = movie.overview?.trim()
-      ? `${seoIntro} ${movie.overview.trim()}`
-      : seoIntro;
-    const description =
-      fullDescription.length > 160
-        ? `${fullDescription.slice(0, 157).replace(/\s+\S*$/, "")}...`
-        : fullDescription;
-    const image = movie.backdrop_path
-      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-      : movie.poster_path
-        ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
-        : `${SITE_URL}/og-image.png`;
-    const canonical = `${SITE_URL}/movie/${id}`;
+
+    const displayTitle = year
+      ? `${movieTitle} (${year})`
+      : movieTitle;
+
+    /*
+     * Keep the primary Google title compact.
+     * Root layout automatically adds: | CINRYVAN
+     */
+    const pageTitle = `${displayTitle}: Where to Watch`;
+
+    const overview = cleanSeoText(movie.overview);
+    const tagline = cleanSeoText(movie.tagline);
+
+    const discoveryText =
+      `See the trailer, cast, ratings, release details and where to watch ${displayTitle} on CINRYVAN.`;
+
+    const descriptionSource = overview
+      ? `${overview} ${discoveryText}`
+      : tagline
+        ? `${tagline}. ${discoveryText}`
+        : discoveryText;
+
+    const description = truncateSeoText(descriptionSource, 158);
+
+    const backdropImage = movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+      : null;
+
+    const posterImage = movie.poster_path
+      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+      : null;
+
+    const socialImage =
+      backdropImage ||
+      posterImage ||
+      `${SITE_URL}/og-image.png`;
 
     return {
       title: pageTitle,
       description,
-      robots: { index: true, follow: true },
-      alternates: { canonical },
+
+      category: "Entertainment",
+
+      alternates: {
+        canonical,
+      },
+
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          noimageindex: false,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      },
+
       openGraph: {
         title: `${pageTitle} | CINRYVAN`,
         description,
         url: canonical,
         siteName: "CINRYVAN",
-        images: [{ url: image, alt: `${displayTitle} movie` }],
-        locale: "en_US",
         type: "video.movie",
+        locale: "en_US",
+        images: [
+          {
+            url: socialImage,
+            alt: `${displayTitle} — movie details on CINRYVAN`,
+          },
+        ],
       },
+
       twitter: {
         card: "summary_large_image",
         title: `${pageTitle} | CINRYVAN`,
         description,
-        images: [image],
+        images: [
+          {
+            url: socialImage,
+            alt: `${displayTitle} — movie details on CINRYVAN`,
+          },
+        ],
       },
     };
   } catch {
     return {
-      title: "Discover Movies",
+      title: `Movie ${movieId}: Details and Where to Watch`,
       description:
-        "Explore movie details, casts, trailers, ratings and where to watch on CINRYVAN.",
+        "Discover movie trailers, casts, ratings, release information and watch options on CINRYVAN.",
+      alternates: {
+        canonical,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
     };
   }
 }

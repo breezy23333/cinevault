@@ -25,42 +25,73 @@ import {
 export const revalidate = 300;
 
 const TOTAL_VISIBLE_PAGES = 20;
+const SITE_URL = "https://cinryvan.vercel.app";
+const UPCOMING_URL = `${SITE_URL}/upcoming`;
 
-export const metadata: Metadata = {
-  title: "Upcoming Movies, TV Shows & Animation | CINRYVAN",
-  description:
-    "Track upcoming movies, television series, anime, cartoons and animated releases before they arrive on CINRYVAN.",
-  keywords: [
-    "upcoming movies",
-    "upcoming TV shows",
-    "coming soon movies",
-    "upcoming animation",
-    "future releases",
-    "CINRYVAN upcoming",
-  ],
-  alternates: { canonical: "/upcoming" },
-  openGraph: {
-    title: "Upcoming Movies, TV Shows & Animation | CINRYVAN",
-    description: "Track the next cinematic and television releases.",
-    url: "/upcoming",
-    siteName: "CINRYVAN",
-    images: [
-      {
+type UpcomingPageProps = {
+  searchParams?: Promise<{ page?: string }>;
+};
+
+function normalizePage(value?: string) {
+  const page = Number(value || 1);
+  return Number.isFinite(page)
+    ? Math.min(Math.max(Math.trunc(page), 1), TOTAL_VISIBLE_PAGES)
+    : 1;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: UpcomingPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const page = normalizePage(params?.page);
+  const canonical =
+    page === 1 ? UPCOMING_URL : `${UPCOMING_URL}?page=${page}`;
+  const suffix = page > 1 ? ` — Page ${page}` : "";
+  const title = `Upcoming Movies, TV Shows & Animation${suffix}`;
+  const description =
+    page === 1
+      ? "Track upcoming movies, new TV shows, anime, cartoons and animated releases, including release dates, trailers, casts and details."
+      : `Browse page ${page} of upcoming movies, new television series, animation and entertainment releases coming soon on CINRYVAN.`;
+
+  return {
+    title,
+    description,
+    category: "Upcoming Releases",
+    alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    openGraph: {
+      title: `${title} | CINRYVAN`,
+      description,
+      url: canonical,
+      siteName: "CINRYVAN",
+      locale: "en_US",
+      images: [{
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Upcoming releases on CINRYVAN",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Upcoming Movies, TV Shows & Animation | CINRYVAN",
-    description: "See which entertainment worlds are arriving next.",
-    images: ["/og-image.png"],
-  },
-};
+        alt: "Upcoming movies and television shows on CINRYVAN",
+      }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | CINRYVAN`,
+      description,
+      images: ["/og-image.png"],
+    },
+  };
+}
 
 type MediaType = "movie" | "tv";
 
@@ -74,6 +105,7 @@ type UpcomingItem = {
   release_date?: string;
   first_air_date?: string;
   vote_average?: number;
+  vote_count?: number;
 };
 
 const tmdbImage = (path?: string | null, size = "w780") =>
@@ -125,14 +157,9 @@ const uniqueItems = (items: UpcomingItem[]) => {
 
 export default async function UpcomingPage({
   searchParams,
-}: {
-  searchParams?: Promise<{ page?: string }>;
-}) {
+}: UpcomingPageProps) {
   const params = await searchParams;
-  const requestedPage = Number(params?.page || 1);
-  const page = Number.isFinite(requestedPage)
-    ? Math.min(Math.max(Math.trunc(requestedPage), 1), TOTAL_VISIBLE_PAGES)
-    : 1;
+  const page = normalizePage(params?.page);
 
   const [movieData, tvData, animationData] = await Promise.all([
     getUpcomingMovies(page),
@@ -164,25 +191,110 @@ export default async function UpcomingPage({
     .filter((item) => item.id !== hero?.id && (item.backdrop_path || item.poster_path))
     .slice(0, 3);
 
+  const pageUrl =
+    page === 1 ? UPCOMING_URL : `${UPCOMING_URL}?page=${page}`;
+  const structuredReleases = Array.from(
+    new Map<string, { item: UpcomingItem; media: MediaType }>(
+      [
+        ...movies.map((item) => ({ item, media: "movie" as const })),
+        ...tv.map((item) => ({ item, media: "tv" as const })),
+        ...animation.map((item) => ({ item, media: "movie" as const })),
+      ].map((entry) => [`${entry.media}:${entry.item.id}`, entry] as const),
+    ).values(),
+  )
+    .sort((a, b) => itemDate(a.item).localeCompare(itemDate(b.item)))
+    .slice(0, 40);
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${pageUrl}#breadcrumb`,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Upcoming",
+        item: pageUrl,
+      },
+    ],
+  };
+
   const upcomingJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Upcoming Movies, TV Series and Animation",
+    "@id": `${pageUrl}#collection`,
+    name:
+      page === 1
+        ? "Upcoming Movies, TV Series and Animation"
+        : `Upcoming Movies, TV Series and Animation — Page ${page}`,
     description:
       "Discover upcoming movies, TV series, anime, cartoons and animated releases before they arrive.",
-    url: "https://cinryvan.vercel.app/upcoming",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "CINRYVAN",
-      url: "https://cinryvan.vercel.app",
-    },
+    url: pageUrl,
+    breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+    mainEntity: { "@id": `${pageUrl}#releases` },
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+  };
+
+  const releasesJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#releases`,
+    name: `Upcoming entertainment releases — page ${page}`,
+    numberOfItems: structuredReleases.length,
+    itemListElement: structuredReleases.map(({ item, media }, index) => ({
+      "@type": "ListItem",
+      position: (page - 1) * 40 + index + 1,
+      item: {
+        "@type": media === "movie" ? "Movie" : "TVSeries",
+        name: itemTitle(item),
+        description: item.overview || undefined,
+        url: `${SITE_URL}/${media}/${item.id}`,
+        image:
+          tmdbImage(item.poster_path, "w780") ||
+          tmdbImage(item.backdrop_path, "w1280") ||
+          undefined,
+        dateCreated: itemDate(item) || undefined,
+        aggregateRating:
+          typeof item.vote_average === "number" &&
+          typeof item.vote_count === "number" &&
+          item.vote_count > 0
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: Math.round(item.vote_average * 10) / 10,
+                ratingCount: item.vote_count,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+      },
+    })),
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] pb-20 text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(upcomingJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(upcomingJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(releasesJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <section className="relative min-h-[570px] overflow-hidden pt-24 md:pt-28 lg:min-h-[700px]">
