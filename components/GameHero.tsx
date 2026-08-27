@@ -40,20 +40,18 @@ export default function GameHero({
   );
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [trailerId, setTrailerId] =
     useState<string | null>(null);
   const [showTrailer, setShowTrailer] =
     useState(false);
   const [trailerReady, setTrailerReady] =
     useState(false);
-  const [soundOn, setSoundOn] = useState(false);  
-
-  const hoverTimer =
-    useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [soundOn, setSoundOn] =
+    useState(false);
 
   const isHovering = useRef(false);
-  const trailerFrame = useRef<HTMLIFrameElement>(null);
+  const trailerFrame =
+    useRef<HTMLIFrameElement>(null);
 
   const trailerCache = useRef(
     new Map<number, string | null>(),
@@ -66,40 +64,12 @@ export default function GameHero({
   }, [activeIndex, featuredGames.length]);
 
   useEffect(() => {
-    if (paused || featuredGames.length <= 1) {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      setActiveIndex(
-        (current) =>
-          (current + 1) % featuredGames.length,
-      );
-    }, 0);
-
-    return () => window.clearInterval(timer);
-  }, [featuredGames.length, paused]);
-
-  useEffect(() => {
     isHovering.current = false;
-
-    if (hoverTimer.current) {
-      clearTimeout(hoverTimer.current);
-      hoverTimer.current = null;
-    }
-
     setTrailerId(null);
     setShowTrailer(false);
     setTrailerReady(false);
+    setSoundOn(false);
   }, [activeIndex]);
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimer.current) {
-        clearTimeout(hoverTimer.current);
-      }
-    };
-  }, []);
 
   if (!featuredGames.length) {
     return null;
@@ -118,64 +88,59 @@ export default function GameHero({
       ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`
       : null;
 
-  function startTrailer() {
-    setPaused(true);
+  async function startTrailer() {
     isHovering.current = true;
 
-    if (hoverTimer.current) {
-      clearTimeout(hoverTimer.current);
+    const cachedTrailer =
+      trailerCache.current.get(game.id);
+
+    if (cachedTrailer !== undefined) {
+      if (cachedTrailer) {
+        setTrailerId(cachedTrailer);
+        setShowTrailer(true);
+      }
+
+      return;
     }
 
-    hoverTimer.current = setTimeout(async () => {
-      const cachedTrailer =
-        trailerCache.current.get(game.id);
+    try {
+      const response = await fetch(
+        `/api/games/trailer?name=${encodeURIComponent(
+          game.name,
+        )}`,
+      );
 
-      if (cachedTrailer !== undefined) {
-        if (
-          cachedTrailer &&
-          isHovering.current
-        ) {
-          setTrailerId(cachedTrailer);
-          setShowTrailer(true);
-        }
-
+      if (!response.ok) {
+        trailerCache.current.set(game.id, null);
         return;
       }
 
-      try {
-        const response = await fetch(
-          `/api/games/trailer?name=${encodeURIComponent(
-            game.name,
-          )}`,
-        );
+      const data = (await response.json()) as {
+        trailer?: {
+          videoId?: string;
+        } | null;
+      };
 
-        if (!response.ok) {
-          trailerCache.current.set(game.id, null);
-          return;
-        }
+      const videoId =
+        data.trailer?.videoId || null;
 
-        const data = (await response.json()) as {
-          trailer?: {
-            videoId?: string;
-          } | null;
-        };
+      trailerCache.current.set(game.id, videoId);
 
-        const videoId =
-          data.trailer?.videoId || null;
-
-        trailerCache.current.set(
-          game.id,
-          videoId,
-        );
-
-        if (videoId && isHovering.current) {
-          setTrailerId(videoId);
-          setShowTrailer(true);
-        }
-      } catch {
-        trailerCache.current.set(game.id, null);
+      if (videoId && isHovering.current) {
+        setTrailerId(videoId);
+        setShowTrailer(true);
       }
-    }, 900);
+    } catch {
+      trailerCache.current.set(game.id, null);
+    }
+  }
+
+  function stopTrailer() {
+    isHovering.current = false;
+
+    setShowTrailer(false);
+    setTrailerReady(false);
+    setSoundOn(false);
   }
 
   function toggleTrailerSound() {
@@ -201,21 +166,7 @@ export default function GameHero({
       );
     }
 
-  setSoundOn(nextSoundOn);
-}
-
-  function stopTrailer() {
-    isHovering.current = false;
-    setPaused(false);
-
-    if (hoverTimer.current) {
-      clearTimeout(hoverTimer.current);
-      hoverTimer.current = null;
-    }
-
-    setShowTrailer(false);
-    setTrailerReady(false);
-    setSoundOn(false);
+    setSoundOn(nextSoundOn);
   }
 
   function showGame(index: number) {
@@ -295,8 +246,8 @@ export default function GameHero({
 
             {trailerSrc && (
               <iframe
-              ref={trailerFrame}
-              src={trailerSrc}
+                ref={trailerFrame}
+                src={trailerSrc}
                 title={`${game.name} trailer preview`}
                 aria-hidden="true"
                 tabIndex={-1}
@@ -322,15 +273,38 @@ export default function GameHero({
             {!showTrailer && (
               <div className="pointer-events-none absolute left-4 top-4 z-20 hidden items-center gap-2 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/85 backdrop-blur-md md:flex">
                 <span className="h-2 w-2 rounded-full bg-yellow-400" />
-                Hover 1 second for trailer
+                Hover for trailer
               </div>
             )}
 
             {showTrailer && trailerReady && (
-              <div className="pointer-events-none absolute left-4 top-4 z-20 hidden items-center gap-2 bg-red-600/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md md:flex">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-                Trailer preview
-              </div>
+              <>
+                <div className="pointer-events-none absolute left-4 top-4 z-20 hidden items-center gap-2 bg-red-600/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md md:flex">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                  Trailer preview
+                </div>
+
+                <button
+                  type="button"
+                  onClick={toggleTrailerSound}
+                  className="absolute bottom-4 left-4 z-30 hidden items-center gap-2 rounded-full border border-white/20 bg-black/80 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-300 md:flex"
+                  aria-label={
+                    soundOn
+                      ? "Mute trailer"
+                      : "Turn trailer sound on"
+                  }
+                >
+                  {soundOn ? (
+                    <Volume2 className="h-4 w-4" />
+                  ) : (
+                    <VolumeX className="h-4 w-4" />
+                  )}
+
+                  {soundOn
+                    ? "Sound on"
+                    : "Sound off"}
+                </button>
+              </>
             )}
 
             <div className="absolute bottom-0 left-0 right-0 z-10 p-3 sm:p-5 lg:hidden">
@@ -416,23 +390,6 @@ export default function GameHero({
             ),
           )}
         </div>
-      )}
-
-      {showTrailer && trailerReady && (
-        <button
-          type="button"
-          onClick={toggleTrailerSound}
-          className="absolute bottom-4 left-4 z-30 hidden items-center gap-2 rounded-full border border-white/20 bg-black/80 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-300 md:flex"
-          aria-label={soundOn ? "Mute trailer" : "Turn trailer sound on"}
-        >
-          {soundOn ? (
-            <Volume2 className="h-4 w-4" />
-          ) : (
-            <VolumeX className="h-4 w-4" />
-          )}
-
-          {soundOn ? "Sound on" : "Sound off"}
-        </button>
       )}
     </section>
   );
