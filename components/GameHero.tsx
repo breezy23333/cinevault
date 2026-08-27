@@ -75,7 +75,7 @@ export default function GameHero({
         (current) =>
           (current + 1) % featuredGames.length,
       );
-    }, 1000);
+    }, 0);
 
     return () => window.clearInterval(timer);
   }, [featuredGames.length, paused]);

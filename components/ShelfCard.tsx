@@ -109,7 +109,7 @@ export default function ShelfCard({
       if (videoId && isHovering.current) {
         setShowTrailer(true);
       }
-    }, 1000);
+    }, 0);
   }
 
   function toggleTrailerSound(
@@ -170,17 +170,21 @@ export default function ShelfCard({
       onFocus={startTrailer}
       onBlur={stopTrailer}
       className="
-        group relative block
+        group relative z-10 block
         w-[108px] shrink-0 snap-start
         outline-none
+        transition-[width] duration-500
+        hover:z-40
         sm:w-[140px]
-        md:w-[160px]
-        lg:w-[172px]
+        md:w-[160px] md:hover:w-[320px]
+        lg:w-[172px] lg:hover:w-[360px]
       "
     >
       <div
         className="
           relative aspect-[2/3] overflow-hidden
+          transition-[aspect-ratio] duration-500
+          md:group-hover:aspect-video
           rounded-xl border border-white/10
           bg-[#111722]
           shadow-[0_12px_30px_rgba(0,0,0,0.28)]
@@ -226,9 +230,8 @@ export default function ShelfCard({
             allow="autoplay; encrypted-media; picture-in-picture"
             onLoad={() => setTrailerReady(true)}
             className={`
-              pointer-events-none absolute left-1/2 top-0
-              h-full w-[267%] max-w-none
-              -translate-x-1/2 border-0
+              pointer-events-none absolute inset-0
+              h-full w-full border-0
               transition-opacity duration-500
               ${trailerReady ? "opacity-100" : "opacity-0"}
             `}

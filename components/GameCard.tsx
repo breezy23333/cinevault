@@ -96,7 +96,7 @@ export default function GameCard({
     if (videoId && isHovering.current) {
       setShowTrailer(true);
     }
-  }, 1000);
+  }, 0);
 }
 
 function toggleTrailerSound(
