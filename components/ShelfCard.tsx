@@ -1,9 +1,9 @@
-// components/ShelfCard.tsx
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { useRef, useState } from "react";
 
 export type ShelfMedia = {
   id: number;
@@ -15,6 +15,44 @@ export type ShelfMedia = {
   trailer?: string | null;
 };
 
+function getYouTubeId(value?: string | null) {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+
+  // Accept a plain YouTube video key.
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed);
+
+    if (url.hostname.includes("youtu.be")) {
+      return url.pathname.split("/").filter(Boolean)[0] || null;
+    }
+
+    if (url.hostname.includes("youtube.com")) {
+      if (url.pathname === "/watch") {
+        return url.searchParams.get("v");
+      }
+
+      const parts = url.pathname.split("/").filter(Boolean);
+      const markerIndex = parts.findIndex((part) =>
+        ["embed", "shorts", "live"].includes(part),
+      );
+
+      if (markerIndex >= 0) {
+        return parts[markerIndex + 1] || null;
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 export default function ShelfCard({
   item,
   href,
@@ -22,15 +60,80 @@ export default function ShelfCard({
   item: ShelfMedia;
   href: string;
 }) {
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isHovering = useRef(false);
+  const trailerRequested = useRef(false);
+
+  const [showTrailer, setShowTrailer] = useState(false);
+  const [trailerReady, setTrailerReady] = useState(false);
+  const [trailerId, setTrailerId] = useState<string | null>(() =>
+    getYouTubeId(item.trailer),
+  );
+
   const score =
-    typeof item.rating === "number"
-      ? item.rating.toFixed(1)
+    typeof item.rating === "number" ? item.rating.toFixed(1) : null;
+
+    function startTrailer() {
+    isHovering.current = true;
+
+    hoverTimer.current = setTimeout(async () => {
+      let videoId = trailerId;
+
+      if (!videoId && !trailerRequested.current) {
+        trailerRequested.current = true;
+
+        try {
+          const response = await fetch(
+            `/api/trailer?media=${item.media}&id=${item.id}`,
+          );
+
+          if (response.ok) {
+            const data = (await response.json()) as {
+              trailer?: string | null;
+            };
+
+            videoId = data.trailer || null;
+
+            if (videoId) {
+              setTrailerId(videoId);
+            }
+          }
+        } catch {
+          videoId = null;
+        }
+      }
+
+      if (videoId && isHovering.current) {
+        setShowTrailer(true);
+      }
+    }, 700);
+  }
+
+  function stopTrailer() {
+    isHovering.current = false;
+
+    if (hoverTimer.current) {
+      clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
+
+    setShowTrailer(false);
+    setTrailerReady(false);
+  }
+
+  const trailerSrc =
+    showTrailer && trailerId
+      ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1`
       : null;
 
   return (
     <Link
       href={href}
       aria-label={`Open ${item.title}`}
+      onMouseEnter={startTrailer}
+      onMouseLeave={stopTrailer}
+      onFocus={startTrailer}
+      onBlur={stopTrailer}
       className="
         group relative block
         w-[108px] shrink-0 snap-start
@@ -40,7 +143,6 @@ export default function ShelfCard({
         lg:w-[172px]
       "
     >
-      {/* Poster is now the visual card—no extra dark container. */}
       <div
         className="
           relative aspect-[2/3] overflow-hidden
@@ -62,12 +164,16 @@ export default function ShelfCard({
             loading="lazy"
             decoding="async"
             draggable={false}
-            className="
+            className={`
               h-full w-full object-cover
               transition duration-500
               group-hover:scale-[1.04]
-              group-hover:brightness-110
-            "
+              ${
+                showTrailer && trailerReady
+                  ? "opacity-0"
+                  : "opacity-100 group-hover:brightness-110"
+              }
+            `}
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-[#111722] px-2 text-center text-[10px] text-white/35">
@@ -75,7 +181,24 @@ export default function ShelfCard({
           </div>
         )}
 
-        {/* Subtle cinematic overlay */}
+        {trailerSrc && (
+          <iframe
+            src={trailerSrc}
+            title={`${item.title} trailer preview`}
+            aria-hidden="true"
+            tabIndex={-1}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            onLoad={() => setTrailerReady(true)}
+            className={`
+              pointer-events-none absolute inset-0
+              h-full w-full scale-[1.8]
+              border-0 object-cover
+              transition-opacity duration-500
+              ${trailerReady ? "opacity-100" : "opacity-0"}
+            `}
+          />
+        )}
+
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10 opacity-70" />
 
         {score && (
@@ -93,24 +216,41 @@ export default function ShelfCard({
           </span>
         )}
 
-        <span
-          className="
-            absolute bottom-2 left-2
-            hidden translate-y-2 rounded-full
-            bg-yellow-400 px-2.5 py-1
-            text-[9px] font-black uppercase tracking-wide text-black
-            opacity-0 transition
-            group-hover:translate-y-0 group-hover:opacity-100
-            md:block
-          "
-        >
-          Open
-        </span>
+        {trailerId && !showTrailer && (
+          <span
+            className="
+              pointer-events-none absolute bottom-2 right-2
+              hidden rounded-full border border-white/15
+              bg-black/70 px-2 py-1
+              text-[8px] font-black uppercase tracking-wider text-white/80
+              opacity-0 backdrop-blur-md transition
+              group-hover:opacity-100
+              md:block
+            "
+          >
+            Trailer
+          </span>
+        )}
+
+        {!showTrailer && (
+          <span
+            className="
+              pointer-events-none absolute bottom-2 left-2
+              hidden items-center gap-1.5 rounded-full
+              bg-red-600/90 px-2.5 py-1
+              text-[8px] font-black uppercase tracking-wider text-white
+              backdrop-blur-md
+              md:flex
+            "
+          >
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            Preview
+          </span>
+        )}
 
         <div className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-yellow-400 transition duration-300 group-hover:scale-x-100" />
       </div>
 
-      {/* Information sits directly on the page background. */}
       <div className="px-0.5 pt-1.5 sm:pt-2">
         <h3
           className="
