@@ -95,10 +95,10 @@ export async function getGameTrailer(
 
   url.searchParams.set("part", "snippet");
   url.searchParams.set("type", "video");
-  url.searchParams.set("maxResults", "5");
+  url.searchParams.set("maxResults", "10");
   url.searchParams.set(
     "q",
-    `${gameName} official game trailer`,
+    `${gameName} official trailer`,
   );
   url.searchParams.set("order", "relevance");
   url.searchParams.set("videoEmbeddable", "true");

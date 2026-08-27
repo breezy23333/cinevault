@@ -8,6 +8,8 @@ import {
   ChevronRight,
   Gamepad2,
   Star,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   useEffect,
@@ -45,11 +47,13 @@ export default function GameHero({
     useState(false);
   const [trailerReady, setTrailerReady] =
     useState(false);
+  const [soundOn, setSoundOn] = useState(false);  
 
   const hoverTimer =
     useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isHovering = useRef(false);
+  const trailerFrame = useRef<HTMLIFrameElement>(null);
 
   const trailerCache = useRef(
     new Map<number, string | null>(),
@@ -71,7 +75,7 @@ export default function GameHero({
         (current) =>
           (current + 1) % featuredGames.length,
       );
-    }, 7000);
+    }, 1000);
 
     return () => window.clearInterval(timer);
   }, [featuredGames.length, paused]);
@@ -111,7 +115,7 @@ export default function GameHero({
 
   const trailerSrc =
     showTrailer && trailerId
-      ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1`
+      ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`
       : null;
 
   function startTrailer() {
@@ -174,6 +178,32 @@ export default function GameHero({
     }, 900);
   }
 
+  function toggleTrailerSound() {
+    const nextSoundOn = !soundOn;
+
+    trailerFrame.current?.contentWindow?.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: nextSoundOn ? "unMute" : "mute",
+        args: [],
+      }),
+      "*",
+    );
+
+    if (nextSoundOn) {
+      trailerFrame.current?.contentWindow?.postMessage(
+        JSON.stringify({
+          event: "command",
+          func: "setVolume",
+          args: [70],
+        }),
+        "*",
+      );
+    }
+
+  setSoundOn(nextSoundOn);
+}
+
   function stopTrailer() {
     isHovering.current = false;
     setPaused(false);
@@ -185,6 +215,7 @@ export default function GameHero({
 
     setShowTrailer(false);
     setTrailerReady(false);
+    setSoundOn(false);
   }
 
   function showGame(index: number) {
@@ -264,7 +295,8 @@ export default function GameHero({
 
             {trailerSrc && (
               <iframe
-                src={trailerSrc}
+              ref={trailerFrame}
+              src={trailerSrc}
                 title={`${game.name} trailer preview`}
                 aria-hidden="true"
                 tabIndex={-1}
@@ -286,6 +318,13 @@ export default function GameHero({
             )}
 
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#080b12] via-[#080b12]/15 to-black/10 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#0c111b]/65" />
+
+            {!showTrailer && (
+              <div className="pointer-events-none absolute left-4 top-4 z-20 hidden items-center gap-2 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/85 backdrop-blur-md md:flex">
+                <span className="h-2 w-2 rounded-full bg-yellow-400" />
+                Hover 1 second for trailer
+              </div>
+            )}
 
             {showTrailer && trailerReady && (
               <div className="pointer-events-none absolute left-4 top-4 z-20 hidden items-center gap-2 bg-red-600/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md md:flex">
@@ -377,6 +416,23 @@ export default function GameHero({
             ),
           )}
         </div>
+      )}
+
+      {showTrailer && trailerReady && (
+        <button
+          type="button"
+          onClick={toggleTrailerSound}
+          className="absolute bottom-4 left-4 z-30 hidden items-center gap-2 rounded-full border border-white/20 bg-black/80 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md transition hover:border-yellow-400 hover:text-yellow-300 md:flex"
+          aria-label={soundOn ? "Mute trailer" : "Turn trailer sound on"}
+        >
+          {soundOn ? (
+            <Volume2 className="h-4 w-4" />
+          ) : (
+            <VolumeX className="h-4 w-4" />
+          )}
+
+          {soundOn ? "Sound on" : "Sound off"}
+        </button>
       )}
     </section>
   );

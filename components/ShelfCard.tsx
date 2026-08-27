@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { Volume2, VolumeX } from "lucide-react";
 import { useRef, useState } from "react";
 
 export type ShelfMedia = {
@@ -62,10 +63,12 @@ export default function ShelfCard({
 }) {
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isHovering = useRef(false);
+  const trailerFrame = useRef<HTMLIFrameElement>(null);
   const trailerRequested = useRef(false);
 
   const [showTrailer, setShowTrailer] = useState(false);
   const [trailerReady, setTrailerReady] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
   const [trailerId, setTrailerId] = useState<string | null>(() =>
     getYouTubeId(item.trailer),
   );
@@ -106,7 +109,38 @@ export default function ShelfCard({
       if (videoId && isHovering.current) {
         setShowTrailer(true);
       }
-    }, 700);
+    }, 1000);
+  }
+
+  function toggleTrailerSound(
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const nextSoundOn = !soundOn;
+
+    trailerFrame.current?.contentWindow?.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: nextSoundOn ? "unMute" : "mute",
+        args: [],
+      }),
+      "*",
+    );
+
+    if (nextSoundOn) {
+      trailerFrame.current?.contentWindow?.postMessage(
+        JSON.stringify({
+          event: "command",
+          func: "setVolume",
+          args: [65],
+        }),
+        "*",
+      );
+    }
+
+    setSoundOn(nextSoundOn);
   }
 
   function stopTrailer() {
@@ -119,11 +153,12 @@ export default function ShelfCard({
 
     setShowTrailer(false);
     setTrailerReady(false);
+    setSoundOn(false);
   }
 
   const trailerSrc =
     showTrailer && trailerId
-      ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1`
+      ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`
       : null;
 
   return (
@@ -183,6 +218,7 @@ export default function ShelfCard({
 
         {trailerSrc && (
           <iframe
+            ref={trailerFrame}
             src={trailerSrc}
             title={`${item.title} trailer preview`}
             aria-hidden="true"
@@ -190,9 +226,9 @@ export default function ShelfCard({
             allow="autoplay; encrypted-media; picture-in-picture"
             onLoad={() => setTrailerReady(true)}
             className={`
-              pointer-events-none absolute inset-0
-              h-full w-full scale-[1.8]
-              border-0 object-cover
+              pointer-events-none absolute left-1/2 top-0
+              h-full w-[267%] max-w-none
+              -translate-x-1/2 border-0
               transition-opacity duration-500
               ${trailerReady ? "opacity-100" : "opacity-0"}
             `}
@@ -232,7 +268,7 @@ export default function ShelfCard({
           </span>
         )}
 
-        {!showTrailer && (
+        {showTrailer && trailerReady && (
           <span
             className="
               pointer-events-none absolute bottom-2 left-2
@@ -246,6 +282,30 @@ export default function ShelfCard({
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
             Preview
           </span>
+        )}
+
+        {showTrailer && trailerReady && (
+          <button
+            type="button"
+            onClick={toggleTrailerSound}
+            aria-label={soundOn ? "Mute trailer" : "Turn trailer sound on"}
+            className="
+              absolute bottom-2 right-2 z-30
+              hidden h-7 w-7 items-center justify-center
+              rounded-full border border-white/20
+              bg-black/80 text-white
+              shadow-lg backdrop-blur-md
+              transition
+              hover:border-yellow-400 hover:text-yellow-300
+              md:flex
+            "
+          >
+            {soundOn ? (
+              <Volume2 className="h-3.5 w-3.5" />
+            ) : (
+              <VolumeX className="h-3.5 w-3.5" />
+            )}
+          </button>
         )}
 
         <div className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-yellow-400 transition duration-300 group-hover:scale-x-100" />

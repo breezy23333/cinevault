@@ -1,7 +1,19 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { ArrowUpRight, Star } from "lucide-react";
+import {
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
+import {
+  ArrowUpRight,
+  Star,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import type { RawgGame } from "@/lib/games";
 
 function getPlatformNames(game: RawgGame) {
@@ -22,14 +34,125 @@ export default function GameCard({
   game: RawgGame;
 }) {
   const platforms = getPlatformNames(game);
+  const hoverTimer =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isHovering = useRef(false);
+  const trailerRequested = useRef(false);
+  const trailerFrame = useRef<HTMLIFrameElement>(null);
+
+  const [trailerId, setTrailerId] =
+    useState<string | null>(null);
+  const [showTrailer, setShowTrailer] =
+    useState(false);
+  const [trailerReady, setTrailerReady] =
+    useState(false);
+  const [soundOn, setSoundOn] =
+    useState(false);
 
   const releaseYear = game.released
     ? new Date(game.released).getUTCFullYear()
     : null;
 
+   function startTrailer() {
+  isHovering.current = true;
+
+  if (hoverTimer.current) {
+    clearTimeout(hoverTimer.current);
+  }
+
+  hoverTimer.current = setTimeout(async () => {
+    let videoId = trailerId;
+
+    if (!videoId && !trailerRequested.current) {
+      trailerRequested.current = true;
+
+      try {
+        const response = await fetch(
+          `/api/games/trailer?name=${encodeURIComponent(
+            game.name,
+          )}`,
+        );
+
+        if (response.ok) {
+          const data = (await response.json()) as {
+            trailer?: {
+              videoId?: string;
+            } | null;
+          };
+
+          videoId =
+            data.trailer?.videoId || null;
+
+          if (videoId) {
+            setTrailerId(videoId);
+          }
+        }
+      } catch {
+        videoId = null;
+      }
+    }
+
+    if (videoId && isHovering.current) {
+      setShowTrailer(true);
+    }
+  }, 1000);
+}
+
+function toggleTrailerSound(
+  event: MouseEvent<HTMLButtonElement>,
+) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const nextSoundOn = !soundOn;
+
+  trailerFrame.current?.contentWindow?.postMessage(
+    JSON.stringify({
+      event: "command",
+      func: nextSoundOn ? "unMute" : "mute",
+      args: [],
+    }),
+    "*",
+  );
+
+  if (nextSoundOn) {
+    trailerFrame.current?.contentWindow?.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: "setVolume",
+        args: [65],
+      }),
+      "*",
+    );
+  }
+
+  setSoundOn(nextSoundOn);
+}
+
+function stopTrailer() {
+  isHovering.current = false;
+
+  if (hoverTimer.current) {
+    clearTimeout(hoverTimer.current);
+    hoverTimer.current = null;
+  }
+
+  setShowTrailer(false);
+  setTrailerReady(false);
+  setSoundOn(false);
+}
+
+const trailerSrc =
+  showTrailer && trailerId
+    ? `https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`
+    : null; 
+
   return (
     <Link
       href={`/games/${game.id}`}
+      onMouseEnter={startTrailer}
+      onMouseLeave={stopTrailer}
       aria-label={`View ${game.name}`}
       className="
         group block w-full self-start overflow-hidden
@@ -50,20 +173,92 @@ export default function GameCard({
             loading="lazy"
             decoding="async"
             draggable={false}
-            className="
+            className={`
               h-full w-full object-cover object-center
               transition duration-500
               group-hover:scale-[1.025]
               group-hover:brightness-110
-            "
+              ${
+                showTrailer && trailerReady
+                  ? "opacity-0"
+                  : "opacity-100"
+              }
+            `}
           />
         ) : (
           <div className="grid h-full place-items-center bg-gradient-to-br from-[#1a2433] to-[#0b1019] px-3 text-center text-xs font-bold uppercase tracking-wider text-white/30">
             Image unavailable
           </div>
+          )}
+
+        {trailerSrc && (
+          <iframe
+            ref={trailerFrame}
+            src={trailerSrc}
+            title={`${game.name} trailer preview`}
+            aria-hidden="true"
+            tabIndex={-1}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            onLoad={() => setTrailerReady(true)}
+            className={`
+              pointer-events-none absolute inset-0
+              h-full w-full border-0
+              transition-opacity duration-500
+              ${
+                trailerReady
+                  ? "opacity-100"
+                  : "opacity-0"
+              }
+            `}
+          />
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/5" />
+
+        {!showTrailer && (
+          <span className="pointer-events-none absolute left-2 top-2 hidden rounded-full bg-black/75 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-white/80 opacity-0 backdrop-blur-md transition group-hover:opacity-100 md:block">
+            Hover 1 second
+          </span>
+        )}
+
+        {showTrailer && trailerReady && (
+          <span className="pointer-events-none absolute left-2 top-2 hidden items-center gap-1.5 rounded-full bg-red-600/90 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-white backdrop-blur-md md:flex">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            Preview
+          </span>
+        )}
+
+        {showTrailer && trailerReady && (
+          <button
+            type="button"
+            onClick={toggleTrailerSound}
+            aria-label={
+              soundOn
+                ? `Mute ${game.name} trailer`
+                : `Turn on ${game.name} trailer sound`
+            }
+            className="
+              absolute bottom-2 right-2 z-30
+              hidden items-center gap-1.5
+              rounded-full border border-white/20
+              bg-black/80 px-2.5 py-1.5
+              text-[8px] font-black uppercase
+              tracking-wider text-white
+              backdrop-blur-md transition
+              hover:border-yellow-400
+              hover:text-yellow-300
+              md:flex
+            "
+          >
+            {soundOn ? (
+              <Volume2 className="h-3.5 w-3.5" />
+            ) : (
+              <VolumeX className="h-3.5 w-3.5" />
+            )}
+
+            {soundOn ? "Sound on" : "Sound off"}
+          </button>
+        )}
 
         {typeof game.metacritic === "number" ? (
           <span className="absolute right-2 top-2 border border-emerald-300/30 bg-[#123b28]/90 px-2 py-1 text-[10px] font-black text-emerald-200">
