@@ -29,6 +29,7 @@ import HomeGamingSection from "@/components/HomeGamingSection";
 import type { Metadata } from "next";
 import { getGamingHomeData } from "@/lib/games";
 import MovieEras from "@/components/MovieEras";
+import LexryspellSpotlight from "@/components/LexryspellSpotlight";
 
 // runtime/perf
 export const runtime = "nodejs";
@@ -625,6 +626,8 @@ const oscarShelf = await Promise.all(
               <CategoriesTray genres={genres} />
             )}
           </section>
+
+          <LexryspellSpotlight />
 
           <MovieEras />
 
