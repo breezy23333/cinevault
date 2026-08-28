@@ -33,6 +33,10 @@ export default function ShelfRow({ items }: { items: Item[] }) {
     const resizeObserver = new ResizeObserver(updateScrollState);
 
     resizeObserver.observe(shelf);
+
+    Array.from(shelf.children).forEach((child) => {
+      resizeObserver.observe(child);
+    });
     shelf.addEventListener("scroll", updateScrollState, {
       passive: true,
     });
@@ -62,6 +66,7 @@ export default function ShelfRow({ items }: { items: Item[] }) {
     <div className="group/shelf relative min-w-0 max-w-full">
       <div
         ref={shelfRef}
+        onTransitionEndCapture={updateScrollState}
         className="
           hide-scrollbar
           flex w-full min-w-0 snap-x snap-proximity
@@ -88,7 +93,7 @@ export default function ShelfRow({ items }: { items: Item[] }) {
         onClick={() => scrollShelf("left")}
         disabled={!canScrollLeft}
         className="
-          absolute left-1 top-1/2 z-20 hidden
+          absolute left-1 top-1/2 z-[100] hidden
           h-10 w-10 -translate-y-1/2
           items-center justify-center rounded-full
           border border-white/15 bg-black/75
@@ -108,7 +113,7 @@ export default function ShelfRow({ items }: { items: Item[] }) {
         onClick={() => scrollShelf("right")}
         disabled={!canScrollRight}
         className="
-          absolute right-1 top-1/2 z-20 hidden
+          absolute right-1 top-1/2 z-[100] hidden
           h-10 w-10 -translate-y-1/2
           items-center justify-center rounded-full
           border border-white/15 bg-black/75
