@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { GAME_CATEGORY_SLUGS } from "@/lib/games";
+import { prisma } from "@/lib/prisma";
 
 export const revalidate = 86400;
 
@@ -154,79 +155,185 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     trendingTvIds,
     popularTvIds,
     topRatedTvIds,
-    gameIds,
+    apiGameIds,
+    storedTitles,
+    storedGames,
   ] = await Promise.all([
-    fetchIdsAcrossPages("/trending/movie/week?language=en-US"),
-    fetchIdsAcrossPages("/movie/popular?language=en-US"),
-    fetchIdsAcrossPages("/movie/top_rated?language=en-US"),
-    fetchIdsAcrossPages("/trending/tv/week?language=en-US"),
-    fetchIdsAcrossPages("/tv/popular?language=en-US"),
-    fetchIdsAcrossPages("/tv/top_rated?language=en-US"),
+    fetchIdsAcrossPages(
+      "/trending/movie/week?language=en-US",
+    ),
+    fetchIdsAcrossPages(
+      "/movie/popular?language=en-US",
+    ),
+    fetchIdsAcrossPages(
+      "/movie/top_rated?language=en-US",
+    ),
+    fetchIdsAcrossPages(
+      "/trending/tv/week?language=en-US",
+    ),
+    fetchIdsAcrossPages(
+      "/tv/popular?language=en-US",
+    ),
+    fetchIdsAcrossPages(
+      "/tv/top_rated?language=en-US",
+    ),
     fetchGameIds(),
+
+    prisma.catalogTitle
+      .findMany({
+        where: {
+          indexable: true,
+          adult: false,
+        },
+        select: {
+          tmdbId: true,
+          mediaType: true,
+          updatedAt: true,
+        },
+        orderBy: [
+          {
+            popularity: "desc",
+          },
+          {
+            updatedAt: "desc",
+          },
+        ],
+        take: 40000,
+      })
+      .catch(() => []),
+
+    prisma.cachedGame
+      .findMany({
+        where: {
+          backgroundImage: {
+            not: null,
+          },
+        },
+        select: {
+          rawgId: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+        take: 5000,
+      })
+      .catch(() => []),
   ]);
 
-  const movieIds = [...new Set([
-    ...trendingMovieIds,
-    ...popularMovieIds,
-    ...topRatedMovieIds,
-  ])];
-  const tvIds = [...new Set([
-    ...trendingTvIds,
-    ...popularTvIds,
-    ...topRatedTvIds,
-  ])];
-  const uniqueGameIds = [...new Set(gameIds)];
-
-  const topicPages: StaticPage[] = Object.entries(newsTopics).flatMap(
-    ([category, topics]) =>
-      topics.map((topic) => ({
-        path: `/news/${category}/${topic}`,
-        changeFrequency: "hourly" as const,
-        priority: 0.7,
-      })),
+  const storedMovies = storedTitles.filter(
+    (title) => title.mediaType === "movie",
   );
 
-  const staticPages = [...primaryPages, ...informationPages, ...topicPages];
-  const paginatedHubs = [
-    "/movie",
-    "/tv",
-    "/anime",
-    "/cartoons",
-    "/trending",
-    "/top",
-    "/upcoming",
+  const storedTelevision = storedTitles.filter(
+    (title) => title.mediaType === "tv",
+  );
+
+  const movieLastModified = new Map(
+    storedMovies.map((title) => [
+      title.tmdbId,
+      title.updatedAt,
+    ]),
+  );
+
+  const televisionLastModified = new Map(
+    storedTelevision.map((title) => [
+      title.tmdbId,
+      title.updatedAt,
+    ]),
+  );
+
+  const gameLastModified = new Map(
+    storedGames.map((game) => [
+      game.rawgId,
+      game.updatedAt,
+    ]),
+  );
+
+  /*
+   * Database entries are the permanent catalogue.
+   * API entries remain as a fallback while the database
+   * is still being populated.
+   */
+  const movieIds = [
+    ...new Set([
+      ...storedMovies.map((title) => title.tmdbId),
+      ...trendingMovieIds,
+      ...popularMovieIds,
+      ...topRatedMovieIds,
+    ]),
   ];
-  const paginationPages = paginatedHubs.flatMap((path) =>
-    Array.from({ length: 19 }, (_, index) => ({
-      path: `${path}?page=${index + 2}`,
-      changeFrequency: "daily" as const,
-      priority: 0.65,
-    })),
-  );
+
+  const tvIds = [
+    ...new Set([
+      ...storedTelevision.map(
+        (title) => title.tmdbId,
+      ),
+      ...trendingTvIds,
+      ...popularTvIds,
+      ...topRatedTvIds,
+    ]),
+  ];
+
+  const gameIds = [
+    ...new Set([
+      ...storedGames.map((game) => game.rawgId),
+      ...apiGameIds,
+    ]),
+  ];
+
+  const topicPages: StaticPage[] =
+    Object.entries(newsTopics).flatMap(
+      ([category, topics]) =>
+        topics.map((topic) => ({
+          path: `/news/${category}/${topic}`,
+          changeFrequency: "hourly" as const,
+          priority: 0.7,
+        })),
+    );
+
+  const staticPages = [
+    ...primaryPages,
+    ...informationPages,
+    ...topicPages,
+  ];
 
   return [
-    ...[...staticPages, ...paginationPages].map((page) => ({
-      url: `${BASE_URL}${page.path === "/" ? "" : page.path}`,
+    ...staticPages.map((page) => ({
+      url:
+        page.path === "/"
+          ? BASE_URL
+          : `${BASE_URL}${page.path}`,
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     })),
+
     ...GAME_CATEGORY_SLUGS.map((slug) => ({
       url: `${BASE_URL}/games/category/${slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
+
     ...movieIds.map((id) => ({
       url: `${BASE_URL}/movie/${id}`,
+      lastModified:
+        movieLastModified.get(id),
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
+
     ...tvIds.map((id) => ({
       url: `${BASE_URL}/tv/${id}`,
+      lastModified:
+        televisionLastModified.get(id),
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
-    ...uniqueGameIds.map((id) => ({
+
+    ...gameIds.map((id) => ({
       url: `${BASE_URL}/games/${id}`,
+      lastModified:
+        gameLastModified.get(id),
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),

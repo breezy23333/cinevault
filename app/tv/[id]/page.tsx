@@ -35,6 +35,7 @@ type TMDBVideo = {
   site?: string;
   type?: string;
   official?: boolean;
+  published_at?: string;
 };
 
 type Cast = {
@@ -172,6 +173,9 @@ export default async function TvPage({ params }: PageProps) {
       : null;
   const ratingPercent = rating ? Math.min(Math.max(rating * 10, 0), 100) : 0;
   const trailerKey = pickTrailer(videos);
+  const trailerVideo = videos.find(
+    (video) => video.key === trailerKey,
+  );
   const genres = Array.isArray(details.genres) ? details.genres : [];
   const seasons = Array.isArray(details.seasons) ? details.seasons : [];
   const networks = Array.isArray(details.networks) ? details.networks.slice(0, 6) : [];
@@ -329,6 +333,7 @@ export default async function TvPage({ params }: PageProps) {
               `https://www.youtube-nocookie.com/embed/${trailerKey}`,
             contentUrl:
               `https://www.youtube.com/watch?v=${trailerKey}`,
+            uploadDate: trailerVideo?.published_at || undefined,
           }
         : undefined,
 

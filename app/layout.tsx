@@ -9,46 +9,75 @@ import JsonLd from "@/components/JsonLd";
 import { Analytics } from "@vercel/analytics/next";
 
 const SITE_URL = "https://cinryvan.vercel.app";
+const SITE_NAME = "CINRYVAN";
+const CREATOR_NAME = "Luvo Maphela";
 
 const SITE_TITLE =
-  "CINRYVAN — Movies, TV Shows, Anime, Games & Where to Watch";
+  "CINRYVAN: Movies, TV Shows, Anime, Games & Streaming Guides";
 
 const SITE_DESCRIPTION =
-  "Find what to watch and play next on CINRYVAN. Discover trending movies, TV shows, anime, cartoons and games with trailers, ratings, casts, release details, watch options and entertainment news.";
+  "Discover movies, TV shows, anime, cartoons and games on CINRYVAN. Explore trailers, ratings, casts, release dates, streaming options, gaming deals and the latest entertainment news.";
+
+const OG_IMAGE = {
+  url: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "CINRYVAN — Discover movies, TV shows, anime and games",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
-  applicationName: "CINRYVAN",
+  applicationName: SITE_NAME,
+  generator: "Next.js",
 
   title: {
     default: SITE_TITLE,
-    template: "%s | CINRYVAN",
+    template: `%s | ${SITE_NAME}`,
   },
 
   description: SITE_DESCRIPTION,
 
-  creator: "CINRYVAN",
-  publisher: "CINRYVAN",
+  authors: [
+    {
+      name: CREATOR_NAME,
+      url: `${SITE_URL}/about`,
+    },
+  ],
 
+  creator: CREATOR_NAME,
+  publisher: SITE_NAME,
   category: "Entertainment",
 
+  /*
+   * Google does not use meta keywords for ranking.
+   * These remain as secondary classification signals for
+   * other services and search engines.
+   */
   keywords: [
+    "CINRYVAN",
+    "movie discovery",
     "movies",
     "TV shows",
     "anime",
     "cartoons",
-    "games",
-    "where to watch",
-    "movie trailers",
-    "movie cast",
+    "video games",
+    "where to watch movies",
     "streaming guide",
+    "movie trailers",
+    "TV trailers",
+    "movie ratings",
+    "movie cast",
+    "release dates",
     "upcoming movies",
     "trending movies",
     "top rated movies",
-    "entertainment news",
+    "new TV shows",
+    "anime recommendations",
     "game discovery",
-    "CINRYVAN",
+    "gaming deals",
+    "entertainment news",
+    "gaming news",
   ],
 
   referrer: "origin-when-cross-origin",
@@ -70,24 +99,27 @@ export const metadata: Metadata = {
         type: "image/png",
       },
     ],
-    apple: "/apple-icon.png",
+    shortcut: "/favicon.ico",
+    apple: [
+      {
+        url: "/apple-icon.png",
+        type: "image/png",
+      },
+    ],
+  },
+
+  verification: {
+    google: "V4XKtKx6YSlNj3fUJoY4uI9bwoPpQIlKka_B-yZhqhE",
   },
 
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    siteName: "CINRYVAN",
+    siteName: SITE_NAME,
     locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CINRYVAN — Discover movies, shows, anime and games",
-      },
-    ],
+    images: [OG_IMAGE],
   },
 
   twitter: {
@@ -97,7 +129,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og-image.png",
-        alt: "CINRYVAN — Discover movies, shows, anime and games",
+        alt: OG_IMAGE.alt,
       },
     ],
   },
@@ -106,9 +138,12 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
     nocache: false,
+
     googleBot: {
       index: true,
       follow: true,
+      noarchive: false,
+      nosnippet: false,
       noimageindex: false,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -119,6 +154,10 @@ export const metadata: Metadata = {
   other: {
     "theme-color": "#05070d",
     "color-scheme": "dark",
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "apple-mobile-web-app-title": SITE_NAME,
   },
 };
 
@@ -126,61 +165,123 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: "cover",
   themeColor: "#05070d",
   colorScheme: "dark",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: ReactNode;
-}) {
+}>) {
   const structuredData = {
     "@context": "https://schema.org",
+
     "@graph": [
       {
-        "@type": "WebSite",
-        "@id": `${SITE_URL}/#website`,
-        url: SITE_URL,
-        name: "CINRYVAN",
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: SITE_NAME,
         alternateName: [
           "Cinryvan",
           "CINRYVAN Entertainment",
         ],
-        description: SITE_DESCRIPTION,
-        inLanguage: "en",
-        publisher: {
-          "@id": `${SITE_URL}/#organization`,
-        },
-        potentialAction: {
-          "@type": "SearchAction",
-          target: {
-            "@type": "EntryPoint",
-            urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
-          },
-          "query-input": "required name=search_term_string",
-        },
-      },
-      {
-        "@type": "Organization",
-        "@id": `${SITE_URL}/#organization`,
-        name: "CINRYVAN",
-        alternateName: "Cinryvan",
         url: SITE_URL,
         description:
-          "CINRYVAN is an entertainment discovery platform for movies, television, anime, cartoons, games and entertainment news.",
+          "CINRYVAN is an entertainment discovery platform created by Luvo Maphela for movies, television, anime, cartoons, video games and entertainment news.",
+
+        founder: {
+          "@type": "Person",
+          name: CREATOR_NAME,
+        },
+
         logo: {
           "@type": "ImageObject",
-          url: `${SITE_URL}/og-image.png`,
-          width: 1200,
-          height: 630,
+          "@id": `${SITE_URL}/#logo`,
+          url: `${SITE_URL}/icon.png`,
+          contentUrl: `${SITE_URL}/icon.png`,
+          caption: SITE_NAME,
         },
+
         image: {
           "@type": "ImageObject",
           url: `${SITE_URL}/og-image.png`,
           width: 1200,
           height: 630,
         },
+      },
+
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: SITE_NAME,
+        alternateName: [
+          "Cinryvan",
+          "CINRYVAN Entertainment",
+        ],
+        description: SITE_DESCRIPTION,
+        inLanguage: "en",
+
+        publisher: {
+          "@id": `${SITE_URL}/#organization`,
+        },
+
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate:
+              `${SITE_URL}/search?q={search_term_string}`,
+          },
+          "query-input":
+            "required name=search_term_string",
+        },
+      },
+
+      {
+        "@type": "WebPage",
+        "@id": `${SITE_URL}/#webpage`,
+        url: SITE_URL,
+        name: SITE_TITLE,
+        description: SITE_DESCRIPTION,
+        isPartOf: {
+          "@id": `${SITE_URL}/#website`,
+        },
+        about: {
+          "@id": `${SITE_URL}/#organization`,
+        },
+        primaryImageOfPage: {
+          "@type": "ImageObject",
+          url: `${SITE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+        },
+        inLanguage: "en",
+      },
+
+      {
+        "@type": "SiteNavigationElement",
+        "@id": `${SITE_URL}/#navigation`,
+        name: [
+          "Movies",
+          "TV Shows",
+          "Animation",
+          "Anime",
+          "Games",
+          "News",
+          "Browse",
+        ],
+        url: [
+          `${SITE_URL}/movie`,
+          `${SITE_URL}/tv`,
+          `${SITE_URL}/animation`,
+          `${SITE_URL}/anime`,
+          `${SITE_URL}/games`,
+          `${SITE_URL}/news`,
+          `${SITE_URL}/browse`,
+        ],
       },
     ],
   };

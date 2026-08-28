@@ -159,3 +159,30 @@ model CachedGame {
   @@index([metacritic])
   @@index([syncedAt])
 }
+
+model CatalogTitle {
+  id               String    @id @default(cuid())
+  tmdbId           Int
+  mediaType        String
+  title            String
+  originalTitle    String?
+  overview         String?
+  posterPath       String?
+  backdropPath     String?
+  releaseDate      DateTime?
+  originalLanguage String?
+  popularity       Float     @default(0)
+  voteAverage      Float     @default(0)
+  voteCount        Int       @default(0)
+  adult            Boolean   @default(false)
+  indexable        Boolean   @default(true)
+  syncedAt         DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([tmdbId, mediaType])
+  @@index([mediaType, popularity])
+  @@index([mediaType, indexable])
+  @@index([releaseDate])
+  @@index([syncedAt])
+}

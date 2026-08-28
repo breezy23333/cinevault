@@ -25,6 +25,7 @@ type TMDBVideo = {
   site?: string;
   type?: string;
   official?: boolean;
+  published_at?: string;
 };
 
 type Cast = {
@@ -176,6 +177,9 @@ export default async function MoviePage({ params }: PageProps) {
       : null;
   const ratingPercent = rating ? Math.min(Math.max(rating * 10, 0), 100) : 0;
   const trailerKey = pickTrailer(videos);
+  const trailerVideo = videos.find(
+    (video) => video.key === trailerKey,
+  );
   const genres = Array.isArray(details.genres) ? details.genres : [];
   const studios = Array.isArray(details.production_companies)
     ? details.production_companies.slice(0, 6)
@@ -302,7 +306,7 @@ export default async function MoviePage({ params }: PageProps) {
             contentUrl:
               `https://www.youtube.com/watch?v=${trailerKey}`,
             uploadDate:
-              details.release_date || undefined,
+              trailerVideo?.published_at || undefined,
           }
         : undefined,
 

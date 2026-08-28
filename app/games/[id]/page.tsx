@@ -297,7 +297,6 @@ export default async function GameDetailsPage({ params }: PageProps) {
     datePublished: game.released || undefined,
     genre: game.genres?.map((genre) => genre.name),
     gamePlatform: platforms.map((item) => item.platform.name),
-    operatingSystem: platforms.map((item) => item.platform.name),
     applicationCategory: "Game",
     contentRating: game.esrb_rating?.name || undefined,
     author: developers.map((developer) => ({
