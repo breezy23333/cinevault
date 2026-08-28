@@ -35,6 +35,9 @@ import { getGamingHomeData } from "@/lib/games";
 import MovieEras from "@/components/MovieEras";
 import LexryspellSpotlight from "@/components/LexryspellSpotlight";
 import HomeNewsCarousels from "@/components/HomeNewsCarousels";
+import ExploreBannerCarousel, {
+  type ExploreBannerSlide,
+} from "@/components/ExploreBannerCarousel";
 
 // runtime/perf
 export const runtime = "nodejs";
@@ -628,6 +631,100 @@ const oscarShelf = await Promise.all(
   })
 );
 
+const findTmdbBackground = (
+  data: unknown,
+) => {
+  const items = Array.isArray(data)
+    ? data
+    : Array.isArray(
+          (data as { results?: unknown[] })
+            ?.results,
+        )
+      ? (
+          data as {
+            results: unknown[];
+          }
+        ).results
+      : [];
+
+  const item = items.find((entry: any) => {
+    return (
+      entry?.backdrop_path ||
+      entry?.poster_path
+    );
+  }) as
+    | {
+        backdrop_path?: string | null;
+        poster_path?: string | null;
+      }
+    | undefined;
+
+  if (!item) return null;
+
+  return item.backdrop_path
+    ? tmdbImg(
+        item.backdrop_path,
+        "w1280",
+      )
+    : tmdbImg(
+        item.poster_path,
+        "w780",
+      );
+};
+
+const exploreSlides: ExploreBannerSlide[] = [
+  {
+    title: "Trending Movies & TV",
+    eyebrow: "Popular right now",
+    description:
+      "Explore what audiences are watching across the biggest movies and television shows.",
+    href: "/trending",
+    image: findTmdbBackground(trendingRaw),
+  },
+  {
+    title: "Top Rated",
+    eyebrow: "Audience favourites",
+    description:
+      "Discover critically acclaimed films and series with the strongest audience ratings.",
+    href: "/top",
+    image: findTmdbBackground(topRatedMovies),
+  },
+  {
+    title: "Anime Universe",
+    eyebrow: "Japanese animation",
+    description:
+      "Enter anime worlds filled with action, adventure, fantasy, romance and unforgettable characters.",
+    href: "/anime",
+    image: findTmdbBackground(japaneseAnime),
+  },
+  {
+    title: "Cartoon Collection",
+    eyebrow: "Animated worlds",
+    description:
+      "Explore Cartoon Network, Disney, Nickelodeon, classics and family animation.",
+    href: "/cartoons",
+    image: findTmdbBackground(cartoonNetwork),
+  },
+  {
+    title: "Entertainment News",
+    eyebrow: "Live industry radar",
+    description:
+      "Read the latest movie, television, gaming, sports, celebrity and streaming headlines.",
+    href: "/news",
+    image:
+      newsItems.find((item) => item.image)
+        ?.image || null,
+  },
+  {
+    title: "Upcoming Releases",
+    eyebrow: "Coming soon",
+    description:
+      "See the movies, television shows and animated releases arriving next.",
+    href: "/upcoming",
+    image: findTmdbBackground(upcomingMovies),
+  },
+];
+
  return (
   <main className="relative overflow-x-hidden bg-[#05070d] text-white">
     {/* cosmic background */}
@@ -909,67 +1006,9 @@ const oscarShelf = await Promise.all(
             sports={sportsNewsItems.slice(0, MAX_NEWS)}
           />
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
-              href="/trending"
-              className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-yellow-400/50 hover:bg-white/10"
-            >
-              <h3 className="text-lg font-bold">Trending Movies & TV</h3>
-              <p className="mt-2 text-sm text-white/60">
-                Explore what is hot across movies and shows.
-              </p>
-            </Link>
-
-            <Link
-              href="/top"
-              className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-yellow-400/50 hover:bg-white/10"
-            >
-              <h3 className="text-lg font-bold">Top Rated</h3>
-              <p className="mt-2 text-sm text-white/60">
-                Discover the highest-rated films and series.
-              </p>
-            </Link>
-
-            <Link
-              href="/anime"
-              className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-pink-400/50 hover:bg-white/10"
-            >
-              <h3 className="text-lg font-bold">Anime Universe</h3>
-              <p className="mt-2 text-sm text-white/60">
-                Browse anime adventures, action, fantasy, and drama.
-              </p>
-            </Link>
-
-            <Link
-              href="/cartoons"
-              className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-cyan-400/50 hover:bg-white/10"
-            >
-              <h3 className="text-lg font-bold">Cartoon Collection</h3>
-              <p className="mt-2 text-sm text-white/60">
-                Explore animated worlds and family-friendly discoveries.
-              </p>
-            </Link>
-
-            <Link
-              href="/news"
-              className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-green-400/50 hover:bg-white/10"
-            >
-              <h3 className="text-lg font-bold">Entertainment News</h3>
-              <p className="mt-2 text-sm text-white/60">
-                Read movie, TV, gaming, sports, and entertainment updates.
-              </p>
-            </Link>
-
-            <Link
-              href="/upcoming"
-              className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-orange-400/50 hover:bg-white/10"
-            >
-              <h3 className="text-lg font-bold">Upcoming Releases</h3>
-              <p className="mt-2 text-sm text-white/60">
-                See upcoming movies, shows, and animation releases.
-              </p>
-            </Link>
-          </div>
+          <ExploreBannerCarousel
+              slides={exploreSlides}
+            />
 
         </div>
       </Surface>
