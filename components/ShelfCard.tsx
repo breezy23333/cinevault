@@ -57,11 +57,16 @@ function getYouTubeId(value?: string | null) {
 export default function ShelfCard({
   item,
   href,
+  onExpand,
 }: {
   item: ShelfMedia;
   href: string;
+  onExpand?: (
+    card: HTMLAnchorElement,
+  ) => void;
 }) {
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardRef = useRef<HTMLAnchorElement>(null);
   const isHovering = useRef(false);
   const trailerFrame = useRef<HTMLIFrameElement>(null);
   const trailerRequested = useRef(false);
@@ -78,6 +83,10 @@ export default function ShelfCard({
 
     function startTrailer() {
     isHovering.current = true;
+
+    if (cardRef.current) {
+      onExpand?.(cardRef.current);
+    }
 
     hoverTimer.current = setTimeout(async () => {
       let videoId = trailerId;
@@ -163,6 +172,7 @@ export default function ShelfCard({
 
   return (
     <Link
+      ref={cardRef}
       href={href}
       aria-label={`Open ${item.title}`}
       onMouseEnter={startTrailer}
@@ -183,7 +193,7 @@ export default function ShelfCard({
       <div
         className="
           relative aspect-[2/3] overflow-hidden
-          transition-[aspect-ratio] duration-500
+          transition-[aspect-ratio] duration-200
           md:group-hover:aspect-video
           rounded-xl border border-white/10
           bg-[#111722]
@@ -205,7 +215,7 @@ export default function ShelfCard({
             draggable={false}
             className={`
               h-full w-full object-cover
-              transition duration-500
+              transition duration-200
               group-hover:scale-[1.04]
               ${
                 showTrailer && trailerReady
@@ -232,7 +242,7 @@ export default function ShelfCard({
             className={`
               pointer-events-none absolute inset-0
               h-full w-full border-0
-              transition-opacity duration-500
+              transition-opacity duration-200
               ${trailerReady ? "opacity-100" : "opacity-0"}
             `}
           />
