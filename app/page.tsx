@@ -13,7 +13,11 @@ import {
   getMovie,
   fetchTmdbTitle,
 } from "@/lib/fetchers";
-import { getEntertainmentNews } from "@/lib/news";
+import {
+  getEntertainmentNews,
+  getGamingNews,
+  getSportsNews,
+} from "@/lib/news";
 import { OSCAR_BEST_PICTURE } from "@/lib/oscars";
 import HeroCarousel from "@/components/HeroCarousel";   // ✅ ADD THIS BACK
 import ExpandableHeroCarousel from "@/components/ExpandableHeroCarousel";
@@ -30,6 +34,7 @@ import type { Metadata } from "next";
 import { getGamingHomeData } from "@/lib/games";
 import MovieEras from "@/components/MovieEras";
 import LexryspellSpotlight from "@/components/LexryspellSpotlight";
+import HomeNewsCarousels from "@/components/HomeNewsCarousels";
 
 // runtime/perf
 export const runtime = "nodejs";
@@ -239,17 +244,34 @@ const ShelfRow = nextDynamic(() => import("@/components/ShelfRow"), {
   ssr: true,
   loading: () => <RowSkeleton />,
 });
-const NewsStrip = nextDynamic(() => import("@/components/NewsStrip"), {
-  ssr: true,
-  loading: () => <RowSkeleton />,
-});
 
 export default async function Home() {
-  const [popularRes, trendingRes, genreRes, newsRes] = await Promise.allSettled([
+  const [
+  popularRes,
+  trendingRes,
+  genreRes,
+  newsRes,
+  gamingNewsRes,
+  sportsNewsRes,
+  ] = await Promise.allSettled([
     withTimeout(getPopularMovies(1), 8000, "popular"),
     withTimeout(getTrendingAll(1), 8000, "trending"),
     withTimeout(getMovieGenres(), 8000, "genres"),
-    withTimeout(getEntertainmentNews(), 8000, "news"),
+    withTimeout(
+      getEntertainmentNews(),
+      8000,
+      "entertainment news",
+    ),
+    withTimeout(
+      getGamingNews(),
+      8000,
+      "gaming news",
+    ),
+    withTimeout(
+      getSportsNews(),
+      8000,
+      "sports news",
+    ),
   ]);
 
   const gamingDataPromise = getGamingHomeData();
@@ -269,10 +291,24 @@ export default async function Home() {
       ? (genreRes.value as any)
       : [];
 
-  const newsItems =
-  newsRes.status === "fulfilled" && Array.isArray(newsRes.value)
+  const newsItems: NewsItem[] =
+  newsRes.status === "fulfilled" &&
+  Array.isArray(newsRes.value)
     ? newsRes.value
-    : [];  
+    : [];
+
+const gamingNewsItems: NewsItem[] =
+  gamingNewsRes.status === "fulfilled" &&
+  Array.isArray(gamingNewsRes.value)
+    ? gamingNewsRes.value
+    : [];
+
+const sportsNewsItems: NewsItem[] =
+  sportsNewsRes.status === "fulfilled" &&
+  Array.isArray(sportsNewsRes.value)
+    ? sportsNewsRes.value
+    : [];
+
 
   const [
   upcomingMovies,
@@ -867,51 +903,11 @@ const oscarShelf = await Promise.all(
 
           <HomeGamingSection gamingData={gamingData} />
 
-          <section className="border-b border-white/[0.08] pb-6 sm:pb-8">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-              News Channels
-            </p>
-
-            <h2 className="mt-2 text-2xl font-black md:text-3xl">
-              Explore News Categories
-            </h2>
-
-            <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-4">
-              <Link
-                href="/news/entertainment"
-                className="border-l-2 border-yellow-400/70 bg-white/[0.025] p-3 transition hover:bg-yellow-400 hover:text-black sm:p-6"
-              >
-                <h3 className="text-sm font-black sm:text-xl">Entertainment</h3>
-                <p className="mt-2 hidden text-sm opacity-70 sm:block">
-                  Movies, celebrities, streaming and culture.
-                </p>
-              </Link>
-
-              <Link
-                href="/news/gaming"
-                className="border-l-2 border-cyan-400/70 bg-white/[0.025] p-3 transition hover:bg-cyan-400 hover:text-black sm:p-6"
-              >
-                <h3 className="text-sm font-black sm:text-xl">Gaming</h3>
-                <p className="mt-2 hidden text-sm opacity-70 sm:block">
-                  Games, consoles, esports and industry updates.
-                </p>
-              </Link>
-
-              <Link
-                href="/news/sports"
-                className="border-l-2 border-green-400/70 bg-white/[0.025] p-3 transition hover:bg-green-400 hover:text-black sm:p-6"
-              >
-                <h3 className="text-sm font-black sm:text-xl">Sports</h3>
-                <p className="mt-2 hidden text-sm opacity-70 sm:block">
-                  Live headlines, major games and sports stories.
-                </p>
-              </Link>
-            </div>
-          </section>
-
-          <Panel eyebrow="Industry radar" title="Top news">
-            <NewsStrip items={newsItems.slice(0, MAX_NEWS)} />
-          </Panel>
+          <HomeNewsCarousels
+            entertainment={newsItems.slice(0, MAX_NEWS)}
+            gaming={gamingNewsItems.slice(0, MAX_NEWS)}
+            sports={sportsNewsItems.slice(0, MAX_NEWS)}
+          />
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Link
@@ -923,8 +919,6 @@ const oscarShelf = await Promise.all(
                 Explore what is hot across movies and shows.
               </p>
             </Link>
-
-            
 
             <Link
               href="/top"
