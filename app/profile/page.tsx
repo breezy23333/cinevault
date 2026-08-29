@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
 import ProfileClient from "./ProfileClient";
 
-export const metadata: Metadata = {
-  title: "Profile | CINRYVAN",
-  description: "Manage your CINRYVAN profile, watchlist, and notifications.",
+export const metadata = {
+  title: "Your Profile",
+  description:
+    "Customize your CINRYVAN profile, manage your favourites, watchlist, activity and notifications.",
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function Page() {
+export default function ProfilePage() {
   return <ProfileClient />;
 }

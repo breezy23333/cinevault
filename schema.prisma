@@ -186,3 +186,24 @@ model CatalogTitle {
   @@index([releaseDate])
   @@index([syncedAt])
 }
+
+model EmailSubscription {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  topics                String[]  @default([])
+  status                String    @default("pending")
+  verificationTokenHash String?   @unique
+  verificationExpiresAt DateTime?
+  unsubscribeTokenHash  String    @unique
+  verifiedAt            DateTime?
+  lastSentAt            DateTime?
+  consentedAt           DateTime  @default(now())
+  consentIp             String?
+  consentUserAgent      String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([status])
+  @@index([verifiedAt])
+  @@index([lastSentAt])
+}
