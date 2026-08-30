@@ -44,11 +44,16 @@ export default function HeroCarousel({
     useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setPlayTrailer(false);
+
     similarRowRef.current?.scrollTo({
       left: 0,
       behavior: "smooth",
     });
   }, [currentIndex]);
+
+  const [playTrailer, setPlayTrailer] =
+  useState(false);
 
   if (!items.length) {
     return null;
@@ -222,38 +227,55 @@ export default function HeroCarousel({
             <div className="absolute right-3 top-3 z-20 w-[150px] sm:right-6 sm:top-6 sm:w-[230px] lg:static lg:z-auto lg:block lg:w-full lg:justify-self-end">
               <div className="overflow-hidden rounded-lg border border-yellow-400/45 bg-black/55 p-1 shadow-[0_15px_45px_rgba(0,0,0,0.65)] backdrop-blur-md sm:rounded-xl lg:rounded-3xl lg:border-yellow-400/35 lg:bg-black/40 lg:p-2 lg:shadow-[0_25px_70px_rgba(0,0,0,0.6)]">
                 <div className="relative aspect-video overflow-hidden rounded-md bg-black sm:rounded-lg lg:rounded-[18px]">
-                  {featured.trailerKey ? (
+                  {featured.trailerKey && playTrailer ? (
                     <iframe
                       key={`${featured.id}-${featured.trailerKey}`}
-                      src={`https://www.youtube-nocookie.com/embed/${featured.trailerKey}?rel=0&modestbranding=1`}
+                      src={`https://www.youtube-nocookie.com/embed/${featured.trailerKey}?rel=0&modestbranding=1&autoplay=1`}
                       title={`${featured.title} official trailer`}
+                      loading="lazy"
                       className="absolute inset-0 h-full w-full"
-                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                     />
                   ) : (
                     <>
                       <CineImage
                         src={featured.backdrop}
-                        alt={`${featured.title} trailer`}
+                        alt={`${featured.title} trailer preview`}
                         fallback="Trailer unavailable"
                         className="object-cover"
                       />
 
-                      <div className="absolute inset-0 bg-black/25" />
+                      <div className="absolute inset-0 bg-black/35" />
 
-                      <Link
-                        href={`${href}?tab=trailer`}
-                        aria-label={`Find ${featured.title} trailer`}
-                        className="absolute inset-0 grid place-items-center"
-                      >
-                        <span className="grid h-16 w-16 place-items-center rounded-full bg-yellow-400 text-black shadow-2xl transition hover:scale-110">
-                          <Play
-                            className="ml-1 h-7 w-7"
-                            fill="currentColor"
-                          />
-                        </span>
-                      </Link>
+                      {featured.trailerKey ? (
+                        <button
+                          type="button"
+                          onClick={() => setPlayTrailer(true)}
+                          aria-label={`Play ${featured.title} trailer`}
+                          className="absolute inset-0 grid place-items-center"
+                        >
+                          <span className="grid h-14 w-14 place-items-center rounded-full bg-yellow-400 text-black shadow-2xl transition hover:scale-110 sm:h-16 sm:w-16">
+                            <Play
+                              className="ml-1 h-6 w-6 sm:h-7 sm:w-7"
+                              fill="currentColor"
+                            />
+                          </span>
+                        </button>
+                      ) : (
+                        <Link
+                          href={`${href}?tab=trailer`}
+                          aria-label={`Find ${featured.title} trailer`}
+                          className="absolute inset-0 grid place-items-center"
+                        >
+                          <span className="grid h-14 w-14 place-items-center rounded-full bg-yellow-400 text-black shadow-2xl transition hover:scale-110 sm:h-16 sm:w-16">
+                            <Play
+                              className="ml-1 h-6 w-6 sm:h-7 sm:w-7"
+                              fill="currentColor"
+                            />
+                          </span>
+                        </Link>
+                      )}
                     </>
                   )}
                 </div>

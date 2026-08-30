@@ -8,7 +8,30 @@ type CineImageProps = {
   className?: string;
   fallback?: string;
   priority?: boolean;
+  sizes?: string;
 };
+
+function createTmdbSrcSet(src: string) {
+  const tmdbPattern =
+    /https:\/\/image\.tmdb\.org\/t\/p\/(?:w\d+|original)\//;
+
+  if (!tmdbPattern.test(src)) {
+    return undefined;
+  }
+
+  const createUrl = (size: string) =>
+    src.replace(
+      tmdbPattern,
+      `https://image.tmdb.org/t/p/${size}/`,
+    );
+
+  return [
+    `${createUrl("w342")} 342w`,
+    `${createUrl("w500")} 500w`,
+    `${createUrl("w780")} 780w`,
+    `${createUrl("w1280")} 1280w`,
+  ].join(", ");
+}
 
 export default function CineImage({
   src,
@@ -16,6 +39,7 @@ export default function CineImage({
   className = "",
   fallback = "No image",
   priority = false,
+  sizes,
 }: CineImageProps) {
   const [error, setError] = useState(false);
 
@@ -31,12 +55,23 @@ export default function CineImage({
     );
   }
 
+  const responsiveSrcSet = priority
+    ? createTmdbSrcSet(src)
+    : undefined;
+
   return (
     <img
       key={src}
       src={src}
+      srcSet={responsiveSrcSet}
+      sizes={
+        responsiveSrcSet
+          ? sizes || "100vw"
+          : undefined
+      }
       alt={alt}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
       decoding="async"
       onError={() => setError(true)}
       className={`absolute inset-0 h-full w-full ${className}`}
