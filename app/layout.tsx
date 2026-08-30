@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 import AppShell from "@/components/AppShell";
-import CinryvanIntro from "@/components/CinryvanIntro";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import JsonLd from "@/components/JsonLd";
 import { Analytics } from "@vercel/analytics/next";
@@ -289,8 +288,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-[#05070d] text-white">
-        <CinryvanIntro />
-
         <AppShell>{children}</AppShell>
 
         <JsonLd data={structuredData} />
