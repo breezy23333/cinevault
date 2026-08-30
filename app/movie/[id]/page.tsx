@@ -948,19 +948,19 @@ export async function generateMetadata({
      * Keep the primary Google title compact.
      * Root layout automatically adds: | CINRYVAN
      */
-    const pageTitle = `${displayTitle}: Where to Watch`;
+    const pageTitle = `${displayTitle}: Cast & Where to Watch`;
 
     const overview = cleanSeoText(movie.overview);
     const tagline = cleanSeoText(movie.tagline);
 
     const discoveryText =
-      `See the trailer, cast, ratings, release details and where to watch ${displayTitle} on CINRYVAN.`;
+      `${displayTitle} cast, trailer, ratings, release details and where to watch.`;
 
     const descriptionSource = overview
-      ? `${overview} ${discoveryText}`
+      ? `${discoveryText} ${overview}`
       : tagline
-        ? `${tagline}. ${discoveryText}`
-        : discoveryText;
+        ? `${discoveryText} ${tagline}.`
+        : `${discoveryText} Explore the movie on CINRYVAN.`;
 
     const description = truncateSeoText(descriptionSource, 158);
 
