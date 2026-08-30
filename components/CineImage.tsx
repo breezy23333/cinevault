@@ -55,9 +55,10 @@ export default function CineImage({
     );
   }
 
-  const responsiveSrcSet = priority
-    ? createTmdbSrcSet(src)
-    : undefined;
+  const responsiveSrcSet =
+    priority || sizes
+      ? createTmdbSrcSet(src)
+      : undefined;
 
   return (
     <img

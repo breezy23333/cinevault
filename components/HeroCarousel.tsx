@@ -239,14 +239,14 @@ export default function HeroCarousel({
                     />
                   ) : (
                     <>
-                      <CineImage
-                        src={featured.backdrop}
-                        alt={`${featured.title} trailer preview`}
-                        fallback="Trailer unavailable"
-                        className="object-cover"
-                      />
-
-                      <div className="absolute inset-0 bg-black/35" />
+                      
+                        <CineImage
+                          src={featured.backdrop}
+                          alt={`${featured.title} trailer preview`}
+                          fallback="Trailer unavailable"
+                          sizes="(max-width: 640px) 150px, (max-width: 1024px) 230px, 520px"
+                          className="object-cover"
+                        />
 
                       {featured.trailerKey ? (
                         <button
@@ -356,12 +356,10 @@ export default function HeroCarousel({
                 >
                   <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition duration-300 group-hover:-translate-y-1 group-hover:border-yellow-400/70">
                     <CineImage
-                      src={
-                        movie.backdrop ||
-                        movie.poster
-                      }
+                      src={movie.backdrop || movie.poster}
                       alt={movie.title}
                       fallback="No image"
+                      sizes="(max-width: 640px) 150px, (max-width: 768px) 210px, 245px"
                       className="object-cover transition duration-500 group-hover:scale-105"
                     />
 
