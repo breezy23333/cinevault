@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import CelebritySearch from "@/components/CelebritySearch";
 import Link from "next/link";
+import {
+  getCelebrityDramaNews,
+  getCelebrityNews,
+  type CelebrityNewsItem,
+} from "@/lib/news";
 
 export const revalidate = 3600;
 
@@ -172,11 +177,15 @@ export default async function PeoplePage() {
     popularPageOne,
     popularPageTwo,
     popularPageThree,
+    celebrityNews,
+    celebrityDrama,
   ] = await Promise.all([
     fetchPeople("/trending/person/week?language=en-US"),
     fetchPeople("/person/popular?language=en-US&page=1"),
     fetchPeople("/person/popular?language=en-US&page=2"),
     fetchPeople("/person/popular?language=en-US&page=3"),
+    getCelebrityNews(24),
+    getCelebrityDramaNews(12),
   ]);
 
   const popularPeople = uniquePeople([
@@ -462,6 +471,34 @@ export default async function PeoplePage() {
         </div>
       </section>
 
+      {/* Celebrity newsroom */}
+      {celebrityNews.length > 0 && (
+        <section className="border-t border-white/10 py-16">
+          <SectionHeading
+            number="NEWS"
+            eyebrow="Celebrity newsroom"
+            title="The stories behind the spotlight"
+            description="Fresh reporting on careers, interviews, awards, casting and public appearances from named entertainment publications."
+          />
+
+          <div className="mt-8 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+            <NewsFeature story={celebrityNews[0]} />
+
+            <div className="grid gap-3">
+              {celebrityNews.slice(1, 6).map((story) => (
+                <NewsListItem key={story.url} story={story} />
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {celebrityNews.slice(6, 14).map((story) => (
+              <NewsCard key={story.url} story={story} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Actors grid */}
       <section
         id="actors"
@@ -593,6 +630,24 @@ export default async function PeoplePage() {
           ))}
         </div>
       </section>
+
+      {/* Relationships and publicly reported stories */}
+      {celebrityDrama.length > 0 && (
+        <section className="border-y border-rose-400/15 bg-gradient-to-r from-rose-500/[0.07] via-transparent to-violet-500/[0.06] px-5 py-14 sm:px-8">
+          <SectionHeading
+            number="DESK"
+            eyebrow="Relationships & public stories"
+            title="Beyond the red carpet"
+            description="Relationship updates, public disputes and major personal stories as reported by named publications. Reports are attributed and are not presented as independent CINRYVAN claims."
+          />
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {celebrityDrama.slice(0, 9).map((story) => (
+              <NewsCard key={story.url} story={story} accent="rose" />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Filmmakers */}
       {filmmakers.length > 0 && (
@@ -781,5 +836,151 @@ function EditorialPersonCard({
         </div>
       </div>
     </Link>
+  );
+}
+
+function formatNewsDate(value?: string) {
+  if (!value) return "Latest report";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Latest report";
+
+  return date.toLocaleDateString("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function NewsFeature({ story }: { story: CelebrityNewsItem }) {
+  return (
+    <a
+      href={story.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative min-h-[520px] overflow-hidden border border-white/10 bg-[#0a0e16]"
+    >
+      {story.image ? (
+        <Image
+          src={story.image}
+          alt=""
+          fill
+          sizes="(max-width: 1024px) 100vw, 58vw"
+          className="object-cover transition duration-700 group-hover:scale-[1.03]"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/15 via-[#0a0e16] to-violet-500/10" />
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
+
+      <div className="absolute inset-x-0 bottom-0 p-6 sm:p-9">
+        <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[0.2em]">
+          <span className="bg-yellow-400 px-2 py-1 text-black">
+            {story.category}
+          </span>
+          <span className="border border-white/15 bg-black/55 px-2 py-1 text-white/70">
+            Reported by {story.source || "Entertainment press"}
+          </span>
+        </div>
+
+        <h3 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-5xl">
+          {story.title}
+        </h3>
+
+        <p className="mt-4 text-sm text-white/50">
+          {formatNewsDate(story.publishedAt)} · Read original report →
+        </p>
+      </div>
+    </a>
+  );
+}
+
+function NewsListItem({ story }: { story: CelebrityNewsItem }) {
+  return (
+    <a
+      href={story.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group grid grid-cols-[92px_1fr] gap-4 border border-white/10 bg-[#0a0e16] p-3 transition hover:border-yellow-400/50"
+    >
+      <div className="relative min-h-[92px] overflow-hidden bg-white/5">
+        {story.image && (
+          <Image
+            src={story.image}
+            alt=""
+            fill
+            sizes="92px"
+            className="object-cover"
+          />
+        )}
+      </div>
+
+      <div className="self-center">
+        <p className="text-[9px] font-black uppercase tracking-[0.17em] text-yellow-400">
+          {story.category} · {story.source || "Reported"}
+        </p>
+        <h3 className="mt-2 line-clamp-3 text-sm font-black leading-5 group-hover:text-yellow-300">
+          {story.title}
+        </h3>
+        <p className="mt-2 text-[10px] text-white/35">
+          {formatNewsDate(story.publishedAt)}
+        </p>
+      </div>
+    </a>
+  );
+}
+
+function NewsCard({
+  story,
+  accent = "yellow",
+}: {
+  story: CelebrityNewsItem;
+  accent?: "yellow" | "rose";
+}) {
+  return (
+    <a
+      href={story.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group overflow-hidden border bg-[#0a0e16] transition ${
+        accent === "rose"
+          ? "border-rose-400/15 hover:border-rose-300/60"
+          : "border-white/10 hover:border-yellow-400/60"
+      }`}
+    >
+      <div className="relative aspect-[16/10] overflow-hidden bg-white/5">
+        {story.image ? (
+          <Image
+            src={story.image}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 360px"
+            className="object-cover transition duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+        )}
+      </div>
+
+      <div className="p-4">
+        <p
+          className={`text-[9px] font-black uppercase tracking-[0.18em] ${
+            accent === "rose" ? "text-rose-300" : "text-yellow-400"
+          }`}
+        >
+          {story.reportingLabel} · {story.category}
+        </p>
+
+        <h3 className="mt-2 line-clamp-3 font-black leading-6 group-hover:text-yellow-200">
+          {story.title}
+        </h3>
+
+        <div className="mt-4 flex items-center justify-between gap-3 text-[10px] text-white/35">
+          <span>{story.source || "Entertainment press"}</span>
+          <span>{formatNewsDate(story.publishedAt)}</span>
+        </div>
+      </div>
+    </a>
   );
 }

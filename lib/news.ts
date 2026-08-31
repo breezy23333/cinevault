@@ -209,3 +209,256 @@ export function getEntertainmentTopicNews(topic: string) {
     "box-office": ["box office", "opening weekend", "grossed"], anime: ["anime", "manga", "crunchyroll"],
   }, 50);
 }
+
+export type CelebrityStoryCategory =
+  | "Career"
+  | "Relationships"
+  | "Awards"
+  | "Interview"
+  | "Public dispute"
+  | "General";
+
+export type CelebrityNewsItem = RealNewsItem & {
+  category: CelebrityStoryCategory;
+  reportingLabel: "Reported";
+};
+
+const CELEBRITY_TERMS = [
+  "actor",
+  "actress",
+  "celebrity",
+  "hollywood",
+  "star",
+  "filmmaker",
+  "director",
+  "writer",
+  "producer",
+  "cast",
+  "singer",
+  "comedian",
+  "performer",
+  "dating",
+  "relationship",
+  "married",
+  "marriage",
+  "wedding",
+  "divorce",
+  "breakup",
+  "interview",
+  "red carpet",
+];
+
+const RELATIONSHIP_TERMS = [
+  "dating",
+  "relationship",
+  "romance",
+  "married",
+  "marriage",
+  "wedding",
+  "engaged",
+  "engagement",
+  "divorce",
+  "split",
+  "breakup",
+  "couple",
+  "husband",
+  "wife",
+  "partner",
+];
+
+const AWARD_TERMS = [
+  "oscar",
+  "academy award",
+  "emmy",
+  "golden globe",
+  "bafta",
+  "sag award",
+  "award",
+  "nomination",
+  "nominated",
+  "winner",
+  "wins",
+];
+
+const INTERVIEW_TERMS = [
+  "interview",
+  "reveals",
+  "explains",
+  "opens up",
+  "speaks out",
+  "says",
+  "responds",
+  "recalls",
+];
+
+const PUBLIC_DISPUTE_TERMS = [
+  "lawsuit",
+  "legal battle",
+  "dispute",
+  "feud",
+  "controversy",
+  "allegation",
+  "responds to",
+  "criticized",
+  "backlash",
+];
+
+const CAREER_TERMS = [
+  "cast",
+  "joins",
+  "starring",
+  "role",
+  "movie",
+  "film",
+  "series",
+  "show",
+  "director",
+  "producer",
+  "project",
+  "production",
+  "box office",
+];
+
+function containsAnyTerm(
+  title: string,
+  terms: string[],
+) {
+  const normalized = title.toLowerCase();
+
+  return terms.some((term) =>
+    normalized.includes(term),
+  );
+}
+
+function classifyCelebrityStory(
+  title: string,
+): CelebrityStoryCategory {
+  if (containsAnyTerm(title, RELATIONSHIP_TERMS)) {
+    return "Relationships";
+  }
+
+  if (containsAnyTerm(title, AWARD_TERMS)) {
+    return "Awards";
+  }
+
+  if (containsAnyTerm(title, PUBLIC_DISPUTE_TERMS)) {
+    return "Public dispute";
+  }
+
+  if (containsAnyTerm(title, INTERVIEW_TERMS)) {
+    return "Interview";
+  }
+
+  if (containsAnyTerm(title, CAREER_TERMS)) {
+    return "Career";
+  }
+
+  return "General";
+}
+
+async function loadFilteredEntertainmentNews(
+  predicate: (item: RealNewsItem) => boolean,
+  size = 18,
+): Promise<RealNewsItem[]> {
+  const results = await Promise.allSettled(
+    ENTERTAINMENT_FEEDS.map(loadFeed),
+  );
+
+  const selected = removeDuplicates(
+    results.flatMap((result) =>
+      result.status === "fulfilled"
+        ? result.value
+        : [],
+    ),
+  )
+    .filter(predicate)
+    .sort(
+      (a, b) =>
+        new Date(b.publishedAt || 0).getTime() -
+        new Date(a.publishedAt || 0).getTime(),
+    )
+    .slice(0, size);
+
+  return Promise.all(
+    selected.map(async (item) =>
+      item.image
+        ? item
+        : {
+            ...item,
+            image: await getArticleImage(item.url),
+          },
+    ),
+  );
+}
+
+function toCelebrityNewsItem(
+  item: RealNewsItem,
+): CelebrityNewsItem {
+  return {
+    ...item,
+    category: classifyCelebrityStory(item.title),
+    reportingLabel: "Reported",
+  };
+}
+
+export async function getCelebrityNews(
+  size = 24,
+): Promise<CelebrityNewsItem[]> {
+  const stories =
+    await loadFilteredEntertainmentNews(
+      (item) =>
+        containsAnyTerm(item.title, CELEBRITY_TERMS),
+      size,
+    );
+
+  return stories.map(toCelebrityNewsItem);
+}
+
+export async function getCelebrityDramaNews(
+  size = 12,
+): Promise<CelebrityNewsItem[]> {
+  const stories =
+    await loadFilteredEntertainmentNews(
+      (item) =>
+        containsAnyTerm(
+          item.title,
+          PUBLIC_DISPUTE_TERMS,
+        ) ||
+        containsAnyTerm(
+          item.title,
+          RELATIONSHIP_TERMS,
+        ),
+      size,
+    );
+
+  return stories.map(toCelebrityNewsItem);
+}
+
+export async function getPersonNews(
+  personName: string,
+  size = 12,
+): Promise<CelebrityNewsItem[]> {
+  const normalizedName = personName
+    .toLowerCase()
+    .replace(/[^a-z0-9\s'-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (normalizedName.length < 2) return [];
+
+  const stories =
+    await loadFilteredEntertainmentNews(
+      (item) => {
+        const normalizedTitle = item.title
+          .toLowerCase()
+          .replace(/[^a-z0-9\s'-]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        return normalizedTitle.includes(normalizedName);
+      },
+      size,
+    );
+
+  return stories.map(toCelebrityNewsItem);
+}
