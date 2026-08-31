@@ -122,6 +122,7 @@ const primaryPages: StaticPage[] = [
   { path: "/movie", changeFrequency: "daily", priority: 0.9 },
   { path: "/tv", changeFrequency: "daily", priority: 0.9 },
   { path: "/games", changeFrequency: "daily", priority: 0.9 },
+  { path: "/people", changeFrequency: "daily", priority: 0.85 },
   { path: "/trending", changeFrequency: "daily", priority: 0.9 },
   { path: "/top", changeFrequency: "daily", priority: 0.8 },
   { path: "/upcoming", changeFrequency: "daily", priority: 0.8 },

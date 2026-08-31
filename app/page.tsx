@@ -35,6 +35,7 @@ import { getGamingHomeData } from "@/lib/games";
 import MovieEras from "@/components/MovieEras";
 import LexryspellSpotlight from "@/components/LexryspellSpotlight";
 import HomeNewsCarousels from "@/components/HomeNewsCarousels";
+import PopularCelebrities from "@/components/PopularCelebrities";
 import ExploreBannerCarousel, {
   type ExploreBannerSlide,
 } from "@/components/ExploreBannerCarousel";
@@ -763,6 +764,8 @@ const exploreSlides: ExploreBannerSlide[] = [
           <LexryspellSpotlight />
 
           <MovieEras />
+
+          <PopularCelebrities />
 
           <FranchiseUniverse />
 
