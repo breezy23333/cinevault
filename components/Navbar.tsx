@@ -52,6 +52,18 @@ const NAV_GROUPS = [
   },
 
   {
+  label: "Celebrities",
+    href: "/people",
+    dropdown: [
+      { label: "Celebrity Hub", href: "/people" },
+      { label: "Trending Celebrities", href: "/people#trending" },
+      { label: "Celebrity Birthdays", href: "/people#birthdays" },
+      { label: "Actors & Performers", href: "/people#actors" },
+      { label: "Directors & Creators", href: "/people#filmmakers" },
+    ],
+  },
+
+  {
     label: "Games",
     href: "/games",
     dropdown: [
