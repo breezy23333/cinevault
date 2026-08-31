@@ -9,6 +9,15 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const RAWG_BASE = "https://api.rawg.io/api";
 const CATALOGUE_PAGES = 5;
 
+const PEOPLE_PAGES = 5;
+
+const HIGH_OPPORTUNITY_PERSON_IDS = [
+  1073864, // Mary Christian
+  1636925,
+  2751202,
+  18974,
+];
+
 type Frequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
 type StaticPage = {
@@ -155,6 +164,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     trendingTvIds,
     popularTvIds,
     topRatedTvIds,
+    popularPersonIds,
     apiGameIds,
     storedTitles,
     storedGames,
@@ -178,6 +188,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       "/tv/top_rated?language=en-US",
     ),
     fetchGameIds(),
+
+    fetchIdsAcrossPages(
+      "/person/popular?language=en-US",
+      PEOPLE_PAGES,
+    ),
 
     prisma.catalogTitle
       .findMany({
@@ -282,6 +297,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]),
   ];
 
+  const personIds = [
+    ...new Set([
+      ...HIGH_OPPORTUNITY_PERSON_IDS,
+      ...popularPersonIds,
+    ]),
+  ];
+
   const topicPages: StaticPage[] =
     Object.entries(newsTopics).flatMap(
       ([category, topics]) =>
@@ -336,6 +358,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         gameLastModified.get(id),
       changeFrequency: "weekly" as const,
       priority: 0.7,
+    })),
+
+    ...personIds.map((id) => ({
+      url: `${BASE_URL}/person/${id}`,
+      changeFrequency: "monthly" as const,
+      priority: HIGH_OPPORTUNITY_PERSON_IDS.includes(id)
+        ? 0.7
+        : 0.6,
     })),
   ];
 }

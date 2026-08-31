@@ -421,9 +421,13 @@ export default async function PersonPage({
           </div>
         )}
 
-        <div className="relative grid gap-8 p-5 md:grid-cols-[300px_1fr] md:p-8">
-          <div className="relative mx-auto aspect-[2/3] w-full max-w-[300px] overflow-hidden bg-white/5 ring-1 ring-white/10 md:mx-0">
-            {profile ? (
+        <div
+          className={`relative grid gap-8 p-5 md:p-8 ${
+            profile ? "md:grid-cols-[300px_1fr]" : "md:grid-cols-1"
+          }`}
+        >
+          {profile && (
+            <div className="relative mx-auto aspect-[2/3] w-full max-w-[300px] overflow-hidden bg-white/5 ring-1 ring-white/10 md:mx-0">
               <Image
                 src={profile}
                 alt={`${person.name} profile`}
@@ -432,16 +436,22 @@ export default async function PersonPage({
                 sizes="(max-width: 768px) 80vw, 300px"
                 className="object-cover"
               />
-            ) : (
-              <div className="absolute inset-0 grid place-items-center text-white/40">
-                No photo available
-              </div>
-            )}
 
-            <div className="absolute bottom-0 left-0 h-1 w-2/5 bg-yellow-400" />
-          </div>
+              <div className="absolute bottom-0 left-0 h-1 w-2/5 bg-yellow-400" />
+            </div>
+          )}
 
           <div className="self-center">
+            {!profile && (
+              <div className="mb-6 grid h-24 w-24 place-items-center rounded-full border border-yellow-400/30 bg-yellow-400/10 text-3xl font-black text-yellow-300">
+                {person.name
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((part: string) => part.charAt(0))
+                  .join("")
+                  .toUpperCase()}
+              </div>
+            )}
             <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
               CINRYVAN People
             </p>
