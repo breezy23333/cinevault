@@ -250,8 +250,14 @@ export default function Navbar() {
           </Link>
 
           {/* Links with category-like animation */}
-          <ul className="hidden md:flex items-center gap-2 ml-2">
-            {NAV_GROUPS.map((item) => {
+          <ul className="ml-2 hidden items-center gap-2 xl:flex">
+            {NAV_GROUPS
+              .filter(
+                (item) =>
+                  item.label !== "Home" &&
+                  item.label !== "Browse",
+              )
+              .map((item) => {
               const active = isActive(item.href);
 
               return (
@@ -284,20 +290,20 @@ export default function Navbar() {
           <div className="min-w-0 flex-1" />
 
           {/* Search (desktop) */}
-          <form onSubmit={submit} className="hidden md:block">
+          <form onSubmit={submit} className="hidden lg:block">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 opacity-60" />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={labels.search}
-                className="pl-8 pr-3 py-2 text-sm rounded-lg bg-zinc-900 ring-1 ring-white/10 outline-none focus:ring-white/20 w-72"
+                className="w-44 rounded-lg bg-zinc-900 py-2 pl-8 pr-3 text-sm ring-1 ring-white/10 outline-none focus:ring-white/20 xl:w-56 2xl:w-72"
               />
             </div>
           </form>
 
           {/* Desktop actions */}
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2 lg:flex">
 
             <Link
               href="/watchlist"
@@ -461,10 +467,19 @@ export default function Navbar() {
             ))}
             {!isLoggedIn ? (
               <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
-                <Link href="/login" onClick={() => setOpen(false)} className="block rounded-lg bg-white/10 px-3 py-2 text-center text-sm">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="block whitespace-nowrap rounded-lg bg-white/10 px-3 py-2 text-center text-sm font-bold transition hover:bg-white/15"
+                >
                   Login
                 </Link>
-                <Link href="/signup" onClick={() => setOpen(false)} className="block rounded-lg bg-yellow-400 px-3 py-2 text-center text-sm font-bold text-black">
+
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  className="block whitespace-nowrap rounded-lg bg-yellow-400 px-3 py-2 text-center text-sm font-black text-black transition hover:bg-yellow-300"
+                >
                   Sign Up
                 </Link>
               </div>
