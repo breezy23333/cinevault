@@ -10,6 +10,9 @@ type Item = ShelfMedia & {
 export default function ShelfRow({ items }: { items: Item[] }) {
   const shelfRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
+  const dragOffsetRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
   const [progress, setProgress] = useState(0);
   const [thumbWidth, setThumbWidth] = useState(26);
 
@@ -43,19 +46,33 @@ export default function ShelfRow({ items }: { items: Item[] }) {
     return () => {
       resizeObserver.disconnect();
       shelf.removeEventListener("scroll", updateScrollState);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, [items.length, updateScrollState]);
 
   const setScrollFromPointer = useCallback((clientX: number) => {
     const shelf = shelfRef.current;
     const track = trackRef.current;
-    if (!shelf || !track) return;
+    const thumb = thumbRef.current;
+    if (!shelf || !track || !thumb) return;
 
     const bounds = track.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (clientX - bounds.left) / bounds.width));
+    const thumbBounds = thumb.getBoundingClientRect();
+    const availableTravel = Math.max(1, bounds.width - thumbBounds.width);
+    const nextLeft = clientX - bounds.left - dragOffsetRef.current;
+    const ratio = Math.min(1, Math.max(0, nextLeft / availableTravel));
     const maximumScroll = shelf.scrollWidth - shelf.clientWidth;
 
-    shelf.scrollLeft = maximumScroll * ratio;
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(() => {
+      shelf.scrollLeft = maximumScroll * ratio;
+      animationFrameRef.current = null;
+    });
   }, []);
 
   function keepExpandedCardVisible(card: HTMLAnchorElement) {
@@ -77,7 +94,7 @@ export default function ShelfRow({ items }: { items: Item[] }) {
       <div
         ref={shelfRef}
         onTransitionEndCapture={updateScrollState}
-        className="hide-scrollbar flex w-full min-w-0 snap-x snap-proximity gap-2 overflow-x-auto overflow-y-hidden px-0.5 pb-2 overscroll-x-contain scroll-smooth sm:gap-3 md:gap-4"
+        className="hide-scrollbar flex w-full min-w-0 snap-x snap-proximity gap-2 overflow-x-auto overflow-y-hidden px-0.5 pb-2 overscroll-x-contain sm:gap-3 md:gap-4"
       >
         {items.map((item) => (
           <ShelfCard
@@ -101,13 +118,41 @@ export default function ShelfRow({ items }: { items: Item[] }) {
           onPointerDown={(event) => {
             event.preventDefault();
             event.currentTarget.setPointerCapture(event.pointerId);
-            setScrollFromPointer(event.clientX);
+
+            const trackBounds = event.currentTarget.getBoundingClientRect();
+            const thumbBounds = thumbRef.current?.getBoundingClientRect();
+            const grabbedThumb = (event.target as HTMLElement).closest("[data-shelf-thumb]");
+
+            if (grabbedThumb && thumbBounds) {
+              dragOffsetRef.current = event.clientX - thumbBounds.left;
+            } else {
+              dragOffsetRef.current = thumbBounds ? thumbBounds.width / 2 : 0;
+              const availableTravel = Math.max(
+                1,
+                trackBounds.width - (thumbBounds?.width ?? 0),
+              );
+              const centredLeft = event.clientX - trackBounds.left - dragOffsetRef.current;
+              const ratio = Math.min(1, Math.max(0, centredLeft / availableTravel));
+              const shelf = shelfRef.current;
+
+              if (shelf) {
+                shelf.scrollTo({
+                  left: (shelf.scrollWidth - shelf.clientWidth) * ratio,
+                  behavior: "smooth",
+                });
+              }
+            }
           }}
           onPointerMove={(event) => {
             if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
             setScrollFromPointer(event.clientX);
           }}
           onPointerUp={(event) => {
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+              event.currentTarget.releasePointerCapture(event.pointerId);
+            }
+          }}
+          onPointerCancel={(event) => {
             if (event.currentTarget.hasPointerCapture(event.pointerId)) {
               event.currentTarget.releasePointerCapture(event.pointerId);
             }
@@ -137,7 +182,9 @@ export default function ShelfRow({ items }: { items: Item[] }) {
           className="group relative h-3 flex-1 cursor-ew-resize touch-none rounded-full bg-white/[0.07] outline-none transition focus-visible:ring-2 focus-visible:ring-yellow-400/70"
         >
           <div
-            className="absolute inset-y-[3px] rounded-full bg-gradient-to-r from-yellow-500 via-yellow-300 to-amber-500 shadow-[0_0_14px_rgba(250,204,21,0.35)] transition-[left] duration-75 group-hover:inset-y-[2px]"
+            ref={thumbRef}
+            data-shelf-thumb
+            className="absolute inset-y-[2px] rounded-full bg-gradient-to-r from-yellow-500 via-yellow-300 to-amber-500 shadow-[0_0_14px_rgba(250,204,21,0.35)]"
             style={{
               width: `${thumbWidth}%`,
               left: `${progress * thumbTravel}%`,
