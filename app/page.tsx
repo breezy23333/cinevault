@@ -42,7 +42,6 @@ import ExploreBannerCarousel, {
 
 // runtime/perf
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 const homeDescription =
@@ -472,6 +471,7 @@ const sportsNewsItems: NewsItem[] =
       }
     }),
   );
+
 
   const seriesHeroes = uniqueById(norm(trendingRaw))
   .filter((x) => x.media === "tv" && x.backdrop)
