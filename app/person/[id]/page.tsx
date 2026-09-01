@@ -10,6 +10,33 @@ export const revalidate = 86400;
 const SITE_URL = "https://cinryvan.vercel.app";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
+const INDEXABLE_PERSON_IDS = new Set([
+  1073864,
+  1636925,
+  2751202,
+  18974,
+]);
+
+function isStrongPersonPage(
+  personId: number,
+  person: any,
+  knownCredits: Credit[],
+) {
+  if (INDEXABLE_PERSON_IDS.has(personId)) {
+    return true;
+  }
+
+  const biographyLength = cleanSeoText(
+    person.biography,
+  ).length;
+
+  return (
+    Boolean(person.profile_path) &&
+    biographyLength >= 120 &&
+    knownCredits.length >= 5
+  );
+}
+
 const img = (path?: string | null, size = "w500") =>
   path
     ? `https://image.tmdb.org/t/p/${size}${path}`
@@ -729,10 +756,11 @@ export async function generateMetadata({
       ? `https://image.tmdb.org/t/p/w780${person.profile_path}`
       : DEFAULT_OG_IMAGE;
 
-    const isExtremelyThin =
-      !biography &&
-      !person.profile_path &&
-      knownCredits.length === 0;
+    const shouldIndex = isStrongPersonPage(
+      personId,
+      person,
+      knownCredits,
+    );
 
     return {
       title: pageTitle,
@@ -745,10 +773,10 @@ export async function generateMetadata({
       },
 
       robots: {
-        index: !isExtremelyThin,
+        index: shouldIndex,
         follow: true,
         googleBot: {
-          index: !isExtremelyThin,
+          index: shouldIndex,
           follow: true,
           noimageindex: false,
           "max-image-preview": "large",
@@ -793,7 +821,7 @@ export async function generateMetadata({
         canonical,
       },
       robots: {
-        index: true,
+        index: false,
         follow: true,
       },
     };

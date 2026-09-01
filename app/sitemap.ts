@@ -9,7 +9,6 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const RAWG_BASE = "https://api.rawg.io/api";
 const CATALOGUE_PAGES = 5;
 
-const PEOPLE_PAGES = 5;
 
 const HIGH_OPPORTUNITY_PERSON_IDS = [
   1073864, // Mary Christian
@@ -165,7 +164,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     trendingTvIds,
     popularTvIds,
     topRatedTvIds,
-    popularPersonIds,
     apiGameIds,
     storedTitles,
     storedGames,
@@ -189,11 +187,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       "/tv/top_rated?language=en-US",
     ),
     fetchGameIds(),
-
-    fetchIdsAcrossPages(
-      "/person/popular?language=en-US",
-      PEOPLE_PAGES,
-    ),
 
     prisma.catalogTitle
       .findMany({
@@ -298,11 +291,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]),
   ];
 
-  const personIds = [
-    ...new Set([
-      ...HIGH_OPPORTUNITY_PERSON_IDS,
-      ...popularPersonIds,
-    ]),
+ const personIds = [
+    ...new Set(HIGH_OPPORTUNITY_PERSON_IDS),
   ];
 
   const topicPages: StaticPage[] =
