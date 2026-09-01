@@ -21,6 +21,7 @@ function getYouTubeId(value?: string | null) {
 
   const trimmed = value.trim();
 
+  
   // Accept a plain YouTube video key.
   if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
     return trimmed;

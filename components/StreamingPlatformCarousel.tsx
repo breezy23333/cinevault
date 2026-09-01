@@ -86,6 +86,7 @@ export default function StreamingPlatformCarousel() {
         aria-label="Streaming platform carousel"
         className="relative h-[370px] overflow-hidden rounded-[2.25rem] border border-white/10 bg-[#070a11] outline-none [--card-step:58vw] sm:h-[410px] sm:[--card-step:300px] lg:h-[440px] lg:[--card-step:340px]"
         onPointerDown={(event) => {
+          if ((event.target as HTMLElement).closest("button, a")) return;
           setDragStart(event.clientX);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
@@ -150,10 +151,10 @@ export default function StreamingPlatformCarousel() {
           })}
         </div>
 
-        <button type="button" onClick={() => move(-1)} aria-label="Previous streaming platform" className="absolute bottom-5 left-5 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black/70 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:bottom-auto sm:left-7 sm:top-1/2 sm:-translate-y-1/2">
+        <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); move(-1); }} aria-label="Previous streaming platform" className="absolute bottom-5 left-5 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black/70 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:bottom-auto sm:left-7 sm:top-1/2 sm:-translate-y-1/2">
           <ChevronLeft className="h-6 w-6" />
         </button>
-        <button type="button" onClick={() => move(1)} aria-label="Next streaming platform" className="absolute bottom-5 right-5 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black/70 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:bottom-auto sm:right-7 sm:top-1/2 sm:-translate-y-1/2">
+        <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); move(1); }} aria-label="Next streaming platform" className="absolute bottom-5 right-5 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black/70 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:bottom-auto sm:right-7 sm:top-1/2 sm:-translate-y-1/2">
           <ChevronRight className="h-6 w-6" />
         </button>
       </div>
@@ -179,3 +180,4 @@ export default function StreamingPlatformCarousel() {
     </div>
   );
 }
+
