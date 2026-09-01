@@ -84,7 +84,7 @@ export default function StreamingPlatformCarousel() {
         ref={frameRef}
         tabIndex={0}
         aria-label="Streaming platform carousel"
-        className="relative h-[430px] overflow-hidden rounded-[2.25rem] border border-white/10 bg-[#070a11] outline-none sm:h-[500px] lg:h-[560px]"
+        className="relative h-[370px] overflow-hidden rounded-[2.25rem] border border-white/10 bg-[#070a11] outline-none [--card-step:58vw] sm:h-[410px] sm:[--card-step:300px] lg:h-[440px] lg:[--card-step:340px]"
         onPointerDown={(event) => {
           setDragStart(event.clientX);
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -100,30 +100,29 @@ export default function StreamingPlatformCarousel() {
         <div className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(circle at 50% 55%, ${active.glow}, transparent 42%)` }} />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#070a11] to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#070a11] via-[#070a11]/85 to-transparent" />
-        <div className="pointer-events-none absolute left-1/2 top-[76%] h-24 w-[78%] -translate-x-1/2 rounded-[50%] border-t border-white/15 bg-white/[0.025] blur-[1px]" />
+        <div className="pointer-events-none absolute left-1/2 top-[82%] h-16 w-[72%] -translate-x-1/2 rounded-[50%] border-t border-white/15 bg-white/[0.025] blur-[1px]" />
 
         <div className="absolute left-5 top-5 z-40 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/55 backdrop-blur-xl sm:left-8 sm:top-8">
           {String(activeIndex + 1).padStart(2, "0")} / {platforms.length}
         </div>
 
-        <div className="absolute inset-x-0 top-8 h-[310px] sm:top-12 sm:h-[360px] lg:h-[400px]" style={{ perspective: "1200px" }}>
+        <div className="absolute inset-0" style={{ perspective: "1400px" }}>
           {platforms.map((platform, index) => {
             const distance = wrappedDistance(index, activeIndex, platforms.length);
             const absoluteDistance = Math.abs(distance);
-            if (absoluteDistance > 3) return null;
+            if (absoluteDistance > 2) return null;
             const isActive = distance === 0;
-            const translateX = distance * (isActive ? 0 : 62);
-            const rotateY = distance * -16;
-            const scale = isActive ? 1 : Math.max(0.66, 0.88 - absoluteDistance * 0.08);
+            const rotateY = distance * -14;
+            const scale = isActive ? 1 : Math.max(0.72, 0.86 - absoluteDistance * 0.07);
             return (
               <button
                 key={platform.name}
                 type="button"
                 aria-label={`Select ${platform.name}`}
                 onClick={() => setActiveIndex(index)}
-                className="absolute left-1/2 top-1/2 h-[250px] w-[72vw] max-w-[440px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.75rem] border text-left shadow-2xl transition-all duration-500 ease-out sm:h-[310px] sm:w-[48vw] lg:h-[350px] lg:w-[34vw]"
+                className="absolute left-1/2 top-[47%] h-[220px] w-[70vw] max-w-[360px] overflow-hidden rounded-[1.75rem] border text-left shadow-2xl transition-all duration-500 ease-out sm:h-[260px] sm:w-[360px] lg:h-[290px] lg:w-[400px] lg:max-w-[400px]"
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${translateX}%) rotateY(${rotateY}deg) scale(${scale})`,
+                  transform: `translate(-50%, -50%) translateX(calc(var(--card-step) * ${distance})) rotateY(${rotateY}deg) scale(${scale})`,
                   transformStyle: "preserve-3d",
                   zIndex: 20 - absoluteDistance,
                   opacity: 1 - absoluteDistance * 0.14,
@@ -138,23 +137,23 @@ export default function StreamingPlatformCarousel() {
                     <img
                       src={platform.logo}
                       alt={`${platform.name} logo`}
-                      className="max-h-20 w-auto max-w-[72%] object-contain drop-shadow-2xl sm:max-h-24"
+                      className="h-14 w-[68%] object-contain drop-shadow-2xl sm:h-16"
                       onError={() => setLogoErrors((errors) => ({ ...errors, [platform.name]: true }))}
                     />
                   ) : (
                     <span className="text-center text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">{platform.shortName}</span>
                   )}
-                  {isActive && <span className="mt-8 rounded-full border border-white/15 bg-black/30 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/60 backdrop-blur-xl">Selected platform</span>}
+                  {isActive && <span className="mt-6 rounded-full border border-white/15 bg-black/30 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/60 backdrop-blur-xl">Selected platform</span>}
                 </div>
               </button>
             );
           })}
         </div>
 
-        <button type="button" onClick={() => move(-1)} aria-label="Previous streaming platform" className="absolute bottom-7 left-5 z-50 grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-black/55 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:left-8 sm:top-1/2 sm:-translate-y-1/2">
+        <button type="button" onClick={() => move(-1)} aria-label="Previous streaming platform" className="absolute bottom-5 left-5 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black/70 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:bottom-auto sm:left-7 sm:top-1/2 sm:-translate-y-1/2">
           <ChevronLeft className="h-6 w-6" />
         </button>
-        <button type="button" onClick={() => move(1)} aria-label="Next streaming platform" className="absolute bottom-7 right-5 z-50 grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-black/55 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:right-8 sm:top-1/2 sm:-translate-y-1/2">
+        <button type="button" onClick={() => move(1)} aria-label="Next streaming platform" className="absolute bottom-5 right-5 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black/70 text-white backdrop-blur-xl transition hover:border-yellow-400 hover:bg-yellow-400 hover:text-black sm:bottom-auto sm:right-7 sm:top-1/2 sm:-translate-y-1/2">
           <ChevronRight className="h-6 w-6" />
         </button>
       </div>
