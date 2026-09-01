@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import StreamingPlatformCarousel from "@/components/StreamingPlatformCarousel";
+import WatchProviderRails from "@/components/WatchProviderRails";
 import {
   ArrowRight,
   BadgeDollarSign,
@@ -11,7 +13,6 @@ import {
   Search,
   ShoppingBag,
   Ticket,
-  Tv,
 } from "lucide-react";
 
 export const revalidate = 3600;
@@ -34,95 +35,6 @@ export const metadata: Metadata = {
   },
 };
 
-const streamingPlatforms = [
-  {
-    name: "Netflix",
-    description: "Movies, series, documentaries and global originals.",
-    href: "https://www.netflix.com/za/",
-    accent: "from-red-600/35",
-  },
-  {
-    name: "Prime Video",
-    description: "Subscription streaming plus selected rentals and purchases.",
-    href: "https://www.primevideo.com/",
-    accent: "from-sky-500/35",
-  },
-  {
-    name: "Disney+",
-    description: "Disney, Pixar, Marvel, Star Wars and National Geographic.",
-    href: "https://www.disneyplus.com/",
-    accent: "from-blue-600/35",
-  },
-  {
-    name: "Apple TV+",
-    description: "Apple Originals and access to movies available to rent or buy.",
-    href: "https://tv.apple.com/za",
-    accent: "from-white/20",
-  },
-  {
-    name: "Showmax",
-    description: "African entertainment, international series and live sport plans.",
-    href: "https://www.showmax.com/za",
-    accent: "from-fuchsia-600/30",
-  },
-  {
-    name: "Crunchyroll",
-    description: "Anime series, films, simulcasts and selected free episodes.",
-    href: "https://www.crunchyroll.com/",
-    accent: "from-orange-500/35",
-  },
-  {
-    name: "YouTube Movies",
-    description: "Selected movies and programmes available to rent or purchase.",
-    href: "https://www.youtube.com/feed/storefront",
-    accent: "from-red-500/30",
-  },
-  {
-    name: "DStv Stream",
-    description: "Live channels and on-demand entertainment for eligible plans.",
-    href: "https://dstvstream.com/",
-    accent: "from-cyan-500/30",
-  },
-] as const;
-
-const rentOrBuyPlatforms = [
-  {
-    name: "Apple TV Store",
-    href: "https://tv.apple.com/za",
-    text: "Rent or purchase eligible movies and watch across supported Apple devices.",
-  },
-  {
-    name: "Prime Video Store",
-    href: "https://www.primevideo.com/storefront/",
-    text: "Browse titles offered for rental or purchase in supported regions.",
-  },
-  {
-    name: "Google TV & YouTube",
-    href: "https://www.youtube.com/feed/storefront",
-    text: "Find eligible digital rentals and purchases connected to your Google account.",
-  },
-] as const;
-
-const cinemaPartners = [
-  {
-    name: "Ster-Kinekor",
-    region: "South Africa",
-    description: "Find local cinemas, showtimes, ticket prices and seat bookings.",
-    href: "https://www.sterkinekor.com/",
-  },
-  {
-    name: "Nu Metro",
-    region: "South Africa",
-    description: "Browse now showing titles, cinemas, formats and online bookings.",
-    href: "https://numetro.co.za/",
-  },
-  {
-    name: "Fandango",
-    region: "United States",
-    description: "Search participating cinemas, movie times and advance tickets.",
-    href: "https://www.fandango.com/",
-  },
-] as const;
 
 const steps = [
   {
@@ -229,25 +141,8 @@ export default function WatchPage() {
             description="Open the official service to check its current catalogue, plans and availability in your country."
           />
 
-          <div id="platforms" className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {streamingPlatforms.map((platform) => (
-              <a
-                key={platform.name}
-                href={platform.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group relative min-h-64 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br ${platform.accent} via-[#10151f] to-[#080b12] p-6 transition hover:-translate-y-1 hover:border-yellow-400/45`}
-              >
-                <div className="flex items-start justify-between">
-                  <Tv className="h-8 w-8 text-yellow-400" />
-                  <ExternalLink className="h-4 w-4 text-white/35 transition group-hover:text-yellow-300" />
-                </div>
-                <div className="absolute inset-x-6 bottom-6">
-                  <h2 className="text-2xl font-black">{platform.name}</h2>
-                  <p className="mt-2 text-sm leading-6 text-white/55">{platform.description}</p>
-                </div>
-              </a>
-            ))}
+          <div id="platforms">
+            <StreamingPlatformCarousel />
           </div>
 
           <div className="mt-6 flex flex-col justify-between gap-5 rounded-3xl border border-yellow-400/25 bg-yellow-400/[0.06] p-6 md:flex-row md:items-center">
@@ -261,69 +156,7 @@ export default function WatchPage() {
         </div>
       </section>
 
-      <section id="rent-buy" className="scroll-mt-24 border-b border-white/10 px-5 py-20 lg:px-10">
-        <div className="mx-auto max-w-[1600px]">
-          <SectionHeading
-            eyebrow="Digital store"
-            title="Rent tonight or buy for later"
-            description="Check the provider for regional availability, video quality, pricing and rental expiry rules before paying."
-          />
-
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {rentOrBuyPlatforms.map((platform, index) => (
-              <a
-                key={platform.name}
-                href={platform.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group rounded-3xl border border-white/10 bg-[#0b1018] p-7 transition hover:border-yellow-400/45"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-5xl font-black text-white/[0.08]">0{index + 1}</span>
-                  <ShoppingBag className="h-7 w-7 text-yellow-400" />
-                </div>
-                <h3 className="mt-8 text-2xl font-black">{platform.name}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/55">{platform.text}</p>
-                <span className="mt-7 flex items-center gap-2 text-sm font-black text-yellow-300">Visit provider <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="tickets" className="scroll-mt-24 border-b border-white/10 px-5 py-20 lg:px-10">
-        <div className="mx-auto max-w-[1600px]">
-          <SectionHeading
-            eyebrow="Cinema tickets"
-            title="From discovery to the big screen"
-            description="Choose a trusted cinema partner, select your location and complete the booking on the provider's official website."
-          />
-
-          <div id="cinemas" className="mt-10 grid gap-5 lg:grid-cols-3">
-            {cinemaPartners.map((partner) => (
-              <a
-                key={partner.name}
-                href={partner.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-[#151b27] to-[#080b11] p-7 transition hover:border-yellow-400/50"
-              >
-                <div className="flex items-center justify-between">
-                  <Ticket className="h-8 w-8 text-yellow-400" />
-                  <ExternalLink className="h-4 w-4 text-white/35 group-hover:text-yellow-300" />
-                </div>
-                <h3 className="mt-16 text-3xl font-black">{partner.name}</h3>
-                <p className="mt-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-yellow-400"><MapPin className="h-4 w-4" /> {partner.region}</p>
-                <p className="mt-4 text-sm leading-7 text-white/55">{partner.description}</p>
-              </a>
-            ))}
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm leading-6 text-white/45">
-            CINRYVAN helps you discover options. Ticket purchases, subscriptions, rentals and refunds are handled by the external provider under its own terms.
-          </div>
-        </div>
-      </section>
+      <WatchProviderRails />
 
       <section className="border-b border-white/10 px-5 py-20 lg:px-10">
         <div className="mx-auto max-w-[1600px]">
