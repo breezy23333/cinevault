@@ -286,8 +286,15 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
-      <body className="bg-[#05070d] text-white">
+  <html lang="en">
+    <head>
+      <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2675581956911912"
+        crossOrigin="anonymous"
+      />
+    </head>
+    <body className="bg-[#05070d] text-white">
         <AppShell>{children}</AppShell>
 
         <JsonLd data={structuredData} />
