@@ -438,6 +438,15 @@ export default async function MoviePage({ params }: PageProps) {
               >
                 Where to watch ↓
               </Link>
+
+              {similar.length > 0 && (
+                <Link
+                  href="#similar"
+                  className="inline-flex items-center border border-yellow-400/40 bg-yellow-400/10 px-5 py-3 text-sm font-black text-yellow-300 backdrop-blur transition hover:bg-yellow-400 hover:text-black"
+                >
+                  Explore similar movies ↓
+                </Link>
+              )}
               <WatchlistButton
                 id={details.id}
                 media_type="movie"
@@ -456,15 +465,76 @@ export default async function MoviePage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* CHAPTER 02 — MOVIE DOSSIER */}
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
-        <ChapterHeading
-          number="02"
-          eyebrow="The dossier"
-          title={`Inside ${details.title}`}
-          text="The essential information, creative team and audience response in one focused view."
-        />
+            {similar.length > 0 && (
+        <section className="relative z-20 border-b border-white/10 bg-[#0b1018]">
+          <div className="mx-auto max-w-7xl px-4 py-7 md:px-6">
+            <div className="flex items-end justify-between gap-4">
+                           <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] textem] text-yellow-400">
+                  Keep exploring
+                </p>
+                <h2 className="mt-2 text-xl font-black sm:text-2xl">
+                  If you like {details.title}
+                </h2>
+              </div>
 
+              <Link
+                href="#similar"
+                className="hidden text-xs font-black text-white/45 transition hover:text-yellow-300 sm:block"
+              >
+                View all similar movies ↓
+              </Link>
+            </div>
+
+            <div className="hide-scrollbar -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:-mx-6 md:px-6">
+              {similar.slice(0, 8).map((movie) => {
+                const earlyPoster = imageUrl(movie.poster_path, "w185");
+
+                return (
+                  <Link
+                    key={`early-${movie.id}`}
+                    href={`/movie/${movie.id}`}
+                    prefetch={false}
+                    className="group flex w-[220px] shrink-0 snap-start items-center gap-3 border border-white/10 bg-white/[0.035] p-2 transition hover:-translate-y-1 hover:border-yellow-400/60 hover:bg-white/[0.06] sm:w-[250px]"
+                  >
+                    <div className="relative h-24 w-16 shrink-0 overflow-hidden bg-white/5">
+                      <CineImage
+                        src={earlyPoster}
+                        alt={movie.title || "Similar movie"}
+                        fallback="Poster unavailable"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <h3 className="line-clamp-2 text-sm font-black transition group-hover:text-yellow-300">
+                        {movie.title || "Untitled movie"}
+                      </h3>
+
+                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white/35">
+                        {(movie.release_date || "").slice(0, 4) || "Discover"}
+                      </p>
+
+                      <span className="mt-3 inline-block text-xs font-black text-yellow-400">
+                        Open movie →
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CHAPTER 02 — MOVIE DOSSIER */}
+        <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
+          <ChapterHeading
+            number="02"
+            eyebrow="The dossier"
+            title={`Inside ${details.title}`}
+            text="The essential information, creative team and audience response in one focused view."
+          />
         <div className="mt-9 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_250px] lg:items-start">
           <div className="relative mx-auto w-full max-w-[320px] lg:mx-0">
             <div className="relative aspect-[2/3] overflow-hidden border border-white/15 bg-[#111925] shadow-[0_35px_90px_rgba(0,0,0,.5)]">

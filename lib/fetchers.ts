@@ -250,7 +250,34 @@ export async function getTVCredits(id: number) {
 }
 
 export async function getSimilarTV(id: number, page = 1) {
-  return tmdb(`/tv/${id}/similar`, { page }, { revalidate: 300 });
+  const recommendations = await tmdb(
+    `/tv/${id}/recommendations`,
+    {
+      page,
+      language: "en-US",
+    },
+    {
+      revalidate: 3600,
+    },
+  );
+
+  if (
+    Array.isArray(recommendations?.results) &&
+    recommendations.results.length > 0
+  ) {
+    return recommendations;
+  }
+
+  return tmdb(
+    `/tv/${id}/similar`,
+    {
+      page,
+      language: "en-US",
+    },
+    {
+      revalidate: 3600,
+    },
+  );
 }
 
 export async function getMovie(id: number) {

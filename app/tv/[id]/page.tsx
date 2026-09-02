@@ -470,6 +470,16 @@ export default async function TvPage({ params }: PageProps) {
               >
                 Where to watch
               </Link>
+
+               {similar.length > 0 && (
+                  <Link
+                    href="#similar-series"
+                    className="inline-flex items-center border border-red-400/45 bg-red-500/10 px-5 py-3 text-sm font-black text-red-200 backdrop-blur transition hover:bg-red-500 hover:text-white"
+                  >
+                    Explore similar series ↓
+                  </Link>
+                )}   
+
               <WatchlistButton
                 id={details.id}
                 media_type="tv"
@@ -487,6 +497,71 @@ export default async function TvPage({ params }: PageProps) {
           <span className="h-px w-16 bg-red-500/70" />
         </div>
       </section>
+
+            {similar.length > 0 && (
+        <section className="relative z-20 border-b border-red-500/20 bg-[#0b1018]">
+          <div className="mx-auto max-w-7xl px-4 py-7 md:px-6">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-400">
+                  Continue watching
+                </p>
+
+                <h2 className="mt-2 text-xl font-black sm:text-2xl">
+                  If you like {title}
+                </h2>
+              </div>
+
+              <Link
+                href="#similar-series"
+                className="hidden text-xs font-black text-white/45 transition hover:text-red-300 sm:block"
+              >
+                View all related series ↓
+              </Link>
+            </div>
+
+            <div className="hide-scrollbar -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:-mx-6 md:px-6">
+              {similar.slice(0, 8).map((series) => {
+                const earlyPoster = imageUrl(series.poster_path, "w185");
+                const earlyYear =
+                  (series.first_air_date || "").slice(0, 4) || "Discover";
+
+                return (
+                  <Link
+                    key={`early-tv-${series.id}`}
+                    href={`/tv/${series.id}`}
+                    prefetch={false}
+                    className="group flex w-[220px] shrink-0 snap-start items-center gap-3 border border-white/10 bg-white/[0.035] p-2 transition hover:-translate-y-1 hover:border-red-400/65 hover:bg-white/[0.06] sm:w-[250px]"
+                  >
+                    <div className="relative h-24 w-16 shrink-0 overflow-hidden bg-white/5">
+                      <CineImage
+                        src={earlyPoster}
+                        alt={series.name || "Related TV series"}
+                        fallback="Poster unavailable"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <h3 className="line-clamp-2 text-sm font-black transition group-hover:text-red-300">
+                        {series.name || "Untitled series"}
+                      </h3>
+
+                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white/35">
+                        {earlyYear}
+                      </p>
+
+                      <span className="mt-3 inline-block text-xs font-black text-red-400">
+                        Open series →
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* BROADCAST 02 — SERIES DOSSIER */}
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
@@ -712,7 +787,10 @@ export default async function TvPage({ params }: PageProps) {
 
       {/* BROADCAST 07 — RELATED SERIES */}
       {similar.length > 0 && (
-        <section className="border-y border-white/10 bg-[#0c1018] py-16 lg:py-20">
+        <section
+          id="similar-series"
+          className="scroll-mt-28 border-y border-white/10 bg-[#0c1018] py-16 lg:py-20"
+        >
           <div className="mx-auto max-w-7xl px-4 md:px-6">
             <BroadcastHeading
               number="07"
