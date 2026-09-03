@@ -1,4 +1,4 @@
-// app/person/[id]/page.tsx
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -524,155 +524,36 @@ export default async function PersonPage({
         }}
       />
 
-      <section className="relative min-h-[680px] overflow-hidden border border-white/10 bg-[#090d14]">
-        {profile && (
-          <div className="absolute inset-0">
-            <Image
-              src={profile}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="scale-110 object-cover object-top opacity-25 blur-2xl"
-            />
-            <div className="absolute inset-0 bg-black/10" />
-          </div>
-        )}
-
-        <div
-          className={`relative grid min-h-[680px] items-end gap-8 p-5 pb-10 md:p-10 lg:p-14 ${
-            profile ? "md:grid-cols-[320px_1fr] lg:grid-cols-[360px_1fr]" : "md:grid-cols-1"
-          }`}
-        >
-          {profile && (
-            <div className="relative mx-auto aspect-[2/3] w-full max-w-[360px] overflow-hidden bg-white/5 shadow-2xl ring-1 ring-white/15 md:mx-0">
-              <Image
-                src={profile}
-                alt={`${person.name} profile`}
-                fill
-                priority
-                sizes="(max-width: 768px) 80vw, 360px"
-                className="object-cover"
-              />
-
-              <div className="absolute bottom-0 left-0 h-1 w-2/5 bg-yellow-400" />
-            </div>
-          )}
-
-          <div className="self-center">
-            {!profile && (
-              <div className="mb-6 grid h-24 w-24 place-items-center rounded-full border border-yellow-400/30 bg-yellow-400/10 text-3xl font-black text-yellow-300">
-                {person.name
-                  .split(/\s+/)
-                  .slice(0, 2)
-                  .map((part: string) => part.charAt(0))
-                  .join("")
-                  .toUpperCase()}
-              </div>
-            )}
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
-              CINRYVAN People
-            </p>
-
-            <h1 className="mt-3 max-w-4xl text-5xl font-black leading-[0.95] tracking-[-0.05em] text-white md:text-7xl lg:text-8xl">
-              {person.name}
-            </h1>
-
-            <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold text-white/70">
-              {person.known_for_department && (
-                <span className="border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-yellow-200">
-                  {person.known_for_department}
-                </span>
-              )}
-
-              {birthday && (
-                <span className="border border-white/10 bg-white/5 px-4 py-2">
-                  Born: {birthday}
-                </span>
-              )}
-
-              {age !== null && (
-                <span className="border border-white/10 bg-white/5 px-4 py-2">
-                  {person.deathday
-                    ? `Lived ${age} years`
-                    : `Age ${age}`}
-                </span>
-              )}
-
-              {deathday && (
-                <span className="border border-white/10 bg-white/5 px-4 py-2">
-                  Died: {deathday}
-                </span>
-              )}
-
-              {person.place_of_birth && (
-                <span className="border border-white/10 bg-white/5 px-4 py-2">
-                  {person.place_of_birth}
-                </span>
-              )}
-            </div>
-
-            <div className="mt-7 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatCard value={movies.length} label="Movies" />
-              <StatCard value={television.length} label="TV shows" />
-              <StatCard
-                value={careerYears ? `${careerYears.first}–${careerYears.latest}` : "—"}
-                label="Career years"
-              />
-              <StatCard
-                value={highestRated?.vote_average ? highestRated.vote_average.toFixed(1) : "—"}
-                label="Highest rating"
-              />
-            </div>
-
-            {person.biography ? (
-              <div className="mt-7 max-w-3xl">
-                <h2 className="text-xl font-black text-white">
-                  Biography
-                </h2>
-
-                <p className="mt-3 whitespace-pre-line leading-8 text-white/65">
-                  {person.biography}
-                </p>
-              </div>
-            ) : (
-              <p className="mt-7 max-w-2xl leading-7 text-white/45">
-                A complete biography for {person.name} is
-                not available yet. Explore their known
-                movies and television work below.
-              </p>
-            )}
-          </div>
+      <header className="border-b border-white/10 py-8 md:py-12">
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">CINRYVAN People</p>
+        <h1 className="mt-3 text-5xl font-black leading-[0.95] tracking-[-0.05em] text-white md:text-7xl">{person.name}</h1>
+        <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold text-white/70">
+          {person.known_for_department && <span className="border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-yellow-200">{person.known_for_department}</span>}
+          {birthday && <span className="border border-white/10 bg-white/5 px-4 py-2">Born: {birthday}</span>}
+          {age !== null && <span className="border border-white/10 bg-white/5 px-4 py-2">{person.deathday ? `Lived ${age} years` : `Age ${age}`}</span>}
+          {person.place_of_birth && <span className="border border-white/10 bg-white/5 px-4 py-2">{person.place_of_birth}</span>}
         </div>
-      </section>
+      </header>
 
-      <nav aria-label="Explore CINRYVAN" className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <ExploreLink href={`/search?q=${encodeURIComponent(person.name)}`} label="Search CINRYVAN" detail={`More about ${person.name}`} accent />
-        <ExploreLink href="/movie" label="Explore Movies" detail="Popular and new films" />
-        <ExploreLink href="/tv" label="Explore TV Shows" detail="Series and episodes" />
-        <ExploreLink href="/news/entertainment" label="Entertainment News" detail="Film, TV and celebrity news" />
-        <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
-      </nav>
-
-      <section className="mt-16 grid gap-8 xl:grid-cols-[1.35fr_0.65fr]">
+      <section className="mt-8 grid gap-8 xl:grid-cols-[1.35fr_0.65fr]">
         <div>
           <SectionHeading eyebrow="Photo gallery" title={`${person.name} photos`} />
           {profileImages.length > 0 ? (
-            <div className="mt-6 grid auto-rows-[170px] grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {[{ file_path: person.profile_path }, ...profileImages].slice(0, 9).map((image, index) => {
                 const source = img(image.file_path, "w780");
                 if (!source) return null;
                 return (
                   <div
                     key={`${image.file_path}-${index}`}
-                    className={`relative overflow-hidden border border-white/10 bg-white/5 ${index === 0 ? "row-span-2 sm:col-span-2" : ""}`}
+                    className={`relative aspect-[2/3] overflow-hidden border border-white/10 bg-[#0b1018] ${index === 0 ? "sm:col-span-2 sm:row-span-2" : ""}`}
                   >
                     <Image
                       src={source}
                       alt={`${person.name} photo ${index + 1}`}
                       fill
                       sizes="(max-width: 640px) 50vw, 25vw"
-                      className="object-cover object-top transition duration-500 hover:scale-105"
+                      className="object-contain object-top transition duration-500 hover:scale-[1.02]"
                     />
                   </div>
                 );
@@ -715,6 +596,31 @@ export default async function PersonPage({
           )}
         </aside>
       </section>
+
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard value={movies.length} label="Movies" />
+        <StatCard value={television.length} label="TV shows" />
+        <StatCard value={careerYears ? `${careerYears.first}–${careerYears.latest}` : "—"} label="Career years" />
+        <StatCard value={highestRated?.vote_average ? highestRated.vote_average.toFixed(1) : "—"} label="Highest rating" />
+      </div>
+
+      <section className="mt-12 border border-white/10 bg-[#0b1018] p-6 md:p-10">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Overview</p>
+        <h2 className="mt-2 text-3xl font-black text-white">{person.name} biography</h2>
+        {person.biography ? (
+          <p className="mt-5 max-w-5xl whitespace-pre-line leading-8 text-white/65">{person.biography}</p>
+        ) : (
+          <p className="mt-5 text-white/45">A complete biography for {person.name} is not available yet. Explore their known movies and television work below.</p>
+        )}
+      </section>
+
+      <nav aria-label="Explore CINRYVAN" className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <ExploreLink href={`/search?q=${encodeURIComponent(person.name)}`} label="Search CINRYVAN" detail={`More about ${person.name}`} accent />
+        <ExploreLink href="/movie" label="Explore Movies" detail="Popular and new films" />
+        <ExploreLink href="/tv" label="Explore TV Shows" detail="Series and episodes" />
+        <ExploreLink href="/news/entertainment" label="Entertainment News" detail="Film, TV and celebrity news" />
+        <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
+      </nav>
 
       {knownFor.length > 0 && (
         <section className="mt-16">
@@ -1149,5 +1055,3 @@ export async function generateMetadata({
     };
   }
 }
-
-

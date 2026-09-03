@@ -374,20 +374,14 @@ export default async function MoviePage({ params }: PageProps) {
       <section className="relative min-h-[600px] overflow-hidden border-b border-white/10 bg-black pt-24 sm:min-h-[640px] lg:min-h-[680px]">
         <CineImage
           src={backdrop}
-          alt=""
-          fallback="Backdrop unavailable"
-          className="scale-105 object-cover object-center opacity-30 blur-xl"
-        />
-        <CineImage
-          src={backdrop}
           alt={`${details.title} backdrop`}
           fallback="Backdrop unavailable"
-          className="object-contain object-right opacity-95"
+          className="object-cover object-center opacity-90"
         />
         <div className="absolute inset-0 bg-black/10" />
 
         <div className="relative z-10 mx-auto flex min-h-[500px] max-w-7xl items-end px-4 pb-9 sm:min-h-[540px] md:px-6 lg:min-h-[580px] lg:pb-12">
-          <div className="max-w-3xl bg-black/45 p-5 backdrop-blur-[2px] sm:p-7">
+          <div className="max-w-3xl [text-shadow:0_2px_18px_rgba(0,0,0,0.95)]">
             <p className="text-xs font-black uppercase tracking-[0.42em] text-yellow-400">
               CINRYVAN Feature Presentation
             </p>
