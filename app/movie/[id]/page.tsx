@@ -371,24 +371,28 @@ export default async function MoviePage({ params }: PageProps) {
       />
 
       {/* CHAPTER 01 — CINEMATIC HERO */}
-      <section className="relative min-h-[760px] overflow-hidden border-b border-white/10 bg-black pt-24">
+      <section className="relative min-h-[600px] overflow-hidden border-b border-white/10 bg-black pt-24 sm:min-h-[640px] lg:min-h-[680px]">
+        <CineImage
+          src={backdrop}
+          alt=""
+          fallback="Backdrop unavailable"
+          className="scale-105 object-cover object-center opacity-30 blur-xl"
+        />
         <CineImage
           src={backdrop}
           alt={`${details.title} backdrop`}
           fallback="Backdrop unavailable"
-          className="object-cover object-center opacity-75"
+          className="object-contain object-right opacity-95"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080b12] via-[#080b12]/72 to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-black/45" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_35%,rgba(250,204,21,.12),transparent_26%)]" />
+        <div className="absolute inset-0 bg-black/10" />
 
-        <div className="relative z-10 mx-auto flex min-h-[660px] max-w-7xl items-end px-4 pb-14 md:px-6 lg:pb-20">
-          <div className="max-w-4xl">
+        <div className="relative z-10 mx-auto flex min-h-[500px] max-w-7xl items-end px-4 pb-9 sm:min-h-[540px] md:px-6 lg:min-h-[580px] lg:pb-12">
+          <div className="max-w-3xl bg-black/45 p-5 backdrop-blur-[2px] sm:p-7">
             <p className="text-xs font-black uppercase tracking-[0.42em] text-yellow-400">
               CINRYVAN Feature Presentation
             </p>
 
-            <h1 className="mt-5 text-5xl font-black leading-[.9] tracking-[-0.06em] sm:text-7xl lg:text-[92px]">
+            <h1 className="mt-4 text-4xl font-black leading-[.92] tracking-[-0.055em] sm:text-6xl lg:text-[72px]">
               {details.title}
             </h1>
 
@@ -398,7 +402,7 @@ export default async function MoviePage({ params }: PageProps) {
               </p>
             )}
 
-            <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
               <span className="bg-yellow-400 px-3 py-2 text-black">Movie</span>
               {year && (
                 <span className="border border-white/15 bg-black/35 px-3 py-2 text-white/70">
@@ -425,12 +429,12 @@ export default async function MoviePage({ params }: PageProps) {
               ))}
             </div>
 
-            <p className="mt-6 line-clamp-3 max-w-3xl text-base leading-8 text-white/68 sm:text-lg">
+            <p className="mt-5 line-clamp-2 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">
               {details.overview ||
                 `Explore ${details.title}, its cast, trailers, ratings and official watch options on CINRYVAN.`}
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               {trailerKey && <TrailerModal videoKey={trailerKey} />}
               <Link
                 href="#watch"

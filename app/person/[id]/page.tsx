@@ -1,4 +1,4 @@
-
+// app/person/[id]/page.tsx
 
 import Image from "next/image";
 import Link from "next/link";
@@ -59,6 +59,23 @@ type Credit = {
   vote_average?: number;
   character?: string;
   job?: string;
+};
+
+type ProfileImage = {
+  file_path?: string | null;
+  width?: number;
+  height?: number;
+  vote_average?: number;
+};
+
+type ExternalIds = {
+  imdb_id?: string | null;
+  facebook_id?: string | null;
+  instagram_id?: string | null;
+  twitter_id?: string | null;
+  tiktok_id?: string | null;
+  youtube_id?: string | null;
+  wikidata_id?: string | null;
 };
 
 async function tmdb(path: string) {
@@ -275,6 +292,30 @@ function getCareerYears(credits: Credit[]) {
   };
 }
 
+function getGenderLabel(gender?: number | null) {
+  if (gender === 1) return "Female";
+  if (gender === 2) return "Male";
+  if (gender === 3) return "Non-binary";
+  return "Not publicly listed";
+}
+
+function prepareProfileImages(images: any, primary?: string | null) {
+  const profiles: ProfileImage[] = Array.isArray(images?.profiles)
+    ? images.profiles
+    : [];
+
+  const unique = new Map<string, ProfileImage>();
+
+  for (const image of profiles) {
+    if (!image?.file_path || image.file_path === primary) continue;
+    unique.set(image.file_path, image);
+  }
+
+  return Array.from(unique.values())
+    .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))
+    .slice(0, 9);
+}
+
 export default async function PersonPage({
   params,
 }: PageProps) {
@@ -293,9 +334,11 @@ export default async function PersonPage({
     notFound();
   }
 
-  const [person, credits] = await Promise.all([
+  const [person, credits, images, externalIds] = await Promise.all([
     tmdb(`/person/${personId}`),
     tmdb(`/person/${personId}/combined_credits`),
+    tmdb(`/person/${personId}/images`),
+    tmdb(`/person/${personId}/external_ids`),
   ]);
 
   if (!person?.name) {
@@ -304,10 +347,7 @@ export default async function PersonPage({
 
   const profile = img(person.profile_path, "w780");
   const knownCredits = prepareCredits(credits);
-  const heroBackdrop = img(
-    knownCredits.find((credit) => credit.backdrop_path)?.backdrop_path,
-    "original",
-  );
+  const profileImages = prepareProfileImages(images, person.profile_path);
 
   const movies = knownCredits.filter(
     (credit) => credit.media_type === "movie",
@@ -329,6 +369,29 @@ export default async function PersonPage({
     .filter((credit) => (credit.vote_average || 0) > 0)
     .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))[0];
   const knownFor = knownCredits.slice(0, 6);
+  const aliases = Array.isArray(person.also_known_as)
+    ? person.also_known_as.filter(Boolean).slice(0, 8)
+    : [];
+  const socialProfiles = [
+    externalIds?.instagram_id
+      ? { label: "Instagram", href: `https://www.instagram.com/${externalIds.instagram_id}/` }
+      : null,
+    externalIds?.twitter_id
+      ? { label: "X / Twitter", href: `https://x.com/${externalIds.twitter_id}` }
+      : null,
+    externalIds?.facebook_id
+      ? { label: "Facebook", href: `https://www.facebook.com/${externalIds.facebook_id}` }
+      : null,
+    externalIds?.tiktok_id
+      ? { label: "TikTok", href: `https://www.tiktok.com/@${externalIds.tiktok_id}` }
+      : null,
+    externalIds?.youtube_id
+      ? { label: "YouTube", href: `https://www.youtube.com/${externalIds.youtube_id}` }
+      : null,
+    externalIds?.imdb_id || person.imdb_id
+      ? { label: "IMDb", href: `https://www.imdb.com/name/${externalIds?.imdb_id || person.imdb_id}/` }
+      : null,
+  ].filter(Boolean) as { label: string; href: string }[];
 
   const personUrl = `${SITE_URL}/person/${personId}`;
 
@@ -462,15 +525,15 @@ export default async function PersonPage({
       />
 
       <section className="relative min-h-[680px] overflow-hidden border border-white/10 bg-[#090d14]">
-        {(heroBackdrop || profile) && (
+        {profile && (
           <div className="absolute inset-0">
             <Image
-              src={heroBackdrop || profile!}
+              src={profile}
               alt=""
               fill
               priority
               sizes="100vw"
-              className={`object-cover ${heroBackdrop ? "opacity-55" : "scale-110 opacity-20 blur-3xl"}`}
+              className="scale-110 object-cover object-top opacity-25 blur-2xl"
             />
             <div className="absolute inset-0 bg-black/10" />
           </div>
@@ -591,6 +654,68 @@ export default async function PersonPage({
         <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
       </nav>
 
+      <section className="mt-16 grid gap-8 xl:grid-cols-[1.35fr_0.65fr]">
+        <div>
+          <SectionHeading eyebrow="Photo gallery" title={`${person.name} photos`} />
+          {profileImages.length > 0 ? (
+            <div className="mt-6 grid auto-rows-[170px] grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {[{ file_path: person.profile_path }, ...profileImages].slice(0, 9).map((image, index) => {
+                const source = img(image.file_path, "w780");
+                if (!source) return null;
+                return (
+                  <div
+                    key={`${image.file_path}-${index}`}
+                    className={`relative overflow-hidden border border-white/10 bg-white/5 ${index === 0 ? "row-span-2 sm:col-span-2" : ""}`}
+                  >
+                    <Image
+                      src={source}
+                      alt={`${person.name} photo ${index + 1}`}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="object-cover object-top transition duration-500 hover:scale-105"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-6 border border-white/10 bg-white/[0.03] p-8 text-white/50">More photographs are not available yet.</div>
+          )}
+        </div>
+
+        <aside>
+          <SectionHeading eyebrow="Knowledge panel" title="Personal details" />
+          <dl className="mt-6 divide-y divide-white/10 border-y border-white/10 bg-[#0b1018] px-5">
+            <FactRow label="Full name" value={person.name} />
+            <FactRow label="Profession" value={person.known_for_department || "Entertainment"} />
+            <FactRow label="Born" value={birthday || "Not publicly listed"} />
+            {deathday && <FactRow label="Died" value={deathday} />}
+            <FactRow label="Age" value={age !== null ? String(age) : "Not publicly listed"} />
+            <FactRow label="Birthplace" value={person.place_of_birth || "Not publicly listed"} />
+            <FactRow label="Gender" value={getGenderLabel(person.gender)} />
+            <FactRow label="Net worth" value="No verified public figure" />
+          </dl>
+
+          {aliases.length > 0 && (
+            <div className="mt-5 border border-white/10 bg-white/[0.03] p-5">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-yellow-400">Also known as</h3>
+              <p className="mt-3 leading-7 text-white/60">{aliases.join(" · ")}</p>
+            </div>
+          )}
+
+          {socialProfiles.length > 0 && (
+            <div className="mt-5 border border-white/10 bg-white/[0.03] p-5">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-yellow-400">Official profiles</h3>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {socialProfiles.map((item) => (
+                  <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="border border-white/15 px-3 py-2 text-xs font-bold text-white transition hover:border-yellow-400 hover:text-yellow-300">{item.label} ↗</a>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+      </section>
+
       {knownFor.length > 0 && (
         <section className="mt-16">
           <SectionHeading eyebrow="Career spotlight" title={`What is ${person.name} known for?`} />
@@ -660,6 +785,28 @@ export default async function PersonPage({
         </section>
       )}
 
+      <section className="mt-16">
+        <SectionHeading eyebrow="People also ask" title={`Questions about ${person.name}`} />
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          <AnswerCard
+            question={`How old is ${person.name}?`}
+            answer={age !== null ? `${person.name} is ${age} years old${birthday ? ` and was born on ${birthday}` : ""}.` : `A verified age for ${person.name} is not currently available.`}
+          />
+          <AnswerCard
+            question={`Where was ${person.name} born?`}
+            answer={person.place_of_birth ? `${person.name} was born in ${person.place_of_birth}.` : `A verified birthplace for ${person.name} is not currently available.`}
+          />
+          <AnswerCard
+            question={`What is ${person.name} known for?`}
+            answer={knownFor.length ? `${person.name} is known for ${knownFor.slice(0, 3).map(getCreditTitle).join(", ")}.` : `${person.name} is known for work in ${person.known_for_department || "entertainment"}.`}
+          />
+          <AnswerCard
+            question={`What is ${person.name}'s net worth?`}
+            answer={`CINRYVAN does not publish an estimated net worth for ${person.name} without a reliable, attributable public source.`}
+          />
+        </div>
+      </section>
+
       <section className="mt-16 overflow-hidden border border-yellow-400/25 bg-yellow-400 px-6 py-10 text-black md:px-10">
         <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
           <div>
@@ -682,6 +829,24 @@ function StatCard({ value, label }: { value: string | number; label: string }) {
       <div className="text-xl font-black text-white">{value}</div>
       <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">{label}</div>
     </div>
+  );
+}
+
+function FactRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[110px_1fr] gap-4 py-4">
+      <dt className="text-xs font-black uppercase tracking-wider text-white/40">{label}</dt>
+      <dd className="text-sm font-bold text-white">{value}</dd>
+    </div>
+  );
+}
+
+function AnswerCard({ question, answer }: { question: string; answer: string }) {
+  return (
+    <article className="border border-white/10 bg-white/[0.03] p-6">
+      <h3 className="text-lg font-black text-white">{question}</h3>
+      <p className="mt-3 leading-7 text-white/55">{answer}</p>
+    </article>
   );
 }
 
@@ -984,3 +1149,5 @@ export async function generateMetadata({
     };
   }
 }
+
+

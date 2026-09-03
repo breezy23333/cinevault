@@ -405,27 +405,31 @@ export default async function TvPage({ params }: PageProps) {
       />
 
       {/* BROADCAST 01 — HERO */}
-      <section className="relative min-h-[760px] overflow-hidden border-b border-red-500/20 bg-black pt-24">
+      <section className="relative min-h-[600px] overflow-hidden border-b border-red-500/20 bg-black pt-24 sm:min-h-[640px] lg:min-h-[680px]">
+        <CineImage
+          src={backdrop}
+          alt=""
+          fallback="Backdrop unavailable"
+          className="scale-105 object-cover object-center opacity-30 blur-xl"
+        />
         <CineImage
           src={backdrop}
           alt={`${title} backdrop`}
           fallback="Backdrop unavailable"
-          className="object-cover object-center opacity-72"
+          className="object-contain object-right opacity-95"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080b12] via-[#080b12]/76 to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-black/50" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_36%,rgba(239,68,68,.18),transparent_26%)]" />
+        <div className="absolute inset-0 bg-black/10" />
         <div className="absolute left-0 top-1/3 h-px w-36 bg-red-500/80" />
 
-        <div className="relative z-10 mx-auto flex min-h-[660px] max-w-7xl items-end px-4 pb-14 md:px-6 lg:pb-20">
-          <div className="max-w-4xl">
+        <div className="relative z-10 mx-auto flex min-h-[500px] max-w-7xl items-end px-4 pb-9 sm:min-h-[540px] md:px-6 lg:min-h-[580px] lg:pb-12">
+          <div className="max-w-3xl bg-black/45 p-5 backdrop-blur-[2px] sm:p-7">
             <div className="flex items-center gap-3">
               <span className="h-2 w-2 animate-pulse rounded-full bg-red-500 shadow-[0_0_20px_5px_rgba(239,68,68,.45)]" />
               <p className="text-xs font-black uppercase tracking-[0.42em] text-red-400">
                 CINRYVAN Broadcast
               </p>
             </div>
-            <h1 className="mt-5 text-5xl font-black leading-[.9] tracking-[-0.06em] sm:text-7xl lg:text-[92px]">
+            <h1 className="mt-4 text-4xl font-black leading-[.92] tracking-[-0.055em] sm:text-6xl lg:text-[72px]">
               {title}
             </h1>
             {details.tagline && (
@@ -434,7 +438,7 @@ export default async function TvPage({ params }: PageProps) {
               </p>
             )}
 
-            <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
               <span className="bg-red-500 px-3 py-2 text-white">TV Series</span>
               {year && <MetaChip>{year}</MetaChip>}
               {details.number_of_seasons && (
@@ -451,12 +455,12 @@ export default async function TvPage({ params }: PageProps) {
               ))}
             </div>
 
-            <p className="mt-6 line-clamp-3 max-w-3xl text-base leading-8 text-white/68 sm:text-lg">
+            <p className="mt-5 line-clamp-2 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">
               {details.overview ||
                 `Explore ${title}, its seasons, episodes, cast, videos and official watch options on CINRYVAN.`}
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               {trailerKey && <TrailerModal videoKey={trailerKey} />}
               <Link
                 href="#seasons"
