@@ -1,4 +1,4 @@
-// app/person/[id]/page.tsx
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -52,6 +52,7 @@ type Credit = {
   title?: string;
   name?: string;
   poster_path?: string | null;
+  backdrop_path?: string | null;
   release_date?: string | null;
   first_air_date?: string | null;
   popularity?: number;
@@ -197,9 +198,12 @@ function getCreditRoute(credit: Credit) {
 function getMetadataTitle(
   name: string,
   department?: string | null,
+  isLiving = true,
 ) {
   if (department === "Acting") {
-    return `${name}: Movies, TV Shows & Biography`;
+    return isLiving
+      ? `${name}: Age, Movies, TV Shows & Biography`
+      : `${name}: Movies, TV Shows & Biography`;
   }
 
   if (department === "Directing") {
@@ -255,7 +259,20 @@ function prepareCredits(credits: any) {
         (b.popularity || 0) -
         (a.popularity || 0),
     )
-    .slice(0, 30);
+    .slice(0, 60);
+}
+
+function getCareerYears(credits: Credit[]) {
+  const years = credits
+    .map((credit) => Number(getCreditDate(credit).slice(0, 4)))
+    .filter((year) => Number.isInteger(year) && year > 1800);
+
+  if (!years.length) return null;
+
+  return {
+    first: Math.min(...years),
+    latest: Math.max(...years),
+  };
 }
 
 export default async function PersonPage({
@@ -287,6 +304,10 @@ export default async function PersonPage({
 
   const profile = img(person.profile_path, "w780");
   const knownCredits = prepareCredits(credits);
+  const heroBackdrop = img(
+    knownCredits.find((credit) => credit.backdrop_path)?.backdrop_path,
+    "original",
+  );
 
   const movies = knownCredits.filter(
     (credit) => credit.media_type === "movie",
@@ -303,6 +324,11 @@ export default async function PersonPage({
     person.birthday,
     person.deathday,
   );
+  const careerYears = getCareerYears(knownCredits);
+  const highestRated = [...knownCredits]
+    .filter((credit) => (credit.vote_average || 0) > 0)
+    .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))[0];
+  const knownFor = knownCredits.slice(0, 6);
 
   const personUrl = `${SITE_URL}/person/${personId}`;
 
@@ -407,7 +433,7 @@ export default async function PersonPage({
   };
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-28 md:px-6">
+    <main className="mx-auto max-w-[1440px] px-4 pb-24 pt-24 md:px-6 lg:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -435,32 +461,34 @@ export default async function PersonPage({
         }}
       />
 
-      <section className="relative overflow-hidden border border-white/10 bg-[#0c1119]">
-        {profile && (
-          <div className="absolute inset-0 opacity-[0.08]">
+      <section className="relative min-h-[680px] overflow-hidden border border-white/10 bg-[#090d14]">
+        {(heroBackdrop || profile) && (
+          <div className="absolute inset-0">
             <Image
-              src={profile}
+              src={heroBackdrop || profile!}
               alt=""
               fill
               priority
-              className="scale-110 object-cover blur-3xl"
+              sizes="100vw"
+              className={`object-cover ${heroBackdrop ? "opacity-55" : "scale-110 opacity-20 blur-3xl"}`}
             />
+            <div className="absolute inset-0 bg-black/10" />
           </div>
         )}
 
         <div
-          className={`relative grid gap-8 p-5 md:p-8 ${
-            profile ? "md:grid-cols-[300px_1fr]" : "md:grid-cols-1"
+          className={`relative grid min-h-[680px] items-end gap-8 p-5 pb-10 md:p-10 lg:p-14 ${
+            profile ? "md:grid-cols-[320px_1fr] lg:grid-cols-[360px_1fr]" : "md:grid-cols-1"
           }`}
         >
           {profile && (
-            <div className="relative mx-auto aspect-[2/3] w-full max-w-[300px] overflow-hidden bg-white/5 ring-1 ring-white/10 md:mx-0">
+            <div className="relative mx-auto aspect-[2/3] w-full max-w-[360px] overflow-hidden bg-white/5 shadow-2xl ring-1 ring-white/15 md:mx-0">
               <Image
                 src={profile}
                 alt={`${person.name} profile`}
                 fill
                 priority
-                sizes="(max-width: 768px) 80vw, 300px"
+                sizes="(max-width: 768px) 80vw, 360px"
                 className="object-cover"
               />
 
@@ -483,7 +511,7 @@ export default async function PersonPage({
               CINRYVAN People
             </p>
 
-            <h1 className="mt-3 text-4xl font-black leading-tight text-white md:text-6xl">
+            <h1 className="mt-3 max-w-4xl text-5xl font-black leading-[0.95] tracking-[-0.05em] text-white md:text-7xl lg:text-8xl">
               {person.name}
             </h1>
 
@@ -521,6 +549,19 @@ export default async function PersonPage({
               )}
             </div>
 
+            <div className="mt-7 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatCard value={movies.length} label="Movies" />
+              <StatCard value={television.length} label="TV shows" />
+              <StatCard
+                value={careerYears ? `${careerYears.first}–${careerYears.latest}` : "—"}
+                label="Career years"
+              />
+              <StatCard
+                value={highestRated?.vote_average ? highestRated.vote_average.toFixed(1) : "—"}
+                label="Highest rating"
+              />
+            </div>
+
             {person.biography ? (
               <div className="mt-7 max-w-3xl">
                 <h2 className="text-xl font-black text-white">
@@ -541,6 +582,25 @@ export default async function PersonPage({
           </div>
         </div>
       </section>
+
+      <nav aria-label="Explore CINRYVAN" className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <ExploreLink href={`/search?q=${encodeURIComponent(person.name)}`} label="Search CINRYVAN" detail={`More about ${person.name}`} accent />
+        <ExploreLink href="/movie" label="Explore Movies" detail="Popular and new films" />
+        <ExploreLink href="/tv" label="Explore TV Shows" detail="Series and episodes" />
+        <ExploreLink href="/news/entertainment" label="Entertainment News" detail="Film, TV and celebrity news" />
+        <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
+      </nav>
+
+      {knownFor.length > 0 && (
+        <section className="mt-16">
+          <SectionHeading eyebrow="Career spotlight" title={`What is ${person.name} known for?`} />
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {knownFor.map((credit, index) => (
+              <FeaturedCredit key={`${credit.media_type}-${credit.id}`} credit={credit} rank={index + 1} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {movies.length > 0 && (
         <CreditSection
@@ -570,7 +630,93 @@ export default async function PersonPage({
           </p>
         </section>
       )}
+
+      {knownCredits.length > 0 && (
+        <section className="mt-16 grid gap-6 border border-white/10 bg-[#0b1018] p-6 md:p-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Career overview</p>
+            <h2 className="mt-3 text-3xl font-black text-white md:text-4xl">Film and television timeline</h2>
+            <p className="mt-4 max-w-lg leading-7 text-white/55">
+              Browse a quick timeline of {person.name}&apos;s most recent and notable credited work, then open any title for trailers, ratings, cast and viewing information.
+            </p>
+          </div>
+          <div className="divide-y divide-white/10 border-y border-white/10">
+            {[...knownCredits]
+              .sort((a, b) => getCreditDate(b).localeCompare(getCreditDate(a)))
+              .slice(0, 10)
+              .map((credit) => (
+                <Link
+                  key={`timeline-${credit.media_type}-${credit.id}`}
+                  href={getCreditRoute(credit)}
+                  prefetch={false}
+                  className="grid grid-cols-[52px_1fr_auto] items-center gap-3 py-4 text-sm transition hover:text-yellow-300"
+                >
+                  <span className="font-black text-yellow-400">{getCreditDate(credit).slice(0, 4) || "—"}</span>
+                  <span className="font-bold text-white">{getCreditTitle(credit)}</span>
+                  <span className="text-xs uppercase tracking-wider text-white/40">{credit.media_type === "tv" ? "TV" : "Movie"} →</span>
+                </Link>
+              ))}
+          </div>
+        </section>
+      )}
+
+      <section className="mt-16 overflow-hidden border border-yellow-400/25 bg-yellow-400 px-6 py-10 text-black md:px-10">
+        <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.28em]">Continue exploring</p>
+            <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-[-0.04em] md:text-6xl">Discover the worlds behind the screen.</h2>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/news/entertainment" className="bg-black px-5 py-3 text-sm font-black text-white">Latest entertainment news</Link>
+            <Link href="/games" className="border border-black/30 px-5 py-3 text-sm font-black">Browse games</Link>
+          </div>
+        </div>
+      </section>
     </main>
+  );
+}
+
+function StatCard({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="border border-white/10 bg-black/35 p-4 backdrop-blur-sm">
+      <div className="text-xl font-black text-white">{value}</div>
+      <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">{label}</div>
+    </div>
+  );
+}
+
+function ExploreLink({ href, label, detail, accent = false }: { href: string; label: string; detail: string; accent?: boolean }) {
+  return (
+    <Link href={href} prefetch={false} className={`group border p-5 transition hover:-translate-y-1 ${accent ? "border-yellow-400 bg-yellow-400 text-black" : "border-white/10 bg-white/[0.03] text-white hover:border-yellow-400/50"}`}>
+      <div className="flex items-center justify-between gap-3 font-black"><span>{label}</span><span>↗</span></div>
+      <p className={`mt-2 text-xs ${accent ? "text-black/65" : "text-white/45"}`}>{detail}</p>
+    </Link>
+  );
+}
+
+function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="border-b border-white/10 pb-5">
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">{eyebrow}</p>
+      <h2 className="mt-2 text-3xl font-black text-white md:text-4xl">{title}</h2>
+    </div>
+  );
+}
+
+function FeaturedCredit({ credit, rank }: { credit: Credit; rank: number }) {
+  const backdrop = img(credit.backdrop_path, "w780");
+  const poster = img(credit.poster_path, "w500");
+  const title = getCreditTitle(credit);
+  return (
+    <Link href={getCreditRoute(credit)} prefetch={false} className="group relative min-h-[250px] overflow-hidden border border-white/10 bg-[#0c1119]">
+      {(backdrop || poster) && <Image src={backdrop || poster!} alt={`${title} artwork`} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover opacity-55 transition duration-700 group-hover:scale-105 group-hover:opacity-70" />}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-5">
+        <div className="text-xs font-black text-yellow-400">#{rank} · {credit.media_type === "tv" ? "TV SHOW" : "MOVIE"}</div>
+        <h3 className="mt-2 text-2xl font-black text-white">{title}</h3>
+        <div className="mt-2 flex gap-3 text-xs text-white/60"><span>{getCreditDate(credit).slice(0, 4) || "Date unknown"}</span>{credit.vote_average ? <span>★ {credit.vote_average.toFixed(1)}</span> : null}</div>
+      </div>
+    </Link>
   );
 }
 
@@ -725,15 +871,24 @@ export async function generateMetadata({
     const pageTitle = getMetadataTitle(
       name,
       person.known_for_department,
+      !person.deathday,
     );
 
     const biography = cleanSeoText(
       person.biography,
     );
 
+    const topTitles = knownCredits
+      .slice(0, 3)
+      .map(getCreditTitle)
+      .filter((title) => title !== "Untitled");
+
     const details = [
       person.known_for_department
         ? `Known for ${person.known_for_department.toLowerCase()}.`
+        : null,
+      topTitles.length > 0
+        ? `Credits include ${topTitles.join(", ")}.`
         : null,
       person.place_of_birth
         ? `Born in ${person.place_of_birth}.`
@@ -746,9 +901,11 @@ export async function generateMetadata({
       .join(" ");
 
     const description = truncateSeoText(
-      biography
-        ? `${biography} ${details}`
-        : `${name} biography and filmography. ${details}`,
+      topTitles.length > 0
+        ? `${name} movies, TV shows, biography and career. ${details}`
+        : biography
+          ? `${biography} ${details}`
+          : `${name} biography and filmography. ${details}`,
       158,
     );
 
