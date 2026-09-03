@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getPersonKnowledge } from "@/lib/personKnowledge";
+import PersonPhotoHero from "@/components/PersonPhotoHero";
 
 export const revalidate = 86400;
 
@@ -313,7 +315,7 @@ function prepareProfileImages(images: any, primary?: string | null) {
 
   return Array.from(unique.values())
     .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))
-    .slice(0, 9);
+    .slice(0, 49);
 }
 
 export default async function PersonPage({
@@ -344,6 +346,8 @@ export default async function PersonPage({
   if (!person?.name) {
     notFound();
   }
+
+  const knowledge = await getPersonKnowledge(externalIds?.wikidata_id);
 
   const profile = img(person.profile_path, "w780");
   const knownCredits = prepareCredits(credits);
@@ -538,30 +542,17 @@ export default async function PersonPage({
       <section className="mt-8 grid gap-8 xl:grid-cols-[1.35fr_0.65fr]">
         <div>
           <SectionHeading eyebrow="Photo gallery" title={`${person.name} photos`} />
-          {profileImages.length > 0 ? (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {[{ file_path: person.profile_path }, ...profileImages].slice(0, 9).map((image, index) => {
-                const source = img(image.file_path, "w780");
-                if (!source) return null;
-                return (
-                  <div
-                    key={`${image.file_path}-${index}`}
-                    className={`relative aspect-[2/3] overflow-hidden border border-white/10 bg-[#0b1018] ${index === 0 ? "sm:col-span-2 sm:row-span-2" : ""}`}
-                  >
-                    <Image
-                      src={source}
-                      alt={`${person.name} photo ${index + 1}`}
-                      fill
-                      sizes="(max-width: 640px) 50vw, 25vw"
-                      className="object-contain object-top transition duration-500 hover:scale-[1.02]"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="mt-6 border border-white/10 bg-white/[0.03] p-8 text-white/50">More photographs are not available yet.</div>
-          )}
+          <div className="mt-6">
+            <PersonPhotoHero
+              name={person.name}
+              images={[
+                profile,
+                ...profileImages
+                  .map((image) => img(image.file_path, "w780"))
+                  .filter((source): source is string => Boolean(source)),
+              ].filter((source): source is string => Boolean(source))}
+            />
+          </div>
         </div>
 
         <aside>
@@ -607,8 +598,8 @@ export default async function PersonPage({
       <section className="mt-12 border border-white/10 bg-[#0b1018] p-6 md:p-10">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Overview</p>
         <h2 className="mt-2 text-3xl font-black text-white">{person.name} biography</h2>
-        {person.biography ? (
-          <p className="mt-5 max-w-5xl whitespace-pre-line leading-8 text-white/65">{person.biography}</p>
+        {knowledge?.summary || person.biography ? (
+          <p className="mt-5 max-w-5xl whitespace-pre-line leading-8 text-white/65">{knowledge?.summary || person.biography}</p>
         ) : (
           <p className="mt-5 text-white/45">A complete biography for {person.name} is not available yet. Explore their known movies and television work below.</p>
         )}
@@ -621,6 +612,82 @@ export default async function PersonPage({
         <ExploreLink href="/news/entertainment" label="Entertainment News" detail="Film, TV and celebrity news" />
         <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
       </nav>
+
+      {knowledge && (
+        <section className="mt-16">
+          <SectionHeading eyebrow="The person behind the screen" title={`${person.name}: life and career`} />
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+            <aside className="space-y-5">
+              <KnowledgeListCard title="Identity" rows={[
+                { label: "Nationality", values: knowledge.nationality },
+                { label: "Occupations", values: knowledge.occupations },
+                { label: "Education", values: knowledge.education },
+                { label: "Height", values: knowledge.height ? [knowledge.height] : [] },
+                { label: "Residence", values: knowledge.residences },
+              ]} />
+
+              <KnowledgeListCard title="Family and relationships" rows={[
+                { label: "Spouse", values: knowledge.spouses },
+                { label: "Publicly documented partner", values: knowledge.partners },
+                { label: "Children", values: knowledge.children },
+                { label: "Parents", values: knowledge.parents },
+                { label: "Siblings", values: knowledge.siblings },
+              ]} />
+
+              {knowledge.notableWorks.length > 0 && (
+                <KnowledgeListCard title="Notable work" rows={[
+                  { label: "Known titles", values: knowledge.notableWorks },
+                ]} />
+              )}
+            </aside>
+
+            <div className="space-y-5">
+              {knowledge.career && (
+                <KnowledgeChapter eyebrow="Career story" title={`${person.name}'s career`} text={knowledge.career} />
+              )}
+
+              {knowledge.personalLife && (
+                <KnowledgeChapter eyebrow="Personal life" title="Family, relationships and life away from the screen" text={knowledge.personalLife} />
+              )}
+
+              {knowledge.awards.length > 0 && (
+                <article className="border border-white/10 bg-[#0b1018] p-6 md:p-8">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Recognition</p>
+                  <h2 className="mt-2 text-3xl font-black text-white">Awards and honours</h2>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {knowledge.awards.map((award) => (
+                      <div key={award} className="border-l-2 border-yellow-400 bg-white/[0.03] px-4 py-3 text-sm font-bold text-white/75">{award}</div>
+                    ))}
+                  </div>
+                </article>
+              )}
+
+              {knowledge.controversies && (
+                <KnowledgeChapter
+                  eyebrow="Public record"
+                  title="Controversies, disputes and legal matters"
+                  text={knowledge.controversies}
+                  caution="This section covers documented public reporting only. Allegations are not presented as proven facts unless a reliable public record says so."
+                />
+              )}
+
+              {!knowledge.career && !knowledge.personalLife && knowledge.awards.length === 0 && (
+                <article className="border border-white/10 bg-white/[0.03] p-6 text-white/50">
+                  More verified life and career information has not yet been added to the connected public knowledge sources.
+                </article>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3 border border-white/10 bg-white/[0.03] p-5">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-white/40">Sources</span>
+            {knowledge.sources.map((source) => (
+              <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer" className="border border-white/15 px-3 py-2 text-xs font-bold text-white transition hover:border-yellow-400 hover:text-yellow-300">{source.label} ↗</a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {knownFor.length > 0 && (
         <section className="mt-16">
@@ -752,6 +819,52 @@ function AnswerCard({ question, answer }: { question: string; answer: string }) 
     <article className="border border-white/10 bg-white/[0.03] p-6">
       <h3 className="text-lg font-black text-white">{question}</h3>
       <p className="mt-3 leading-7 text-white/55">{answer}</p>
+    </article>
+  );
+}
+
+function KnowledgeListCard({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { label: string; values: string[] }[];
+}) {
+  const visibleRows = rows.filter((row) => row.values.length > 0);
+  if (!visibleRows.length) return null;
+
+  return (
+    <article className="border border-white/10 bg-[#0b1018] p-5">
+      <h3 className="text-lg font-black text-white">{title}</h3>
+      <dl className="mt-4 divide-y divide-white/10">
+        {visibleRows.map((row) => (
+          <div key={row.label} className="py-4">
+            <dt className="text-[10px] font-black uppercase tracking-[0.18em] text-yellow-400">{row.label}</dt>
+            <dd className="mt-2 text-sm leading-6 text-white/70">{row.values.join(" · ")}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+function KnowledgeChapter({
+  eyebrow,
+  title,
+  text,
+  caution,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  caution?: string;
+}) {
+  return (
+    <article className="border border-white/10 bg-[#0b1018] p-6 md:p-8">
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">{eyebrow}</p>
+      <h2 className="mt-2 text-3xl font-black text-white">{title}</h2>
+      {caution && <p className="mt-4 border-l-2 border-yellow-400 bg-yellow-400/5 px-4 py-3 text-xs leading-6 text-yellow-100/65">{caution}</p>}
+      <p className="mt-5 whitespace-pre-line leading-8 text-white/65">{text}</p>
     </article>
   );
 }
