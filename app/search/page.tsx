@@ -21,19 +21,35 @@ export const metadata: Metadata = {
   title: "Search Movies & TV Shows | CINRYVAN",
   description:
     "Search movies, TV shows, anime, cartoons, and entertainment titles on CINRYVAN.",
-  alternates: { canonical: "/search" },
+
+  alternates: {
+    canonical: "/search",
+  },
+
+  robots: {
+    index: false,
+    follow: true,
+    googleBot: {
+      index: false,
+      follow: true,
+    },
+  },
+
   openGraph: {
     title: "Search Movies & TV Shows | CINRYVAN",
-    description: "Find movies, TV shows, anime, cartoons, and entertainment titles.",
+    description:
+      "Find movies, TV shows, anime, cartoons, and entertainment titles.",
     url: "/search",
     siteName: "CINRYVAN",
     images: ["/og-image.png"],
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "Search Movies & TV Shows | CINRYVAN",
-    description: "Search movies, TV shows, anime, cartoons, and entertainment titles.",
+    description:
+      "Search movies, TV shows, anime, cartoons, and entertainment titles.",
     images: ["/og-image.png"],
   },
 };
