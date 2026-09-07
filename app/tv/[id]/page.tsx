@@ -126,7 +126,7 @@ function isStrongTvPage(tv: any) {
     Boolean(title) &&
     tv.adult !== true &&
     hasImage &&
-    overviewLength >= 120 &&
+    overviewLength >= 80 &&
     (voteCount >= 100 || popularity >= 15)
   );
 }

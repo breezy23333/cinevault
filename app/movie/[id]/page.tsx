@@ -121,7 +121,7 @@ function isStrongMoviePage(movie: any) {
     Boolean(title) &&
     movie.adult !== true &&
     hasImage &&
-    overviewLength >= 120 &&
+    overviewLength >= 80 &&
     (voteCount >= 100 || popularity >= 15)
   );
 }
