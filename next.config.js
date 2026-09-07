@@ -1,7 +1,8 @@
-/** @type {import('next').NextConfig} */
+/** @type {import("next").NextConfig} */
 const nextConfig = {
   images: {
     unoptimized: true,
+
     remotePatterns: [
       {
         protocol: "https",
@@ -20,6 +21,21 @@ const nextConfig = {
         hostname: "i.ytimg.com",
       },
     ],
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/movies",
+        destination: "/movie",
+        permanent: true,
+      },
+      {
+        source: "/support/search",
+        destination: "/support",
+        permanent: true,
+      },
+    ];
   },
 };
 
