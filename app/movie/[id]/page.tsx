@@ -94,6 +94,38 @@ function truncateSeoText(value: string, maximumLength = 158) {
   return `${shortened}…`;
 }
 
+function isStrongMoviePage(movie: any) {
+  const title = cleanSeoText(
+    movie.title || movie.name,
+  );
+
+  const overviewLength = cleanSeoText(
+    movie.overview,
+  ).length;
+
+  const voteCount =
+    typeof movie.vote_count === "number"
+      ? movie.vote_count
+      : 0;
+
+  const popularity =
+    typeof movie.popularity === "number"
+      ? movie.popularity
+      : 0;
+
+  const hasImage = Boolean(
+    movie.poster_path || movie.backdrop_path,
+  );
+
+  return (
+    Boolean(title) &&
+    movie.adult !== true &&
+    hasImage &&
+    overviewLength >= 120 &&
+    (voteCount >= 100 || popularity >= 15)
+  );
+}
+
 function toIsoDuration(minutes?: number | null) {
   if (!minutes || minutes < 1) return undefined;
 
@@ -1045,6 +1077,8 @@ export async function generateMetadata({
       posterImage ||
       `${SITE_URL}/og-image.png`;
 
+      const shouldIndex = isStrongMoviePage(movie);
+
     return {
       title: pageTitle,
       description,
@@ -1056,10 +1090,10 @@ export async function generateMetadata({
       },
 
       robots: {
-        index: true,
+        index: shouldIndex,
         follow: true,
         googleBot: {
-          index: true,
+          index: shouldIndex,
           follow: true,
           noimageindex: false,
           "max-image-preview": "large",
@@ -1104,7 +1138,7 @@ export async function generateMetadata({
         canonical,
       },
       robots: {
-        index: true,
+        index: false,
         follow: true,
       },
     };
