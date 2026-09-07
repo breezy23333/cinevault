@@ -44,6 +44,7 @@ export type PersonKnowledge = {
   notableWorks: string[];
   residences: string[];
   height: string | null;
+  earlyLife: string | null;
   career: string | null;
   personalLife: string | null;
   controversies: string | null;
@@ -116,24 +117,20 @@ function unique(values: string[], maximum = 20) {
 
 async function resolveLabels(ids: string[]) {
   const labels = new Map<string, string>();
-  const uniqueIds = unique(ids, 50);
-
-  if (!uniqueIds.length) return labels;
-
-  const url = new URL("https://www.wikidata.org/w/api.php");
-  url.searchParams.set("action", "wbgetentities");
-  url.searchParams.set("ids", uniqueIds.join("|"));
-  url.searchParams.set("props", "labels");
-  url.searchParams.set("languages", "en");
-  url.searchParams.set("format", "json");
-  url.searchParams.set("origin", "*");
-
-  const data = await fetchJson(url.toString());
-
-  for (const id of uniqueIds) {
-    const label = data?.entities?.[id]?.labels?.en?.value;
-    if (typeof label === "string" && label.trim()) {
-      labels.set(id, label.trim());
+  const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+  // Resolve every identifier, in API-safe batches, instead of dropping all after 50.
+  for (let offset = 0; offset < uniqueIds.length; offset += 50) {
+    const batch = uniqueIds.slice(offset, offset + 50);
+    const url = new URL("https://www.wikidata.org/w/api.php");
+    url.searchParams.set("action", "wbgetentities");
+    url.searchParams.set("ids", batch.join("|"));
+    url.searchParams.set("props", "labels");
+    url.searchParams.set("languages", "en");
+    url.searchParams.set("format", "json");
+    const data = await fetchJson(url.toString());
+    for (const id of batch) {
+      const label = data?.entities?.[id]?.labels?.en?.value;
+      if (typeof label === "string" && label.trim()) labels.set(id, label.trim());
     }
   }
 
@@ -166,6 +163,10 @@ function htmlToText(html?: string | null) {
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
       .replace(/<sup[\s\S]*?<\/sup>/gi, " ")
+      .replace(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi, " ")
+      .replace(/<figcaption\b[^>]*>[\s\S]*?<\/figcaption>/gi, " ")
+      .replace(/<h[2-6]\b[^>]*>/gi, "\n\n## ")
+      .replace(/<\/h[2-6]>/gi, "\n\n")
       .replace(/<li[^>]*>/gi, "\n• ")
       .replace(/<\/(p|div|h2|h3|li)>/gi, "\n")
       .replace(/<br\s*\/?>/gi, "\n")
@@ -177,7 +178,7 @@ function htmlToText(html?: string | null) {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  return text ? text.slice(0, 6000) : null;
+  return text || null;
 }
 
 async function getWikipediaSummary(title: string) {
@@ -194,7 +195,7 @@ async function getWikipediaSummary(title: string) {
   const data = await fetchJson(url.toString());
   const page = Object.values(data?.query?.pages || {})[0] as any;
   const extract = typeof page?.extract === "string" ? page.extract.trim() : "";
-  return extract ? extract.slice(0, 3000) : null;
+  return extract || null;
 }
 
 async function getWikipediaSections(title: string) {
@@ -231,7 +232,8 @@ async function getWikipediaSections(title: string) {
     return htmlToText(sectionData?.parse?.text?.["*"]);
   }
 
-  const [career, personalLife, controversies] = await Promise.all([
+  const [earlyLife, career, personalLife, controversies] = await Promise.all([
+    readSection([/early life/i, /early years/i, /childhood/i]),
     readSection([/^career$/i, /acting career/i, /professional career/i]),
     readSection([/personal life/i, /relationships?/i, /family/i]),
     readSection([
@@ -243,7 +245,7 @@ async function getWikipediaSections(title: string) {
     ]),
   ]);
 
-  return { career, personalLife, controversies };
+  return { earlyLife, career, personalLife, controversies };
 }
 
 function formatHeight(entity: any) {
@@ -309,7 +311,7 @@ export async function getPersonKnowledge(
         getWikipediaSummary(wikipediaTitle),
         getWikipediaSections(wikipediaTitle),
       ])
-    : [null, { career: null, personalLife: null, controversies: null }];
+    : [null, { earlyLife: null, career: null, personalLife: null, controversies: null }];
 
   const wikipediaUrl = wikipediaTitle
     ? `https://en.wikipedia.org/wiki/${encodeURIComponent(
@@ -335,6 +337,7 @@ export async function getPersonKnowledge(
     notableWorks: labelsFor(groupedIds.notableWorks, labels),
     residences: labelsFor(groupedIds.residences, labels),
     height: formatHeight(entity),
+    earlyLife: sections.earlyLife,
     career: sections.career,
     personalLife: sections.personalLife,
     controversies: sections.controversies,
@@ -344,3 +347,4 @@ export async function getPersonKnowledge(
     ],
   };
 }
+

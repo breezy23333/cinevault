@@ -613,7 +613,7 @@ export default async function PersonPage({
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Overview</p>
         <h2 className="mt-2 text-3xl font-black text-white">{person.name} biography</h2>
         {knowledge?.summary || person.biography ? (
-          <p className="mt-5 max-w-5xl whitespace-pre-line leading-8 text-white/65">{knowledge?.summary || person.biography}</p>
+          <div className="mt-5"><ReadableText text={knowledge?.summary || person.biography || ""} /></div>
         ) : (
           <p className="mt-5 text-white/45">A complete biography for {person.name} is not available yet. Explore their known movies and television work below.</p>
         )}
@@ -628,77 +628,81 @@ export default async function PersonPage({
       </nav>
 
       {knowledge && (
-        <section className="mt-16">
-          <SectionHeading eyebrow="The person behind the screen" title={`${person.name}: life and career`} />
+        <section className="mt-14" aria-label="Life and career">
+          <SectionHeading eyebrow="Explore the person" title="Life, work and personal story" />
+          <nav aria-label="Biography sections" className="mt-5 flex flex-wrap gap-2">
+            {[
+              ["background", "Background"],
+              ["career", "Career"],
+              ["relationships", "Relationships"],
+              ["family", "Family"],
+              ["personal-life", "Interests & personal life"],
+              ["recognition", "Awards"],
+              ["sources", "Sources"],
+            ].map(([id, label]) => (
+              <a key={id} href={`#person-${id}`} className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white/75 transition hover:border-yellow-400 hover:text-yellow-300">{label}</a>
+            ))}
+          </nav>
 
-          <div className="mt-6 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
-            <aside className="space-y-5">
-              <KnowledgeListCard title="Identity" rows={[
-                { label: "Nationality", values: knowledge.nationality },
-                { label: "Occupations", values: knowledge.occupations },
-                { label: "Education", values: knowledge.education },
-                { label: "Height", values: knowledge.height ? [knowledge.height] : [] },
-                { label: "Residence", values: knowledge.residences },
+          <div id="person-background" className="mt-10 scroll-mt-28">
+            <KnowledgeListCard title="Background at a glance" rows={[
+              { label: "Nationality", values: knowledge.nationality },
+              { label: "Occupations", values: knowledge.occupations },
+              { label: "Education", values: knowledge.education },
+              { label: "Height", values: knowledge.height ? [knowledge.height] : [] },
+            ]} />
+            {knowledge.earlyLife && <div className="mt-5"><KnowledgeChapter eyebrow="Origins" title="Early life and education" text={knowledge.earlyLife} /></div>}
+          </div>
+
+          <div id="person-career" className="mt-10 scroll-mt-28">
+            <KnowledgeChapter eyebrow="Professional life" title="Career and breakthrough roles" text={knowledge.career || "A detailed career account is not available from the connected sources yet. Explore the filmography below."} />
+          </div>
+
+          <div className="mt-10 grid items-start gap-5 lg:grid-cols-2">
+            <div id="person-relationships" className="scroll-mt-28">
+              <KnowledgeListCard title="Relationships" emptyText="No relationship names are corroborated in the accompanying biography text." rows={[
+                { label: "Spouses listed in the biography", values: corroboratedNames(knowledge.spouses, knowledge.summary, knowledge.personalLife) },
+                { label: "Partners listed in the biography", values: corroboratedNames(knowledge.partners, knowledge.summary, knowledge.personalLife) },
               ]} />
-
-              <KnowledgeListCard title="Family and relationships" rows={[
-                { label: "Spouse", values: knowledge.spouses },
-                { label: "Publicly documented partner", values: knowledge.partners },
-                { label: "Children", values: knowledge.children },
-                { label: "Parents", values: knowledge.parents },
-                { label: "Siblings", values: knowledge.siblings },
+              <p className="mt-3 text-xs leading-6 text-white/45">Historical records may include former relationships. A listed name does not establish current relationship status.</p>
+            </div>
+            <div id="person-family" className="scroll-mt-28">
+              <KnowledgeListCard title="Family" emptyText="No family names are corroborated in the accompanying biography text." rows={[
+                { label: "Children", values: corroboratedNames(knowledge.children, knowledge.summary, knowledge.personalLife, knowledge.earlyLife) },
+                { label: "Parents", values: corroboratedNames(knowledge.parents, knowledge.summary, knowledge.personalLife, knowledge.earlyLife) },
+                { label: "Siblings", values: corroboratedNames(knowledge.siblings, knowledge.summary, knowledge.personalLife, knowledge.earlyLife) },
               ]} />
-
-              {knowledge.notableWorks.length > 0 && (
-                <KnowledgeListCard title="Notable work" rows={[
-                  { label: "Known titles", values: knowledge.notableWorks },
-                ]} />
-              )}
-            </aside>
-
-            <div className="space-y-5">
-              {knowledge.career && (
-                <KnowledgeChapter eyebrow="Career story" title={`${person.name}'s career`} text={knowledge.career} />
-              )}
-
-              {knowledge.personalLife && (
-                <KnowledgeChapter eyebrow="Personal life" title="Family, relationships and life away from the screen" text={knowledge.personalLife} />
-              )}
-
-              {knowledge.awards.length > 0 && (
-                <article className="border border-white/10 bg-[#0b1018] p-6 md:p-8">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Recognition</p>
-                  <h2 className="mt-2 text-3xl font-black text-white">Awards and honours</h2>
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    {knowledge.awards.map((award) => (
-                      <div key={award} className="border-l-2 border-yellow-400 bg-white/[0.03] px-4 py-3 text-sm font-bold text-white/75">{award}</div>
-                    ))}
-                  </div>
-                </article>
-              )}
-
-              {knowledge.controversies && (
-                <KnowledgeChapter
-                  eyebrow="Public record"
-                  title="Controversies, disputes and legal matters"
-                  text={knowledge.controversies}
-                  caution="This section covers documented public reporting only. Allegations are not presented as proven facts unless a reliable public record says so."
-                />
-              )}
-
-              {!knowledge.career && !knowledge.personalLife && knowledge.awards.length === 0 && (
-                <article className="border border-white/10 bg-white/[0.03] p-6 text-white/50">
-                  More verified life and career information has not yet been added to the connected public knowledge sources.
-                </article>
-              )}
+              <p className="mt-3 text-xs leading-6 text-white/45">This is not a complete family tree. Names absent from the accompanying text are omitted to reduce conflicting information.</p>
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3 border border-white/10 bg-white/[0.03] p-5">
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-white/40">Sources</span>
-            {knowledge.sources.map((source) => (
-              <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer" className="border border-white/15 px-3 py-2 text-xs font-bold text-white transition hover:border-yellow-400 hover:text-yellow-300">{source.label} ↗</a>
-            ))}
+          <div id="person-personal-life" className="mt-10 scroll-mt-28">
+            <KnowledgeChapter eyebrow="Away from the screen" title="Interests and personal life" text={knowledge.personalLife || "A separate personal-life account is not available from the connected sources yet."} />
+          </div>
+
+          <div id="person-recognition" className="mt-10 scroll-mt-28">
+            <KnowledgeListCard title="Awards and recognition" emptyText="No awards have been returned by the connected source." rows={[
+              { label: "Awards and honours", values: knowledge.awards },
+              { label: "Notable works", values: knowledge.notableWorks },
+            ]} />
+          </div>
+
+          {knowledge.controversies && (
+            <div className="mt-10">
+              <KnowledgeChapter eyebrow="Public record" title="Controversies and legal matters" text={knowledge.controversies} caution="This is source-provided reporting. Allegations are not findings of fact; consult the linked source for context and updates." />
+            </div>
+          )}
+
+          <div id="person-sources" className="mt-10 scroll-mt-28 border-t border-white/15 pt-6">
+            <h2 className="text-xl font-black text-white">Sources and attribution</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/55">Article excerpts come from Wikipedia; structured facts come from Wikidata. Sections have been reformatted, not independently verified. Wikipedia text is available under its applicable Creative Commons licence.</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {knowledge.sources.map((source) => (
+                <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer" className="border border-white/20 px-4 py-2 text-sm font-bold text-yellow-300">{source.label} ↗</a>
+              ))}
+              {knowledge.wikipediaUrl && <a href={`${knowledge.wikipediaUrl}?action=history`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-sm text-white/65">Article history ↗</a>}
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-sm text-white/65">CC BY-SA 4.0 ↗</a>
+            </div>
           </div>
         </section>
       )}
@@ -837,24 +841,33 @@ function AnswerCard({ question, answer }: { question: string; answer: string }) 
   );
 }
 
+function corroboratedNames(names: string[], ...texts: Array<string | null>) {
+  const normalize = (text: string) => text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const article = " " + normalize(texts.filter(Boolean).join(" ")) + " ";
+  return names.filter((name) => {
+    const normalized = normalize(name);
+    return normalized.length > 0 && article.includes(" " + normalized + " ");
+  });
+}
+
 function KnowledgeListCard({
-  title,
-  rows,
+  title, rows, emptyText,
 }: {
   title: string;
   rows: { label: string; values: string[] }[];
+  emptyText?: string;
 }) {
   const visibleRows = rows.filter((row) => row.values.length > 0);
-  if (!visibleRows.length) return null;
-
+  if (!visibleRows.length && !emptyText) return null;
   return (
-    <article className="border border-white/10 bg-[#0b1018] p-5">
-      <h3 className="text-lg font-black text-white">{title}</h3>
-      <dl className="mt-4 divide-y divide-white/10">
+    <article className="border border-white/10 bg-[#0b1018] p-6 md:p-8">
+      <h2 className="text-2xl font-black text-white">{title}</h2>
+      {!visibleRows.length && <p className="mt-4 text-sm leading-7 text-white/55">{emptyText}</p>}
+      <dl className="mt-5 grid gap-6 sm:grid-cols-2">
         {visibleRows.map((row) => (
-          <div key={row.label} className="py-4">
-            <dt className="text-[10px] font-black uppercase tracking-[0.18em] text-yellow-400">{row.label}</dt>
-            <dd className="mt-2 text-sm leading-6 text-white/70">{row.values.join(" · ")}</dd>
+          <div key={row.label} className="border-t border-white/10 pt-4">
+            <dt className="text-xs font-black uppercase tracking-wider text-yellow-400">{row.label}</dt>
+            <dd className="mt-3"><ul className="space-y-2">{row.values.map((value) => <li key={value} className="text-sm leading-6 text-white/75">{value}</li>)}</ul></dd>
           </div>
         ))}
       </dl>
@@ -862,23 +875,58 @@ function KnowledgeListCard({
   );
 }
 
-function KnowledgeChapter({
-  eyebrow,
-  title,
-  text,
-  caution,
-}: {
-  eyebrow: string;
-  title: string;
-  text: string;
-  caution?: string;
-}) {
+function textParagraphs(text: string) {
+  return text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+}
+
+function ReadableText({ text }: { text: string }) {
+  const paragraphs = textParagraphs(text);
+  // Keep a long opening paragraph behind a disclosure instead of displaying
+  // another wall of text. Preserve the original wording and sentence endings.
+  const previewCount = (paragraphs[0]?.length ?? 0) > 650 ? 0 : 1;
+  const renderParagraph = (paragraph: string, index: number) => (
+    <p key={index} className="max-w-[72ch] text-base leading-8 text-white/70">{paragraph}</p>
+  );
   return (
-    <article className="border border-white/10 bg-[#0b1018] p-6 md:p-8">
-      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">{eyebrow}</p>
-      <h2 className="mt-2 text-3xl font-black text-white">{title}</h2>
-      {caution && <p className="mt-4 border-l-2 border-yellow-400 bg-yellow-400/5 px-4 py-3 text-xs leading-6 text-yellow-100/65">{caution}</p>}
-      <p className="mt-5 whitespace-pre-line leading-8 text-white/65">{text}</p>
+    <div className="space-y-4">
+      {paragraphs.slice(0, previewCount).map(renderParagraph)}
+      {paragraphs.length > previewCount && (
+        <details className="group border-t border-white/10 pt-4">
+          <summary className="cursor-pointer py-2 text-sm font-bold text-yellow-300">Read the full section</summary>
+          <div className="mt-4 space-y-4">{paragraphs.slice(previewCount).map(renderParagraph)}</div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function KnowledgeChapter({ eyebrow, title, text, caution }: {
+  eyebrow: string; title: string; text: string; caution?: string;
+}) {
+  const chapters: { title: string; paragraphs: string[] }[] = [];
+  let current = { title: "", paragraphs: [] as string[] };
+  for (const line of textParagraphs(text)) {
+    if (line.startsWith("## ")) {
+      if (current.paragraphs.length) chapters.push(current);
+      current = { title: line.slice(3).replace(/\[edit\]/gi, "").trim(), paragraphs: [] };
+    } else {
+      current.paragraphs.push(line);
+    }
+  }
+  if (current.paragraphs.length) chapters.push(current);
+  return (
+    <article className="border border-white/10 bg-[#0b1018] p-6 md:p-10">
+      <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-400">{eyebrow}</p>
+      <h2 className="mt-3 text-3xl font-black text-white">{title}</h2>
+      {caution && <p className="mt-4 max-w-[72ch] border-l-2 border-yellow-400 pl-4 text-sm leading-7 text-yellow-100/70">{caution}</p>}
+      <div className="mt-6 space-y-5">
+        {chapters.map((chapter, index) => (
+          <details key={index} open={index === 0} className="border-t border-white/15 pt-4">
+            <summary className="cursor-pointer py-3 text-xl font-bold text-white"><h3 className="inline">{chapter.title || "Overview"}</h3></summary>
+            <div className="pb-4 pt-3"><ReadableText text={chapter.paragraphs.join("\n\n")} /></div>
+          </details>
+        ))}
+      </div>
     </article>
   );
 }
