@@ -24,6 +24,9 @@ function isStrongPersonPage(
   person: any,
   knownCredits: Credit[],
 ) {
+  /*
+   * These manually selected pages remain indexable.
+   */
   if (INDEXABLE_PERSON_IDS.has(personId)) {
     return true;
   }
@@ -32,10 +35,21 @@ function isStrongPersonPage(
     person.biography,
   ).length;
 
+  const popularity =
+    typeof person.popularity === "number"
+      ? person.popularity
+      : 0;
+
+  /*
+   * Only substantial and recognisable person pages should
+   * compete in Google Search. Thin pages remain accessible
+   * to visitors, but receive noindex,follow.
+   */
   return (
     Boolean(person.profile_path) &&
-    biographyLength >= 120 &&
-    knownCredits.length >= 5
+    biographyLength >= 250 &&
+    knownCredits.length >= 8 &&
+    popularity >= 5
   );
 }
 
