@@ -99,6 +99,38 @@ function truncateSeoText(value: string, maximumLength = 158) {
   return `${shortened}…`;
 }
 
+function isStrongTvPage(tv: any) {
+  const title = cleanSeoText(
+    tv.name || tv.original_name,
+  );
+
+  const overviewLength = cleanSeoText(
+    tv.overview,
+  ).length;
+
+  const voteCount =
+    typeof tv.vote_count === "number"
+      ? tv.vote_count
+      : 0;
+
+  const popularity =
+    typeof tv.popularity === "number"
+      ? tv.popularity
+      : 0;
+
+  const hasImage = Boolean(
+    tv.poster_path || tv.backdrop_path,
+  );
+
+  return (
+    Boolean(title) &&
+    tv.adult !== true &&
+    hasImage &&
+    overviewLength >= 120 &&
+    (voteCount >= 100 || popularity >= 15)
+  );
+}
+
 function toIsoDuration(minutes?: number | null) {
   if (!minutes || minutes < 1) return undefined;
 
@@ -1055,6 +1087,8 @@ export async function generateMetadata({
       posterImage ||
       `${SITE_URL}/og-image.png`;
 
+      const shouldIndex = isStrongTvPage(tv);
+
     return {
       title: pageTitle,
       description,
@@ -1066,10 +1100,10 @@ export async function generateMetadata({
       },
 
       robots: {
-        index: true,
+        index: shouldIndex,
         follow: true,
         googleBot: {
-          index: true,
+          index: shouldIndex,
           follow: true,
           noimageindex: false,
           "max-image-preview": "large",
@@ -1114,7 +1148,7 @@ export async function generateMetadata({
         canonical,
       },
       robots: {
-        index: true,
+        index: false,
         follow: true,
       },
     };
