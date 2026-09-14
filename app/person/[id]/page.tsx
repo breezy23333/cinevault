@@ -1,5 +1,4 @@
 
-
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -361,7 +360,7 @@ export default async function PersonPage({
     notFound();
   }
 
-  const knowledge = await getPersonKnowledge(externalIds?.wikidata_id);
+  const knowledge = await getPersonKnowledge(externalIds?.wikidata_id).catch(() => null);
 
   const profile = img(person.profile_path, "w780");
   const knownCredits = prepareCredits(credits);
@@ -474,7 +473,7 @@ export default async function PersonPage({
     name: `${person.name} filmography`,
     url: personUrl,
 
-    numberOfItems: knownCredits.length,
+    numberOfItems: Math.min(knownCredits.length, 20),
 
     itemListElement: knownCredits
       .slice(0, 20)
@@ -553,7 +552,7 @@ export default async function PersonPage({
         </div>
       </header>
 
-      <section className="mt-8 grid gap-8 xl:grid-cols-[1.35fr_0.65fr]">
+      <section className="mt-8 grid min-w-0 gap-8">
         <div>
           <SectionHeading eyebrow="Photo gallery" title={`${person.name} photos`} />
           <div className="mt-6">
@@ -569,17 +568,17 @@ export default async function PersonPage({
           </div>
         </div>
 
-        <aside>
+        <aside className="min-w-0">
           <SectionHeading eyebrow="Knowledge panel" title="Personal details" />
-          <dl className="mt-6 divide-y divide-white/10 border-y border-white/10 bg-[#0b1018] px-5">
-            <FactRow label="Full name" value={person.name} />
+          <dl className="mt-6 grid gap-x-8 rounded-2xl border border-white/10 bg-[#0b1018] px-5 sm:grid-cols-2 xl:grid-cols-4">
+            <FactRow label="Name" value={person.name} />
             <FactRow label="Profession" value={person.known_for_department || "Entertainment"} />
             <FactRow label="Born" value={birthday || "Not publicly listed"} />
             {deathday && <FactRow label="Died" value={deathday} />}
-            <FactRow label="Age" value={age !== null ? String(age) : "Not publicly listed"} />
+            <FactRow label={person.deathday ? "Age at death" : "Age"} value={age !== null ? String(age) : "Not publicly listed"} />
             <FactRow label="Birthplace" value={person.place_of_birth || "Not publicly listed"} />
             <FactRow label="Gender" value={getGenderLabel(person.gender)} />
-            <FactRow label="Net worth" value="No verified public figure" />
+            
           </dl>
 
           {aliases.length > 0 && (
@@ -603,13 +602,13 @@ export default async function PersonPage({
       </section>
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard value={movies.length} label="Movies" />
-        <StatCard value={television.length} label="TV shows" />
-        <StatCard value={careerYears ? `${careerYears.first}–${careerYears.latest}` : "—"} label="Career years" />
+        <StatCard value={movies.length} label="Movies listed" />
+        <StatCard value={television.length} label="TV shows listed" />
+        <StatCard value={careerYears ? `${careerYears.first}–${careerYears.latest}` : "—"} label="Credit year range" />
         <StatCard value={highestRated?.vote_average ? highestRated.vote_average.toFixed(1) : "—"} label="Highest rating" />
       </div>
 
-      <section className="mt-12 border border-white/10 bg-[#0b1018] p-6 md:p-10">
+      <section id="person-biography" className="mt-10 scroll-mt-28 rounded-2xl border border-white/10 bg-[#0b1018] p-6 md:p-10">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">Overview</p>
         <h2 className="mt-2 text-3xl font-black text-white">{person.name} biography</h2>
         {knowledge?.summary || person.biography ? (
@@ -619,19 +618,12 @@ export default async function PersonPage({
         )}
       </section>
 
-      <nav aria-label="Explore CINRYVAN" className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <ExploreLink href={`/search?q=${encodeURIComponent(person.name)}`} label="Search CINRYVAN" detail={`More about ${person.name}`} accent />
-        <ExploreLink href="/movie" label="Explore Movies" detail="Popular and new films" />
-        <ExploreLink href="/tv" label="Explore TV Shows" detail="Series and episodes" />
-        <ExploreLink href="/news/entertainment" label="Entertainment News" detail="Film, TV and celebrity news" />
-        <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
-      </nav>
-
       {knowledge && (
         <section className="mt-14" aria-label="Life and career">
           <SectionHeading eyebrow="Explore the person" title="Life, work and personal story" />
           <nav aria-label="Biography sections" className="mt-5 flex flex-wrap gap-2">
             {[
+              ["biography", "Biography"],
               ["background", "Background"],
               ["career", "Career"],
               ["relationships", "Relationships"],
@@ -639,6 +631,7 @@ export default async function PersonPage({
               ["personal-life", "Interests & personal life"],
               ["recognition", "Awards"],
               ["sources", "Sources"],
+              ...(knownCredits.length ? [["filmography", "Filmography"]] : []),
             ].map(([id, label]) => (
               <a key={id} href={`#person-${id}`} className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white/75 transition hover:border-yellow-400 hover:text-yellow-300">{label}</a>
             ))}
@@ -708,7 +701,7 @@ export default async function PersonPage({
       )}
 
       {knownFor.length > 0 && (
-        <section className="mt-16">
+        <section id="person-filmography" className="mt-16 scroll-mt-28">
           <SectionHeading eyebrow="Career spotlight" title={`What is ${person.name} known for?`} />
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {knownFor.map((credit, index) => (
@@ -780,8 +773,8 @@ export default async function PersonPage({
         <SectionHeading eyebrow="People also ask" title={`Questions about ${person.name}`} />
         <div className="mt-6 grid gap-3 md:grid-cols-2">
           <AnswerCard
-            question={`How old is ${person.name}?`}
-            answer={age !== null ? `${person.name} is ${age} years old${birthday ? ` and was born on ${birthday}` : ""}.` : `A verified age for ${person.name} is not currently available.`}
+            question={person.deathday ? `How old was ${person.name} when they died?` : `How old is ${person.name}?`}
+            answer={age !== null ? person.deathday ? `${person.name} died at age ${age}${deathday ? ` on ${deathday}` : ""}.` : `${person.name} is ${age} years old${birthday ? ` and was born on ${birthday}` : ""}.` : `A verified age for ${person.name} is not currently available.`}
           />
           <AnswerCard
             question={`Where was ${person.name} born?`}
@@ -798,18 +791,14 @@ export default async function PersonPage({
         </div>
       </section>
 
-      <section className="mt-16 overflow-hidden border border-yellow-400/25 bg-yellow-400 px-6 py-10 text-black md:px-10">
-        <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.28em]">Continue exploring</p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-[-0.04em] md:text-6xl">Discover the worlds behind the screen.</h2>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/news/entertainment" className="bg-black px-5 py-3 text-sm font-black text-white">Latest entertainment news</Link>
-            <Link href="/games" className="border border-black/30 px-5 py-3 text-sm font-black">Browse games</Link>
-          </div>
-        </div>
-      </section>
+      <nav aria-label="Explore CINRYVAN" className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <ExploreLink href={`/search?q=${encodeURIComponent(person.name)}`} label="Search CINRYVAN" detail={`More about ${person.name}`} accent />
+        <ExploreLink href="/movie" label="Explore Movies" detail="Popular and new films" />
+        <ExploreLink href="/tv" label="Explore TV Shows" detail="Series and episodes" />
+        <ExploreLink href="/news/entertainment" label="Entertainment News" detail="Film, TV and celebrity news" />
+        <ExploreLink href="/games" label="Explore Games" detail="New and popular games" />
+      </nav>
+
     </main>
   );
 }
@@ -825,9 +814,9 @@ function StatCard({ value, label }: { value: string | number; label: string }) {
 
 function FactRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid grid-cols-[110px_1fr] gap-4 py-4">
+    <div className="min-w-0 border-b border-white/10 py-4">
       <dt className="text-xs font-black uppercase tracking-wider text-white/40">{label}</dt>
-      <dd className="text-sm font-bold text-white">{value}</dd>
+      <dd className="mt-2 break-words text-sm font-bold text-white">{value}</dd>
     </div>
   );
 }
@@ -860,7 +849,7 @@ function KnowledgeListCard({
   const visibleRows = rows.filter((row) => row.values.length > 0);
   if (!visibleRows.length && !emptyText) return null;
   return (
-    <article className="border border-white/10 bg-[#0b1018] p-6 md:p-8">
+    <article className="min-w-0 rounded-2xl border border-white/10 bg-[#0b1018] p-6 md:p-8">
       <h2 className="text-2xl font-black text-white">{title}</h2>
       {!visibleRows.length && <p className="mt-4 text-sm leading-7 text-white/55">{emptyText}</p>}
       <dl className="mt-5 grid gap-6 sm:grid-cols-2">
@@ -879,21 +868,37 @@ function textParagraphs(text: string) {
   return text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
 }
 
+function readableParagraphs(text: string) {
+  // Preserve source wording; break long paragraphs at sentence boundaries.
+  return textParagraphs(text).flatMap((paragraph) => {
+    if (paragraph.length <= 600) return [paragraph];
+    const sentences = paragraph.split(/(?<=[.!?])(?=\s+[A-Z“"])/);
+    const chunks: string[] = [];
+    let chunk = "";
+    for (const sentence of sentences) {
+      chunk += sentence;
+      if (chunk.length >= 350) {
+        chunks.push(chunk.trim());
+        chunk = "";
+      }
+    }
+    if (chunk.trim()) chunks.push(chunk.trim());
+    return chunks.length ? chunks : [paragraph];
+  });
+}
+
 function ReadableText({ text }: { text: string }) {
-  const paragraphs = textParagraphs(text);
-  // Keep a long opening paragraph behind a disclosure instead of displaying
-  // another wall of text. Preserve the original wording and sentence endings.
-  const previewCount = (paragraphs[0]?.length ?? 0) > 650 ? 0 : 1;
+  const paragraphs = readableParagraphs(text);
   const renderParagraph = (paragraph: string, index: number) => (
-    <p key={index} className="max-w-[72ch] text-base leading-8 text-white/70">{paragraph}</p>
+    <p key={index} className="max-w-[72ch] break-words text-base leading-8 text-white/75">{paragraph}</p>
   );
   return (
     <div className="space-y-4">
-      {paragraphs.slice(0, previewCount).map(renderParagraph)}
-      {paragraphs.length > previewCount && (
-        <details className="group border-t border-white/10 pt-4">
-          <summary className="cursor-pointer py-2 text-sm font-bold text-yellow-300">Read the full section</summary>
-          <div className="mt-4 space-y-4">{paragraphs.slice(previewCount).map(renderParagraph)}</div>
+      {paragraphs.slice(0, 2).map(renderParagraph)}
+      {paragraphs.length > 2 && (
+        <details className="group border-t border-white/10 pt-3">
+          <summary className="cursor-pointer rounded py-2 text-sm font-bold text-yellow-300 focus-visible:ring-2 focus-visible:ring-yellow-400">Continue reading</summary>
+          <div className="mt-4 space-y-4">{paragraphs.slice(2).map(renderParagraph)}</div>
         </details>
       )}
     </div>
@@ -906,25 +911,25 @@ function KnowledgeChapter({ eyebrow, title, text, caution }: {
   const chapters: { title: string; paragraphs: string[] }[] = [];
   let current = { title: "", paragraphs: [] as string[] };
   for (const line of textParagraphs(text)) {
-    if (line.startsWith("## ")) {
+    if (/^#{2,6}\s/.test(line)) {
       if (current.paragraphs.length) chapters.push(current);
-      current = { title: line.slice(3).replace(/\[edit\]/gi, "").trim(), paragraphs: [] };
+      current = { title: line.replace(/^#{2,6}\s+/, "").replace(/\[edit\]/gi, "").trim(), paragraphs: [] };
     } else {
       current.paragraphs.push(line);
     }
   }
   if (current.paragraphs.length) chapters.push(current);
   return (
-    <article className="border border-white/10 bg-[#0b1018] p-6 md:p-10">
+    <article className="min-w-0 rounded-2xl border border-white/10 bg-[#0b1018] p-6 md:p-8">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-400">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-black text-white">{title}</h2>
+      <h2 className="mt-3 text-2xl font-black text-white md:text-3xl">{title}</h2>
       {caution && <p className="mt-4 max-w-[72ch] border-l-2 border-yellow-400 pl-4 text-sm leading-7 text-yellow-100/70">{caution}</p>}
-      <div className="mt-6 space-y-5">
+      <div className={`mt-6 grid items-start gap-5 ${chapters.length > 1 ? "lg:grid-cols-2" : ""}`}>
         {chapters.map((chapter, index) => (
-          <details key={index} open={index === 0} className="border-t border-white/15 pt-4">
-            <summary className="cursor-pointer py-3 text-xl font-bold text-white"><h3 className="inline">{chapter.title || "Overview"}</h3></summary>
-            <div className="pb-4 pt-3"><ReadableText text={chapter.paragraphs.join("\n\n")} /></div>
-          </details>
+          <section key={index} className="min-w-0 border-t border-white/15 pt-5">
+            {chapter.title && <h3 className="mb-4 text-xl font-bold text-yellow-100">{chapter.title}</h3>}
+            <ReadableText text={chapter.paragraphs.join("\n\n")} />
+          </section>
         ))}
       </div>
     </article>
@@ -954,12 +959,13 @@ function FeaturedCredit({ credit, rank }: { credit: Credit; rank: number }) {
   const poster = img(credit.poster_path, "w500");
   const title = getCreditTitle(credit);
   return (
-    <Link href={getCreditRoute(credit)} prefetch={false} className="group relative min-h-[250px] overflow-hidden border border-white/10 bg-[#0c1119]">
-      {(backdrop || poster) && <Image src={backdrop || poster!} alt={`${title} artwork`} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover opacity-55 transition duration-700 group-hover:scale-105 group-hover:opacity-70" />}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-5">
+    <Link href={getCreditRoute(credit)} prefetch={false} className="group min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#0c1119] transition hover:border-yellow-400/60">
+      <div className="relative aspect-video bg-white/5">
+        {(backdrop || poster) && <Image src={backdrop || poster!} alt={`${title} artwork`} fill sizes="(max-width: 768px) 100vw, 33vw" className={`${backdrop ? "object-cover" : "object-contain"} transition duration-500 motion-safe:group-hover:scale-105`} />}
+      </div>
+      <div className="p-5">
         <div className="text-xs font-black text-yellow-400">#{rank} · {credit.media_type === "tv" ? "TV SHOW" : "MOVIE"}</div>
-        <h3 className="mt-2 text-2xl font-black text-white">{title}</h3>
+        <h3 className="mt-2 text-xl font-black text-white">{title}</h3>
         <div className="mt-2 flex gap-3 text-xs text-white/60"><span>{getCreditDate(credit).slice(0, 4) || "Date unknown"}</span>{credit.vote_average ? <span>★ {credit.vote_average.toFixed(1)}</span> : null}</div>
       </div>
     </Link>
@@ -975,20 +981,7 @@ function CreditSection({
   eyebrow: string;
   credits: Credit[];
 }) {
-  return (
-    <section className="mt-14">
-      <div className="border-b border-white/10 pb-5">
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">
-          {eyebrow}
-        </p>
-
-        <h2 className="mt-2 text-3xl font-black text-white">
-          {title}
-        </h2>
-      </div>
-
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {credits.map((credit) => {
+  const renderCredit = (credit: Credit) => {
           const poster = img(
             credit.poster_path,
             "w342",
@@ -1047,8 +1040,30 @@ function CreditSection({
               </div>
             </Link>
           );
-        })}
+  };
+  return (
+    <section className="mt-14">
+      <div className="border-b border-white/10 pb-5">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">
+          {eyebrow}
+        </p>
+
+        <h2 className="mt-2 text-3xl font-black text-white">
+          {title}
+        </h2>
       </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        {credits.slice(0, 6).map(renderCredit)}
+      </div>
+      {credits.length > 6 && (
+        <details className="mt-5 rounded-xl border border-white/10 p-4">
+          <summary className="cursor-pointer py-2 text-sm font-bold text-yellow-300 focus-visible:ring-2 focus-visible:ring-yellow-400">View {credits.length - 6} more credits</summary>
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {credits.slice(6).map(renderCredit)}
+          </div>
+        </details>
+      )}
     </section>
   );
 }
