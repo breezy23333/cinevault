@@ -558,6 +558,7 @@ export default async function PersonPage({
           <div className="mt-6">
             <PersonPhotoHero
               name={person.name}
+              wikidataId={externalIds?.wikidata_id}
               images={[
                 profile,
                 ...profileImages
