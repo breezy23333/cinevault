@@ -7,6 +7,7 @@ import {
   Bell,
   Bookmark,
   ChevronDown,
+  Download,
   Menu,
   Mic,
   Search,
@@ -16,6 +17,11 @@ import {
 } from "lucide-react";
 import SettingsPanel from "@/components/SettingsPanel";
 import StreamingGlobe from "@/components/StreamingGlobe";
+
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+};
 
 const NAV_GROUPS = [
   {
@@ -110,6 +116,105 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const accountRef = useRef<HTMLDivElement>(null);
+  const installPromptRef = useRef<InstallPromptEvent | null>(null);
+  const installBusyRef = useRef(false);
+  const [installReady, setInstallReady] = useState(false);
+  const [appInstalled, setAppInstalled] = useState(false);
+  const [installBusy, setInstallBusy] = useState(false);
+  const [installMessage, setInstallMessage] = useState("");
+
+  useEffect(() => {
+    const standalone = window.matchMedia("(display-mode: standalone)");
+    const iosNavigator = navigator as Navigator & { standalone?: boolean };
+    const updateDisplayMode = () => {
+      setAppInstalled(standalone.matches || iosNavigator.standalone === true);
+    };
+    const capturePrompt = (event: Event) => {
+      event.preventDefault();
+      installPromptRef.current = event as InstallPromptEvent;
+      setAppInstalled(false);
+      setInstallMessage("");
+    };
+    const installed = () => {
+      installPromptRef.current = null;
+      setAppInstalled(true);
+      setInstallMessage("");
+    };
+
+    updateDisplayMode();
+    setInstallReady(true);
+    window.addEventListener("beforeinstallprompt", capturePrompt);
+    window.addEventListener("appinstalled", installed);
+    standalone.addEventListener("change", updateDisplayMode);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", capturePrompt);
+      window.removeEventListener("appinstalled", installed);
+      standalone.removeEventListener("change", updateDisplayMode);
+    };
+  }, []);
+
+  function installationHelp() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS) {
+      return "On iPhone or iPad, open Cinryvan in Safari, tap Share, then Add to Home Screen.";
+    }
+    return "Open your browser menu and look for Install Cinryvan or Add to Home screen. If neither appears, try Chrome or Edge. If already installed, open Cinryvan from your app icon.";
+  }
+
+  async function installApp() {
+    if (installBusyRef.current) return;
+    const promptEvent = installPromptRef.current;
+    if (!promptEvent) {
+      setInstallMessage(installationHelp());
+      return;
+    }
+
+    // Each browser install event may only be used once.
+    installPromptRef.current = null;
+    installBusyRef.current = true;
+    setInstallBusy(true);
+    setInstallMessage("");
+    try {
+      await promptEvent.prompt();
+      const choice = await promptEvent.userChoice;
+      if (choice.outcome === "accepted") {
+        setInstallMessage("Installation requested. Follow your browser's instructions to finish.");
+      } else {
+        setInstallMessage("Installation cancelled. You can keep browsing and install later from your browser menu.");
+      }
+    } catch {
+      setInstallMessage(installationHelp());
+    } finally {
+      installBusyRef.current = false;
+      setInstallBusy(false);
+    }
+  }
+
+  function renderInstallControl() {
+    if (!installReady || appInstalled) return null;
+    return (
+      <div className="mt-3 border-t border-white/10 pt-3">
+        <button
+          type="button"
+          onClick={installApp}
+          disabled={installBusy}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-yellow-400/40 bg-yellow-400/10 px-3 py-3 text-sm font-bold text-yellow-300 transition hover:bg-yellow-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300 disabled:cursor-wait disabled:opacity-60"
+        >
+          <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
+          {installBusy ? "Opening installer..." : "Install Cinryvan"}
+        </button>
+        <p className="mt-2 text-center text-xs text-white/55">
+          Open from your app icon. Internet required.
+        </p>
+        {installMessage && (
+          <p role="status" className="mt-2 rounded-lg bg-white/5 p-3 text-xs leading-5 text-white/80">
+            {installMessage}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -369,6 +474,7 @@ export default function Navbar() {
                     </Link>
                   </div>
                 )}
+                {renderInstallControl()}
               </div>
             )}
           </div>
@@ -567,6 +673,8 @@ export default function Navbar() {
                 <User2 className="h-4 w-4" /> Profile
               </Link>
             )}
+
+            {renderInstallControl()}
 
             <div className="mt-3 rounded-xl border border-yellow-400/20 bg-white/[0.04] p-2.5">
               <p className="text-[11px] font-black uppercase tracking-[0.22em] text-yellow-400">
