@@ -150,13 +150,14 @@ export const metadata: Metadata = {
     },
   },
 
+    appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "default",
+  },
+
   other: {
-    "theme-color": "#05070d",
-    "color-scheme": "dark",
     "mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "black-translucent",
-    "apple-mobile-web-app-title": SITE_NAME,
   },
 };
 
