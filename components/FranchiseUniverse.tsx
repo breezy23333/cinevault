@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import CineImage from "@/components/CineImage";
 import {
   ChevronLeft,
   ChevronRight,
@@ -188,11 +189,17 @@ export default function FranchiseUniverse() {
                       `}
                     >
                       {franchise.image ? (
-                        <img
+                        <CineImage
                           src={franchise.image}
                           alt={franchise.name}
-                          loading="lazy"
-                          draggable={false}
+                          fallback="Image unavailable"
+                          sizes={
+                            isActive
+                              ? "(min-width: 768px) 380px, (min-width: 640px) 280px, 190px"
+                              : isNear
+                                ? "(min-width: 768px) 286px, (min-width: 640px) 187px, 116px"
+                                : "(min-width: 1024px) 231px, 1px"
+                          }
                           className={`
                             h-full w-full object-cover
                             transition duration-700
