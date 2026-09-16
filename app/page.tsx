@@ -26,7 +26,7 @@ import TvHeroCarousel from "@/components/TvHeroCarousel";
 import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
 import nextDynamic from "next/dynamic";
-import type { ReactNode } from "react";
+import { cache, Suspense, type ReactNode } from "react";
 import FranchiseUniverse from "@/components/FranchiseUniverse";
 import Link from "next/link";
 import HomeGamingSection from "@/components/HomeGamingSection";
@@ -100,13 +100,19 @@ const tmdbImg = (
 ) => (p ? `https://image.tmdb.org/t/p/${size}${p}` : null);
 
 // helpers
-const withTimeout = <T,>(p: Promise<T>, ms = 8000, label = "fetch") =>
-  Promise.race<T>([
-    p,
-    new Promise<T>((_, rej) =>
-      setTimeout(() => rej(new Error(`${label} timeout`)), ms)
-    ) as any,
-  ]);
+async function withTimeout<T>(promise: Promise<T>, ms = 8000, label = "fetch"): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
 
 const uniqueById = <T extends { id: number }>(arr: T[]) => {
   const seen = new Set<number>();
@@ -225,18 +231,6 @@ type HeroMovie = Norm & {
   similarMovies: Norm[];
 };
 
-// temporary TMDB -> news card
-const toNews = (x: any): NewsItem => ({
-  title: x.title || x.name || "Untitled",
-  url: `/${x.media_type === "tv" ? "tv" : "movie"}/${x.id}`,
-  source: "TMDB",
-  image: x.backdrop_path
-    ? `https://image.tmdb.org/t/p/w780${x.backdrop_path}`
-    : x.poster_path
-    ? `https://image.tmdb.org/t/p/w780${x.poster_path}`
-    : null,
-});
-
 const MAX_HEROES = 10;
 const MAX_SHELF = 14;
 const MAX_NEWS = 8;
@@ -248,142 +242,21 @@ const ShelfRow = nextDynamic(() => import("@/components/ShelfRow"), {
   loading: () => <RowSkeleton />,
 });
 
-export default async function Home() {
-  const [
-  popularRes,
-  trendingRes,
-  genreRes,
-  newsRes,
-  gamingNewsRes,
-  sportsNewsRes,
-  ] = await Promise.allSettled([
+const getHomeCatalogue = cache(async () => {
+  const [popular, trending] = await Promise.allSettled([
     withTimeout(getPopularMovies(1), 8000, "popular"),
     withTimeout(getTrendingAll(1), 8000, "trending"),
-    withTimeout(getMovieGenres(), 8000, "genres"),
-    withTimeout(
-      getEntertainmentNews(),
-      8000,
-      "entertainment news",
-    ),
-    withTimeout(
-      getGamingNews(),
-      8000,
-      "gaming news",
-    ),
-    withTimeout(
-      getSportsNews(),
-      8000,
-      "sports news",
-    ),
   ]);
+  return {
+    popularRaw: popular.status === "fulfilled" && Array.isArray(popular.value?.results)
+      ? popular.value.results : [],
+    trendingRaw: trending.status === "fulfilled" && Array.isArray(trending.value?.results)
+      ? trending.value.results : [],
+  };
+});
 
-  const gamingDataPromise = getGamingHomeData();
-
-  const popularRaw: any[] =
-    popularRes.status === "fulfilled" && Array.isArray((popularRes.value as any)?.results)
-      ? (popularRes.value as any).results
-      : [];
-
-  const trendingRaw: any[] =
-    trendingRes.status === "fulfilled" && Array.isArray((trendingRes.value as any)?.results)
-      ? (trendingRes.value as any).results
-      : [];
-
-  const genres: any[] =
-    genreRes.status === "fulfilled" && Array.isArray(genreRes.value as any)
-      ? (genreRes.value as any)
-      : [];
-
-  const newsItems: NewsItem[] =
-  newsRes.status === "fulfilled" &&
-  Array.isArray(newsRes.value)
-    ? newsRes.value
-    : [];
-
-const gamingNewsItems: NewsItem[] =
-  gamingNewsRes.status === "fulfilled" &&
-  Array.isArray(gamingNewsRes.value)
-    ? gamingNewsRes.value
-    : [];
-
-const sportsNewsItems: NewsItem[] =
-  sportsNewsRes.status === "fulfilled" &&
-  Array.isArray(sportsNewsRes.value)
-    ? sportsNewsRes.value
-    : [];
-
-
-  const [
-  upcomingMovies,
-  upcomingTv,
-  upcomingAnimation,
-  topRatedMovies,
-  highestGrossingMovies,
-  dramaMovies,
-  comedyMovies,
-  horrorMovies,
-  sciFiMovies,
-  familyMovies,
-  superheroMovies,
-] = await Promise.all([
-  getUpcomingMovies(),
-  getUpcomingTvSeries(),
-  getUpcomingAnimation(),
-  getTopRatedMovies(),
-  getHighestGrossingMovies(),
-  getMoviesByGenre(18),
-  getMoviesByGenre(35),
-  getMoviesByGenre(27),
-  getMoviesByGenre(878),
-  getMoviesByGenre(10751),
-  getMoviesByGenre(28),
-]);  
-
-  // TV and animation categories
-  const [
-    dramaTv,
-    fantasyTv,
-    crimeTv,
-    animationTv,
-    japaneseAnime,
-    chineseAnimation,
-    actionAnime,
-    horrorAnime,
-    romanceAnime,
-    comedyAnime,
-    cartoonNetwork,
-    disneyAnimation,
-    nickelodeonAnimation,
-    adultSwimAnimation,
-    superheroAnimation,
-    familyAnimation,
-    classicAnimation,
-  ] = await Promise.all([
-    getTvByGenre(18),
-    getTvByGenre(10765),
-    getTvByGenre(80),
-    getTvByGenre(16),
-    discoverAnimation({ language: "ja" }),
-    discoverAnimation({ language: "zh" }),
-    discoverAnimation({ genres: "16,10759", language: "ja" }),
-    discoverAnimation({ genres: "16,9648", language: "ja" }),
-    discoverAnimation({ genres: "16,18", language: "ja" }),
-    discoverAnimation({ genres: "16,35", language: "ja" }),
-    discoverAnimation({ networks: "56" }),
-    discoverAnimation({ networks: "44|54|2739" }),
-    discoverAnimation({ networks: "13" }),
-    discoverAnimation({ networks: "80" }),
-    discoverAnimation({ genres: "16,10759", language: "en" }),
-    discoverAnimation({ genres: "16,10751" }),
-    discoverAnimation({
-      language: "en",
-      sortBy: "vote_average.desc",
-      firstAirDateLte: "2005-12-31",
-    }),
-  ]);
-  const gamingData = await gamingDataPromise;
-  
-
+async function FeaturedMovies() {
+  const { popularRaw, trendingRaw } = await getHomeCatalogue();
   // Ten movie heroes with trailers and closely related movies.
   const movieCandidates = uniqueById([
     ...norm(trendingRaw),
@@ -398,7 +271,7 @@ const sportsNewsItems: NewsItem[] =
   const heroMovies: HeroMovie[] = await Promise.all(
     movieCandidates.map(async (movie) => {
       try {
-        const details = await fetchTmdbTitle(movie.id, "movie");
+        const details = await withTimeout(fetchTmdbTitle(movie.id, "movie"), 8000, "hero details");
         const videos = Array.isArray(details?.videos?.results)
           ? details.videos.results
           : [];
@@ -473,6 +346,74 @@ const sportsNewsItems: NewsItem[] =
   );
 
 
+
+  return heroMovies.length ? <HeroCarousel items={heroMovies} /> : null;
+}
+
+async function HomeContent() {
+  const [{ trendingRaw }, newsResults, movieResults, animationResults] = await Promise.all([
+    getHomeCatalogue(),
+    Promise.allSettled([
+      withTimeout(getEntertainmentNews(), 8000, "entertainment news"),
+      withTimeout(getGamingNews(), 8000, "gaming news"),
+      withTimeout(getSportsNews(), 8000, "sports news"),
+    ]),
+    loadMovieCategories(),
+    loadAnimationCategories(),
+  ]);
+  const [newsRes, gamingNewsRes, sportsNewsRes] = newsResults;
+  const newsItems: NewsItem[] =
+  newsRes.status === "fulfilled" &&
+  Array.isArray(newsRes.value)
+    ? newsRes.value
+    : [];
+
+const gamingNewsItems: NewsItem[] =
+  gamingNewsRes.status === "fulfilled" &&
+  Array.isArray(gamingNewsRes.value)
+    ? gamingNewsRes.value
+    : [];
+
+const sportsNewsItems: NewsItem[] =
+  sportsNewsRes.status === "fulfilled" &&
+  Array.isArray(sportsNewsRes.value)
+    ? sportsNewsRes.value
+    : [];
+
+
+  const [
+  upcomingMovies,
+  upcomingTv,
+  upcomingAnimation,
+  topRatedMovies,
+  highestGrossingMovies,
+  dramaMovies,
+  comedyMovies,
+  horrorMovies,
+  sciFiMovies,
+  familyMovies,
+  superheroMovies,
+] = movieResults;
+  // TV and animation categories
+  const [
+    dramaTv,
+    fantasyTv,
+    crimeTv,
+    animationTv,
+    japaneseAnime,
+    chineseAnimation,
+    actionAnime,
+    horrorAnime,
+    romanceAnime,
+    comedyAnime,
+    cartoonNetwork,
+    disneyAnimation,
+    nickelodeonAnimation,
+    adultSwimAnimation,
+    superheroAnimation,
+    familyAnimation,
+    classicAnimation,
+  ] = animationResults;
   const seriesHeroes = uniqueById(norm(trendingRaw))
   .filter((x) => x.media === "tv" && x.backdrop)
   .slice(0, 10);
@@ -487,34 +428,6 @@ const sportsNewsItems: NewsItem[] =
     .filter((x) => x.backdrop)
     .slice(0, MAX_HEROES);
 
-
-  // shelves
-  const popularShelf = await Promise.all(
-  popularRaw.slice(0, MAX_SHELF).map(async (x: any) => {
-    const m = toShelfMedia(x);
-    
-    return {
-      ...m,
-      
-      href: `/${m.media}/${m.id}`,
-    };
-  })
-);
-
-  const trendingMoviesShelf = await Promise.all(
-  trendingRaw
-    .filter((x: any) => x.media_type !== "tv")
-    .slice(0, MAX_SHELF)
-    .map(async (x: any) => {
-      const m = toShelfMedia(x);
-      
-      return {
-        ...m,
-        
-        href: `/movie/${m.id}`,
-      };
-    })
-);
 
 const cleanMovieShelf = (data: any) =>
   (data?.results || [])
@@ -620,18 +533,6 @@ const classicAnimationShelf = animationShelf(classicAnimation, {
   excludeJapanese: true,
 });
 
-const oscarShelf = await Promise.all(
-  OSCAR_BEST_PICTURE.map(async (id) => {
-    const movie = await getMovie(id);
-    const m = toShelfMedia(movie);
-
-    return {
-      ...m,
-      href: `/movie/${m.id}`,
-    };
-  })
-);
-
 const findTmdbBackground = (
   data: unknown,
 ) => {
@@ -726,57 +627,8 @@ const exploreSlides: ExploreBannerSlide[] = [
   },
 ];
 
- return (
-  <main className="relative overflow-x-hidden bg-[#05070d] text-white">
-    {/* cosmic background */}
-    <div className="pointer-events-none fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,190,0,0.16),transparent_35%),radial-gradient(circle_at_75%_30%,rgba(100,80,255,0.2),transparent_35%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,7,13,0.25),#05070d_85%)]" />
-      <div className="absolute inset-0 opacity-[0.08] bg-[repeating-linear-gradient(90deg,white_0px,white_1px,transparent_1px,transparent_90px)]" />
-    </div>
-
-    <div className="relative z-10">
-      {heroMovies.length > 0 && <HeroCarousel items={heroMovies} />}
-
-      <Surface>
-        <div className="space-y-6 sm:space-y-8">
-          <ContinueWatchingRow />
-          <section className="border-b border-white/[0.08] pb-6 sm:pb-8">
-            <div className="mb-4 flex items-center justify-between border-l-2 border-yellow-400/70 pl-3 sm:pl-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.35em] text-yellow-400">
-                  CINRYVAN System
-                </p>
-                <h1 className="mt-2 text-2xl font-black md:text-4xl">
-                  Explore worlds beyond cinema
-                </h1>
-              </div>
-              <div className="hidden text-xs font-bold uppercase tracking-[0.18em] text-white/35 md:block">
-                Live TMDB universe
-              </div>
-            </div>
-
-            {Array.isArray(genres) && genres.length > 0 && (
-              <CategoriesTray genres={genres} />
-            )}
-          </section>
-
-          <LexryspellSpotlight />
-
-          <MovieEras />
-
-          <PopularCelebrities />
-
-          <FranchiseUniverse />
-
-          <Panel eyebrow="Popular galaxy" title="More movies">
-            <ShelfRow items={popularShelf} />
-          </Panel>
-
-          <Panel eyebrow="Heat signal" title="Trending movies">
-            <ShelfRow items={trendingMoviesShelf} />
-          </Panel>
-
+  return (
+    <div className="space-y-6 sm:space-y-8">
           <Panel eyebrow="Top cinema" title="IMDb Top 250 Style">
             <ShelfRow items={topRatedMovieShelf} />
           </Panel>
@@ -830,30 +682,16 @@ const exploreSlides: ExploreBannerSlide[] = [
             />
           </Panel>
 
-          <Panel
-              eyebrow="Academy Awards"
-              title={
-                <div className="flex items-center justify-between">
-                  <span>Oscar Winners</span>
-
-                  <Link
-                    href="/collections/oscars"
-                    className="text-sm text-yellow-400 hover:underline"
-                  >
-                    View all →
-                  </Link>
-                </div>
-              }
-            >
-              <ShelfRow items={oscarShelf} />
-            </Panel>
+          <Suspense fallback={<RowSkeleton />}>
+            <OscarSection />
+          </Suspense>
 
           <FeatureBreak
             title="Series Dimension"
             text="A second cinematic layer for TV worlds, drama, fantasy, and crime stories."
           />
 
-          <TvHeroCarousel items={seriesHeroes} />
+          <RenderLater height={700}><TvHeroCarousel items={seriesHeroes} /></RenderLater>
 
           <Panel eyebrow="Broadcast pulse" title="Trending TV shows">
             <ShelfRow items={trendingTvShelf} />
@@ -897,11 +735,11 @@ const exploreSlides: ExploreBannerSlide[] = [
             text="Anime and cartoons separated into their own cinematic stream."
           />
 
-          <ExpandableHeroCarousel
+          <RenderLater height={700}><ExpandableHeroCarousel
               eyebrow="Animation Universe"
               title="Animated Worlds"
               items={animationHeroes}
-            />
+            /></RenderLater>
 
           <Panel
             eyebrow="Japan signal"
@@ -1001,23 +839,240 @@ const exploreSlides: ExploreBannerSlide[] = [
             />
           </Panel>
 
-          <HomeGamingSection gamingData={gamingData} />
+          <Suspense fallback={<RowSkeleton />}>
+            <GamingSection />
+          </Suspense>
 
-          <HomeNewsCarousels
+          <RenderLater height={900}><HomeNewsCarousels
             entertainment={newsItems.slice(0, MAX_NEWS)}
             gaming={gamingNewsItems.slice(0, MAX_NEWS)}
             sports={sportsNewsItems.slice(0, MAX_NEWS)}
-          />
+          /></RenderLater>
 
-          <ExploreBannerCarousel
+          <RenderLater height={500}><ExploreBannerCarousel
               slides={exploreSlides}
-            />
+            /></RenderLater>
 
+    </div>
+  );
+}
+
+function loadMovieCategories() {
+  return Promise.all([
+  getUpcomingMovies(),
+  getUpcomingTvSeries(),
+  getUpcomingAnimation(),
+  getTopRatedMovies(),
+  getHighestGrossingMovies(),
+  getMoviesByGenre(18),
+  getMoviesByGenre(35),
+  getMoviesByGenre(27),
+  getMoviesByGenre(878),
+  getMoviesByGenre(10751),
+  getMoviesByGenre(28),
+]);
+}
+
+function loadAnimationCategories() {
+  return Promise.all([
+    getTvByGenre(18),
+    getTvByGenre(10765),
+    getTvByGenre(80),
+    getTvByGenre(16),
+    discoverAnimation({ language: "ja" }),
+    discoverAnimation({ language: "zh" }),
+    discoverAnimation({ genres: "16,10759", language: "ja" }),
+    discoverAnimation({ genres: "16,9648", language: "ja" }),
+    discoverAnimation({ genres: "16,18", language: "ja" }),
+    discoverAnimation({ genres: "16,35", language: "ja" }),
+    discoverAnimation({ networks: "56" }),
+    discoverAnimation({ networks: "44|54|2739" }),
+    discoverAnimation({ networks: "13" }),
+    discoverAnimation({ networks: "80" }),
+    discoverAnimation({ genres: "16,10759", language: "en" }),
+    discoverAnimation({ genres: "16,10751" }),
+    discoverAnimation({
+      language: "en",
+      sortBy: "vote_average.desc",
+      firstAirDateLte: "2005-12-31",
+    }),
+  ]);
+}
+
+async function InitialContent() {
+  const [{ popularRaw, trendingRaw }, genreResult] = await Promise.all([
+    getHomeCatalogue(),
+    Promise.allSettled([withTimeout(getMovieGenres(), 8000, "genres")]),
+  ]);
+  const genreRes = genreResult[0];
+  const genres = genreRes.status === "fulfilled" && Array.isArray(genreRes.value)
+    ? genreRes.value : [];
+  // shelves
+  const popularShelf = await Promise.all(
+  popularRaw.slice(0, MAX_SHELF).map(async (x: any) => {
+    const m = toShelfMedia(x);
+    
+    return {
+      ...m,
+      
+      href: `/${m.media}/${m.id}`,
+    };
+  })
+);
+
+  const trendingMoviesShelf = await Promise.all(
+  trendingRaw
+    .filter((x: any) => x.media_type !== "tv")
+    .slice(0, MAX_SHELF)
+    .map(async (x: any) => {
+      const m = toShelfMedia(x);
+      
+      return {
+        ...m,
+        
+        href: `/movie/${m.id}`,
+      };
+    })
+);
+
+  return (
+      <Surface>
+        <div className="space-y-6 sm:space-y-8">
+          <ContinueWatchingRow />
+          <section className="border-b border-white/[0.08] pb-6 sm:pb-8">
+            <div className="mb-4 flex items-center justify-between border-l-2 border-yellow-400/70 pl-3 sm:pl-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-yellow-400">
+                  CINRYVAN System
+                </p>
+                <h1 className="mt-2 text-2xl font-black md:text-4xl">
+                  Explore worlds beyond cinema
+                </h1>
+              </div>
+              <div className="hidden text-xs font-bold uppercase tracking-[0.18em] text-white/35 md:block">
+                Live TMDB universe
+              </div>
+            </div>
+
+            {Array.isArray(genres) && genres.length > 0 && (
+              <CategoriesTray genres={genres} />
+            )}
+          </section>
+
+          <RenderLater height={300}><LexryspellSpotlight /></RenderLater>
+
+          <RenderLater height={400}><MovieEras /></RenderLater>
+
+          <RenderLater height={400}><PopularCelebrities /></RenderLater>
+
+          <RenderLater height={480}><FranchiseUniverse /></RenderLater>
+
+          <Panel eyebrow="Popular galaxy" title="More movies">
+            <ShelfRow items={popularShelf} />
+          </Panel>
+
+          <Panel eyebrow="Heat signal" title="Trending movies">
+            <ShelfRow items={trendingMoviesShelf} />
+          </Panel>
+
+          <Suspense fallback={<RowSkeleton />}>
+            <HomeContent />
+          </Suspense>
         </div>
       </Surface>
+  );
+}
+
+async function OscarSection() {
+const oscarShelf = await Promise.all(
+  OSCAR_BEST_PICTURE.map(async (id) => {
+    const movie = await withTimeout(getMovie(id), 8000, "Oscar movie").catch(() => null);
+    if (!movie) return null;
+    const m = toShelfMedia(movie);
+
+    return {
+      ...m,
+      href: `/movie/${m.id}`,
+    };
+  })
+);
+
+  return (
+<Panel
+              eyebrow="Academy Awards"
+              title={
+                <div className="flex items-center justify-between">
+                  <span>Oscar Winners</span>
+
+                  <Link
+                    href="/collections/oscars"
+                    className="text-sm text-yellow-400 hover:underline"
+                  >
+                    View all →
+                  </Link>
+                </div>
+              }
+            >
+              <ShelfRow items={oscarShelf.filter((item): item is NonNullable<typeof item> => item !== null)} />
+            </Panel>
+  );
+}
+
+async function GamingSection() {
+  try {
+    const gamingData = await withTimeout(getGamingHomeData(), 8000, "gaming");
+    return <RenderLater height={900}><HomeGamingSection gamingData={gamingData} /></RenderLater>;
+  } catch {
+    return <p className="py-6 text-white/60"><Link href="/games">Explore games →</Link></p>;
+  }
+}
+
+export default function Home() {
+ return (
+  <main className="relative overflow-x-hidden bg-[#05070d] text-white">
+    {/* cosmic background */}
+    <div className="pointer-events-none fixed inset-0 z-0">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,190,0,0.16),transparent_35%),radial-gradient(circle_at_75%_30%,rgba(100,80,255,0.2),transparent_35%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,7,13,0.25),#05070d_85%)]" />
+      <div className="absolute inset-0 opacity-[0.08] bg-[repeating-linear-gradient(90deg,white_0px,white_1px,transparent_1px,transparent_90px)]" />
+    </div>
+
+    <div className="relative z-10">
+      <Suspense fallback={<HeroSkeleton />}>
+        <FeaturedMovies />
+      </Suspense>
+
+      <Suspense fallback={<Surface><RowSkeleton /></Surface>}>
+        <InitialContent />
+      </Suspense>
     </div>
   </main>
-);
+  );
+}
+
+function HeroSkeleton() {
+  return (
+    <div aria-label="Loading featured movies" className="mb-6 px-2 py-2 sm:mb-8 sm:px-3 sm:py-4 md:px-6 lg:mb-10 lg:px-8">
+      <div className="mx-auto max-w-[1800px] rounded-2xl border border-yellow-400/30 bg-[#070910] sm:rounded-[30px]">
+        <div className="min-h-[480px] sm:min-h-[560px] lg:min-h-[680px]" />
+        <div className="h-[170px] sm:h-[230px]" />
+      </div>
+    </div>
+  );
+}
+
+// Keep content in server HTML. The browser can skip offscreen layout/paint.
+// Hover/focus release containment so expanded cards can extend outside a row.
+// This does not defer component hydration or JavaScript downloads.
+function RenderLater({ children, height = 420 }: { children: ReactNode; height?: number }) {
+  return (
+    <div
+      className="[content-visibility:auto] hover:[content-visibility:visible] focus-within:[content-visibility:visible]"
+      style={{ containIntrinsicSize: `auto ${height}px` }}
+    >
+      {children}
+    </div>
+  );
 }
 
 /* ---------- UI helpers ---------- */
@@ -1032,6 +1087,7 @@ function Panel({
   children: ReactNode;
 }) {
   return (
+    <RenderLater>
     <section className="relative border-b border-white/[0.08] pb-6 sm:pb-8">
       <div className="mb-3 border-l-2 border-yellow-400/70 pl-3 sm:mb-4 sm:pl-4">
         {eyebrow && (
@@ -1044,6 +1100,7 @@ function Panel({
 
       <div>{children}</div>
     </section>
+    </RenderLater>
   );
 }
 
@@ -1080,7 +1137,7 @@ function RowSkeleton() {
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="h-[270px] w-[180px] rounded-2xl bg-white/5 animate-pulse"
+          className="h-[270px] w-[180px] rounded-2xl bg-white/5"
         />
       ))}
     </div>
