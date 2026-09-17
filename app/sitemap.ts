@@ -125,6 +125,41 @@ function withKey(url: string) {
   return `${url}${url.includes("?") ? "&" : "?"}api_key=${key}`;
 }
 
+type TmdbSitemapItem = {
+  id?: number;
+  title?: string;
+  name?: string;
+  overview?: string | null;
+  adult?: boolean;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+  vote_count?: number;
+  popularity?: number;
+};
+
+function cleanSitemapText(value?: string | null) {
+  return (value || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function meetsMovieIndexingRules(movie: TmdbSitemapItem) {
+  const title = cleanSitemapText(movie.title || movie.name);
+  const overview = cleanSitemapText(movie.overview);
+
+  return (
+    Boolean(title) &&
+    movie.adult !== true &&
+    Boolean(movie.poster_path || movie.backdrop_path) &&
+    overview.length >= 80 &&
+    (
+      (movie.vote_count ?? 0) >= 100 ||
+      (movie.popularity ?? 0) >= 15
+    )
+  );
+}
+
 async function fetchTmdbIds(path: string): Promise<number[]> {
   try {
     const response = await fetch(withKey(`${TMDB_BASE}${path}`), {
@@ -144,10 +179,19 @@ async function fetchTmdbIds(path: string): Promise<number[]> {
       return [];
     }
 
-    return data.results
-      .map((item: { id?: number }) => item.id)
+    const items: TmdbSitemapItem[] = data.results;
+
+    const isMovieList =
+      path.startsWith("/movie/") ||
+      path.startsWith("/trending/movie/");
+
+    return items
+      .filter((item) =>
+        isMovieList ? meetsMovieIndexingRules(item) : true,
+      )
+      .map((item) => item.id)
       .filter(
-        (id: number | undefined): id is number =>
+        (id): id is number =>
           typeof id === "number" &&
           Number.isSafeInteger(id) &&
           id > 0,
