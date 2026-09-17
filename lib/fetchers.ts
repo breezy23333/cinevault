@@ -1,5 +1,15 @@
 // lib/fetchers.ts — unified + robust TMDB client
 
+export class TmdbHttpError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "TmdbHttpError";
+    this.status = status;
+  }
+}
+
 const BASE = "https://api.themoviedb.org/3";
 
 // prefer v4 bearer; fall back to v3 key
@@ -34,7 +44,9 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
 }
 
 function isNonCritical(path: string) {
-  return /\/(videos|images|credits|similar|recommendations|watch\/providers)\b/.test(path);
+  return /\/(videos|images|credits|similar|recommendations|watch\/providers)\b/.test(
+    path,
+  );
 }
 
 /** Core TMDB fetcher with timeout + retry + graceful fallbacks */
@@ -76,7 +88,7 @@ async function tmdb(
           if (body?.status_message) msg += `: ${body.status_message}`;
         } catch {}
 
-        throw new Error(msg);
+        throw new TmdbHttpError(res.status, msg);
       }
 
       return await res.json();

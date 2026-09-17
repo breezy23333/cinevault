@@ -14,7 +14,11 @@ import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
 import AwardsSection from "@/components/AwardsSection";
 import { fetchAwardsByImdbId } from "@/lib/awards";
-import { fetchTmdbTitle, fetchTmdbProviders } from "@/lib/fetchers";
+import {
+  fetchTmdbTitle,
+  fetchTmdbProviders,
+  TmdbHttpError,
+} from "@/lib/fetchers";
 
 export const runtime = "nodejs";
 export const revalidate = 86400;
@@ -161,9 +165,24 @@ export default async function MoviePage({ params }: PageProps) {
     withTimeout(fetchTmdbProviders(id, "movie"), 10000, "providers"),
   ]);
 
-  const details: any =
-    detailsResult.status === "fulfilled" ? detailsResult.value : null;
-  if (!details) notFound();
+  if (detailsResult.status === "rejected") {
+    const error: unknown = detailsResult.reason;
+
+    if (error instanceof TmdbHttpError && error.status === 404) {
+      notFound();
+    }
+
+    // Temporary failures must reach the error handler.
+    throw error instanceof Error
+      ? error
+      : new Error("Movie details are temporarily unavailable.");
+  }
+
+  const details = detailsResult.value;
+
+  if (!details || !details.id || !details.title) {
+    throw new Error("TMDB returned incomplete movie details.");
+  }
 
   const awards = await fetchAwardsByImdbId(
     details.imdb_id || details.external_ids?.imdb_id,
@@ -1020,18 +1039,8 @@ export async function generateMetadata({
       "movie metadata",
     );
 
-    if (!movie) {
-      return {
-        title: "Movie Not Found",
-        description: "The requested movie could not be found on CINRYVAN.",
-        alternates: {
-          canonical,
-        },
-        robots: {
-          index: false,
-          follow: false,
-        },
-      };
+    if (!movie || !movie.id || !movie.title) {
+      throw new Error("TMDB returned incomplete movie metadata.");
     }
 
     const movieTitle = cleanSeoText(
@@ -1129,18 +1138,14 @@ export async function generateMetadata({
         ],
       },
     };
-  } catch {
-    return {
-      title: `Movie ${movieId}: Details and Where to Watch`,
-      description:
-        "Discover movie trailers, casts, ratings, release information and watch options on CINRYVAN.",
-      alternates: {
-        canonical,
-      },
-      robots: {
-        index: false,
-        follow: true,
-      },
-    };
-  }
+    } catch (error: unknown) {
+      if (error instanceof TmdbHttpError && error.status === 404) {
+        notFound();
+      }
+
+      // Do not turn a temporary API failure into a noindex page.
+      throw error instanceof Error
+        ? error
+        : new Error("Movie metadata is temporarily unavailable.");
+    }
 }
