@@ -144,7 +144,7 @@ function cleanSitemapText(value?: string | null) {
     .trim();
 }
 
-function meetsMovieIndexingRules(movie: TmdbSitemapItem) {
+function meetsTitleIndexingRules(movie: TmdbSitemapItem) {
   const title = cleanSitemapText(movie.title || movie.name);
   const overview = cleanSitemapText(movie.overview);
 
@@ -152,11 +152,7 @@ function meetsMovieIndexingRules(movie: TmdbSitemapItem) {
     Boolean(title) &&
     movie.adult !== true &&
     Boolean(movie.poster_path || movie.backdrop_path) &&
-    overview.length >= 80 &&
-    (
-      (movie.vote_count ?? 0) >= 100 ||
-      (movie.popularity ?? 0) >= 15
-    )
+    overview.length >= 80
   );
 }
 
@@ -181,13 +177,15 @@ async function fetchTmdbIds(path: string): Promise<number[]> {
 
     const items: TmdbSitemapItem[] = data.results;
 
-    const isMovieList =
+    const isTitleList =
       path.startsWith("/movie/") ||
-      path.startsWith("/trending/movie/");
+      path.startsWith("/trending/movie/") ||
+      path.startsWith("/tv/") ||
+      path.startsWith("/trending/tv/");
 
     return items
       .filter((item) =>
-        isMovieList ? meetsMovieIndexingRules(item) : true,
+        isTitleList ? meetsTitleIndexingRules(item) : true,
       )
       .map((item) => item.id)
       .filter(

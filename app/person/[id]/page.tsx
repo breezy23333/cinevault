@@ -34,21 +34,15 @@ function isStrongPersonPage(
     person.biography,
   ).length;
 
-  const popularity =
-    typeof person.popularity === "number"
-      ? person.popularity
-      : 0;
-
   /*
-   * Only substantial and recognisable person pages should
+   * Only substantial person pages should
    * compete in Google Search. Thin pages remain accessible
    * to visitors, but receive noindex,follow.
    */
   return (
     Boolean(person.profile_path) &&
     biographyLength >= 250 &&
-    knownCredits.length >= 8 &&
-    popularity >= 5
+    knownCredits.length >= 8
   );
 }
 
@@ -118,20 +112,16 @@ async function tmdb(path: string) {
       },
     });
 
+    if (response.status === 404) return null;
     if (!response.ok) {
-      console.error(
-        "TMDB PERSON ERROR:",
-        response.status,
-        path,
-      );
-
-      return null;
+      throw new Error(`TMDB person request failed (${response.status}): ${path}`);
     }
-
-    return response.json();
-  } catch (error) {
-    console.error("TMDB PERSON FETCH ERROR:", path, error);
-    return null;
+    return await response.json();
+  } catch (error: unknown) {
+    // Preserve temporary failures instead of treating them as missing people.
+    throw error instanceof Error
+      ? error
+      : new Error("Person data is temporarily unavailable.");
   }
 }
 
@@ -352,12 +342,16 @@ export default async function PersonPage({
   const [person, credits, images, externalIds] = await Promise.all([
     tmdb(`/person/${personId}`),
     tmdb(`/person/${personId}/combined_credits`),
-    tmdb(`/person/${personId}/images`),
-    tmdb(`/person/${personId}/external_ids`),
+    tmdb(`/person/${personId}/images`).catch(() => null),
+    tmdb(`/person/${personId}/external_ids`).catch(() => null),
   ]);
 
-  if (!person?.name) {
-    notFound();
+  if (person === null) notFound();
+  if (!person?.id || !person?.name) {
+    throw new Error("TMDB returned incomplete person details.");
+  }
+  if (!Array.isArray(credits?.cast) || !Array.isArray(credits?.crew)) {
+    throw new Error("TMDB returned incomplete person credits.");
   }
 
   const knowledge = await getPersonKnowledge(externalIds?.wikidata_id).catch(() => null);
@@ -1112,19 +1106,12 @@ export async function generateMetadata({
       tmdb(`/person/${personId}/combined_credits`),
     ]);
 
-    if (!person?.name) {
-      return {
-        title: "Person Not Found",
-        description:
-          "The requested person could not be found on CINRYVAN.",
-        alternates: {
-          canonical,
-        },
-        robots: {
-          index: false,
-          follow: false,
-        },
-      };
+    if (person === null) notFound();
+    if (!person?.id || !person?.name) {
+      throw new Error("TMDB returned incomplete person metadata.");
+    }
+    if (!Array.isArray(credits?.cast) || !Array.isArray(credits?.crew)) {
+      throw new Error("TMDB returned incomplete person credits.");
     }
 
     const knownCredits = prepareCredits(credits);
@@ -1231,18 +1218,10 @@ export async function generateMetadata({
         ],
       },
     };
-  } catch {
-    return {
-      title: `Person ${personId}: Biography and Filmography`,
-      description:
-        "Discover actors, directors, filmmakers, movies and television credits on CINRYVAN.",
-      alternates: {
-        canonical,
-      },
-      robots: {
-        index: false,
-        follow: true,
-      },
-    };
+  } catch (error: unknown) {
+    // Rethrow genuine 404 signals and temporary failures unchanged.
+    throw error instanceof Error
+      ? error
+      : new Error("Person metadata is temporarily unavailable.");
   }
 }

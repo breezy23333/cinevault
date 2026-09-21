@@ -15,7 +15,8 @@ import TVSeasons from "@/components/TVSeasons";
 import AwardsSection from "@/components/AwardsSection";
 import { fetchAwardsByImdbId } from "@/lib/awards";
 import {
-  getTVDetails,
+  fetchTmdbTitle,
+  TmdbHttpError,
   getTVVideos,
   getTVCredits,
   getSimilarTV,
@@ -108,16 +109,6 @@ function isStrongTvPage(tv: any) {
     tv.overview,
   ).length;
 
-  const voteCount =
-    typeof tv.vote_count === "number"
-      ? tv.vote_count
-      : 0;
-
-  const popularity =
-    typeof tv.popularity === "number"
-      ? tv.popularity
-      : 0;
-
   const hasImage = Boolean(
     tv.poster_path || tv.backdrop_path,
   );
@@ -126,8 +117,7 @@ function isStrongTvPage(tv: any) {
     Boolean(title) &&
     tv.adult !== true &&
     hasImage &&
-    overviewLength >= 80 &&
-    (voteCount >= 100 || popularity >= 15)
+    overviewLength >= 80
   );
 }
 
@@ -150,16 +140,24 @@ export default async function TvPage({ params }: PageProps) {
 
   const [detailsResult, videosResult, creditsResult, similarResult, providersResult] =
     await Promise.allSettled([
-      withTimeout(getTVDetails(id), 9000, "details"),
+      withTimeout(fetchTmdbTitle(id, "tv"), 9000, "details"),
       withTimeout(getTVVideos(id), 8000, "videos"),
       withTimeout(getTVCredits(id), 8000, "credits"),
       withTimeout(getSimilarTV(id), 8000, "similar"),
       withTimeout(fetchTmdbProviders(id, "tv"), 8000, "providers"),
     ]);
 
-  const details: any =
-    detailsResult.status === "fulfilled" ? detailsResult.value : null;
-  if (!details) notFound();
+  if (detailsResult.status === "rejected") {
+    const error: unknown = detailsResult.reason;
+    if (error instanceof TmdbHttpError && error.status === 404) notFound();
+    throw error instanceof Error
+      ? error
+      : new Error("TV details are temporarily unavailable.");
+  }
+  const details: any = detailsResult.value;
+  if (!details?.id || !details?.name) {
+    throw new Error("TMDB returned incomplete TV details.");
+  }
 
   const awards = await fetchAwardsByImdbId(
     details.external_ids?.imdb_id,
@@ -1015,23 +1013,13 @@ export async function generateMetadata({
 
   try {
     const tv = await withTimeout(
-      getTVDetails(tvId),
+      fetchTmdbTitle(tvId, "tv"),
       10000,
       "TV metadata",
     );
 
-    if (!tv) {
-      return {
-        title: "TV Show Not Found",
-        description: "The requested TV show could not be found on CINRYVAN.",
-        alternates: {
-          canonical,
-        },
-        robots: {
-          index: false,
-          follow: false,
-        },
-      };
+    if (!tv?.id || !tv?.name) {
+      throw new Error("TMDB returned incomplete TV metadata.");
     }
 
     const tvTitle = cleanSeoText(
@@ -1139,18 +1127,11 @@ export async function generateMetadata({
         ],
       },
     };
-  } catch {
-    return {
-      title: `TV Show ${tvId}: Details and Where to Watch`,
-      description:
-        "Discover TV show trailers, casts, seasons, episodes, ratings and watch options on CINRYVAN.",
-      alternates: {
-        canonical,
-      },
-      robots: {
-        index: false,
-        follow: true,
-      },
-    };
+  } catch (error: unknown) {
+    if (error instanceof TmdbHttpError && error.status === 404) notFound();
+    // Temporary failures must not become permanent indexing instructions.
+    throw error instanceof Error
+      ? error
+      : new Error("TV metadata is temporarily unavailable.");
   }
 }

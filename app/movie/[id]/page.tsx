@@ -1,4 +1,4 @@
-// app/movie/[id]/page.tsx
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
@@ -107,16 +107,6 @@ function isStrongMoviePage(movie: any) {
     movie.overview,
   ).length;
 
-  const voteCount =
-    typeof movie.vote_count === "number"
-      ? movie.vote_count
-      : 0;
-
-  const popularity =
-    typeof movie.popularity === "number"
-      ? movie.popularity
-      : 0;
-
   const hasImage = Boolean(
     movie.poster_path || movie.backdrop_path,
   );
@@ -125,8 +115,7 @@ function isStrongMoviePage(movie: any) {
     Boolean(title) &&
     movie.adult !== true &&
     hasImage &&
-    overviewLength >= 80 &&
-    (voteCount >= 100 || popularity >= 15)
+    overviewLength >= 80
   );
 }
 
