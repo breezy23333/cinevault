@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-
+import AppModeTracker from "@/components/AppModeTracker";
 import AppShell from "@/components/AppShell";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import JsonLd from "@/components/JsonLd";
@@ -301,6 +301,7 @@ export default function RootLayout({
         <JsonLd data={structuredData} />
 
         <Analytics />
+        <AppModeTracker />
         <GoogleAnalytics />
       </body>
     </html>
