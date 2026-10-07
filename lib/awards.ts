@@ -48,6 +48,7 @@ export async function fetchAwardsByImdbId(
     url.searchParams.set("plot", "short");
 
     const response = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(4000),
       next: {
         revalidate: 60 * 60 * 24 * 7,
       },

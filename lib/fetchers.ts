@@ -33,14 +33,20 @@ function toURL(path: string, params?: Record<string, any>) {
   return url.toString();
 }
 
-async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+) {
+  const duration =
+    Number.isFinite(timeoutMs) && timeoutMs > 0
+      ? Math.floor(timeoutMs)
+      : 10000;
+
+  return fetch(url, {
+    ...init,
+    signal: AbortSignal.timeout(duration),
+  });
 }
 
 function isNonCritical(path: string) {
@@ -96,9 +102,10 @@ async function tmdb(
       lastErr = err;
 
       const msg = String(err?.message || err);
-      const isNetwork =
-        err?.name === "AbortError" ||
-        /aborted|timeout|fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|UND_ERR/i.test(msg);
+     const isNetwork =
+      err?.name === "AbortError" ||
+      err?.name === "TimeoutError" ||
+      /aborted|timeout|fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|UND_ERR/i.test(msg);
 
       if (isNetwork && attempt < MAX_RETRIES) {
         await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
