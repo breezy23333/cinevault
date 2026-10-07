@@ -157,46 +157,41 @@ function meetsTitleIndexingRules(movie: TmdbSitemapItem) {
 }
 
 async function fetchTmdbIds(path: string): Promise<number[]> {
-  try {
-    const response = await fetch(withKey(`${TMDB_BASE}${path}`), {
-      headers: authHeaders(),
-      next: {
-        revalidate: 86400,
-      },
-    });
+  const response = await fetch(withKey(`${TMDB_BASE}${path}`), {
+    headers: authHeaders(),
+    signal: AbortSignal.timeout(10000),
+    next: { revalidate: 86400 },
+  });
 
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-
-    if (!Array.isArray(data?.results)) {
-      return [];
-    }
-
-    const items: TmdbSitemapItem[] = data.results;
-
-    const isTitleList =
-      path.startsWith("/movie/") ||
-      path.startsWith("/trending/movie/") ||
-      path.startsWith("/tv/") ||
-      path.startsWith("/trending/tv/");
-
-    return items
-      .filter((item) =>
-        isTitleList ? meetsTitleIndexingRules(item) : true,
-      )
-      .map((item) => item.id)
-      .filter(
-        (id): id is number =>
-          typeof id === "number" &&
-          Number.isSafeInteger(id) &&
-          id > 0,
-      );
-  } catch {
-    return [];
+  if (!response.ok) {
+    throw new Error(`Sitemap TMDB request failed: ${response.status}`);
   }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data?.results) || data.results.length === 0) {
+    throw new Error("Sitemap TMDB returned an empty or invalid catalogue");
+  }
+
+  const items: TmdbSitemapItem[] = data.results;
+
+  const isTitleList =
+    path.startsWith("/movie/") ||
+    path.startsWith("/trending/movie/") ||
+    path.startsWith("/tv/") ||
+    path.startsWith("/trending/tv/");
+
+  return items
+    .filter((item) =>
+      isTitleList ? meetsTitleIndexingRules(item) : true,
+    )
+    .map((item) => item.id)
+    .filter(
+      (id): id is number =>
+        typeof id === "number" &&
+        Number.isSafeInteger(id) &&
+        id > 0,
+    );
 }
 
 async function fetchTmdbIdsAcrossPages(
@@ -205,17 +200,13 @@ async function fetchTmdbIdsAcrossPages(
 ): Promise<number[]> {
   const separator = path.includes("?") ? "&" : "?";
 
-  const results = await Promise.allSettled(
+  const results = await Promise.all(
     Array.from({ length: pages }, (_, index) =>
-      fetchTmdbIds(
-        `${path}${separator}page=${index + 1}`,
-      ),
+      fetchTmdbIds(`${path}${separator}page=${index + 1}`),
     ),
   );
 
-  return results.flatMap((result) =>
-    result.status === "fulfilled" ? result.value : [],
-  );
+  return results.flat();
 }
 
 async function fetchGameIds(
@@ -223,57 +214,47 @@ async function fetchGameIds(
 ): Promise<number[]> {
   const apiKey = process.env.RAWG_API_KEY;
 
-  if (!apiKey) {
-    return [];
-  }
+  // Game API entries remain optional when no key is configured.
+  if (!apiKey) return [];
 
-  const results = await Promise.allSettled(
+  const results = await Promise.all(
     Array.from({ length: pages }, async (_, index) => {
-      try {
-        const url = new URL(`${RAWG_BASE}/games`);
+      const url = new URL(`${RAWG_BASE}/games`);
 
-        url.searchParams.set("key", apiKey);
-        url.searchParams.set("page", String(index + 1));
-        url.searchParams.set("page_size", "40");
-        url.searchParams.set("ordering", "-added");
-        url.searchParams.set("exclude_additions", "true");
+      url.searchParams.set("key", apiKey);
+      url.searchParams.set("page", String(index + 1));
+      url.searchParams.set("page_size", "40");
+      url.searchParams.set("ordering", "-added");
+      url.searchParams.set("exclude_additions", "true");
 
-        const response = await fetch(url.toString(), {
-          headers: {
-            Accept: "application/json",
-          },
-          next: {
-            revalidate: 86400,
-          },
-        });
+      const response = await fetch(url.toString(), {
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(10000),
+        next: { revalidate: 86400 },
+      });
 
-        if (!response.ok) {
-          return [];
-        }
-
-        const data = await response.json();
-
-        if (!Array.isArray(data?.results)) {
-          return [];
-        }
-
-        return data.results
-          .map((game: { id?: number }) => game.id)
-          .filter(
-            (id: number | undefined): id is number =>
-              typeof id === "number" &&
-              Number.isSafeInteger(id) &&
-              id > 0,
-          );
-      } catch {
-        return [];
+      if (!response.ok) {
+        throw new Error(`Sitemap RAWG request failed: ${response.status}`);
       }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data?.results) || data.results.length === 0) {
+        throw new Error("Sitemap RAWG returned an empty or invalid catalogue");
+      }
+
+      return data.results
+        .map((game: { id?: number }) => game.id)
+        .filter(
+          (id: number | undefined): id is number =>
+            typeof id === "number" &&
+            Number.isSafeInteger(id) &&
+            id > 0,
+        );
     }),
   );
 
-  return results.flatMap((result) =>
-    result.status === "fulfilled" ? result.value : [],
-  );
+  return results.flat();
 }
 
 function uniqueIds(ids: number[]) {
