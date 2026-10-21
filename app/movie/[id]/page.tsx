@@ -508,7 +508,7 @@ export default async function MoviePage({ params }: PageProps) {
           <div className="mx-auto max-w-7xl px-4 py-7 md:px-6">
             <div className="flex items-end justify-between gap-4">
                            <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] textem] text-yellow-400">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400">
                   Keep exploring
                 </p>
                 <h2 className="mt-2 text-xl font-black sm:text-2xl">
@@ -850,8 +850,12 @@ export default async function MoviePage({ params }: PageProps) {
       </section>
 
       {/* CHAPTER 06 — MORE LIKE THIS */}
-      {similar.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
+        {similar.length > 0 && (
+          <section
+            id="similar"
+            aria-label="Similar movie recommendations"
+            className="scroll-mt-28 mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20"
+          >
           <ChapterHeading
             number="06"
             eyebrow="Continue the journey"
