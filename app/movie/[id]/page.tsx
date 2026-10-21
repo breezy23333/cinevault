@@ -53,6 +53,27 @@ type PageProps = {
 
 const SITE_URL = "https://cinryvan.vercel.app";
 
+const MOVIE_GENRE_SLUGS: Record<number, string> = {
+  28: "action",
+  12: "adventure",
+  16: "animation",
+  35: "comedy",
+  80: "crime",
+  99: "documentary",
+  18: "drama",
+  10751: "family",
+  14: "fantasy",
+  36: "history",
+  27: "horror",
+  10402: "music",
+  9648: "mystery",
+  10749: "romance",
+  878: "science-fiction",
+  53: "thriller",
+  10752: "war",
+  37: "western",
+};
+
 const imageUrl = (path?: string | null, size = "w780") =>
   path ? `https://image.tmdb.org/t/p/${size}${path}` : null;
 
@@ -453,14 +474,32 @@ export default async function MoviePage({ params }: PageProps) {
                   {details.status}
                 </span>
               )}
-              {genres.slice(0, 4).map((genre: any) => (
-                <span
-                  key={genre.id ?? genre.name}
-                  className="border border-white/15 bg-black/35 px-3 py-2 text-white/55"
-                >
-                  {genre.name}
-                </span>
-              ))}
+              {genres.slice(0, 4).map((genre: any) => {
+                const slug = MOVIE_GENRE_SLUGS[genre.id];
+
+                if (!slug) {
+                  return (
+                    <span
+                      key={genre.id ?? genre.name}
+                      className="border border-white/15 bg-black/35 px-3 py-2 text-white/55"
+                    >
+                      {genre.name}
+                    </span>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={genre.id}
+                    href={`/genre/${slug}`}
+                    prefetch={false}
+                    title={`Explore ${genre.name} movies`}
+                    className="border border-white/15 bg-black/35 px-3 py-2 text-white/70 transition hover:border-yellow-400 hover:bg-yellow-400/15 hover:text-yellow-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow-400"
+                  >
+                    {genre.name} →
+                  </Link>
+                );
+              })}
             </div>
 
             <p className="mt-5 line-clamp-2 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">
