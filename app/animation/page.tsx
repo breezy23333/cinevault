@@ -400,14 +400,13 @@ export default async function AnimationPage() {
           <div className="max-w-4xl">
             <div className="inline-flex items-center gap-2 border-l-2 border-violet-400 pl-3">
               <Layers3 className="h-4 w-4 text-violet-300" />
-              <p className="text-[10px] font-black uppercase tracking-[0.36em] text-violet-300 sm:text-xs">
-                CINRYVAN Animation Universe
-              </p>
+              <h1 className="text-[10px] font-black uppercase tracking-[0.36em] text-violet-300 sm:text-xs">
+                Explore Animated Movies, TV Shows, Anime & Cartoons
+              </h1>
             </div>
-
-            <h1 className="mt-5 text-4xl font-black leading-[0.92] drop-shadow-2xl sm:text-6xl lg:text-8xl">
+            <h2 className="mt-5 text-4xl font-black leading-[0.92] drop-shadow-2xl sm:text-6xl lg:text-8xl">
               {heroTitle}
-            </h1>
+            </h2>
 
             {hero?.overview ? (
               <p className="mt-5 max-w-2xl text-sm leading-6 text-white/70 line-clamp-3 sm:text-lg sm:leading-8">

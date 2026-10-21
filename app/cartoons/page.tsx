@@ -378,12 +378,12 @@ export default async function CartoonsPage({
 
         <div className="relative z-10 mx-auto flex min-h-[480px] w-full max-w-[1500px] items-end px-4 pb-14 sm:min-h-[550px] sm:px-6 lg:min-h-[610px] lg:px-10 lg:pb-20">
           <div className="max-w-3xl">
-            <p className="border-l-2 border-cyan-400 pl-3 text-[10px] font-black uppercase tracking-[0.36em] text-cyan-300 sm:text-xs">
-              CINRYVAN Cartoon Universe
-            </p>
-            <h1 className="mt-5 text-4xl font-black leading-[0.92] drop-shadow-2xl sm:text-6xl lg:text-8xl">
-              {heroTitle}
+            <h1 className="border-l-2 border-cyan-400 pl-3 text-[10px] font-black uppercase tracking-[0.36em] text-cyan-300 sm:text-xs">
+              Discover Cartoons & Animated TV Shows
             </h1>
+            <h2 className="mt-5 text-4xl font-black leading-[0.92] drop-shadow-2xl sm:text-6xl lg:text-8xl">
+              {heroTitle}
+            </h2>
             {hero?.overview && (
               <p className="mt-5 max-w-2xl text-sm leading-6 text-white/70 line-clamp-3 sm:text-lg sm:leading-8">
                 {hero.overview}
