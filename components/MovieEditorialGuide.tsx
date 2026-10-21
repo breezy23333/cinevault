@@ -44,6 +44,45 @@ const GUIDES: Record<number, MovieGuide> = {
     sourceUrl:
       "https://media.netflix.com/en/only-on-netflix/80091741",
   },
+
+  
+  // THE WOMAN IN GREEN (1945)
+  34327: {
+    introduction:
+      "The Woman in Green brings Sherlock Holmes and Dr. Watson into a troubling murder investigation in 1940s London. Starring Basil Rathbone and Nigel Bruce, the film combines classic detective work with psychological manipulation, suspicion and a growing sense of danger.",
+
+    perspective:
+      "Watch how the film uses conversation, misleading appearances and carefully revealed clues to build its mystery. Pay attention to the contrast between Holmes' analytical approach and the uncertainties faced by the people around him. Its black-and-white presentation also helps create an atmosphere of suspense.",
+
+    bestFor:
+      "Viewers who enjoy classic detective stories, Sherlock Holmes adaptations, vintage mysteries and suspenseful black-and-white cinema. It is particularly interesting for audiences curious about how older films created tension without modern visual effects.",
+
+    question:
+      "How does Sherlock Holmes distinguish between what people appear to believe and what the available evidence actually suggests?",
+
+    sourceName: "Sherlock Holmes film information",
+    sourceUrl:
+      "https://sherlockholmes.com/blogs/sherlock-holmes-movies/the-woman-in-green-1945",
+  },
+
+  // REVENGER (2018)
+  557968: {
+    introduction:
+      "Revenger follows a former investigator who enters a dangerous island prison while seeking justice for the murder of his family. The South Korean action film combines a revenge-driven story with martial arts combat and a harsh environment where survival is never guaranteed.",
+
+    perspective:
+      "Watch how physical movement, fighting distance and the surrounding environment shape the action sequences. Rather than relying entirely on complicated storytelling, the film makes combat choreography an important part of how characters establish power, confront danger and express determination.",
+
+    bestFor:
+      "Viewers who enjoy Korean action cinema, martial arts choreography, survival stories and intense revenge thrillers. The film contains strong violence and is better suited to audiences comfortable with brutal action.",
+
+    question:
+      "When a character is driven by revenge, how does that motivation influence the choices they make and the risks they are willing to accept?",
+
+    sourceName: "Netflix official film information",
+    sourceUrl:
+      "https://www.netflix.com/title/81000511",
+  },
 };
 
 export default function MovieEditorialGuide({
