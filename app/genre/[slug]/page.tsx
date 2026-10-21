@@ -176,6 +176,90 @@ const POPULAR_GENRES = [
   "thriller",
 ];
 
+type GenreMovie = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  release_date?: string;
+  vote_average?: number;
+  overview?: string;
+  adult?: boolean;
+};
+
+const MOVIE_GENRE_IDS: Record<string, number> = {
+  action: 28,
+  adventure: 12,
+  animation: 16,
+  comedy: 35,
+  crime: 80,
+  documentary: 99,
+  drama: 18,
+  family: 10751,
+  fantasy: 14,
+  history: 36,
+  horror: 27,
+  music: 10402,
+  mystery: 9648,
+  romance: 10749,
+  "science-fiction": 878,
+  thriller: 53,
+  war: 10752,
+  western: 37,
+};
+
+async function getGenreMovies(slug: string): Promise<GenreMovie[]> {
+  const genreId = MOVIE_GENRE_IDS[slug];
+  if (!genreId) return [];
+
+  const token =
+    process.env.TMDB_BEARER ||
+    process.env.TMDB_READ ||
+    process.env.NEXT_PUBLIC_TMDB_TOKEN;
+
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (!token && !apiKey) return [];
+
+  const params = new URLSearchParams({
+    with_genres: String(genreId),
+    sort_by: "popularity.desc",
+    include_adult: "false",
+    language: "en-US",
+    page: "1",
+  });
+
+  if (apiKey) params.set("api_key", apiKey);
+
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/discover/movie?${params.toString()}`,
+      {
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : undefined,
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(8000),
+      }
+    );
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+
+    return (Array.isArray(data.results) ? data.results : [])
+      .filter(
+        (movie: GenreMovie) =>
+          movie.id > 0 &&
+          Boolean(movie.title) &&
+          Boolean(movie.poster_path) &&
+          movie.adult !== true
+      )
+      .slice(0, 12);
+  } catch {
+    return [];
+  }
+}
+
 function formatGenre(slug: string) {
   return slug
     .replace(/-/g, " ")
@@ -214,6 +298,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function GenrePage({ params }: PageProps) {
   const { slug } = await params;
   const genreName = formatGenre(slug);
+  const genreMovies = await getGenreMovies(slug);
   const theme = getTheme(slug);
   const themeStyle = {
     "--genre-accent": theme.accent,
@@ -289,6 +374,70 @@ export default async function GenrePage({ params }: PageProps) {
             </div>
           </div>
         </section>
+
+        {genreMovies.length > 0 && (
+          <section
+            aria-labelledby="genre-movies-heading"
+            className="py-16"
+          >
+            <div className="mb-8">
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--genre-accent)]">
+                CINRYVAN COLLECTION
+              </p>
+
+              <h2
+                id="genre-movies-heading"
+                className="mt-3 text-3xl font-black text-white sm:text-4xl"
+              >
+                Popular {genreName} Movies
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">
+                Explore popular {genreName.toLowerCase()} movies,
+                including release details, ratings, trailers
+                and cast information.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {genreMovies.map((movie) => (
+                <Link
+                  key={movie.id}
+                  href={`/movie/${movie.id}`}
+                  prefetch={false}
+                  className="group overflow-hidden border border-white/10 bg-[#101722] transition hover:-translate-y-1 hover:border-[var(--genre-accent)]"
+                >
+                  <div
+                    className="aspect-[2/3] bg-cover bg-center bg-[#151b26]"
+                    style={{
+                      backgroundImage: `url(https://image.tmdb.org/t/p/w342${movie.poster_path})`,
+                    }}
+                    aria-hidden="true"
+                  />
+
+                  <div className="p-3">
+                    <h3 className="line-clamp-2 text-sm font-bold text-white transition group-hover:text-[var(--genre-accent)]">
+                      {movie.title}
+                    </h3>
+
+                    <div className="mt-2 flex items-center justify-between gap-2 text-xs text-white/50">
+                      <span>
+                        {movie.release_date?.slice(0, 4) || "TBA"}
+                      </span>
+
+                      {typeof movie.vote_average === "number" &&
+                        movie.vote_average > 0 && (
+                          <span>
+                            ★ {movie.vote_average.toFixed(1)}
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="py-16">
           <div className="mb-7 border-b border-white/10 pb-5">
