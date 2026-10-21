@@ -378,16 +378,14 @@ export default async function AnimePage({
         <div className="relative z-10 mx-auto flex min-h-[490px] w-full max-w-[1500px] items-end px-4 pb-14 sm:min-h-[550px] sm:px-6 lg:min-h-[620px] lg:px-10 lg:pb-20">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 border-l-2 border-yellow-400 pl-3">
-              <Sparkles className="h-4 w-4 text-yellow-400" />
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-yellow-400 sm:text-xs">
-                CINRYVAN Anime Universe
-              </p>
+              <Sparkles className="h-4 w-4 text-yellow-400" />             
+                <h1 className="text-sm font-black uppercase tracking-[0.25em] text-yellow-400 sm:text-base">
+                  Explore Anime Series & Movies on CINRYVAN
+                </h1>
             </div>
-
-            <h1 className="mt-5 text-4xl font-black leading-[0.92] drop-shadow-2xl sm:text-6xl lg:text-8xl">
+            <h2 className="mt-5 text-4xl font-black leading-[0.92] drop-shadow-2xl sm:text-6xl lg:text-8xl">
               {heroTitle}
-            </h1>
-
+            </h2>
             {hero?.overview && (
               <p className="mt-5 max-w-2xl text-sm leading-6 text-white/70 line-clamp-3 sm:text-lg sm:leading-8">
                 {hero.overview}
