@@ -1041,7 +1041,92 @@ export default function Home() {
       <Suspense fallback={<HeroSkeleton />}>
         <FeaturedMovies />
       </Suspense>
+      {/* Permanent category links for visitors and crawlers */}
+      <section
+        aria-labelledby="explore-cinryvan"
+        className="relative mx-auto max-w-[1600px] px-4 pb-10 sm:px-6 lg:px-8"
+      >
+        <div className="mb-5 border-l-4 border-yellow-400 pl-4">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-yellow-400">
+            Explore CINRYVAN
+          </p>
 
+          <h2
+            id="explore-cinryvan"
+            className="mt-2 text-2xl font-black text-white md:text-3xl"
+          >
+            Discover Movies, TV, Anime, Cartoons & Games
+          </h2>
+
+          <p className="mt-2 max-w-3xl text-sm text-white/65">
+            Explore entertainment worlds, discover new releases,
+            browse ratings and trailers, and find your next
+            favourite movie, series or game.
+          </p>
+        </div>
+
+        <nav
+          aria-label="Explore entertainment categories"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+        >
+          {[
+            {
+              label: "Movies",
+              href: "/movie",
+              text: "Films, trailers and ratings",
+            },
+            {
+              label: "TV Shows",
+              href: "/tv",
+              text: "Series and streaming guides",
+            },
+            {
+              label: "Anime",
+              href: "/anime",
+              text: "Japanese animation",
+            },
+            {
+              label: "Cartoons",
+              href: "/cartoons",
+              text: "Classic and modern cartoons",
+            },
+            {
+              label: "Animation",
+              href: "/animation",
+              text: "Animated movies and shows",
+            },
+            {
+              label: "Games",
+              href: "/games",
+              text: "Game releases and reviews",
+            },
+            {
+              label: "Celebrities",
+              href: "/people",
+              text: "Actors, creators and cast",
+            },
+            {
+              label: "Entertainment News",
+              href: "/news",
+              text: "Latest entertainment stories",
+            },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group rounded-xl border border-white/10 bg-[#10151f] p-4 transition hover:border-yellow-400/60 hover:bg-[#19202d]"
+            >
+              <span className="block text-base font-bold text-white group-hover:text-yellow-400">
+                {item.label} →
+              </span>
+
+              <span className="mt-2 block text-xs text-white/55">
+                {item.text}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      </section>
       <Suspense fallback={<Surface><RowSkeleton /></Surface>}>
         <InitialContent />
       </Suspense>
