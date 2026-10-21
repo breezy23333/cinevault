@@ -14,6 +14,7 @@ import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
 import AwardsSection from "@/components/AwardsSection";
 import MovieNightPlanner from "@/components/MovieNightPlanner";
+import MovieEditorialGuide from "@/components/MovieEditorialGuide";
 import { fetchAwardsByImdbId } from "@/lib/awards";
 import {
   fetchTmdbTitle,
@@ -867,6 +868,12 @@ export default async function MoviePage({ params }: PageProps) {
             runtimeMinutes={details.runtime}
           />
         )}
+
+      {/* CINRYVAN ORIGINAL MOVIE GUIDE */}
+      <MovieEditorialGuide
+        id={Number(details.id)}
+        title={details.title}
+      />
 
       {/* CHAPTER 05 — WATCH */}
       <section id="watch" className="scroll-mt-28 border-y border-white/10 bg-[#0c1119] py-16 lg:py-20">
