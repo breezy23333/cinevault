@@ -13,6 +13,7 @@ import WatchOptions from "@/components/WatchOptions";
 import MovieTickets from "@/components/MovieTickets";
 import CinemaLocation from "@/components/CinemaLocation";
 import AwardsSection from "@/components/AwardsSection";
+import MovieNightPlanner from "@/components/MovieNightPlanner";
 import { fetchAwardsByImdbId } from "@/lib/awards";
 import {
   fetchTmdbTitle,
@@ -857,6 +858,15 @@ export default async function MoviePage({ params }: PageProps) {
           </div>
         </section>
       )}
+   
+      {/* CINRYVAN MOVIE NIGHT PLANNER */}
+      {typeof details.runtime === "number" &&
+        details.runtime > 0 && (
+          <MovieNightPlanner
+            title={details.title}
+            runtimeMinutes={details.runtime}
+          />
+        )}
 
       {/* CHAPTER 05 — WATCH */}
       <section id="watch" className="scroll-mt-28 border-y border-white/10 bg-[#0c1119] py-16 lg:py-20">
