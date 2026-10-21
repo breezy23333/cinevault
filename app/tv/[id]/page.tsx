@@ -14,6 +14,7 @@ import WatchOptions from "@/components/WatchOptions";
 import TVSeasons from "@/components/TVSeasons";
 import AwardsSection from "@/components/AwardsSection";
 import { fetchAwardsByImdbId } from "@/lib/awards";
+import TvBingePlanner from "@/components/TvBingePlanner";
 import {
   fetchTmdbTitle,
   TmdbHttpError,
@@ -214,6 +215,36 @@ export default async function TvPage({ params }: PageProps) {
     : [];
   const creators = Array.isArray(details.created_by) ? details.created_by.slice(0, 5) : [];
   const episodeRuntime = formatEpisodeRuntime(details.episode_run_time);
+  const regularSeasons = seasons.filter(
+    (season: any) =>
+      Number(season.season_number) > 0
+  );
+
+  const seasonEpisodeCount = regularSeasons.reduce(
+    (total: number, season: any) =>
+      total + (Number(season.episode_count) || 0),
+    0
+  );
+
+  const bingeEpisodeCount =
+    seasonEpisodeCount > 0
+      ? seasonEpisodeCount
+      : Number(details.number_of_episodes) || 0;
+
+  const runtimeValues = Array.isArray(details.episode_run_time)
+    ? details.episode_run_time
+    : [];
+
+  const bingeEpisodeMinutes =
+    runtimeValues.find(
+      (value: unknown) =>
+        typeof value === "number" &&
+        Number.isFinite(value) &&
+        value > 0
+    ) ||
+    details.last_episode_to_air?.runtime ||
+    0;
+
   const extras = videos
     .filter((video) => video.site === "YouTube" && video.key)
     .filter((video) =>
@@ -799,6 +830,15 @@ export default async function TvPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      {/* CINRYVAN BINGE PLANNER */}
+      {bingeEpisodeCount > 0 &&
+        bingeEpisodeMinutes > 0 && (
+          <TvBingePlanner
+            episodeCount={bingeEpisodeCount}
+            episodeMinutes={bingeEpisodeMinutes}
+          />
+        )}
 
       {/* BROADCAST 06 — WATCH */}
       <section id="watch" className="scroll-mt-28 mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
