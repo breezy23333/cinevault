@@ -50,7 +50,7 @@ async function fetchWithTimeout(
 }
 
 function isNonCritical(path: string) {
-  return /\/(videos|images|credits|similar|recommendations|watch\/providers)\b/.test(
+  return /\/(?:videos|images|credits|similar|recommendations|watch\/providers)\/?$/.test(
     path,
   );
 }
@@ -163,19 +163,45 @@ export async function getMovieGenres() {
 export async function fetchTmdbTitle(
   tmdbId: number | string,
   type: "movie" | "tv",
-  opts?: { language?: string }
+  opts?: { language?: string },
 ) {
+  const idText = String(tmdbId).trim();
+  const id = Number(idText);
+
+  if (
+    !/^\d+$/.test(idText) ||
+    !Number.isSafeInteger(id) ||
+    id < 1
+  ) {
+    throw new TmdbHttpError(404, "Invalid TMDB title ID.");
+  }
+
+  const language = opts?.language?.trim() || "en-US";
+  const imageLanguage = language.split("-")[0];
+
+  const appendedEndpoints = [
+    "videos",
+    "images",
+    "credits",
+    "external_ids",
+    "recommendations",
+    "similar",
+    type === "movie" ? "release_dates" : "content_ratings",
+  ];
+
   return tmdb(
-    `/${type}/${tmdbId}`,
+    `/${type}/${id}`,
     {
-      language: opts?.language || "en-US",
-      append_to_response:
-        "videos,images,credits,external_ids,release_dates,content_ratings,recommendations,similar",
-      include_image_language: "en,null",
+      language,
+      append_to_response: appendedEndpoints.join(","),
+      include_image_language: [
+        ...new Set([imageLanguage, "en", "null"]),
+      ].join(","),
     },
-    { revalidate: 86400 }
+    { revalidate: 86400 },
   );
 }
+
 export async function fetchTmdbProviders(tmdbId: number | string, type: "movie" | "tv") {
  return tmdb(`/${type}/${tmdbId}/watch/providers`, undefined, {
   revalidate: 86400,
