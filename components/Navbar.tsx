@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import AnimatedNavMenu from "@/components/AnimatedNavMenu";
 import {
   Bell,
   Bookmark,
@@ -352,38 +353,9 @@ export default function Navbar() {
             CINRYVAN
           </Link>
 
-          <ul className="ml-2 hidden items-center gap-2 2xl:flex">
-            {NAV_GROUPS.map((item) => {
-              const active = isActive(item.href);
+         <AnimatedNavMenu groups={NAV_GROUPS} />
 
-              return (
-                <li key={item.href} className="group relative">
-                  <Link
-                    href={item.href}
-                    className={`${pillBase} ${
-                      active ? "bg-amber-400 text-black" : ""
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-
-                  <div className="invisible absolute left-0 top-full z-50 mt-2 w-60 translate-y-2 rounded-2xl border border-white/10 bg-[#0b0f1a]/98 p-2 opacity-0 shadow-2xl backdrop-blur-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    {item.dropdown.map((drop) => (
-                      <Link
-                        key={`${drop.href}-${drop.label}`}
-                        href={drop.href}
-                        className="block rounded-xl px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-yellow-400 hover:text-black"
-                      >
-                        {drop.label}
-                      </Link>
-                    ))}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="min-w-0 flex-1" />
+          <div className="min-w-0 flex-1 lg:hidden" />
 
           <form onSubmit={submit} className="hidden lg:block">
             <div className="relative">
