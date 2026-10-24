@@ -426,11 +426,15 @@ export default async function MoviePage({ params }: PageProps) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(movieJsonLd) }}
+                dangerouslySetInnerHTML={{
+          __html: JSON.stringify(movieJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+                dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       {/* CHAPTER 01 — CINEMATIC HERO */}
@@ -651,14 +655,37 @@ export default async function MoviePage({ params }: PageProps) {
               <Fact label="Release date" value={details.release_date || "Unknown"} />
               <Fact label="Runtime" value={runtime || "Unknown"} />
               <Fact label="Language" value={details.original_language?.toUpperCase() || "Unknown"} />
-              <Fact
-                label="Collection"
-                value={details.belongs_to_collection?.name || "Standalone movie"}
-              />
+              {details.belongs_to_collection?.name && (
+                <Fact
+                  label="Collection"
+                  value={details.belongs_to_collection.name}
+                />
+              )}
               <Fact label="Status" value={details.status || "Unknown"} />
               <Fact label="Budget" value={formatMoney(details.budget)} />
               <Fact label="Revenue" value={formatMoney(details.revenue)} />
             </div>
+            
+             {directors.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-yellow-400">
+                  {directors.length === 1 ? "Director" : "Directors"}
+                </h3>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {directors.map((person: { id: number; name: string }) => (
+                    <Link
+                      key={person.id}
+                      href={`/person/${person.id}`}
+                      prefetch={false}
+                      className="border border-white/15 bg-[#101722] px-4 py-3 text-sm font-bold text-white/80 transition hover:border-yellow-400 hover:text-yellow-300"
+                    >
+                      {person.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}   
 
             {studios.length > 0 && (
               <div className="mt-8">
@@ -1111,17 +1138,43 @@ export async function generateMetadata({
     const overview = cleanSeoText(movie.overview);
     const tagline = cleanSeoText(movie.tagline);
 
-    const discoveryText =
-      `${displayTitle} cast, trailer, ratings, release details and where to watch.`;
+    const directorNames = Array.isArray(movie.credits?.crew)
+      ? movie.credits.crew
+          .filter(
+            (person: { job?: string; name?: string }) =>
+              person.job === "Director" && Boolean(person.name),
+          )
+          .map((person: { name: string }) => person.name)
+          .slice(0, 3)
+          .join(", ")
+      : "";
+
+    const genreNames = Array.isArray(movie.genres)
+      ? movie.genres
+          .map((genre: { name: string }) => genre.name)
+          .filter(Boolean)
+          .join(", ")
+      : "";
+
+    const factualSummary = [
+      displayTitle,
+      genreNames ? `Genres: ${genreNames}.` : "",
+      directorNames ? `Directed by ${directorNames}.` : "",
+      formatRuntime(movie.runtime)
+        ? `Runtime: ${formatRuntime(movie.runtime)}.`
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
     const descriptionSource = overview
-      ? `${discoveryText} ${overview}`
+      ? `${overview} Explore ${displayTitle}: cast and where to watch.`
       : tagline
-        ? `${discoveryText} ${tagline}.`
-        : `${discoveryText} Explore the movie on CINRYVAN.`;
+        ? `${tagline} ${factualSummary}`
+        : `${factualSummary} Explore cast and watch options on CINRYVAN.`;
 
     const description = truncateSeoText(descriptionSource, 158);
-
+    
     const backdropImage = movie.backdrop_path
       ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
       : null;
