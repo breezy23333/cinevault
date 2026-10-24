@@ -88,41 +88,50 @@ type ExternalIds = {
 };
 
 async function tmdb(path: string) {
+  const token =
+    process.env.TMDB_BEARER ||
+    process.env.TMDB_TOKEN ||
+    process.env.NEXT_PUBLIC_TMDB_TOKEN;
+
   const apiKey = process.env.TMDB_API_KEY;
-  const token = process.env.TMDB_BEARER;
 
-  const separator = path.includes("?") ? "&" : "?";
-
-  const url = apiKey
-    ? `https://api.themoviedb.org/3${path}${separator}api_key=${apiKey}`
-    : `https://api.themoviedb.org/3${path}`;
-
-  try {
-    const response = await fetch(url, {
-      headers: token
-        ? {
-            Authorization: `Bearer ${token}`,
-            accept: "application/json",
-          }
-        : {
-            accept: "application/json",
-          },
-      next: {
-        revalidate: 86400,
-      },
-    });
-
-    if (response.status === 404) return null;
-    if (!response.ok) {
-      throw new Error(`TMDB person request failed (${response.status}): ${path}`);
-    }
-    return await response.json();
-  } catch (error: unknown) {
-    // Preserve temporary failures instead of treating them as missing people.
-    throw error instanceof Error
-      ? error
-      : new Error("Person data is temporarily unavailable.");
+  if (!token && !apiKey) {
+    throw new Error("TMDB credentials are missing.");
   }
+
+  const url = new URL(`https://api.themoviedb.org/3${path}`);
+
+  if (!token && apiKey) {
+    url.searchParams.set("api_key", apiKey);
+  }
+
+  const configuredTimeout = Number(
+    process.env.TMDB_TIMEOUT_MS || 10000,
+  );
+
+  const timeoutMs =
+    Number.isFinite(configuredTimeout) && configuredTimeout > 0
+      ? Math.floor(configuredTimeout)
+      : 10000;
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    next: { revalidate: 86400 },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  if (response.status === 404) return null;
+
+  if (!response.ok) {
+    throw new Error(
+      `TMDB person request failed (${response.status}): ${path}`,
+    );
+  }
+
+  return await response.json();
 }
 
 function cleanSeoText(value?: string | null) {
@@ -481,30 +490,23 @@ export default async function PersonPage({
   };
 
   const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: SITE_URL,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "People",
-        item: `${SITE_URL}/person/${personId}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: person.name,
-        item: personUrl,
-      },
-    ],
-  };
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: SITE_URL,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: person.name,
+      item: personUrl,
+    },
+  ],
+};
 
   return (
     <main className="mx-auto max-w-[1440px] px-4 pb-24 pt-24 md:px-6 lg:px-8">
@@ -1150,11 +1152,11 @@ export async function generateMetadata({
       .join(" ");
 
     const description = truncateSeoText(
-      topTitles.length > 0
-        ? `${name} movies, TV shows, biography and career. ${details}`
-        : biography
-          ? `${biography} ${details}`
-          : `${name} biography and filmography. ${details}`,
+      biography
+        ? biography
+        : topTitles.length > 0
+          ? `${name}: credits include ${topTitles.join(", ")}. ${details}`
+          : `${name}. ${details || "Explore available biography and filmography information on CINRYVAN."}`,
       158,
     );
 
