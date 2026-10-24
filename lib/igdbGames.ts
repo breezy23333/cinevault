@@ -244,11 +244,20 @@ function mapGame(game: IgdbGame): RawgGame {
         },
       })) ?? [],
     genres:
-      game.genres?.map((genre) => ({
-        id: genre.id,
-        name: genre.name,
-        slug: genre.slug || slugify(genre.name),
-      })) ?? [],
+      game.genres?.map((genre) => {
+        const matchingGenre = Object.entries(GENRE_IDS).find(
+          ([, id]) => id === genre.id,
+        );
+
+        return {
+          id: genre.id,
+          name: genre.name,
+          slug:
+            matchingGenre?.[0] ||
+            genre.slug ||
+            slugify(genre.name),
+        };
+      }) ?? [],
     tags:
       game.themes?.map((theme) => ({
         id: theme.id,

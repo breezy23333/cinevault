@@ -557,16 +557,19 @@ function CategoryGameRow({
     category.totalPages,
   );
 
-  const firstResult =
-    category.totalResults === 0
-      ? 0
-      : (category.page - 1) * category.pageSize + 1;
+    const hasGames = category.games.length > 0;
 
-  const lastResult = Math.min(
-    category.totalResults,
-    firstResult + category.games.length - 1,
-  );
+  const firstResult = hasGames
+    ? (category.page - 1) * category.pageSize + 1
+    : 0;
 
+  const lastResult = hasGames
+    ? Math.min(
+        category.totalResults,
+        firstResult + category.games.length - 1,
+      )
+    : 0;
+    
   const heroImage =
   category.games.find((game) => game.background_image)
     ?.background_image || null;
