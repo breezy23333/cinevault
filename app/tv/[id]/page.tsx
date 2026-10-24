@@ -18,9 +18,6 @@ import TvBingePlanner from "@/components/TvBingePlanner";
 import {
   fetchTmdbTitle,
   TmdbHttpError,
-  getTVVideos,
-  getTVCredits,
-  getSimilarTV,
   fetchTmdbProviders,
 } from "@/lib/fetchers";
 
@@ -139,14 +136,10 @@ export default async function TvPage({ params }: PageProps) {
   const id = Number(idString);
   if (!Number.isSafeInteger(id) || id < 1) notFound();
 
-  const [detailsResult, videosResult, creditsResult, similarResult, providersResult] =
-    await Promise.allSettled([
-      withTimeout(fetchTmdbTitle(id, "tv"), 9000, "details"),
-      withTimeout(getTVVideos(id), 8000, "videos"),
-      withTimeout(getTVCredits(id), 8000, "credits"),
-      withTimeout(getSimilarTV(id), 8000, "similar"),
-      withTimeout(fetchTmdbProviders(id, "tv"), 8000, "providers"),
-    ]);
+  const [detailsResult, providersResult] = await Promise.allSettled([
+    withTimeout(fetchTmdbTitle(id, "tv"), 10000, "TV details"),
+    withTimeout(fetchTmdbProviders(id, "tv"), 8000, "providers"),
+  ]);
 
   if (detailsResult.status === "rejected") {
     const error: unknown = detailsResult.reason;
@@ -163,21 +156,44 @@ export default async function TvPage({ params }: PageProps) {
   const awards = await fetchAwardsByImdbId(
     details.external_ids?.imdb_id,
   ).catch(() => null);
-  const videos: TMDBVideo[] =
-    videosResult.status === "fulfilled" &&
-    Array.isArray((videosResult.value as any)?.results)
-      ? (videosResult.value as any).results
-      : [];
-  const cast: Cast[] =
-    creditsResult.status === "fulfilled" &&
-    Array.isArray((creditsResult.value as any)?.cast)
-      ? (creditsResult.value as any).cast.slice(0, 12)
-      : [];
-  const similar: SimilarTV[] =
-    similarResult.status === "fulfilled" &&
-    Array.isArray((similarResult.value as any)?.results)
-      ? (similarResult.value as any).results.slice(0, 14)
-      : [];
+
+  const videos: TMDBVideo[] = Array.isArray(details.videos?.results)
+  ? details.videos.results
+  : [];
+
+  const cast: Cast[] = Array.isArray(details.credits?.cast)
+    ? details.credits.cast.slice(0, 12)
+    : [];
+
+  const recommendationResults = details.recommendations?.results;
+  const similarResults = details.similar?.results;
+
+  const relatedSeries: SimilarTV[] =
+    Array.isArray(recommendationResults) && recommendationResults.length > 0
+      ? recommendationResults
+      : Array.isArray(similarResults)
+        ? similarResults
+        : [];
+
+  const seenSeriesIds = new Set<number>();
+
+  const similar: SimilarTV[] = relatedSeries
+    .filter((series) => {
+      if (
+        !Number.isSafeInteger(series.id) ||
+        series.id < 1 ||
+        series.id === id ||
+        !series.name?.trim() ||
+        seenSeriesIds.has(series.id)
+      ) {
+        return false;
+      }
+
+      seenSeriesIds.add(series.id);
+      return true;
+    })
+    .slice(0, 14);
+
   const providersData: any =
     providersResult.status === "fulfilled" ? providersResult.value : null;
 
@@ -458,11 +474,16 @@ export default async function TvPage({ params }: PageProps) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(tvJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(tvJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
+
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       {/* BROADCAST 01 — HERO */}
