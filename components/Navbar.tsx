@@ -52,6 +52,7 @@ const NAV_GROUPS = [
       { label: "Cartoons", href: "/cartoons" },
     ],
   },
+  
   {
     label: "Celebrities",
     href: "/people",
@@ -61,6 +62,12 @@ const NAV_GROUPS = [
       { label: "Celebrity Birthdays", href: "/people#birthdays" },
       { label: "Actors & Performers", href: "/people#actors" },
       { label: "Directors & Creators", href: "/people#filmmakers" },
+
+      // Academy Awards
+      { label: "🏆 Oscars 2026", href: "/collections/oscars" },
+      { label: "Oscar Winners", href: "/collections/oscars#headliners" },
+      { label: "Best Animation", href: "/collections/oscars#animation-international" },
+      { label: "Oscar Hall of Fame", href: "/collections/oscars#hall-of-fame" },
     ],
   },
   {
