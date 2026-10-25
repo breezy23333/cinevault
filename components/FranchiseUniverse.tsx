@@ -6,42 +6,20 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useMemo, useState } from "react";
 type Franchise = {
   name: string;
   image: string | null;
 };
 
-export default function FranchiseUniverse() {
-  const [franchises, setFranchises] = useState<Franchise[]>([]);
+export default function FranchiseUniverse({
+  franchises,
+}: {
+  franchises: Franchise[];
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-
-  useEffect(() => {
-    async function loadFranchises() {
-      try {
-        const response = await fetch("/api/franchises");
-
-        if (!response.ok) {
-          throw new Error("Unable to load franchises");
-        }
-
-        const data = await response.json();
-
-        setFranchises(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Failed to load franchises:", error);
-      }
-    }
-
-    loadFranchises();
-  }, []);
 
   function showNext() {
     if (!franchises.length) return;
@@ -325,11 +303,16 @@ export default function FranchiseUniverse() {
             ))}
           </div>
         </>
-      ) : (
-        <div className="flex h-44 items-center justify-center text-xs text-white/40 sm:h-64 sm:text-sm">
-          Loading franchises…
+            ) : (
+        <div className="flex h-44 items-center justify-center sm:h-64">
+          <Link
+            href="/movie"
+            className="font-bold text-yellow-400 hover:underline"
+          >
+            Browse movies →
+          </Link>
         </div>
-      )}
+      )}     
     </section>
   );
 }

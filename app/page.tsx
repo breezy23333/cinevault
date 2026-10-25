@@ -27,7 +27,7 @@ import type { NewsItem } from "@/components/NewsStrip";
 import CategoriesTray from "@/components/CategoriesTray";
 import nextDynamic from "next/dynamic";
 import { cache, Suspense, type ReactNode } from "react";
-import FranchiseUniverse from "@/components/FranchiseUniverse";
+import FranchiseUniverse from "@/components/FranchiseUniverseServer";
 import Link from "next/link";
 import HomeGamingSection from "@/components/HomeGamingSection";
 import type { Metadata } from "next";
