@@ -88,13 +88,104 @@ const GUIDES: Record<number, MovieGuide> = {
 export default function MovieEditorialGuide({
   id,
   title,
+  runtimeMinutes,
+  genres = [],
+  releaseDate,
+  country = "US",
+  availableOptions = [],
 }: {
   id: number;
   title: string;
+  runtimeMinutes?: number | null;
+  genres?: string[];
+  releaseDate?: string | null;
+  country?: string;
+  availableOptions?: string[];
 }) {
   const guide = GUIDES[id];
 
-  if (!guide) return null;
+  if (!guide) {
+    const runtime =
+      typeof runtimeMinutes === "number" && runtimeMinutes > 0
+        ? Math.round(runtimeMinutes)
+        : null;
+
+    const genreNames = [...new Set(genres.filter(Boolean))];
+    const options = [...new Set(availableOptions.filter(Boolean))];
+    const year = releaseDate?.slice(0, 4);
+
+    return (
+      <section
+        aria-labelledby={`movie-guide-${id}`}
+        className="mx-auto max-w-7xl px-4 py-12 md:px-6"
+      >
+        <div className="border border-yellow-400/20 bg-[#101722] p-6 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
+            CINRYVAN WATCHING GUIDE
+          </p>
+
+          <h2
+            id={`movie-guide-${id}`}
+            className="mt-3 text-2xl font-black text-white sm:text-4xl"
+          >
+            Before You Watch {title}
+          </h2>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            <article className="border border-white/10 bg-[#0b1019] p-5">
+              <h3 className="text-lg font-black text-yellow-400">
+                Plan your viewing time
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-white/70">
+                {runtime
+                  ? `${title} has a listed runtime of ${runtime} minutes. Allow extra time for breaks, advertisements or previews.`
+                  : `A confirmed runtime for ${title} is not available in our current data. Check the provider's listing before planning your viewing time.`}
+              </p>
+            </article>
+
+            <article className="border border-white/10 bg-[#0b1019] p-5">
+              <h3 className="text-lg font-black text-yellow-400">
+                Check your watch options
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-white/70">
+                {options.length > 0
+                  ? `Our current provider data lists ${options.join(", ")} options for ${title} in ${country}. Follow the provider links below to confirm availability, price and language options.`
+                  : `Our current data does not list a watch option for ${title} in ${country}. This does not prove the film is unavailable; check your local providers directly.`}
+              </p>
+
+              <a
+                href="#watch"
+                className="mt-4 inline-block text-sm font-bold text-yellow-400 hover:underline"
+              >
+                View watch options ↓
+              </a>
+            </article>
+          </div>
+
+          {(genreNames.length > 0 || year) && (
+            <p className="mt-5 text-sm leading-7 text-white/70">
+              {[
+                year ? `Listed release year: ${year}.` : "",
+                genreNames.length
+                  ? `Genres: ${genreNames.join(", ")}.`
+                  : "",
+                "For age suitability, check the classification and content advice in your country.",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            </p>
+          )}
+
+          <p className="mt-6 text-xs leading-6 text-white/45">
+            Based on catalogue and provider information, not an editorial
+            review. Availability can change.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

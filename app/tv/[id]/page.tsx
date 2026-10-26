@@ -861,6 +861,123 @@ export default async function TvPage({ params }: PageProps) {
           />
         )}
 
+            {/* CINRYVAN — GUIDE FOR EVERY SERIES */}
+      <section
+        aria-labelledby="tv-viewing-guide"
+        className="mx-auto max-w-7xl px-4 py-12 md:px-6"
+      >
+        <div className="border border-red-400/20 bg-[#101722] p-6 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-red-400">
+            CINRYVAN SERIES GUIDE
+          </p>
+
+          <h2
+            id="tv-viewing-guide"
+            className="mt-3 text-2xl font-black text-white sm:text-4xl"
+          >
+            Before You Start {title}
+          </h2>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            <article className="border border-white/10 bg-[#0b1019] p-5">
+              <h3 className="text-lg font-black text-red-300">
+                Seasons and viewing order
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-white/70">
+                {regularSeasons.length > 0
+                  ? `${title} has ${regularSeasons.length} numbered ${
+                      regularSeasons.length === 1 ? "season" : "seasons"
+                    } listed in our current catalogue.`
+                  : `Numbered season information for ${title} is not available in our current catalogue.`}
+                {" "}
+                Use the season archive to check the listed release order.
+                Specials and provider episode numbering may differ.
+              </p>
+
+              <a
+                href="#seasons"
+                className="mt-4 inline-block text-sm font-bold text-red-300 hover:underline"
+              >
+                Explore seasons ↓
+              </a>
+            </article>
+
+            <article className="border border-white/10 bg-[#0b1019] p-5">
+              <h3 className="text-lg font-black text-red-300">
+                Plan your viewing time
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-white/70">
+                {typeof bingeEpisodeMinutes === "number" &&
+                Number.isFinite(bingeEpisodeMinutes) &&
+                bingeEpisodeMinutes > 0
+                  ? `The viewing planner uses ${Math.round(
+                      bingeEpisodeMinutes
+                    )} minutes per episode, based on a listed episode runtime or the latest aired episode. Individual episodes can be shorter or longer.`
+                  : `We do not currently have a usable episode runtime for ${title}, so a viewing-time estimate is unavailable.`}
+              </p>
+
+              {bingeEpisodeCount > 0 && (
+                <p className="mt-3 text-sm leading-7 text-white/70">
+                  The catalogue count used by the planner is{" "}
+                  {bingeEpisodeCount} episodes. Listed episodes may include
+                  upcoming releases; this is not a count of episodes available
+                  on your streaming service.
+                </p>
+              )}
+            </article>
+
+            <article className="border border-white/10 bg-[#0b1019] p-5">
+              <h3 className="text-lg font-black text-red-300">
+                Check access in {country}
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-white/70">
+                {!providersData
+                  ? "Provider information could not be loaded for this request. Check your preferred streaming services directly or try again later."
+                  : [
+                      watchData?.flatrate,
+                      watchData?.free,
+                      watchData?.ads,
+                      watchData?.rent,
+                      watchData?.buy,
+                    ].some(
+                      (options) =>
+                        Array.isArray(options) && options.length > 0
+                    )
+                  ? `Provider options are listed below for ${title} in ${country}. Confirm which seasons are included, the price, subtitles and audio languages before subscribing or purchasing.`
+                  : `Our current provider data lists no watch options for ${title} in ${country}. This does not prove the series is unavailable; check local services directly.`}
+              </p>
+
+              <a
+                href="#watch"
+                className="mt-4 inline-block text-sm font-bold text-red-300 hover:underline"
+              >
+                View watch options ↓
+              </a>
+            </article>
+          </div>
+
+          {typeof details.status === "string" &&
+            details.status.trim() && (
+              <p className="mt-5 text-sm leading-7 text-white/70">
+                Listed series status:{" "}
+                <span className="font-bold text-white">
+                  {details.status}
+                </span>
+                . Check the broadcaster or streaming service for confirmed
+                release announcements.
+              </p>
+            )}
+
+          <p className="mt-6 text-xs leading-6 text-white/45">
+            Based on catalogue and regional provider information. Episode
+            counts, schedules and availability can change.
+          </p>
+        </div>
+      </section>    
+
       {/* BROADCAST 06 — WATCH */}
       <section id="watch" className="scroll-mt-28 mx-auto max-w-7xl px-4 py-16 md:px-6 lg:py-20">
         <BroadcastHeading

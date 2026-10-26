@@ -900,6 +900,17 @@ export default async function MoviePage({ params }: PageProps) {
       <MovieEditorialGuide
         id={Number(details.id)}
         title={details.title}
+        runtimeMinutes={details.runtime}
+        genres={genres.map((genre: { name: string }) => genre.name)}
+        releaseDate={details.release_date}
+        country={country}
+        availableOptions={[
+          ...(watchData?.flatrate?.length ? ["subscription"] : []),
+          ...(watchData?.free?.length ? ["free viewing"] : []),
+          ...(watchData?.ads?.length ? ["ad-supported viewing"] : []),
+          ...(watchData?.rent?.length ? ["rental"] : []),
+          ...(watchData?.buy?.length ? ["purchase"] : []),
+        ]}
       />
 
       {/* CHAPTER 05 — WATCH */}
