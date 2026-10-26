@@ -1,12 +1,11 @@
 import type { MetadataRoute } from "next";
-import { GAME_CATEGORY_SLUGS } from "@/lib/games";
+import { GAME_CATEGORY_SLUGS, getGames } from "@/lib/games";
 
 
 export const revalidate = 86400;
 
 const BASE_URL = "https://cinryvan.vercel.app";
 const TMDB_BASE = "https://api.themoviedb.org/3";
-const RAWG_BASE = "https://api.rawg.io/api";
 
 /*
  * Keep the sitemap intentionally small.
@@ -209,59 +208,71 @@ async function fetchTmdbIdsAcrossPages(
   return results.flat();
 }
 
+
 async function fetchGameIds(
-  pages = CATALOGUE_PAGES,
+  pages = CATALOGUE_PAGES
 ): Promise<number[]> {
-  const apiKey = process.env.RAWG_API_KEY;
-
-  // Game API entries remain optional when no key is configured.
-  if (!apiKey) return [];
-
-  const results = await Promise.all(
-    Array.from({ length: pages }, async (_, index) => {
-      const url = new URL(`${RAWG_BASE}/games`);
-
-      url.searchParams.set("key", apiKey);
-      url.searchParams.set("page", String(index + 1));
-      url.searchParams.set("page_size", "40");
-      url.searchParams.set("ordering", "-added");
-      url.searchParams.set("exclude_additions", "true");
-
-      const response = await fetch(url.toString(), {
-        headers: { Accept: "application/json" },
-        signal: AbortSignal.timeout(10000),
-        next: { revalidate: 86400 },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Sitemap RAWG request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!Array.isArray(data?.results) || data.results.length === 0) {
-        throw new Error("Sitemap RAWG returned an empty or invalid catalogue");
-      }
-
-      return data.results
-        .map((game: { id?: number }) => game.id)
-        .filter(
-          (id: number | undefined): id is number =>
-            typeof id === "number" &&
-            Number.isSafeInteger(id) &&
-            id > 0,
-        );
-    }),
+  const results = await Promise.allSettled(
+    Array.from({ length: pages }, (_, index) =>
+      getGames({
+        ordering: "-added",
+        page: index + 1,
+        page_size: 40,
+      })
+    )
   );
 
-  return results.flat();
+  const ids = results.flatMap((result) => {
+    if (result.status !== "fulfilled") {
+      console.error(
+        "[CINRYVAN Sitemap] IGDB request failed:",
+        result.reason
+      );
+      return [];
+    }
+
+    return result.value
+      .filter(
+        (game) =>
+          Number.isSafeInteger(game.id) &&
+          game.id > 0 &&
+          Boolean(game.name) &&
+          Boolean(game.background_image)
+      )
+      .map((game) => game.id);
+  });
+
+  return [...new Set(ids)];
 }
 
 function uniqueIds(ids: number[]) {
   return [...new Set(ids)];
 }
 
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const requests = await Promise.allSettled([
+    fetchTmdbIdsAcrossPages(
+      "/trending/movie/week?language=en-US"
+    ),
+    fetchTmdbIdsAcrossPages(
+      "/movie/popular?language=en-US"
+    ),
+    fetchTmdbIdsAcrossPages(
+      "/movie/top_rated?language=en-US"
+    ),
+    fetchTmdbIdsAcrossPages(
+      "/trending/tv/week?language=en-US"
+    ),
+    fetchTmdbIdsAcrossPages(
+      "/tv/popular?language=en-US"
+    ),
+    fetchTmdbIdsAcrossPages(
+      "/tv/top_rated?language=en-US"
+    ),
+    fetchGameIds(),
+  ]);
+
   const [
     trendingMovieIds,
     popularMovieIds,
@@ -270,27 +281,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     popularTvIds,
     topRatedTvIds,
     gameIdsFromApi,
-  ] = await Promise.all([
-    fetchTmdbIdsAcrossPages(
-      "/trending/movie/week?language=en-US",
-    ),
-    fetchTmdbIdsAcrossPages(
-      "/movie/popular?language=en-US",
-    ),
-    fetchTmdbIdsAcrossPages(
-      "/movie/top_rated?language=en-US",
-    ),
-    fetchTmdbIdsAcrossPages(
-      "/trending/tv/week?language=en-US",
-    ),
-    fetchTmdbIdsAcrossPages(
-      "/tv/popular?language=en-US",
-    ),
-    fetchTmdbIdsAcrossPages(
-      "/tv/top_rated?language=en-US",
-    ),
-    fetchGameIds(),
-  ]);
+  ] = requests.map((request) =>
+    request.status === "fulfilled" ? request.value : []
+  );
 
   const movieIds = uniqueIds([
     ...trendingMovieIds,

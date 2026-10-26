@@ -392,11 +392,36 @@ function pickUniquePlatformGame(
   return game;
 }
 
+
 export default async function GamesPage() {
-  const [browseData, gamesOnSale] = await Promise.all([
+  const [browseResult, dealsResult] = await Promise.allSettled([
     getGamingBrowseData(),
     getGamesOnSale(20),
   ]);
+
+  if (browseResult.status === "rejected") {
+    console.error(
+      "[CINRYVAN] Games catalogue failed:",
+      browseResult.reason
+    );
+
+    throw browseResult.reason;
+  }
+
+  if (dealsResult.status === "rejected") {
+    console.error(
+      "[CINRYVAN] Game deals unavailable:",
+      dealsResult.reason
+    );
+  }
+
+  const browseData = browseResult.value;
+
+  const gamesOnSale =
+    dealsResult.status === "fulfilled"
+      ? dealsResult.value
+      : [];
+
 
   const {
     popular,

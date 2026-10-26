@@ -922,7 +922,7 @@ async function InitialContent() {
 
   const trendingMoviesShelf = await Promise.all(
   trendingRaw
-    .filter((x: any) => x.media_type !== "tv")
+    .filter((x: any) => x.media_type === "movie")
     .slice(0, MAX_SHELF)
     .map(async (x: any) => {
       const m = toShelfMedia(x);
