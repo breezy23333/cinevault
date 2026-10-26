@@ -2,7 +2,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import CineImage from "@/components/CineImage";
 import UserRating from "@/components/UserRating";
@@ -10,7 +9,7 @@ import Comments from "@/components/Comments";
 import TrailerModal from "@/components/TrailerModal";
 import ContinueWatchingTracker from "@/components/ContinueWatchingTracker";
 import WatchlistButton from "@/components/WatchlistButton";
-import WatchOptions from "@/components/WatchOptions";
+import RegionalWatchOptions from "@/components/RegionalWatchOptions";
 import TVSeasons from "@/components/TVSeasons";
 import AwardsSection from "@/components/AwardsSection";
 import { fetchAwardsByImdbId } from "@/lib/awards";
@@ -197,16 +196,7 @@ export default async function TvPage({ params }: PageProps) {
   const providersData: any =
     providersResult.status === "fulfilled" ? providersResult.value : null;
 
-  const requestHeaders = await headers();
-  const detectedCountry = requestHeaders
-    .get("x-vercel-ip-country")
-    ?.trim()
-    .toUpperCase();
-  const country =
-    detectedCountry && /^[A-Z]{2}$/.test(detectedCountry)
-      ? detectedCountry
-      : "US";
-  const watchData = providersData?.results?.[country] ?? null;
+ 
 
   const title = details.name || details.original_name || "Untitled";
   const backdrop =
@@ -930,24 +920,14 @@ export default async function TvPage({ params }: PageProps) {
 
             <article className="border border-white/10 bg-[#0b1019] p-5">
               <h3 className="text-lg font-black text-red-300">
-                Check access in {country}
+                Check regional streaming access
               </h3>
 
               <p className="mt-3 text-sm leading-7 text-white/70">
-                {!providersData
-                  ? "Provider information could not be loaded for this request. Check your preferred streaming services directly or try again later."
-                  : [
-                      watchData?.flatrate,
-                      watchData?.free,
-                      watchData?.ads,
-                      watchData?.rent,
-                      watchData?.buy,
-                    ].some(
-                      (options) =>
-                        Array.isArray(options) && options.length > 0
-                    )
-                  ? `Provider options are listed below for ${title} in ${country}. Confirm which seasons are included, the price, subtitles and audio languages before subscribing or purchasing.`
-                  : `Our current provider data lists no watch options for ${title} in ${country}. This does not prove the series is unavailable; check local services directly.`}
+                Streaming availability differs between countries.
+                Use the country selector in the Where to Watch section
+                to explore regional streaming, rental and purchase options.
+                Confirm availability directly with each provider.
               </p>
 
               <a
@@ -984,10 +964,13 @@ export default async function TvPage({ params }: PageProps) {
           number="06"
           eyebrow="Now available"
           title="Where to watch"
-          text={`Official streaming, rental and purchase information detected for ${country}.`}
+          text="Explore regional streaming, rental and purchase information."
         />
         <div className="mt-9 border border-white/10 bg-[#101722] p-5 sm:p-7">
-          <WatchOptions title={title} watchData={watchData} country={country} />
+          <RegionalWatchOptions
+            title={title}
+            regions={providersData?.results ?? {}}
+          />
         </div>
       </section>
 
