@@ -33,7 +33,7 @@ export async function fetchAwardsByImdbId(
 ): Promise<AwardsData | null> {
   if (!imdbId) return null;
 
-  const apiKey = process.env.OMDB_API_KEY;
+  const apiKey = process.env.OMDB_API_KEY?.trim();
 
   if (!apiKey) {
     console.warn("OMDB_API_KEY is missing");
@@ -54,15 +54,19 @@ export async function fetchAwardsByImdbId(
       },
     });
 
-    if (!response.ok) {
-      console.error(`OMDb request failed: ${response.status}`);
-      return null;
-    }
+    const data: OmdbResponse | null = await response
+      .json()
+      .catch(() => null);
 
-    const data: OmdbResponse = await response.json();
+    if (!response.ok || !data || data.Response === "False") {
+      const message = data?.Error || "No readable OMDb error message";
 
-    if (data.Response === "False") {
-      console.error("OMDb error:", data.Error);
+      console.error("OMDb request failed:", {
+        status: response.status,
+        imdbId,
+        error: message.replaceAll(apiKey, "[REDACTED]"),
+      });
+
       return null;
     }
 
