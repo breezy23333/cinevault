@@ -33,6 +33,9 @@ export async function fetchAwardsByImdbId(
 ): Promise<AwardsData | null> {
   if (!imdbId) return null;
 
+  // Temporarily pause OMDb requests while its quota is exhausted.
+  if (process.env.OMDB_ENABLED !== "true") return null;
+
   const apiKey = process.env.OMDB_API_KEY?.trim();
 
   if (!apiKey) {
