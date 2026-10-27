@@ -78,7 +78,12 @@ export async function getGameTrailer(
     };
   }
 
-  const apiKey = process.env.YOUTUBE_API_KEY;
+  // Keep IGDB trailers working; pause optional YouTube searches.
+  if (process.env.YOUTUBE_SEARCH_ENABLED !== "true") {
+    return null;
+  }
+
+  const apiKey = process.env.YOUTUBE_API_KEY?.trim();
 
   if (!gameName.trim()) {
     return null;

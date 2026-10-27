@@ -577,10 +577,19 @@ export async function getIgdbGameDetails(
       slug: item.slug || slugify(item.name),
     }));
 
+    const validVideos = (source.videos ?? [])
+      .map((video) => ({
+        ...video,
+        video_id: (video.video_id ?? "").trim(),
+      }))
+      .filter((video) =>
+        /^[A-Za-z0-9_-]{11}$/.test(video.video_id),
+      );
+
     const trailer =
-    source.videos?.find((video) =>
-        video.name.toLowerCase().includes("trailer"),
-    ) || source.videos?.[0];
+      validVideos.find((video) =>
+        (video.name ?? "").toLowerCase().includes("trailer"),
+      ) ?? validVideos[0];
 
     return {
       ...game,
