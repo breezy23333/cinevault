@@ -143,7 +143,21 @@ function removeDuplicates(items: RealNewsItem[]) {
 
 async function loadFeed(feed: FeedConfig): Promise<RealNewsItem[]> {
   try {
-    const result = await parser.parseURL(feed.url);
+    const response = await fetch(feed.url, {
+      headers: {
+        Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml",
+        "User-Agent": "Mozilla/5.0 (compatible; CINRYVAN/1.0)",
+      },
+      signal: AbortSignal.timeout(8000),
+      next: { revalidate: 900 },
+    });
+
+    if (!response.ok) {
+      throw new Error(`RSS request failed: HTTP ${response.status}`);
+    }
+
+    const xml = await response.text();
+    const result = await parser.parseString(xml);
     return (result.items || [])
       .map((item: any) => ({
         title: cleanTitle(item.title || ""),
