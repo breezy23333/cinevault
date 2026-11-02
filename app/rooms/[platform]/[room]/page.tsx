@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/userSession";
 
 import MovieRoom from "@/components/rooms/MovieRoom";
 import TVRoom from "@/components/rooms/TvRoom";
@@ -10,6 +9,8 @@ import CartoonRoom from "@/components/rooms/CartoonRoom";
 import SpoilerRoom from "@/components/rooms/SpoilerRoom";
 import NewsRoom from "@/components/rooms/NewsRoom";
 import GamingRoom from "@/components/rooms/GamingRoom";
+
+export const runtime = "nodejs";
 
 export const metadata: Metadata = {
   title: "CINRYVAN Room | Chat",
@@ -27,7 +28,7 @@ type PageProps = {
   }>;
 
   searchParams: Promise<{
-    channel?: string;
+    channel?: string | string[];
   }>;
 };
 
@@ -52,46 +53,34 @@ export default async function RoomPage({
     notFound();
   }
 
-  const cookieStore = await cookies();
-
-  const userId =
-    cookieStore.get("cinryvan_user_id")?.value ||
-    cookieStore.get("cinryvan_user")?.value;
-
-  if (!userId) {
-    redirect("/login");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-    },
-  });
+  const user = await getSessionUser();
 
   if (!user) {
     redirect("/login");
   }
 
+  // Reject repeated channel parameters.
+  if (Array.isArray(channel)) {
+    notFound();
+  }
+
+  const activeChannel =
+    channel?.trim().toLowerCase() || "general";
+
+  if (!/^[a-z0-9-]{1,50}$/.test(activeChannel)) {
+    notFound();
+  }
+
   const username = (
-    user.name ||
-    user.email?.split("@")[0] ||
+    user.name?.trim() ||
+    user.email.split("@")[0] ||
     "CINRYVAN Member"
-  )
-    .trim()
-    .slice(0, 40);
+  ).slice(0, 40);
 
   const roomProps = {
     userId: user.id,
     username,
-    activeChannel:
-      typeof channel === "string" && channel.trim()
-        ? channel.trim()
-        : "general",
+    activeChannel,
   };
 
   switch (room) {

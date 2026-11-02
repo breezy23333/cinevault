@@ -1,17 +1,35 @@
 import { NextResponse } from "next/server";
+import { destroyUserSession } from "@/lib/userSession";
+
+export const runtime = "nodejs";
 
 export async function POST() {
-  const res = NextResponse.json({ success: true });
+  try {
+    const response = NextResponse.json(
+      { success: true },
+      {
+        headers: {
+          "Cache-Control": "private, no-store",
+        },
+      }
+    );
 
-  res.cookies.set("cinryvan_user", "", {
-    path: "/",
-    maxAge: 0,
-  });
+    // Revoke the database session and clear both
+    // the new session cookie and the old user-ID cookies.
+    await destroyUserSession(response);
 
-  res.cookies.set("cinryvan_user_id", "", {
-    path: "/",
-    maxAge: 0,
-  });
+    return response;
+  } catch (error: unknown) {
+    console.error("LOGOUT ERROR:", error);
 
-  return res;
+    return NextResponse.json(
+      { error: "Unable to sign out. Please try again." },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "private, no-store",
+        },
+      }
+    );
+  }
 }

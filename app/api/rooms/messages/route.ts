@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSessionUser } from "@/lib/userSession";
 
 export const runtime = "nodejs";
+
+const MAX_BODY_BYTES = 2048;
+const MESSAGE_COOLDOWN_MS = 1500;
+
+const MESSAGE_FIELDS =
+  "id, room, user_id, username, avatar_url, message, created_at";
 
 const ALLOWED_ROOM_TYPES = new Set([
   "movie",
@@ -13,6 +19,15 @@ const ALLOWED_ROOM_TYPES = new Set([
   "news",
   "gaming",
 ]);
+
+function json(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      "Cache-Control": "private, no-store",
+    },
+  });
+}
 
 function isAllowedRoom(room: string) {
   const parts = room.split(":");
@@ -28,162 +43,171 @@ function isAllowedRoom(room: string) {
   );
 }
 
-function getUserId(req: NextRequest) {
-  return (
-    req.cookies.get("cinryvan_user_id")?.value ||
-    req.cookies.get("cinryvan_user")?.value ||
-    null
-  );
-}
-
 export async function GET(req: NextRequest) {
   try {
-    const userId = getUserId(req);
+    const user = await getSessionUser();
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "You must be signed in." },
-        { status: 401 },
-      );
+    if (!user) {
+      return json({ error: "You must be signed in." }, 401);
     }
 
-    const room = String(
-      req.nextUrl.searchParams.get("room") || "",
-    )
+    const room = (req.nextUrl.searchParams.get("room") || "")
       .trim()
       .toLowerCase();
 
     if (!isAllowedRoom(room)) {
-      return NextResponse.json(
-        { error: "Invalid chat room." },
-        { status: 400 },
-      );
+      return json({ error: "Invalid chat room." }, 400);
     }
 
     const { data, error } = await supabaseAdmin
       .from("room_messages")
-      .select(
-        "id, room, user_id, username, avatar_url, message, created_at",
-      )
+      .select(MESSAGE_FIELDS)
       .eq("room", room)
       .order("created_at", { ascending: false })
       .limit(100);
 
     if (error) {
       console.error("SUPABASE CHAT LOAD ERROR:", error);
-
-      return NextResponse.json(
-        { error: "Messages could not be loaded." },
-        { status: 500 },
-      );
+      return json({ error: "Messages could not be loaded." }, 503);
     }
 
-    return NextResponse.json({
+    return json({
       messages: [...(data || [])].reverse(),
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("CHAT LOAD API ERROR:", error);
-
-    return NextResponse.json(
-      { error: "Unable to load messages." },
-      { status: 500 },
-    );
+    return json({ error: "Unable to load messages." }, 503);
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const contentLength = Number(
-      req.headers.get("content-length") || 0,
+      req.headers.get("content-length") || 0
     );
 
-    if (contentLength > 2048) {
-      return NextResponse.json(
-        { error: "Message request is too large." },
-        { status: 413 },
+    if (contentLength > MAX_BODY_BYTES) {
+      return json({ error: "Message request is too large." }, 413);
+    }
+
+    const user = await getSessionUser();
+
+    if (!user) {
+      return json({ error: "You must be signed in." }, 401);
+    }
+
+    // Read a bounded body even when Content-Length is missing.
+    if (!req.body) {
+      return json({ error: "Missing message request." }, 400);
+    }
+
+    const reader = req.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        totalBytes += value.byteLength;
+
+        if (totalBytes > MAX_BODY_BYTES) {
+          await reader.cancel();
+          return json(
+            { error: "Message request is too large." },
+            413
+          );
+        }
+
+        chunks.push(value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    let body: unknown;
+
+    try {
+      const text = Buffer.concat(chunks).toString("utf8");
+      body = JSON.parse(text);
+    } catch {
+      return json({ error: "Invalid JSON request." }, 400);
+    }
+
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      Array.isArray(body)
+    ) {
+      return json({ error: "Invalid message request." }, 400);
+    }
+
+    const input = body as Record<string, unknown>;
+
+    if (
+      typeof input.room !== "string" ||
+      typeof input.message !== "string"
+    ) {
+      return json(
+        { error: "Room and message must be text." },
+        400
       );
     }
 
-    const userId = getUserId(req);
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "You must be signed in." },
-        { status: 401 },
-      );
-    }
-
-    const body = await req.json();
-
-    const room = String(body?.room || "")
-      .trim()
-      .toLowerCase();
-
-    const message = String(body?.message || "").trim();
+    const room = input.room.trim().toLowerCase();
+    const message = input.message.trim();
 
     if (!isAllowedRoom(room)) {
-      return NextResponse.json(
-        { error: "Invalid chat room." },
-        { status: 400 },
-      );
+      return json({ error: "Invalid chat room." }, 400);
     }
 
     if (message.length < 1 || message.length > 500) {
-      return NextResponse.json(
+      return json(
         {
-          error:
-            "Messages must contain between 1 and 500 characters.",
+          error: "Messages must contain between 1 and 500 characters.",
         },
-        { status: 400 },
+        400
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
+    const { data: lastMessage, error: cooldownError } =
+      await supabaseAdmin
+        .from("room_messages")
+        .select("created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "Your login session is invalid." },
-        { status: 401 },
+    if (cooldownError) {
+      console.error("CHAT COOLDOWN ERROR:", cooldownError);
+      return json(
+        { error: "Unable to send the message. Please try again." },
+        503
       );
     }
-
-    const { data: lastMessage } = await supabaseAdmin
-      .from("room_messages")
-      .select("created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
 
     if (
       lastMessage?.created_at &&
-      Date.now() -
-        new Date(lastMessage.created_at).getTime() <
-        1500
+      Date.now() - new Date(lastMessage.created_at).getTime() <
+        MESSAGE_COOLDOWN_MS
     ) {
-      return NextResponse.json(
-        {
-          error:
-            "Please wait before sending another message.",
-        },
-        { status: 429 },
+      const response = json(
+        { error: "Please wait before sending another message." },
+        429
       );
+
+      response.headers.set("Retry-After", "2");
+      return response;
     }
 
     const username = (
-      user.name ||
-      user.email?.split("@")[0] ||
+      user.name?.trim() ||
+      user.email.split("@")[0] ||
       "CINRYVAN Member"
-    )
-      .trim()
-      .slice(0, 40);
+    ).slice(0, 40);
 
     const { data, error } = await supabaseAdmin
       .from("room_messages")
@@ -194,30 +218,17 @@ export async function POST(req: NextRequest) {
         avatar_url: null,
         message,
       })
-      .select(
-        "id, room, user_id, username, avatar_url, message, created_at",
-      )
+      .select(MESSAGE_FIELDS)
       .single();
 
     if (error) {
       console.error("SUPABASE CHAT INSERT ERROR:", error);
-
-      return NextResponse.json(
-        { error: "The message could not be saved." },
-        { status: 500 },
-      );
+      return json({ error: "The message could not be saved." }, 503);
     }
 
-    return NextResponse.json(
-      { message: data },
-      { status: 201 },
-    );
-  } catch (error) {
+    return json({ message: data }, 201);
+  } catch (error: unknown) {
     console.error("CHAT API ERROR:", error);
-
-    return NextResponse.json(
-      { error: "Unable to send the message." },
-      { status: 500 },
-    );
+    return json({ error: "Unable to send the message." }, 503);
   }
 }

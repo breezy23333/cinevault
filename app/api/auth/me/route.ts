@@ -1,26 +1,33 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/userSession";
+
+export const runtime = "nodejs";
 
 export async function GET() {
-  const cookieStore = await cookies();
+  try {
+    const sessionUser = await getSessionUser();
 
-  const userId =
-    cookieStore.get("cinryvan_user")?.value ||
-    cookieStore.get("cinryvan_user_id")?.value;
+    const user = sessionUser
+      ? {
+          id: sessionUser.id,
+          name: sessionUser.name,
+          email: sessionUser.email,
+        }
+      : null;
 
-  if (!userId) {
-    return NextResponse.json({ user: null });
+    return NextResponse.json(
+      { user },
+      { headers: { "Cache-Control": "private, no-store" } }
+    );
+  } catch (error: unknown) {
+    console.error("AUTH ME ERROR:", error);
+
+    return NextResponse.json(
+      { error: "Unable to check your session" },
+      {
+        status: 503,
+        headers: { "Cache-Control": "private, no-store" },
+      }
+    );
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-    },
-  });
-
-  return NextResponse.json({ user });
 }

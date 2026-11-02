@@ -1,53 +1,28 @@
-
 import { NextResponse, type NextRequest } from "next/server";
+import { getSessionUser } from "@/lib/userSession";
 
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-
-  const userId =
-    req.cookies.get("cinryvan_user")?.value ||
-    req.cookies.get("cinryvan_user_id")?.value;
-
-  const protectedRoutes = [
-    "/watchlist",
-    "/notifications",
-    "/rooms",
-  ];
-
-  const authRoutes = ["/login", "/signup"];
 
   const matchesRoute = (route: string) =>
     path === route || path.startsWith(`${route}/`);
 
-  const isProtected = protectedRoutes.some(matchesRoute);
-  const isAuthRoute = authRoutes.some(matchesRoute);
-
-  if (isProtected && !userId) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
-
-  if (isAuthRoute && userId) {
-    return NextResponse.redirect(new URL("/watchlist", req.url));
-  }
-
   const isAdminPath =
-    matchesRoute("/admin") ||
-    matchesRoute("/api/admin");
+    matchesRoute("/admin") || matchesRoute("/api/admin");
 
   if (isAdminPath) {
     const adminKey = process.env.ADMIN_KEY;
 
     if (!adminKey) {
-      return new NextResponse(
-        "Admin access is not configured.",
-        { status: 503 }
-      );
+      return new NextResponse("Admin access is not configured.", {
+        status: 503,
+        headers: { "Cache-Control": "private, no-store" },
+      });
     }
 
     const urlKey = req.nextUrl.searchParams.get("key");
     const cookieKey = req.cookies.get("admin_key")?.value;
 
-    // Preserve the existing admin login flow.
     if (
       req.method === "GET" &&
       matchesRoute("/admin") &&
@@ -56,26 +31,83 @@ export function proxy(req: NextRequest) {
       const redirectUrl = req.nextUrl.clone();
       redirectUrl.searchParams.delete("key");
 
-      const res = NextResponse.redirect(redirectUrl);
+      const response = NextResponse.redirect(redirectUrl);
 
-      res.cookies.set("admin_key", adminKey, {
+      response.cookies.set("admin_key", adminKey, {
         httpOnly: true,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
         path: "/",
       });
 
-      return res;
+      response.headers.set("Cache-Control", "private, no-store");
+      response.headers.set("Referrer-Policy", "no-referrer");
+
+      return response;
     }
 
     if (cookieKey !== adminKey) {
       return new NextResponse("Unauthorized", {
         status: 401,
+        headers: { "Cache-Control": "private, no-store" },
       });
     }
+
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  const protectedRoutes = [
+    "/watchlist",
+    "/notifications",
+    "/rooms",
+    "/profile",
+    "/settings",
+  ];
+
+  const authRoutes = ["/login", "/signup"];
+
+  const isProtected = protectedRoutes.some(matchesRoute);
+  const isAuthRoute = authRoutes.some(matchesRoute);
+
+  if (!isProtected && !isAuthRoute) {
+    return NextResponse.next();
+  }
+
+  try {
+    const user = await getSessionUser();
+
+    if (isProtected && !user) {
+      const response = NextResponse.redirect(
+        new URL("/login", req.url)
+      );
+
+      response.headers.set("Cache-Control", "private, no-store");
+      return response;
+    }
+
+    if (isAuthRoute && user) {
+      const response = NextResponse.redirect(
+        new URL("/watchlist", req.url)
+      );
+
+      response.headers.set("Cache-Control", "private, no-store");
+      return response;
+    }
+
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  } catch (error: unknown) {
+    console.error("SESSION CHECK ERROR:", error);
+
+    return new NextResponse(
+      "Unable to verify your session. Please try again.",
+      {
+        status: 503,
+        headers: { "Cache-Control": "private, no-store" },
+      }
+    );
+  }
 }
 
 export const config = {
@@ -85,6 +117,8 @@ export const config = {
     "/watchlist/:path*",
     "/notifications/:path*",
     "/rooms/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
     "/login",
     "/signup",
   ],
