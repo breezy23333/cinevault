@@ -1,21 +1,43 @@
-// lib/rateLimit.ts
-const buckets = new Map<string, { tokens: number; ts: number }>();
-const WINDOW_MS = 60_000;     // 1 min window
-const MAX_TOKENS = 5;         // 5 requests / min / IP
-const REFILL_RATE = MAX_TOKENS / WINDOW_MS; // tokens per ms
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 
-export function rateLimit(ip: string | undefined) {
-  const key = ip || "unknown";
-  const now = Date.now();
-  const b = buckets.get(key) || { tokens: MAX_TOKENS, ts: now };
-  const delta = now - b.ts;
-  b.tokens = Math.min(MAX_TOKENS, b.tokens + delta * REFILL_RATE);
-  b.ts = now;
-  if (b.tokens < 1) {
-    buckets.set(key, b);
-    return { allowed: false, remaining: 0 };
+let contactLimiter: Ratelimit | undefined;
+
+function getContactLimiter() {
+  if (!contactLimiter) {
+    contactLimiter = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(5, "60 s"),
+      prefix: "cinryvan:contact:v1",
+      analytics: false,
+      timeout: 3000,
+    });
   }
-  b.tokens -= 1;
-  buckets.set(key, b);
-  return { allowed: true, remaining: b.tokens };
+
+  return contactLimiter;
+}
+
+export async function rateLimit(ip: string | undefined) {
+  if (!ip) {
+    throw new Error("Client IP unavailable");
+  }
+
+  const result = await getContactLimiter().limit(ip);
+
+  // Upstash can return success on timeout.
+  // Do not allow a contact submission without a completed check.
+  if (result.reason === "timeout") {
+    throw new Error("Rate limiter unavailable");
+  }
+
+  await result.pending;
+
+  return {
+    allowed: result.success,
+    remaining: result.remaining,
+    retryAfter: Math.max(
+      1,
+      Math.ceil((result.reset - Date.now()) / 1000)
+    ),
+  };
 }
