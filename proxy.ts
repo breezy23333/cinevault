@@ -1,7 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionUser } from "@/lib/userSession";
+import { protectRequest } from "@/lib/requestProtection";
 
 export async function proxy(req: NextRequest) {
+    const protectionResponse = await protectRequest(req);
+  if (protectionResponse) return protectionResponse;
   const path = req.nextUrl.pathname;
 
   const matchesRoute = (route: string) =>
@@ -112,14 +115,6 @@ export async function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/api/admin/:path*",
-    "/watchlist/:path*",
-    "/notifications/:path*",
-    "/rooms/:path*",
-    "/profile/:path*",
-    "/settings/:path*",
-    "/login",
-    "/signup",
+    "/((?!_next/static/|_next/webpack-hmr|_vercel/insights/|_vercel/speed-insights/|favicon\\.ico$|icon\\.png$|manifest\\.webmanifest$).*)",
   ],
 };
