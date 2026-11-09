@@ -53,6 +53,11 @@ export async function proxy(req: NextRequest) {
   // verification requests.
   const protectionResponse = await protectRequest(req);
   if (protectionResponse) return protectionResponse;
+  // PayPal cannot complete browser-based human verification.
+  // This exact route verifies PayPal's signature itself.
+  if (path === "/api/paypal/webhook" && req.method === "POST") {
+    return continueRequest();
+  }
 
   // Visitors must be able to load and complete verification.
   const isVerificationRequest =
