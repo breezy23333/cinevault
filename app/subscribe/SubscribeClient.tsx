@@ -38,61 +38,68 @@ export default function SubscribeClient({
   const [error, setError] = useState("");
 
   async function startCheckout() {
-    if (busy || !sandboxEnabled || checkout === "returned") return;
+  if (busy || !sandboxEnabled || checkout === "returned") return;
 
-    setBusy(true);
-    setError("");
+  setBusy(true);
+  setError("");
 
-    try {
-      const response = await fetch("/api/paypal/checkout", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-      });
+  try {
+    const response = await fetch("/api/paypal/checkout", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.status === 401) {
-        window.location.assign("/login");
-        return;
-      }
-
-      if (data.code === "HUMAN_VERIFICATION_REQUIRED") {
-        window.location.assign("/verify-human?next=%2Fsubscribe");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : "Unable to start checkout."
-        );
-      }
-
-      if (typeof data.approvalUrl !== "string") {
-        throw new Error("PayPal approval link is missing.");
-      }
-
-      const approvalUrl = new URL(data.approvalUrl);
-
-      if (
-        approvalUrl.protocol !== "https:" ||
-        approvalUrl.hostname !== "www.sandbox.paypal.com"
-      ) {
-        throw new Error("Unexpected checkout URL.");
-      }
-
-      window.location.assign(approvalUrl.href);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to start checkout. Please try again."
-      );
-      setBusy(false);
+    if (response.status === 401) {
+      window.location.assign("/login");
+      return;
     }
+
+    if (data.code === "HUMAN_VERIFICATION_REQUIRED") {
+      window.location.assign("/verify-human?next=%2Fsubscribe");
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        typeof data.error === "string"
+          ? data.error
+          : "Unable to start checkout."
+      );
+    }
+
+    if (data.membershipActive === true) {
+      window.location.assign("/");
+      return;
+    }
+
+    if (typeof data.approvalUrl !== "string") {
+      throw new Error("PayPal approval link is missing.");
+    }
+
+    const approvalUrl = new URL(data.approvalUrl);
+
+    if (
+      approvalUrl.protocol !== "https:" ||
+      approvalUrl.hostname !== "www.sandbox.paypal.com" ||
+      approvalUrl.username ||
+      approvalUrl.password
+    ) {
+      throw new Error("Unexpected checkout URL.");
+    }
+
+    window.location.assign(approvalUrl.href);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Unable to start checkout. Please try again."
+    );
+    setBusy(false);
   }
+}
 
   return (
     <main className="relative isolate min-h-[85svh] overflow-hidden bg-[#08090b] px-5 py-16 text-white sm:px-8 lg:py-24">

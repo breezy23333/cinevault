@@ -245,10 +245,171 @@ export async function POST(req: Request) {
     }
 
     if (remote.status !== "APPROVAL_PENDING") {
+      // Require an exact match before importing payment records.
+      if (
+        remote.id !== subscription.providerSubscriptionId ||
+        remote.plan_id !== planId ||
+        remote.custom_id !== subscription.id ||
+        subscription.currency !== "USD" ||
+        subscription.amountMinor !== 100
+      ) {
+        throw new Error("PayPal subscription ownership mismatch");
+      }
+
+      const endTime = new Date();
+      const startTime = new Date(
+        endTime.getTime() - 30 * 24 * 60 * 60 * 1000
+      );
+
+      const query = new URLSearchParams({
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+      });
+
+      const history = await paypalRequest<{
+        transactions?: Array<{
+          id?: string;
+          status?: string;
+          time?: string;
+          amount_with_breakdown?: {
+            gross_amount?: {
+              currency_code?: string;
+              value?: string;
+            };
+          };
+        }>;
+      }>(
+        `/v1/billing/subscriptions/${encodeURIComponent(
+          remote.id
+        )}/transactions?${query.toString()}`
+      );
+
+      function monthAfter(paidAt: Date) {
+        const result = new Date(paidAt);
+        const day = result.getUTCDate();
+
+        result.setUTCDate(1);
+        result.setUTCMonth(result.getUTCMonth() + 1);
+
+        const lastDay = new Date(
+          Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0)
+        ).getUTCDate();
+
+        result.setUTCDate(Math.min(day, lastDay));
+        return result;
+      }
+
+      const hasAccess = await prisma.$transaction(
+        async (tx) => {
+          // Use the same subscription lock as the webhook handler.
+          await tx.$queryRaw`
+            SELECT "id"
+            FROM "PaidSubscription"
+            WHERE "id" = ${subscription.id}
+            FOR UPDATE
+          `;
+
+          for (const payment of history.transactions ?? []) {
+            const status =
+              payment.status === "COMPLETED"
+                ? "completed"
+                : ["REFUNDED", "PARTIALLY_REFUNDED"].includes(
+                      payment.status ?? ""
+                    )
+                  ? "refunded"
+                  : null;
+
+            if (!status) continue;
+
+            const amount = payment.amount_with_breakdown?.gross_amount;
+            const paidAt = new Date(payment.time ?? "");
+
+            if (
+              typeof payment.id !== "string" ||
+              !/^[A-Z0-9]+$/.test(payment.id) ||
+              !Number.isFinite(paidAt.getTime()) ||
+              paidAt.getTime() > Date.now() + 5 * 60 * 1000 ||
+              amount?.currency_code !== "USD" ||
+              !/^1(?:\.0{1,2})?$/.test(amount?.value ?? "")
+            ) {
+              throw new Error("Unexpected payment details");
+            }
+
+            const paymentKey = {
+              provider,
+              providerTransactionId: payment.id,
+            };
+
+            const existing = await tx.subscriptionPayment.findUnique({
+              where: { provider_providerTransactionId: paymentKey },
+            });
+
+            if (
+              existing &&
+              existing.subscriptionId !== subscription.id
+            ) {
+              throw new Error("Payment ownership mismatch");
+            }
+
+            // Never restore a payment already refunded or reversed.
+            const finalStatus =
+              existing &&
+              ["refunded", "reversed"].includes(existing.status)
+                ? existing.status
+                : status;
+
+            await tx.subscriptionPayment.upsert({
+              where: { provider_providerTransactionId: paymentKey },
+              create: {
+                ...paymentKey,
+                subscriptionId: subscription.id,
+                currency: "USD",
+                amountMinor: 100,
+                status: finalStatus,
+                paidAt,
+              },
+              update: {
+                status: finalStatus,
+              },
+            });
+          }
+
+          const latestPaid = await tx.subscriptionPayment.findFirst({
+            where: {
+              subscriptionId: subscription.id,
+              provider,
+              status: "completed",
+            },
+            orderBy: { paidAt: "desc" },
+          });
+
+          const paidThrough = latestPaid
+            ? monthAfter(latestPaid.paidAt)
+            : null;
+
+          // Leave subscription lifecycle status to the webhook.
+          // Access depends on verified payment records and paidThrough.
+          await tx.paidSubscription.update({
+            where: { id: subscription.id },
+            data: {
+              paidThrough,
+              lastPaymentAt: latestPaid?.paidAt ?? null,
+            },
+          });
+
+          return paidThrough !== null && paidThrough.getTime() > Date.now();
+        },
+        { maxWait: 10_000, timeout: 20_000 }
+      );
+
+      if (hasAccess) {
+        return json({ membershipActive: true });
+      }
+
       return json(
         {
           error:
-            "This checkout has already progressed. Check payment status before retrying.",
+            "Your subscription exists, but no current completed payment was confirmed. Please contact support.",
         },
         409
       );
