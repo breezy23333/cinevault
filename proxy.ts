@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionUser } from "@/lib/userSession";
 import { protectRequest } from "@/lib/requestProtection";
+import { hasPaidMembership } from "@/lib/membership";
 import {
   HUMAN_COOKIE,
   isHumanTokenValid,
@@ -179,46 +180,129 @@ export async function proxy(req: NextRequest) {
     return continueRequest();
   }
 
-  // Human verification does not replace account authentication.
-  const protectedRoutes = [
-    "/watchlist",
-    "/notifications",
-    "/rooms",
-    "/profile",
-    "/settings",
-  ];
+   // These pages remain available without a subscription.
+  const publicPages = new Set([
+    "/login",
+    "/signup",
+    "/privacy",
+    "/terms",
+    "/support",
+    "/contact",
+  ]);
 
-  const authRoutes = ["/login", "/signup"];
+  // Exact authentication/support endpoints.
+  // Their route handlers retain their own validation.
+  const publicApiRoutes = new Set([
+    "/api/auth/login",
+    "/api/auth/signup",
+    "/api/auth/logout",
+    "/api/auth/me",
+    "/api/contact",
+  ]);
 
-  const isProtected = protectedRoutes.some(matchesRoute);
-  const isAuthRoute = authRoutes.some(matchesRoute);
-
-  if (!isProtected && !isAuthRoute) {
+  if (
+    (isRead && publicPages.has(path)) ||
+    publicApiRoutes.has(path)
+  ) {
     return continueRequest();
+  }
+
+  const isApi = matchesRoute("/api");
+
+  const denyAccess = (
+    status: number,
+    code: string,
+    message: string,
+    destination: string
+  ) => {
+    if (isApi || !isRead) {
+      return noStore(
+        NextResponse.json(
+          {
+            ok: false,
+            error: message,
+            code,
+            redirectUrl: destination,
+          },
+          { status }
+        )
+      );
+    }
+
+    return noStore(
+      NextResponse.redirect(new URL(destination, req.url))
+    );
+  };
+
+  // Reject missing/malformed session cookies before querying the DB.
+  // A valid-looking cookie must still pass getSessionUser().
+  const sessionToken = req.cookies.get("cinryvan_session")?.value;
+
+  if (!sessionToken || !/^[a-f0-9]{64}$/i.test(sessionToken)) {
+    return denyAccess(
+      401,
+      "AUTHENTICATION_REQUIRED",
+      "Please sign in to continue.",
+      "/login"
+    );
   }
 
   try {
     const user = await getSessionUser();
 
-    if (isProtected && !user) {
-      return noStore(
-        NextResponse.redirect(new URL("/login", req.url))
+    if (!user) {
+      return denyAccess(
+        401,
+        "AUTHENTICATION_REQUIRED",
+        "Please sign in to continue.",
+        "/login"
       );
     }
 
-    if (isAuthRoute && user) {
-      return noStore(
-        NextResponse.redirect(new URL("/watchlist", req.url))
+    // Signed-in users must be able to subscribe and manage
+    // their account before purchasing membership.
+    const accountPages = new Set([
+      "/subscribe",
+      "/profile",
+      "/settings",
+    ]);
+
+    if (isRead && accountPages.has(path)) {
+      return continueRequest();
+    }
+
+    if (
+      path === "/api/paypal/checkout" &&
+      req.method === "POST"
+    ) {
+      return continueRequest();
+    }
+
+    // All remaining matched content pages and APIs require payment.
+    const hasMembership = await hasPaidMembership(user.id);
+
+    if (!hasMembership) {
+      return denyAccess(
+        403,
+        "SUBSCRIPTION_REQUIRED",
+        "An active paid membership is required.",
+        "/subscribe"
       );
     }
 
     return continueRequest();
   } catch {
-    console.error("SESSION CHECK ERROR: Session verification failed.");
+    console.error(
+      "MEMBERSHIP CHECK ERROR: Access verification failed."
+    );
 
     return noStore(
-      new NextResponse(
-        "Unable to verify your session. Please try again.",
+      NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Unable to verify your membership. Please try again.",
+        },
         { status: 503 }
       )
     );
