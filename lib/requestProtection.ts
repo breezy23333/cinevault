@@ -2,51 +2,57 @@ import { NextResponse, type NextRequest } from "next/server";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 
-type Policy =
-  | "pages"
-  | "search"
-  | "apiRead"
-  | "apiWrite"
-  | "login"
-  | "signup"
-  | "images";
+// Each limit applies per IP address.
+// Page and verification-submission limits are separate.
+const POLICIES = {
+  pages: { requests: 120, window: "60 s" },
+  search: { requests: 30, window: "60 s" },
+  apiRead: { requests: 120, window: "60 s" },
+  apiWrite: { requests: 30, window: "60 s" },
+  login: { requests: 10, window: "10 m" },
+  signup: { requests: 5, window: "10 m" },
+  images: { requests: 180, window: "60 s" },
+  verificationPage: { requests: 12, window: "60 s" },
+  verificationSubmit: { requests: 6, window: "60 s" },
+} as const;
 
-let limiters: Record<Policy, Ratelimit> | undefined;
+type Policy = keyof typeof POLICIES;
+type BlockStatus = 429 | 503;
 
-function getLimiters() {
-  if (limiters) return limiters;
+const REDIS_TIMEOUT_MS = 3000;
+const UNAVAILABLE_RETRY_SECONDS = 30;
 
-  const redis = Redis.fromEnv();
+// Reuse clients within this server instance.
+// Redis remains the shared source of rate-limit state.
+let redis: Redis | undefined;
+const limiters = new Map<Policy, Ratelimit>();
 
-  function create(
-    policy: Policy,
-    count: number,
-    window: "60 s" | "10 m"
-  ) {
-    return new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(count, window),
-      prefix: `cinryvan:request:v1:${policy}`,
-      analytics: false,
-      ephemeralCache: false,
-      timeout: 3000,
-    });
-  }
+function getLimiter(policy: Policy): Ratelimit {
+  const existing = limiters.get(policy);
+  if (existing) return existing;
 
-  limiters = {
-    pages: create("pages", 120, "60 s"),
-    search: create("search", 30, "60 s"),
-    apiRead: create("apiRead", 120, "60 s"),
-    apiWrite: create("apiWrite", 30, "60 s"),
-    login: create("login", 10, "10 m"),
-    signup: create("signup", 5, "10 m"),
-    images: create("images", 180, "60 s"),
-  };
+  redis ??= Redis.fromEnv();
 
-  return limiters;
+  const settings = POLICIES[policy];
+
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(
+      settings.requests,
+      settings.window
+    ),
+    // Preserve existing production counters.
+    prefix: `cinryvan:request:v1:${policy}`,
+    analytics: false,
+    ephemeralCache: false,
+    timeout: REDIS_TIMEOUT_MS,
+  });
+
+  limiters.set(policy, limiter);
+  return limiter;
 }
 
-function matches(path: string, route: string) {
+function matches(path: string, route: string): boolean {
   return path === route || path.startsWith(`${route}/`);
 }
 
@@ -54,7 +60,19 @@ function selectPolicy(req: NextRequest): Policy {
   const path = req.nextUrl.pathname;
   const isRead = req.method === "GET" || req.method === "HEAD";
 
-  if (matches(path, "/_next/image")) return "images";
+  // Check verification routes before the general page/API rules.
+  // Query strings do not create separate rate-limit buckets.
+  if (matches(path, "/verify-human")) {
+    return "verificationPage";
+  }
+
+  if (matches(path, "/api/verify-human")) {
+    return "verificationSubmit";
+  }
+
+  if (matches(path, "/_next/image")) {
+    return "images";
+  }
 
   if (!isRead && matches(path, "/api/auth/login")) {
     return "login";
@@ -79,95 +97,128 @@ function selectPolicy(req: NextRequest): Policy {
   return isRead ? "pages" : "apiWrite";
 }
 
+function getClientIdentifier(req: NextRequest): string | null {
+  // Only use forwarded IP headers in the existing Vercel deployment.
+  if (process.env.VERCEL === "1") {
+    const ip = req.headers
+      .get("x-forwarded-for")
+      ?.split(",")[0]
+      ?.trim();
+
+    return ip || null;
+  }
+
+  // Local testing deliberately shares one identifier.
+  if (process.env.NODE_ENV === "development") {
+    return "local-development";
+  }
+
+  // Do not silently trust client-supplied headers on other hosts.
+  return null;
+}
+
 function blocked(
   req: NextRequest,
-  status: 429 | 503,
+  status: BlockStatus,
   message: string,
   retryAfter: number
-) {
+): NextResponse {
   const headers = {
     "Cache-Control": "private, no-store",
     "Retry-After": String(retryAfter),
+    "X-Robots-Tag": "noindex, nofollow",
   };
 
   if (matches(req.nextUrl.pathname, "/api")) {
     return NextResponse.json(
-      { ok: false, error: message },
+      {
+        ok: false,
+        code:
+          status === 429
+            ? "RATE_LIMIT_EXCEEDED"
+            : "REQUEST_PROTECTION_UNAVAILABLE",
+        error: message,
+      },
       { status, headers }
     );
   }
 
-  return new NextResponse(message, {
-    status,
-    headers: {
-      ...headers,
-      "Content-Type": "text/plain; charset=utf-8",
-    },
-  });
+  // Return a small response directly, without another redirect.
+  return new NextResponse(
+    req.method === "HEAD" ? null : message,
+    {
+      status,
+      headers: {
+        ...headers,
+        "Content-Type": "text/plain; charset=utf-8",
+      },
+    }
+  );
+}
+
+function unavailable(req: NextRequest): NextResponse {
+  return blocked(
+    req,
+    503,
+    "Request protection is temporarily unavailable. Please retry shortly.",
+    UNAVAILABLE_RETRY_SECONDS
+  );
+}
+
+function getRetryAfter(reset: number): number {
+  if (!Number.isFinite(reset)) {
+    return 60;
+  }
+
+  return Math.max(1, Math.ceil((reset - Date.now()) / 1000));
 }
 
 export async function protectRequest(
   req: NextRequest
 ): Promise<NextResponse | null> {
-  // Contact POST already enforces its own stricter Redis limit.
-  // Avoid charging two Redis checks for the same submission.
+  // Preserve the existing contact handler's own stricter limit.
+  // Only this exact POST endpoint receives the exception.
   if (
     req.method === "POST" &&
-    matches(req.nextUrl.pathname, "/api/contact")
+    req.nextUrl.pathname === "/api/contact"
   ) {
     return null;
   }
 
-  // Only trust forwarded IPs when hosted behind Vercel.
-  // Local development deliberately shares one test identifier.
-  const ip =
-    process.env.VERCEL === "1"
-      ? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-      : process.env.NODE_ENV === "development"
-        ? "local-development"
-        : undefined;
+  const identifier = getClientIdentifier(req);
 
-  if (!ip) {
-    return blocked(
-      req,
-      503,
-      "Unable to verify this request. Please try again shortly.",
-      30
-    );
+  if (!identifier) {
+    return unavailable(req);
   }
 
   try {
     const policy = selectPolicy(req);
-    const result = await getLimiters()[policy].limit(ip);
+    const result = await getLimiter(policy).limit(identifier);
 
+    // Attach a rejection handler even when returning on timeout.
+    // Background bookkeeping must not produce an unhandled rejection.
+    const pending = result.pending.catch(() => undefined);
+
+    // Upstash may report success on timeout. Explicitly reject it.
     if (result.reason === "timeout") {
-      return blocked(
-        req,
-        503,
-        "Request protection is temporarily unavailable. Please retry.",
-        30
-      );
+      return unavailable(req);
     }
 
-    await result.pending;
+    await pending;
 
     if (!result.success) {
       return blocked(
         req,
         429,
         "Too many requests. Please wait before trying again.",
-        Math.max(1, Math.ceil((result.reset - Date.now()) / 1000))
+        getRetryAfter(result.reset)
       );
     }
 
     return null;
   } catch {
-    // Do not expose credentials or raw provider errors.
-    return blocked(
-      req,
-      503,
-      "Request protection is temporarily unavailable. Please retry.",
-      30
-    );
+    // Reject when protection cannot run.
+    // Never expose credentials or raw provider errors.
+    return unavailable(req);
   }
 }
