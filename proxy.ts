@@ -52,8 +52,19 @@ export async function proxy(req: NextRequest) {
 
   // Preserve existing Redis protection, including limits on
   // verification requests.
-  const protectionResponse = await protectRequest(req);
-  if (protectionResponse) return protectionResponse;
+  // These routes run before the human-cookie check.
+  // Preserve their existing rate limits.
+  const needsEarlyRateLimit =
+    path === "/verify-human" ||
+    path === "/api/verify-human" ||
+    path === "/robots.txt" ||
+    path === "/sitemap.xml" ||
+    (path === "/api/paypal/webhook" && req.method === "POST");
+
+  if (needsEarlyRateLimit) {
+    const protectionResponse = await protectRequest(req);
+    if (protectionResponse) return protectionResponse;
+  }
   // PayPal cannot complete browser-based human verification.
   // This exact route verifies PayPal's signature itself.
   if (path === "/api/paypal/webhook" && req.method === "POST") {
@@ -129,6 +140,11 @@ export async function proxy(req: NextRequest) {
     response.headers.set("Referrer-Policy", "no-referrer");
     return response;
   }
+
+  // Only verified visitors reach Redis for content requests.
+  // Unverified visitors have already received a redirect or 403.
+  const protectionResponse = await protectRequest(req);
+  if (protectionResponse) return protectionResponse;
 
   // Preserve existing admin protection after human verification.
   const isAdminPath =
