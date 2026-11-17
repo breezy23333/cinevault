@@ -15,6 +15,9 @@ export async function hasPaidMembership(userId: string) {
       paidThrough: { gt: new Date() },
       payments: {
         some: {
+          provider: `paypal:${environment}`,
+          currency: "USD",
+          amountMinor: 100,
           status: "completed",
         },
       },

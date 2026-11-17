@@ -6,6 +6,7 @@ import MembershipPrice from "@/components/MembershipPrice";
 
 type Props = {
   sandboxEnabled: boolean;
+  checkoutEnabled: boolean;
   checkout: string;
 };
 
@@ -32,13 +33,19 @@ const benefits = [
 
 export default function SubscribeClient({
   sandboxEnabled,
+  checkoutEnabled,
   checkout,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  async function startCheckout() {
-  if (busy || !sandboxEnabled || checkout === "returned") return;
+async function startCheckout() {
+  if (busy || !checkoutEnabled) return;
+
+  if (checkout === "returned") {
+    window.location.reload();
+    return;
+  }
 
   setBusy(true);
   setError("");
@@ -83,7 +90,8 @@ export default function SubscribeClient({
 
     if (
       approvalUrl.protocol !== "https:" ||
-      approvalUrl.hostname !== "www.sandbox.paypal.com" ||
+      approvalUrl.hostname !==
+      (sandboxEnabled ? "www.sandbox.paypal.com" : "www.paypal.com") ||
       approvalUrl.username ||
       approvalUrl.password
     ) {
@@ -220,23 +228,23 @@ export default function SubscribeClient({
                     does not collect real money.
                   </p>
                 </div>
-              ) : (
+              ) : !checkoutEnabled ? (
                 <p
                   role="status"
                   className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-zinc-300"
                 >
                   Checkout is currently unavailable. Please try again later.
                 </p>
-              )}
+              ) : null}
 
               {checkout === "returned" && (
                 <div
                   role="status"
                   className="mt-5 rounded-xl border border-sky-300/20 bg-sky-300/5 p-4 text-sm leading-6 text-sky-200"
                 >
-                  You&apos;ve returned from PayPal. Your payment still
-                  needs to be verified before membership access activates.
-                  Returning here alone does not activate membership.
+                  We&apos;re waiting for confirmation of your payment.
+                  Click “Check payment status” to refresh.
+                  Content access opens only after a completed payment is verified.
                 </div>
               )}
 
@@ -262,19 +270,19 @@ export default function SubscribeClient({
               <button
                 type="button"
                 onClick={startCheckout}
-                disabled={
-                  busy || !sandboxEnabled || checkout === "returned"
-                }
+                disabled={busy || !checkoutEnabled}
                 className="mt-7 flex w-full items-center justify-between gap-3 rounded-xl bg-amber-400 px-5 py-4 text-sm font-bold text-black transition hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span>
                   {busy
                     ? "Opening PayPal..."
-                    : checkout === "returned"
-                      ? "Awaiting payment verification"
-                      : !sandboxEnabled
-                        ? "Checkout unavailable"
-                        : "Continue to PayPal Sandbox"}
+                    : !checkoutEnabled
+                      ? "Checkout unavailable"
+                      : checkout === "returned"
+                        ? "Check payment status"
+                        : sandboxEnabled
+                          ? "Continue to PayPal Sandbox"
+                          : "Subscribe with PayPal — US$1/month"}
                 </span>
                 <span aria-hidden="true">→</span>
               </button>

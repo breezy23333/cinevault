@@ -1,10 +1,10 @@
 import { Buffer } from "node:buffer";
 
-const baseUrl = "https://api-m.sandbox.paypal.com";
+const baseUrl = "https://api-m.paypal.com";
 
 async function main() {
-  if (process.env.PAYPAL_ENV !== "sandbox") {
-    throw new Error('Set PAYPAL_ENV="sandbox" in .env.local first.');
+  if (process.env.PAYPAL_ENV?.trim() !== "live") {
+    throw new Error('Set PAYPAL_ENV="live" in .env.local first.');
   }
 
   const clientId = process.env.PAYPAL_CLIENT_ID?.trim();

@@ -8,8 +8,6 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const PROVIDER = "paypal:sandbox";
-
 const SUBSCRIPTION_EVENTS = new Set([
   "BILLING.SUBSCRIPTION.CREATED",
   "BILLING.SUBSCRIPTION.ACTIVATED",
@@ -103,9 +101,13 @@ function subscriptionStatus(value: unknown): string {
 
 export async function POST(req: Request) {
   try {
-    if (process.env.PAYPAL_ENV !== "sandbox") {
-      return json({ error: "Sandbox webhook is not configured." }, 503);
+    const environment = process.env.PAYPAL_ENV?.trim();
+
+    if (environment !== "sandbox" && environment !== "live") {
+      return json({ error: "PayPal webhook is not configured." }, 503);
     }
+
+    const PROVIDER = `paypal:${environment}`;
 
     const planId = process.env.PAYPAL_PLAN_ID?.trim();
 
