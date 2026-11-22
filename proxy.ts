@@ -263,6 +263,8 @@ export async function proxy(req: NextRequest) {
     );
   }
 
+   let accessStep = "session lookup";
+
   try {
     const user = await getSessionUser();
 
@@ -275,8 +277,6 @@ export async function proxy(req: NextRequest) {
       );
     }
 
-    // Signed-in users must be able to subscribe and manage
-    // their account before purchasing membership.
     const accountPages = new Set([
       "/subscribe",
       "/profile",
@@ -287,14 +287,11 @@ export async function proxy(req: NextRequest) {
       return continueRequest();
     }
 
-    if (
-      path === "/api/paypal/checkout" &&
-      req.method === "POST"
-    ) {
+    if (path === "/api/paypal/checkout" && req.method === "POST") {
       return continueRequest();
     }
 
-    // All remaining matched content pages and APIs require payment.
+    accessStep = "membership lookup";
     const hasMembership = await hasPaidMembership(user.id);
 
     if (!hasMembership) {
@@ -307,17 +304,32 @@ export async function proxy(req: NextRequest) {
     }
 
     return continueRequest();
-  } catch {
-    console.error(
-      "MEMBERSHIP CHECK ERROR: Access verification failed."
-    );
+  } catch (error) {
+    let prismaCode: string | undefined;
+
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      typeof error.code === "string" &&
+      /^P\d{4}$/.test(error.code)
+    ) {
+      prismaCode = error.code;
+    }
+
+    console.error("Access verification failed", {
+      step: accessStep,
+      errorType: error instanceof Error ? error.name : "unknown",
+      prismaCode,
+      invalidPayPalEnvironment:
+        error instanceof Error &&
+        error.message === "Invalid PayPal environment",
+    });
 
     return noStore(
       NextResponse.json(
         {
           ok: false,
-          error:
-            "Unable to verify your membership. Please try again.",
+          error: "Unable to verify your membership. Please try again.",
         },
         { status: 503 }
       )
