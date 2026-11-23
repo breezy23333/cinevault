@@ -1,4 +1,4 @@
-
+"use client";
 
 import Link from "next/link";
 import { useState, type FormEvent, type ReactNode } from "react";
@@ -119,7 +119,11 @@ export default function Footer() {
 
         <section className="grid gap-9 border-b border-white/10 py-9 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1fr] lg:gap-12 lg:py-11">
           <div>
-            <Link href="/" className="inline-flex items-center gap-3">
+            <Link
+              href="/"
+              prefetch={false}
+              className="inline-flex items-center gap-3"
+            >
               <span className="grid h-10 w-10 place-items-center rounded-lg bg-yellow-400 text-black">
                 <Clapperboard className="h-5 w-5" />
               </span>
@@ -155,6 +159,7 @@ export default function Footer() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 className="transition hover:text-yellow-300"
               >
                 {item.label}
@@ -182,6 +187,7 @@ function FooterIcon({
   return (
     <Link
       href={href}
+      prefetch={false}
       aria-label={label}
       className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-white/40 transition hover:border-yellow-400/60 hover:text-yellow-300"
     >
@@ -207,6 +213,7 @@ function FooterColumn({
           <li key={item.href}>
             <Link
               href={item.href}
+              prefetch={false}
               className="group inline-flex items-center gap-2 transition hover:translate-x-1 hover:text-white"
             >
               <span className="h-px w-0 bg-yellow-400 transition-all group-hover:w-3" />
