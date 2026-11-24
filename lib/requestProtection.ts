@@ -156,7 +156,30 @@ function blocked(
   );
 }
 
-function unavailable(req: NextRequest): NextResponse {
+type ProtectionFailure =
+  | "missing_identifier"
+  | "limiter_timeout"
+  | "limiter_exception";
+
+const lastFailureLog = new Map<ProtectionFailure, number>();
+
+function unavailable(
+  req: NextRequest,
+  reason: ProtectionFailure
+): NextResponse {
+  const now = Date.now();
+  const lastLogged = lastFailureLog.get(reason) ?? 0;
+
+  // Log each reason at most once per minute per server instance.
+  if (now - lastLogged >= 60_000) {
+    lastFailureLog.set(reason, now);
+    console.error("Request protection unavailable", {
+      reason,
+      policy: selectPolicy(req),
+      method: req.method,
+    });
+  }
+
   return blocked(
     req,
     503,
@@ -187,8 +210,8 @@ export async function protectRequest(
 
   const identifier = getClientIdentifier(req);
 
-  if (!identifier) {
-    return unavailable(req);
+   if (!identifier) {
+    return unavailable(req, "missing_identifier");
   }
 
   try {
@@ -201,7 +224,7 @@ export async function protectRequest(
 
     // Upstash may report success on timeout. Explicitly reject it.
     if (result.reason === "timeout") {
-      return unavailable(req);
+      return unavailable(req, "limiter_timeout");
     }
 
     await pending;
@@ -219,6 +242,6 @@ export async function protectRequest(
   } catch {
     // Reject when protection cannot run.
     // Never expose credentials or raw provider errors.
-    return unavailable(req);
+    return unavailable(req, "limiter_exception");
   }
 }
