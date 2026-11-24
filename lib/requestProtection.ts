@@ -165,7 +165,8 @@ const lastFailureLog = new Map<ProtectionFailure, number>();
 
 function unavailable(
   req: NextRequest,
-  reason: ProtectionFailure
+  reason: ProtectionFailure,
+  detail?: string
 ): NextResponse {
   const now = Date.now();
   const lastLogged = lastFailureLog.get(reason) ?? 0;
@@ -175,6 +176,7 @@ function unavailable(
     lastFailureLog.set(reason, now);
     console.error("Request protection unavailable", {
       reason,
+      detail,
       policy: selectPolicy(req),
       method: req.method,
     });
@@ -239,9 +241,20 @@ export async function protectRequest(
     }
 
     return null;
-  } catch {
-    // Reject when protection cannot run.
-    // Never expose credentials or raw provider errors.
-    return unavailable(req, "limiter_exception");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    let detail = "unclassified";
+
+    if (/max (monthly )?requests? limit exceeded/i.test(message)) {
+      detail = "command_quota_exceeded";
+    } else if (
+      /unauthorized|wrongpass|invalid token|noperm|read.?only/i.test(message)
+    ) {
+      detail = "credentials_or_permissions";
+    } else if (/fetch failed|enotfound|econnreset|etimedout/i.test(message)) {
+      detail = "connection_error";
+    }
+
+    return unavailable(req, "limiter_exception", detail);
   }
 }
